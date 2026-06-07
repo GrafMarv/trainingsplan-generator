@@ -26,4 +26,14 @@ WICHTIG für group:
       })
     });
     const data = await response.json();
-    console.log('API Response:
+    console.log('API Response:', JSON.stringify(data));
+    if (!data.content || !data.content[0]) {
+      return res.status(500).json({ error: JSON.stringify(data) });
+    }
+    const text = data.content[0].text;
+    const clean = text.replace(/```json|```/g, '').trim();
+    res.status(200).json({ plan: JSON.parse(clean) });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+}
