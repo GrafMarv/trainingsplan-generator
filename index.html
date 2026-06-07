@@ -28,12 +28,27 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
 .plan-wrapper { display: none; margin-top: 32px; }
 .plan-actions { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; }
 .plan-actions span { font-size: 13px; color: #666; }
-.a4 { width: 794px; height: 1123px; background: #fff; padding: 28px 32px; border: 1px solid #ccc; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+
+/* A4 Seite */
+.a4 {
+  width: 794px;
+  height: 1123px;
+  background: #fff;
+  padding: 28px 32px;
+  border: 1px solid #ccc;
+  margin: 0 auto 24px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  page-break-after: always;
+}
 .plan-header { flex-shrink: 0; border: 1px solid #bbb; border-radius: 4px; padding: 10px 16px; height: 48px; display: flex; align-items: center; }
 .plan-header-title { font-size: 16px; font-weight: 600; }
 .plan-header-sub { font-size: 12px; color: #777; margin-left: auto; }
 .plan-footer { flex-shrink: 0; border: 1px solid #bbb; border-radius: 4px; padding: 10px 16px; height: 36px; display: flex; align-items: center; font-size: 12px; color: #888; }
 .exercises-container { flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+
+/* Übungszeile */
 .exercise-row { flex: 1; display: grid; grid-template-columns: 6px 1fr 1fr; gap: 0 10px; min-height: 0; }
 .ex-sidebar { border-radius: 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .ex-sidebar.no-group { background: #e8e8e8; }
@@ -41,16 +56,18 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
 .ex-img-box { border: 1px solid #bbb; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa; min-height: 0; }
 .ex-img-box img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
 .ex-img-box .no-img { font-size: 12px; color: #bbb; text-align: center; padding: 8px; }
-.ex-info-box { border: 1px solid #bbb; border-radius: 4px; padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; gap: 6px; min-height: 0; overflow: hidden; position: relative; }
+.ex-info-box { border: 1px solid #bbb; border-radius: 4px; padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 0; overflow: hidden; position: relative; }
 .ex-info-box .group-tag { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 4px 4px 0 0; }
-.ex-group-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.ex-group-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; }
 .ex-name-row { display: flex; align-items: center; gap: 8px; }
-.ex-name { font-size: 15px; font-weight: 600; }
-.ex-metric { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; }
+.ex-name { font-size: 14px; font-weight: 600; }
+.ex-metric { display: flex; align-items: baseline; gap: 6px; font-size: 18px; font-weight: 700; }
 .ex-metric-label { font-size: 11px; color: #777; font-weight: 400; }
-.ex-sets-row { display: flex; gap: 6px; flex-wrap: wrap; }
-.set-bubble { width: 26px; height: 26px; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; flex-shrink: 0; }
-.ex-note { font-size: 11px; color: #888; font-style: italic; }
+.ex-sets-label { font-size: 11px; color: #555; }
+.ex-sets-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.set-bubble { width: 22px; height: 22px; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; flex-shrink: 0; }
+.ex-note { font-size: 10px; color: #888; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 @media print {
   body { background: #fff; }
   .ui > *:not(.plan-wrapper) { display: none; }
@@ -64,7 +81,7 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
 <body>
 <div class="ui">
   <h1>Trainingsplan Generator</h1>
-  <p class="subtitle">Beschreibe deinen Trainingsplan in einem Satz – die KI erstellt ihn automatisch.</p>
+  <p class="subtitle">Beschreibe deinen Trainingsplan – die KI erstellt ihn automatisch. Max. 7 Übungen pro Seite.</p>
 
   <div class="input-section">
     <label class="section-label">Trainingsplan beschreiben</label>
@@ -83,20 +100,14 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
       <button class="btn-secondary" onclick="resetPlan()">&#8635; Neu generieren</button>
       <span>Im Druckdialog "Als PDF speichern" w&auml;hlen</span>
     </div>
-    <div class="a4" id="a4">
-      <div class="plan-header">
-        <span class="plan-header-title" id="out-title"></span>
-        <span class="plan-header-sub" id="out-date"></span>
-      </div>
-      <div class="exercises-container" id="out-exercises"></div>
-      <div class="plan-footer" id="out-footer"></div>
-    </div>
+    <div id="pages-container"></div>
   </div>
 </div>
 
 <script>
 const GITHUB_RAW = 'https://raw.githubusercontent.com/GrafMarv/trainingsplan-generator/main/exercises/';
 const GROUP_COLORS = {A:'#2563EB',B:'#EA580C',C:'#16A34A',D:'#9333EA',E:'#DB2777',F:'#0891B2','-':'#d0d0d0'};
+const MAX_PER_PAGE = 7;
 
 const EXERCISES = [
   'air-squat_strength_lower_push_dyn_bi',
@@ -166,7 +177,8 @@ async function generateWithAI() {
 
     if (!response.ok) throw new Error('API Fehler');
     const data = await response.json();
-    
+    if (data.error) throw new Error(data.error);
+
     status.style.display = 'none';
     renderPlan(data.plan);
   } catch(e) {
@@ -186,74 +198,107 @@ function resetPlan() {
 function buildGroupCounters(exercises) {
   const counters = {};
   return exercises.map(ex => {
-    if (!ex.group || ex.group === '-') return null;
-    counters[ex.group] = (counters[ex.group] || 0) + 1;
-    return counters[ex.group];
+    const g = ex.group || '-';
+    if (g === '-') return null;
+    counters[g] = (counters[g] || 0) + 1;
+    return counters[g];
   });
 }
 
 function renderPlan(exercises) {
-  document.getElementById('out-title').textContent = document.getElementById('plan-name').value || 'Trainingsplan';
-  document.getElementById('out-date').textContent = new Date().toLocaleDateString('de-DE', {day:'2-digit',month:'long',year:'numeric'});
-  document.getElementById('out-footer').textContent = document.getElementById('plan-footer').value;
-
-  const container = document.getElementById('out-exercises');
-  container.innerHTML = '';
+  const title = document.getElementById('plan-name').value || 'Trainingsplan';
+  const footer = document.getElementById('plan-footer').value;
+  const date = new Date().toLocaleDateString('de-DE', {day:'2-digit', month:'long', year:'numeric'});
   const groupPositions = buildGroupCounters(exercises);
+  const container = document.getElementById('pages-container');
+  container.innerHTML = '';
 
-  exercises.forEach((ex, idx) => {
-    const group = ex.group || '-';
-    const color = GROUP_COLORS[group] || '#d0d0d0';
-    const hasGroup = group !== '-';
-    const pos = groupPositions[idx];
-    const badgeLabel = hasGroup ? group + pos : '';
-    const metricLabel = ex.type === 'time' ? 'Sek.' : 'Wdh.';
-    const imgSrc = ex.imageKey ? GITHUB_RAW + ex.imageKey + '.png' : null;
+  // Aufteilen in Seiten mit max 7 Übungen
+  const pages = [];
+  for (let i = 0; i < exercises.length; i += MAX_PER_PAGE) {
+    pages.push(exercises.slice(i, i + MAX_PER_PAGE));
+  }
 
-    const row = document.createElement('div');
-    row.className = 'exercise-row';
+  pages.forEach((pageExercises, pageIdx) => {
+    const a4 = document.createElement('div');
+    a4.className = 'a4';
 
-    const sidebar = document.createElement('div');
-    sidebar.className = 'ex-sidebar' + (hasGroup ? '' : ' no-group');
-    sidebar.style.background = color;
-    if (hasGroup) sidebar.innerHTML = `<span class="group-label">${group}</span>`;
+    // Header
+    const header = document.createElement('div');
+    header.className = 'plan-header';
+    const pageLabel = pages.length > 1 ? ` (Seite ${pageIdx + 1}/${pages.length})` : '';
+    header.innerHTML = `<span class="plan-header-title">${title}${pageLabel}</span><span class="plan-header-sub">${date}</span>`;
+    a4.appendChild(header);
 
-    const imgBox = document.createElement('div');
-    imgBox.className = 'ex-img-box';
-    imgBox.style.borderLeft = hasGroup ? `3px solid ${color}` : '1px solid #bbb';
-    if (imgSrc) {
-      const img = document.createElement('img');
-      img.src = imgSrc;
-      img.alt = ex.exercise;
-      img.onerror = () => { imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`; };
-      imgBox.appendChild(img);
-    } else {
-      imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`;
-    }
+    // Übungen
+    const exContainer = document.createElement('div');
+    exContainer.className = 'exercises-container';
 
-    const infoBox = document.createElement('div');
-    infoBox.className = 'ex-info-box';
-    infoBox.style.borderLeft = hasGroup ? `3px solid ${color}` : '1px solid #bbb';
-    const setsHtml = Array.from({length: ex.sets}, (_,i) => `<div class="set-bubble">${i+1}</div>`).join('');
-    infoBox.innerHTML = `
-      ${hasGroup ? `<div class="group-tag" style="background:${color}"></div>` : ''}
-      <div class="ex-name-row">
-        ${hasGroup ? `<div class="ex-group-badge" style="background:${color}">${badgeLabel}</div>` : ''}
-        <div class="ex-name">${ex.exercise}</div>
-      </div>
-      <div class="ex-metric">
-        <span>${ex.reps}</span>
-        <span class="ex-metric-label">${metricLabel}</span>
-      </div>
-      <div style="font-size:12px;color:#555;"><strong>${ex.sets}</strong> S&auml;tze</div>
-      <div class="ex-sets-row">${setsHtml}</div>
-      ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
-    `;
+    pageExercises.forEach((ex, localIdx) => {
+      const globalIdx = pageIdx * MAX_PER_PAGE + localIdx;
+      const group = ex.group || '-';
+      const color = GROUP_COLORS[group] || '#d0d0d0';
+      const hasGroup = group !== '-';
+      const pos = groupPositions[globalIdx];
+      const badgeLabel = hasGroup ? group + pos : '';
+      const metricLabel = ex.type === 'time' ? 'Sek.' : 'Wdh.';
+      const imgSrc = ex.imageKey ? GITHUB_RAW + ex.imageKey + '.png' : null;
 
-    row.appendChild(sidebar);
-    row.appendChild(imgBox);
-    row.appendChild(infoBox);
-    container.appendChild(row);
+      const row = document.createElement('div');
+      row.className = 'exercise-row';
+
+      const sidebar = document.createElement('div');
+      sidebar.className = 'ex-sidebar' + (hasGroup ? '' : ' no-group');
+      sidebar.style.background = color;
+      if (hasGroup) sidebar.innerHTML = `<span class="group-label">${group}</span>`;
+
+      const imgBox = document.createElement('div');
+      imgBox.className = 'ex-img-box';
+      imgBox.style.borderLeft = hasGroup ? `3px solid ${color}` : '1px solid #bbb';
+      if (imgSrc) {
+        const img = document.createElement('img');
+        img.src = imgSrc;
+        img.alt = ex.exercise;
+        img.onerror = () => { imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`; };
+        imgBox.appendChild(img);
+      } else {
+        imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`;
+      }
+
+      const infoBox = document.createElement('div');
+      infoBox.className = 'ex-info-box';
+      infoBox.style.borderLeft = hasGroup ? `3px solid ${color}` : '1px solid #bbb';
+      const setsHtml = Array.from({length: ex.sets}, (_,i) => `<div class="set-bubble">${i+1}</div>`).join('');
+      infoBox.innerHTML = `
+        ${hasGroup ? `<div class="group-tag" style="background:${color}"></div>` : ''}
+        <div class="ex-name-row">
+          ${hasGroup ? `<div class="ex-group-badge" style="background:${color}">${badgeLabel}</div>` : ''}
+          <div class="ex-name">${ex.exercise}</div>
+        </div>
+        <div class="ex-metric">
+          <span>${ex.reps}</span>
+          <span class="ex-metric-label">${metricLabel}</span>
+        </div>
+        <div class="ex-sets-label"><strong>${ex.sets}</strong> S&auml;tze</div>
+        <div class="ex-sets-row">${setsHtml}</div>
+        ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
+      `;
+
+      row.appendChild(sidebar);
+      row.appendChild(imgBox);
+      row.appendChild(infoBox);
+      exContainer.appendChild(row);
+    });
+
+    a4.appendChild(exContainer);
+
+    // Footer
+    const footerEl = document.createElement('div');
+    footerEl.className = 'plan-footer';
+    footerEl.textContent = footer;
+    a4.appendChild(footerEl);
+
+    container.appendChild(a4);
   });
 
   document.getElementById('plan-wrapper').style.display = 'block';
