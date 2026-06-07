@@ -31,10 +31,8 @@ textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
 .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
 .status-box { background: #f0f4ff; border: 1px solid #c0d0ff; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #333; margin-top: 8px; display: none; }
 .status-box.error { background: #fff0f0; border-color: #ffc0c0; color: #c00; }
-.block-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #fff; padding: 3px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
-.block-warmup { background: #f97316; }
-.block-main { background: #1a1a1a; }
-.block-cooldown { background: #0891b2; }
+
+/* A4 */
 .plan-wrapper { display: none; margin-top: 32px; }
 .plan-actions { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
 .plan-actions span { font-size: 13px; color: #666; }
@@ -43,8 +41,9 @@ textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
 .plan-header-title { font-size: 16px; font-weight: 600; }
 .plan-header-sub { font-size: 12px; color: #777; margin-left: auto; }
 .plan-footer { flex-shrink: 0; border: 1px solid #bbb; border-radius: 4px; padding: 10px 16px; height: 36px; display: flex; align-items: center; font-size: 12px; color: #888; }
-.block-section { display: flex; flex-direction: column; gap: 6px; }
-.block-header { display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 4px; margin-bottom: 2px; }
+
+/* Block Headers */
+.block-header { display: flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 4px; margin: 4px 0 2px 0; }
 .block-header.warmup { background: #fff5ee; border-left: 3px solid #f97316; }
 .block-header.main { background: #f5f5f5; border-left: 3px solid #1a1a1a; }
 .block-header.cooldown { background: #f0f9ff; border-left: 3px solid #0891b2; }
@@ -52,27 +51,31 @@ textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
 .block-header.warmup .block-header-label { color: #f97316; }
 .block-header.main .block-header-label { color: #1a1a1a; }
 .block-header.cooldown .block-header-label { color: #0891b2; }
-.exercises-container { display: flex; flex-direction: column; gap: 6px; }
-.exercise-row { display: grid; grid-template-columns: 6px 1fr 1fr; gap: 0 8px; height: 120px; }
-.exercise-row.compact { height: 90px; }
+
+/* Übungszeilen */
+.exercises-container { display: flex; flex-direction: column; gap: 7px; }
+.exercise-row { display: grid; grid-template-columns: 6px 1fr 1.2fr; gap: 0 10px; height: 130px; }
+.exercise-row.compact { height: 95px; }
 .ex-sidebar { border-radius: 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .ex-sidebar.no-group { background: #e8e8e8; }
 .ex-sidebar .group-label { writing-mode: vertical-rl; text-orientation: mixed; font-size: 10px; font-weight: 700; color: #fff; letter-spacing: 0.05em; transform: rotate(180deg); }
 .ex-img-box { border: 1px solid #bbb; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa; }
 .ex-img-box img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
 .ex-img-box .no-img { font-size: 11px; color: #bbb; text-align: center; padding: 8px; }
-.ex-info-box { border: 1px solid #bbb; border-radius: 4px; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; gap: 3px; overflow: hidden; position: relative; }
+.ex-info-box { border: 1px solid #bbb; border-radius: 4px; padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; gap: 5px; overflow: hidden; position: relative; }
 .ex-info-box .group-tag { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 4px 4px 0 0; }
-.ex-group-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; font-size: 9px; font-weight: 700; color: #fff; flex-shrink: 0; }
-.ex-name-row { display: flex; align-items: center; gap: 6px; }
-.ex-name { font-size: 13px; font-weight: 600; }
-.ex-details { display: flex; gap: 12px; align-items: baseline; }
-.ex-metric { font-size: 16px; font-weight: 700; }
-.ex-metric-label { font-size: 10px; color: #777; }
-.ex-meta { font-size: 10px; color: #555; }
+.ex-group-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.ex-name-row { display: flex; align-items: center; gap: 8px; }
+.ex-name { font-size: 14px; font-weight: 600; line-height: 1.2; }
+.ex-metric-row { display: flex; align-items: baseline; gap: 6px; }
+.ex-reps { font-size: 20px; font-weight: 700; }
+.ex-reps-label { font-size: 11px; color: #777; }
+.ex-sets-text { font-size: 11px; color: #555; }
 .ex-sets-row { display: flex; gap: 4px; flex-wrap: wrap; }
-.set-bubble { width: 20px; height: 20px; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #888; flex-shrink: 0; }
-.ex-note { font-size: 10px; color: #888; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-bubble { width: 22px; height: 22px; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; flex-shrink: 0; }
+.ex-note { font-size: 10px; color: #888; font-style: italic; }
+
+/* Umbenenner */
 .drop-zone-rename { border: 2px dashed #d0d0d0; border-radius: 10px; padding: 40px; text-align: center; cursor: pointer; color: #888; font-size: 14px; margin-bottom: 16px; transition: all 0.2s; }
 .drop-zone-rename:hover, .drop-zone-rename.drag-over { border-color: #1a1a1a; color: #1a1a1a; background: #f0f0f0; }
 .rename-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -90,6 +93,7 @@ textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
 .progress-bar { height: 4px; background: #e0e0e0; border-radius: 2px; margin-bottom: 16px; display: none; }
 .progress-fill { height: 100%; background: #1a1a1a; border-radius: 2px; transition: width 0.3s; width: 0%; }
 .rename-actions { display: flex; gap: 12px; }
+
 @media print {
   body { background: #fff; }
   .tabs, .plan-actions, #page-umbenenner { display: none !important; }
@@ -116,17 +120,14 @@ textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
     <label class="section-label">🔥 Warm-up <span style="font-weight:400;color:#aaa;">(optional)</span></label>
     <textarea id="warmup-input" placeholder="z.B. World Greatest Stretch 2x, Cat-Cow 10 Wdh., Hip Flexor Stretch 30 Sek."></textarea>
   </div>
-
   <div class="input-section">
     <label class="section-label">💪 Hauptblock</label>
-    <textarea id="main-input" placeholder="z.B. 4 Sätze Pull-up Superset mit Tripod Row, dann 3x10 Split Squat, zum Schluss 3x12 Incline Press"></textarea>
+    <textarea id="main-input" placeholder="z.B. 4 Sätze Pull-up Superset mit Tripod Row, dann 3x10 Split Squat, 3x12 Incline Press"></textarea>
   </div>
-
   <div class="input-section">
     <label class="section-label">❄️ Cool-down <span style="font-weight:400;color:#aaa;">(optional)</span></label>
     <textarea id="cooldown-input" placeholder="z.B. Couch Stretch 60 Sek., Pigeon Pose, Thoracic Rotation Stretch"></textarea>
   </div>
-
   <div class="input-section">
     <div class="row">
       <div><label>Planname</label><input type="text" id="plan-name" value="Krafttraining A"></div>
@@ -181,78 +182,12 @@ const GITHUB_RAW = 'https://raw.githubusercontent.com/GrafMarv/trainingsplan-gen
 const GROUP_COLORS = {A:'#2563EB',B:'#EA580C',C:'#16A34A',D:'#9333EA',E:'#DB2777',F:'#0891B2','-':'#d0d0d0'};
 const MAX_PER_PAGE = 7;
 
-const EXERCISES = [
-  'air-squat_strength_lower_push_dyn_bi',
-  'australian-pull-up_strength_upper_pull_dyn_bi',
-  'back-squat-barbell_strength_lower_push_dyn_bi',
-  'barbell-hip-thrust_strength_lower_pull_dyn_bi',
-  'bench-press-barbell_strength_upper_push_dyn_bi',
-  'bird-dog_strength_upper_core_dyn_bi',
-  'bulgarian-split-squat-kettlebell_strength_lower_push_dyn_uni',
-  'calf-raise_strength_lower_push_sta_bi',
-  'cat-cow_mobility_full_body_dyn',
-  'chin-up_strength_upper_pull_dyn_bi',
-  'copenhagen-plank_strength_lower_adduction_sta_uni',
-  'couch-stretch_mobility_lower_sta',
-  'counter-movement-jump_jump_vertical_jump',
-  'dead-bug_strength_upper_core_dyn_bi',
-  'deep-squat-hold_mobility_lower_sta',
-  'downward-dog-to-cobra_mobility_full_body_dyn',
-  'drop-jump_jump_vertical_jump',
-  'einbeiniges-kreuzheben-kettlebell_strength_lower_pull_dyn_uni',
-  'frog-stretch_mobility_lower_sta',
-  'glute-bridge_strength_lower_pull_sta_bi',
-  'goblet-squat-kettlebell_strength_lower_push_dyn_bi',
-  'hamstring-stretch-mit-band_mobility_lower_sta',
-  'hamstring-walkout_strength_lower_pull_dyn_bi',
-  'hand-walk_mobility_full_body_dyn',
-  'high-knees_sprint_acceleration_dyn',
-  'hip-flexor-stretch_mobility_lower_sta',
-  'hollow-body-hold_strength_upper_core_sta_bi',
-  'incline-dumbbell-press_strength_upper_push_dyn_bi',
-  'kneeling-medicine-ball-chest-pass_strength_upper_push_dyn_bi',
-  'landmine-press-half-kneeling_strength_upper_push_dyn_uni',
-  'landmine-press-standing_strength_upper_push_dyn_bi',
-  'lat-pulldown_strength_upper_pull_dyn_bi',
-  'medicine-ball-chest-pass_strength_upper_push_dyn_bi',
-  'medicine-ball-throw_strength_upper_push_dyn_bi',
-  'nordic-curl_strength_lower_pull_dyn_bi',
-  'pallof-press-band_strength_upper_core_dyn_bi',
-  'pigeon-pose_mobility_lower_sta',
-  'pigeon-stretch_mobility_lower_sta',
-  'plank_strength_upper_core_sta_bi',
-  'pogo-jump_jump_vertical_jump',
-  'pull-up_strength_upper_pull_dyn_bi',
-  'push-up_strength_upper_push_dyn_bi',
-  'reverse-crunch_strength_upper_core_dyn_bi',
-  'reverse-plank_strength_upper_core_sta_bi',
-  'seated-dumbbell-shoulder-press_strength_upper_push_dyn_bi',
-  'side-plank_strength_upper_core_sta_uni',
-  'single-leg-bound_jump_horizontal_jump',
-  'single-leg-box-squat_strength_lower_push_dyn_uni',
-  'single-leg-calf-raise_strength_lower_push_sta_uni',
-  'single-leg-deadlift_strength_lower_pull_dyn_uni',
-  'single-leg-glute-bridge_strength_lower_pull_sta_uni',
-  'split-squat-barbell_strength_lower_push_dyn_uni',
-  'sprint-lauf_sprint_acceleration_dyn',
-  'sprint-start_sprint_acceleration_dyn',
-  'squat-jump_jump_vertical_jump',
-  'standing-forward-fold_mobility_lower_sta',
-  'standing-long-jump_jump_horizontal_jump',
-  'superman-swimmer_strength_upper_core_dyn_bi',
-  'thoracic-rotation-stretch_mobility_full_body_dyn',
-  'thread-the-needle_mobility_upper_sta',
-  'tripod-row-kettlebell_strength_upper_pull_dyn_uni',
-  'wall-sit_strength_lower_push_sta_bi',
-  'world-greatest-stretch_mobility_full_body_dyn',
-  'y-raise_strength_upper_pull_dyn_bi'
-];
+const EXERCISES = ['air-squat_strength_lower_push_dyn_bi','australian-pull-up_strength_upper_pull_dyn_bi','back-squat-barbell_strength_lower_push_dyn_bi','barbell-hip-thrust_strength_lower_pull_dyn_bi','bench-press-barbell_strength_upper_push_dyn_bi','bird-dog_strength_upper_core_dyn_bi','bulgarian-split-squat-kettlebell_strength_lower_push_dyn_uni','calf-raise_strength_lower_push_sta_bi','cat-cow_mobility_full_body_dyn','chin-up_strength_upper_pull_dyn_bi','copenhagen-plank_strength_lower_adduction_sta_uni','couch-stretch_mobility_lower_sta','counter-movement-jump_jump_vertical_jump','dead-bug_strength_upper_core_dyn_bi','deep-squat-hold_mobility_lower_sta','downward-dog-to-cobra_mobility_full_body_dyn','drop-jump_jump_vertical_jump','einbeiniges-kreuzheben-kettlebell_strength_lower_pull_dyn_uni','frog-stretch_mobility_lower_sta','glute-bridge_strength_lower_pull_sta_bi','goblet-squat-kettlebell_strength_lower_push_dyn_bi','hamstring-stretch-mit-band_mobility_lower_sta','hamstring-walkout_strength_lower_pull_dyn_bi','hand-walk_mobility_full_body_dyn','high-knees_sprint_acceleration_dyn','hip-flexor-stretch_mobility_lower_sta','hollow-body-hold_strength_upper_core_sta_bi','incline-dumbbell-press_strength_upper_push_dyn_bi','kneeling-medicine-ball-chest-pass_strength_upper_push_dyn_bi','landmine-press-half-kneeling_strength_upper_push_dyn_uni','landmine-press-standing_strength_upper_push_dyn_bi','lat-pulldown_strength_upper_pull_dyn_bi','medicine-ball-chest-pass_strength_upper_push_dyn_bi','medicine-ball-throw_strength_upper_push_dyn_bi','nordic-curl_strength_lower_pull_dyn_bi','pallof-press-band_strength_upper_core_dyn_bi','pigeon-pose_mobility_lower_sta','pigeon-stretch_mobility_lower_sta','plank_strength_upper_core_sta_bi','pogo-jump_jump_vertical_jump','pull-up_strength_upper_pull_dyn_bi','push-up_strength_upper_push_dyn_bi','reverse-crunch_strength_upper_core_dyn_bi','reverse-plank_strength_upper_core_sta_bi','seated-dumbbell-shoulder-press_strength_upper_push_dyn_bi','side-plank_strength_upper_core_sta_uni','single-leg-bound_jump_horizontal_jump','single-leg-box-squat_strength_lower_push_dyn_uni','single-leg-calf-raise_strength_lower_push_sta_uni','single-leg-deadlift_strength_lower_pull_dyn_uni','single-leg-glute-bridge_strength_lower_pull_sta_uni','split-squat-barbell_strength_lower_push_dyn_uni','sprint-lauf_sprint_acceleration_dyn','sprint-start_sprint_acceleration_dyn','squat-jump_jump_vertical_jump','standing-forward-fold_mobility_lower_sta','standing-long-jump_jump_horizontal_jump','superman-swimmer_strength_upper_core_dyn_bi','thoracic-rotation-stretch_mobility_full_body_dyn','thread-the-needle_mobility_upper_sta','tripod-row-kettlebell_strength_upper_pull_dyn_uni','wall-sit_strength_lower_push_sta_bi','world-greatest-stretch_mobility_full_body_dyn','y-raise_strength_upper_pull_dyn_bi'];
 
 async function generateWithAI() {
   const warmup = document.getElementById('warmup-input').value.trim();
   const main = document.getElementById('main-input').value.trim();
   const cooldown = document.getElementById('cooldown-input').value.trim();
-
   if (!main) { alert('Bitte mindestens den Hauptblock beschreiben!'); return; }
 
   const btn = document.getElementById('generate-btn');
@@ -261,7 +196,6 @@ async function generateWithAI() {
   btn.textContent = 'KI generiert deinen Plan...';
   status.style.display = 'block';
   status.className = 'status-box';
-  status.textContent = 'KI analysiert deine Eingabe...';
   document.getElementById('plan-wrapper').style.display = 'none';
 
   const blocks = [];
@@ -289,7 +223,6 @@ async function generateWithAI() {
     status.className = 'status-box error';
     status.textContent = 'Fehler: ' + e.message;
   }
-
   btn.disabled = false;
   btn.textContent = '✨ Trainingsplan generieren';
 }
@@ -315,17 +248,13 @@ function renderPlan(blocks) {
   const container = document.getElementById('pages-container');
   container.innerHTML = '';
 
-  // Alle Übungen flach mit Block-Info
   const allExercises = [];
   blocks.forEach(block => {
     block.exercises.forEach(ex => allExercises.push({ ...ex, blockType: block.type, blockLabel: block.label }));
   });
 
-  // Seiten aufteilen – max 7 pro Seite
   const pages = [];
-  for (let i = 0; i < allExercises.length; i += MAX_PER_PAGE) {
-    pages.push(allExercises.slice(i, i + MAX_PER_PAGE));
-  }
+  for (let i = 0; i < allExercises.length; i += MAX_PER_PAGE) pages.push(allExercises.slice(i, i + MAX_PER_PAGE));
 
   const groupPositions = buildGroupCounters(allExercises);
 
@@ -333,14 +262,12 @@ function renderPlan(blocks) {
     const a4 = document.createElement('div');
     a4.className = 'a4';
 
-    // Header
     const header = document.createElement('div');
     header.className = 'plan-header';
     const pageLabel = pages.length > 1 ? ` (Seite ${pageIdx+1}/${pages.length})` : '';
     header.innerHTML = `<span class="plan-header-title">${title}${pageLabel}</span><span class="plan-header-sub">${date}</span>`;
     a4.appendChild(header);
 
-    // Übungen gruppiert nach Block
     const exContainer = document.createElement('div');
     exContainer.className = 'exercises-container';
 
@@ -349,7 +276,6 @@ function renderPlan(blocks) {
     pageExercises.forEach((ex, localIdx) => {
       const globalIdx = pageIdx * MAX_PER_PAGE + localIdx;
 
-      // Block-Header wenn Block wechselt
       if (ex.blockType !== lastBlock) {
         const bh = document.createElement('div');
         bh.className = `block-header ${ex.blockType}`;
@@ -366,14 +292,14 @@ function renderPlan(blocks) {
       const badgeLabel = hasGroup ? group + pos : '';
       const metricLabel = ex.type === 'time' ? 'Sek.' : 'Wdh.';
       const imgSrc = ex.imageKey ? GITHUB_RAW + ex.imageKey + '.png' : null;
-      const isCompact = ex.blockType === 'warmup' || ex.blockType === 'cooldown';
+      const isCompact = ex.blockType !== 'main';
 
       const row = document.createElement('div');
       row.className = 'exercise-row' + (isCompact ? ' compact' : '');
 
       const sidebar = document.createElement('div');
       sidebar.className = 'ex-sidebar' + (hasGroup ? '' : ' no-group');
-      sidebar.style.background = color;
+      sidebar.style.background = hasGroup ? color : '#e8e8e8';
       if (hasGroup) sidebar.innerHTML = `<span class="group-label">${group}</span>`;
 
       const imgBox = document.createElement('div');
@@ -399,10 +325,10 @@ function renderPlan(blocks) {
           ${hasGroup ? `<div class="ex-group-badge" style="background:${color}">${badgeLabel}</div>` : ''}
           <div class="ex-name">${ex.exercise}</div>
         </div>
-        <div class="ex-details">
-          <span class="ex-metric">${ex.reps}</span>
-          <span class="ex-metric-label">${metricLabel}</span>
-          <span class="ex-meta">${ex.sets} Sätze</span>
+        <div class="ex-metric-row">
+          <span class="ex-reps">${ex.reps}</span>
+          <span class="ex-reps-label">${metricLabel}</span>
+          <span class="ex-sets-text">&nbsp;·&nbsp; ${ex.sets} Sätze</span>
         </div>
         <div class="ex-sets-row">${setsHtml}</div>
         ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
@@ -415,12 +341,10 @@ function renderPlan(blocks) {
     });
 
     a4.appendChild(exContainer);
-
     const footerEl = document.createElement('div');
     footerEl.className = 'plan-footer';
     footerEl.textContent = footer;
     a4.appendChild(footerEl);
-
     container.appendChild(a4);
   });
 
@@ -428,10 +352,9 @@ function renderPlan(blocks) {
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
 }
 
-// ===== UMBENENNER =====
+// UMBENENNER
 let renameFiles = [];
 let renameResults = {};
-
 const dropZoneRename = document.getElementById('drop-zone-rename');
 const renameFileInput = document.getElementById('rename-file-input');
 const renameGrid = document.getElementById('rename-grid');
@@ -459,13 +382,7 @@ function renderRenameCard({ id, file, status, name }) {
   card.id = 'rcard-' + id;
   const f = renameFiles.find(f => f.id === id);
   const statusText = status === 'done' ? '✓ Fertig' : status === 'error' ? '✗ Fehler' : status === 'processing' ? '⟳ Analysiere...' : '◷ Wartend';
-  card.innerHTML = `
-    <img src="${f.url}" alt="">
-    <div class="rename-card-body">
-      <div class="rename-status">${statusText}</div>
-      <div class="rename-name">${name || file.name}</div>
-    </div>
-  `;
+  card.innerHTML = `<img src="${f.url}" alt=""><div class="rename-card-body"><div class="rename-status">${statusText}</div><div class="rename-name">${name || file.name}</div></div>`;
   renameGrid.appendChild(card);
 }
 
