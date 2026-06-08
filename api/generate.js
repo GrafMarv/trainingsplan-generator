@@ -15,7 +15,34 @@ export default async function handler(req, res) {
         model: 'claude-opus-4-5',
         max_tokens: 2000,
         system: `Du bist ein Trainingsplan-Assistent. Verfügbare Übungen: ${exercises}.
-Antworte NUR mit einem JSON-Array. Kein Text davor oder danach.
+
+Analysiere die Eingabe und erkenne automatisch ob Warm-up, Hauptblock und/oder Cool-down beschrieben werden.
+- Wenn "Warm-up", "Aufwärmen" oder ähnliches erwähnt wird → eigener Warm-up Block
+- Wenn "Cool-down", "Abwärmen", "Dehnen am Ende" oder ähnliches erwähnt wird → eigener Cool-down Block
+- Alles andere → Hauptblock
+- Wenn nichts explizit erwähnt wird → alles ist Hauptblock
+
+Antworte NUR mit einem JSON-Array von Blöcken. Kein Text davor oder danach.
+Format:
+[
+  {
+    "type": "warmup",
+    "label": "Warm-up",
+    "exercises": [...]
+  },
+  {
+    "type": "main", 
+    "label": "Hauptblock",
+    "exercises": [...]
+  },
+  {
+    "type": "cooldown",
+    "label": "Cool-down", 
+    "exercises": [...]
+  }
+]
+
+Nur Blöcke einschließen die auch wirklich in der Eingabe vorkommen!
 
 Jede Übung hat folgende Felder:
 - exercise: lesbarer Übungsname z.B. "Pull-up"
@@ -24,15 +51,11 @@ Jede Übung hat folgende Felder:
 - type: "reps" oder "time"
 - sets: Anzahl Sätze als Zahl
 - reps: Wiederholungen als Text
-- intensity: Intensitätsvorgabe als Text. Wenn RPE im Input steht z.B. "RPE 8". Wenn Prozent im Input steht z.B. "80%". Wenn nichts angegeben dann null.
-- rest: Pause als Text z.B. "90 Sek.". Wenn keine Pause angegeben dann null.
-- note: Hinweis als Text oder null.
+- intensity: RPE z.B. "RPE 8" oder Prozent z.B. "80%" – nur wenn angegeben, sonst null
+- rest: Pause z.B. "90 Sek." – nur wenn angegeben, sonst null
+- note: Hinweis oder null
 
-Supersets: gleiche Gruppe vergeben. Erste Gruppe = "A", zweite = "B" usw.
-Einzelübungen = "-".
-
-Beispiel Output:
-[{"exercise":"Pull-up","imageKey":"pull-up_strength_upper_pull_dyn_bi","group":"A","type":"reps","sets":4,"reps":"8","intensity":"RPE 8","rest":"90 Sek.","note":null}]`,
+Supersets: gleiche Gruppe vergeben. Erste Gruppe = "A", zweite = "B" usw. Einzelübungen = "-".`,
         messages: [{ role: 'user', content: input }]
       })
     });
