@@ -381,8 +381,8 @@ function renderPlan(blocks) {
       if (ex.blockType !== lastBlock) {
         const bh = document.createElement('div');
         bh.className = `block-header ${ex.blockType}`;
-        const emoji = ex.blockType === 'warmup' ? '🔥' : ex.blockType === 'cooldown' ? '❄️' : '💪';
-        bh.innerHTML = `<span class="block-header-label">${emoji} ${ex.blockLabel}</span>`;
+        const emoji = '';
+        bh.innerHTML = `<span class="block-header-label">${ex.blockLabel}</span>`;
         exContainer.appendChild(bh);
         lastBlock = ex.blockType;
       }
