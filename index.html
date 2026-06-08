@@ -398,7 +398,10 @@ async function analyzeAll() {
     await new Promise(r => setTimeout(r, 300));
   }
   btn.disabled = false; btn.textContent = 'KI analysieren';
-  if (Object.keys(renameResults).length > 0) document.getElementById('rename-download-btn').disabled = false;
+  if (Object.keys(renameResults).length > 0) {
+    document.getElementById('rename-download-btn').disabled = false;
+    document.getElementById('rename-upload-btn').disabled = false;
+  }
 }
 
 async function downloadAll() {
