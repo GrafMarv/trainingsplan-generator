@@ -186,6 +186,44 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .progress-fill { height: 100%; background: #007aff; border-radius: 2px; transition: width 0.3s; width: 0%; }
 .rename-actions { display: flex; gap: 10px; }
 
+/* HOME SCREEN */
+#home-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.home-deco-left { position: fixed; left: 0; top: 0; bottom: 0; width: 200px; display: flex; align-items: center; justify-content: center; pointer-events: none; overflow: hidden; }
+.home-deco-right { position: fixed; right: 0; top: 0; bottom: 0; width: 200px; display: flex; align-items: center; justify-content: center; pointer-events: none; overflow: hidden; }
+.home-deco-name { font-size: 48px; font-weight: 700; color: #d1d1d6; letter-spacing: -1px; writing-mode: vertical-rl; transform: rotate(180deg); user-select: none; }
+.home-content { max-width: 860px; width: 100%; padding: 48px 24px; position: relative; z-index: 1; }
+.home-header { text-align: center; margin-bottom: 56px; }
+.home-title { font-size: 42px; font-weight: 700; letter-spacing: -1.5px; color: #1c1c1e; margin-bottom: 8px; }
+.home-subtitle { font-size: 16px; color: #8e8e93; font-weight: 400; }
+.home-grid { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 16px; align-items: start; }
+.home-card { background: #fff; border-radius: 20px; padding: 32px 28px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 0.5px solid #e5e5ea; position: relative; }
+.home-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.home-card-primary { background: #1c1c1e; border-color: #1c1c1e; padding: 40px 28px; }
+.home-card-primary .home-card-title { color: #fff; }
+.home-card-primary .home-card-desc { color: #8e8e93; }
+.home-card-primary .home-card-icon { color: #fff; }
+.home-card-primary .home-card-arrow { color: #fff; }
+.home-card-icon { color: #1c1c1e; margin-bottom: 20px; }
+.home-card-title { font-size: 20px; font-weight: 600; color: #1c1c1e; margin-bottom: 8px; letter-spacing: -0.3px; }
+.home-card-desc { font-size: 13px; color: #8e8e93; line-height: 1.5; margin-bottom: 24px; }
+.home-card-arrow { font-size: 18px; color: #8e8e93; }
+.home-card-badge { position: absolute; top: 16px; right: 16px; background: #007aff; color: #fff; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.04em; }
+
+/* APP TOPBAR */
+.app-topbar { display: flex; align-items: center; gap: 16px; max-width: 960px; margin: 0 auto; padding: 24px 32px 0; position: relative; z-index: 1; }
+.back-btn { background: none; border: none; font-size: 14px; color: #007aff; cursor: pointer; font-family: inherit; font-weight: 500; padding: 0; }
+.app-topbar-title { font-size: 14px; font-weight: 600; color: #1c1c1e; }
+
+/* WISSEN & PROFILE PLACEHOLDER */
+.coming-soon { max-width: 960px; margin: 0 auto; padding: 48px 32px; text-align: center; }
+.coming-soon h2 { font-size: 24px; font-weight: 600; color: #1c1c1e; margin-bottom: 8px; }
+.coming-soon p { font-size: 14px; color: #8e8e93; }
+
+/* DECO FOR APP SCREEN */
+.deco-left { position: fixed; left: 0; top: 0; bottom: 0; width: calc((100vw - 960px) / 2); display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 0; overflow: hidden; }
+.deco-right { position: fixed; right: 0; top: 0; bottom: 0; width: calc((100vw - 960px) / 2); display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 0; overflow: hidden; }
+.deco-name { font-size: clamp(32px, 4vw, 56px); font-weight: 700; color: #d1d1d6; letter-spacing: -1px; writing-mode: vertical-rl; transform: rotate(180deg); user-select: none; }
+
 @media print {
   body { background: #fff; }
   .tabs, .plan-actions, #page-umbenenner { display: none !important; }
@@ -275,6 +313,34 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 
 <script>
+function goTo(screen) {
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('wissen-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'none';
+
+  if (screen === 'generator' || screen === 'umbenenner') {
+    document.getElementById('app-screen').style.display = 'block';
+    document.getElementById('app-tabs').style.display = 'flex';
+    document.getElementById('app-topbar-title').textContent = screen === 'generator' ? 'Trainingsplan Generator' : 'Übung Umbenenner';
+    // activate correct tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const tabIdx = screen === 'generator' ? 0 : 1;
+    document.querySelectorAll('.tab')[tabIdx]?.classList.add('active');
+    document.getElementById('page-' + screen)?.classList.add('active');
+  } else {
+    document.getElementById(screen + '-screen').style.display = 'block';
+  }
+}
+
+function goHome() {
+  document.getElementById('home-screen').style.display = 'flex';
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('wissen-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'none';
+}
+
 function switchTab(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -847,5 +913,31 @@ async function uploadAll() {
   status.className = success > 0 ? 'status-box' : 'status-box error';
 }
 </script>
+</div><!-- end app-screen -->
+
+<!-- WISSEN SCREEN -->
+<div id="wissen-screen" style="display:none;">
+<div class="app-topbar">
+  <button class="back-btn" onclick="goHome()">← Zurück</button>
+  <span class="app-topbar-title">Wissen</span>
+</div>
+<div class="coming-soon">
+  <h2>Wissensbereich</h2>
+  <p>Fachwissen hochladen und verwalten – kommt bald.</p>
+</div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div id="profile-screen" style="display:none;">
+<div class="app-topbar">
+  <button class="back-btn" onclick="goHome()">← Zurück</button>
+  <span class="app-topbar-title">Spielerprofile</span>
+</div>
+<div class="coming-soon">
+  <h2>Spielerprofile</h2>
+  <p>Athleten verwalten und Diagnostik – kommt bald.</p>
+</div>
+</div>
+
 </body>
 </html>
