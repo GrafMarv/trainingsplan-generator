@@ -269,12 +269,88 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 <!-- WISSEN SCREEN -->
 <div id="wissen-screen" style="display:none;">
-  <div style="max-width:960px;margin:0 auto;padding:24px 32px 0;">
+  <div style="max-width:960px;margin:0 auto;padding:24px 32px 0;display:flex;align-items:center;justify-content:space-between;">
     <button onclick="goHome()" style="background:none;border:none;font-size:14px;color:#007aff;cursor:pointer;font-family:inherit;font-weight:500;padding:0;">← Zurück</button>
+    <span style="font-size:16px;font-weight:600;color:#1c1c1e;">Wissen</span>
+    <div style="width:60px;"></div>
   </div>
-  <div style="max-width:960px;margin:0 auto;padding:80px 32px;text-align:center;">
-    <h2 style="font-size:24px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">Wissensbereich</h2>
-    <p style="font-size:14px;color:#8e8e93;">Fachwissen hochladen und verwalten – kommt bald.</p>
+
+  <div style="max-width:960px;margin:0 auto;padding:24px 32px;">
+    
+    <!-- TABS -->
+    <div style="display:flex;gap:4px;margin-bottom:24px;background:#f2f2f7;padding:4px;border-radius:12px;width:fit-content;">
+      <button onclick="wissenTab('bibliothek')" id="wtab-bibliothek" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Bibliothek</button>
+      <button onclick="wissenTab('konzepte')" id="wtab-konzepte" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Konzepte</button>
+      <button onclick="wissenTab('studien')" id="wtab-studien" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Studien</button>
+    </div>
+
+    <!-- BIBLIOTHEK -->
+    <div id="wissen-bibliothek">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;">
+          <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:10px;">Dokument hochladen</p>
+          <div onclick="document.getElementById('wissen-file').click()" style="border:1.5px dashed #d1d1d6;border-radius:10px;padding:24px;text-align:center;cursor:pointer;color:#8e8e93;font-size:13px;transition:all 0.2s;" onmouseover="this.style.borderColor='#007aff';this.style.color='#007aff'" onmouseout="this.style.borderColor='#d1d1d6';this.style.color='#8e8e93'">
+            PDF oder Text hier ablegen oder klicken
+            <input type="file" id="wissen-file" accept=".pdf,.txt,.md" style="display:none;" onchange="uploadWissen(this)">
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;">
+          <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:10px;">Schnellzugriff</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f2f2f7;border-radius:8px;">
+              <span style="font-size:13px;color:#1c1c1e;">Gesamt</span>
+              <span id="wissen-count" style="font-size:13px;font-weight:600;color:#1c1c1e;">0 Einträge</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f2f2f7;border-radius:8px;">
+              <span style="font-size:13px;color:#1c1c1e;">Für KI verfügbar</span>
+              <span style="font-size:13px;font-weight:600;color:#34c759;">Aktiv</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div style="margin-bottom:16px;">
+        <input type="text" id="wissen-search" placeholder="Wissen durchsuchen..." oninput="searchWissen()" style="width:100%;padding:10px 14px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;">
+      </div>
+
+      <!-- LIST -->
+      <div id="wissen-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <p id="wissen-empty" style="text-align:center;color:#8e8e93;font-size:14px;padding:40px;">Noch kein Wissen hinzugefügt. Lade ein Dokument hoch oder füge ein Konzept hinzu.</p>
+    </div>
+
+    <!-- KONZEPTE -->
+    <div id="wissen-konzepte" style="display:none;">
+      <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;margin-bottom:16px;">
+        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:10px;">Neues Konzept</p>
+        <input type="text" id="konzept-titel" placeholder="Titel z.B. Periodisierung, Beschleunigungstraining..." style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+        <textarea id="konzept-text" placeholder="Beschreibe das Konzept, deine Philosophie, wichtige Prinzipien..." style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;min-height:120px;resize:vertical;line-height:1.6;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <select id="konzept-kategorie" style="flex:1;padding:9px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;">
+            <option value="philosophie">Trainingsphilosophie</option>
+            <option value="periodisierung">Periodisierung</option>
+            <option value="technik">Technik & Biomechanik</option>
+            <option value="ernaehrung">Regeneration & Ernährung</option>
+            <option value="sonstiges">Sonstiges</option>
+          </select>
+          <button onclick="saveKonzept()" style="padding:9px 20px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Speichern</button>
+        </div>
+      </div>
+      <div id="konzept-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <!-- STUDIEN -->
+    <div id="wissen-studien" style="display:none;">
+      <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;margin-bottom:16px;">
+        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:10px;">Studie / Zusammenfassung hinzufügen</p>
+        <input type="text" id="studie-titel" placeholder="Titel z.B. Buchheit & Laursen – HIIT Science" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+        <input type="text" id="studie-autoren" placeholder="Autoren & Jahr z.B. Buchheit, Laursen 2013" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+        <textarea id="studie-text" placeholder="Kernaussagen, wichtige Erkenntnisse, Praxisrelevanz..." style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;min-height:120px;resize:vertical;line-height:1.6;"></textarea>
+        <button onclick="saveStudie()" style="margin-top:8px;padding:9px 20px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Speichern</button>
+      </div>
+      <div id="studie-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
   </div>
 </div>
 
@@ -945,6 +1021,136 @@ function toggleMic() {
 
   recognition.start();
 }
+
+// ===== WISSEN =====
+let wissenDB = JSON.parse(localStorage.getItem('wissenDB') || '[]');
+
+function saveWissenDB() {
+  localStorage.setItem('wissenDB', JSON.stringify(wissenDB));
+  updateWissenCount();
+  renderWissenList();
+}
+
+function updateWissenCount() {
+  const el = document.getElementById('wissen-count');
+  if (el) el.textContent = wissenDB.length + ' Einträge';
+}
+
+function wissenTab(tab) {
+  ['bibliothek','konzepte','studien'].forEach(t => {
+    document.getElementById('wissen-' + t).style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('wtab-' + t);
+    if (btn) {
+      btn.style.background = t === tab ? '#fff' : 'transparent';
+      btn.style.color = t === tab ? '#1c1c1e' : '#8e8e93';
+      btn.style.boxShadow = t === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
+    }
+  });
+  if (tab === 'bibliothek') renderWissenList();
+  if (tab === 'konzepte') renderKonzeptList();
+  if (tab === 'studien') renderStudieList();
+}
+
+function uploadWissen(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const entry = {
+      id: Date.now(),
+      type: 'dokument',
+      titel: file.name,
+      inhalt: e.target.result.slice(0, 5000),
+      datum: new Date().toLocaleDateString('de-DE'),
+      kategorie: 'dokument'
+    };
+    wissenDB.unshift(entry);
+    saveWissenDB();
+  };
+  reader.readAsText(file);
+}
+
+function saveKonzept() {
+  const titel = document.getElementById('konzept-titel').value.trim();
+  const text = document.getElementById('konzept-text').value.trim();
+  const kat = document.getElementById('konzept-kategorie').value;
+  if (!titel || !text) return;
+  wissenDB.unshift({ id: Date.now(), type: 'konzept', titel, inhalt: text, kategorie: kat, datum: new Date().toLocaleDateString('de-DE') });
+  saveWissenDB();
+  document.getElementById('konzept-titel').value = '';
+  document.getElementById('konzept-text').value = '';
+  renderKonzeptList();
+}
+
+function saveStudie() {
+  const titel = document.getElementById('studie-titel').value.trim();
+  const autoren = document.getElementById('studie-autoren').value.trim();
+  const text = document.getElementById('studie-text').value.trim();
+  if (!titel || !text) return;
+  wissenDB.unshift({ id: Date.now(), type: 'studie', titel, autoren, inhalt: text, kategorie: 'studie', datum: new Date().toLocaleDateString('de-DE') });
+  saveWissenDB();
+  document.getElementById('studie-titel').value = '';
+  document.getElementById('studie-autoren').value = '';
+  document.getElementById('studie-text').value = '';
+  renderStudieList();
+}
+
+function deleteWissen(id) {
+  wissenDB = wissenDB.filter(e => e.id !== id);
+  saveWissenDB();
+  renderWissenList();
+  renderKonzeptList();
+  renderStudieList();
+}
+
+function searchWissen() {
+  const q = document.getElementById('wissen-search').value.toLowerCase();
+  const filtered = wissenDB.filter(e => e.titel.toLowerCase().includes(q) || e.inhalt.toLowerCase().includes(q));
+  renderWissenList(filtered);
+}
+
+function wissenCard(entry) {
+  const typeLabel = entry.type === 'konzept' ? 'Konzept' : entry.type === 'studie' ? 'Studie' : 'Dokument';
+  const typeColor = entry.type === 'konzept' ? '#007aff' : entry.type === 'studie' ? '#34c759' : '#ff9500';
+  return `<div style="background:#fff;border-radius:14px;padding:18px 20px;border:0.5px solid #e5e5ea;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;background:${typeColor}20;color:${typeColor};">${typeLabel}</span>
+        <span style="font-size:11px;color:#8e8e93;">${entry.datum}</span>
+        ${entry.autoren ? `<span style="font-size:11px;color:#8e8e93;">${entry.autoren}</span>` : ''}
+      </div>
+      <button onclick="deleteWissen(${entry.id})" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:13px;padding:0;">Löschen</button>
+    </div>
+    <p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:6px;">${entry.titel}</p>
+    <p style="font-size:13px;color:#636366;line-height:1.5;">${entry.inhalt.slice(0,200)}${entry.inhalt.length > 200 ? '...' : ''}</p>
+  </div>`;
+}
+
+function renderWissenList(list) {
+  const items = list || wissenDB;
+  const el = document.getElementById('wissen-list');
+  const empty = document.getElementById('wissen-empty');
+  if (!el) return;
+  el.innerHTML = items.map(wissenCard).join('');
+  if (empty) empty.style.display = items.length === 0 ? 'block' : 'none';
+}
+
+function renderKonzeptList() {
+  const el = document.getElementById('konzept-list');
+  if (!el) return;
+  const items = wissenDB.filter(e => e.type === 'konzept');
+  el.innerHTML = items.map(wissenCard).join('');
+}
+
+function renderStudieList() {
+  const el = document.getElementById('studie-list');
+  if (!el) return;
+  const items = wissenDB.filter(e => e.type === 'studie');
+  el.innerHTML = items.map(wissenCard).join('');
+}
+
+// Init wissen on load
+updateWissenCount();
 
 function toBase64(file) {
   return new Promise((res, rej) => {
