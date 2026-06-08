@@ -77,7 +77,16 @@ textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
 .drop-zone-rename { border: 2px dashed #d0d0d0; border-radius: 10px; padding: 40px; text-align: center; cursor: pointer; color: #888; font-size: 14px; margin-bottom: 16px; transition: all 0.2s; }
 .drop-zone-rename:hover, .drop-zone-rename.drag-over { border-color: #1a1a1a; color: #1a1a1a; background: #f0f0f0; }
 .rename-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.rename-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+.rename-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+.rename-card:hover { border-color: #1a1a1a; }
+.rename-card.editing { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.rename-editor { padding: 10px; background: #f8f9ff; border-top: 1px solid #e0e0e0; display: none; }
+.rename-editor.open { display: block; }
+.rename-editor-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2563EB; margin-bottom: 8px; }
+.rename-editor select { width: 100%; padding: 5px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 11px; margin-bottom: 5px; background: #fff; }
+.rename-editor input { width: 100%; padding: 5px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 11px; margin-bottom: 5px; }
+.rename-editor-preview { font-size: 10px; color: #2563EB; font-weight: 600; word-break: break-all; margin-bottom: 6px; padding: 4px 6px; background: #eff6ff; border-radius: 3px; }
+.rename-editor-btn { width: 100%; padding: 5px; background: #1a1a1a; color: #fff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer; }
 .rename-card.done { border-color: #4CAF50; }
 .rename-card.error { border-color: #f44336; }
 .rename-card.processing { border-color: #ff9800; }
@@ -355,6 +364,39 @@ function addRenameFiles(newFiles) {
   if (renameFiles.length > 0) document.getElementById('rename-analyze-btn').disabled = false;
 }
 
+function parseFilename(name) {
+  if (!name) return {};
+  const parts = name.replace('.png','').split('_');
+  return {
+    exerciseName: parts[0] || '',
+    category: parts[1] || '',
+    sub1: parts[2] || '',
+    sub2: parts[3] || '',
+    sub3: parts[4] || '',
+    sub4: parts[5] || ''
+  };
+}
+
+function buildFilename(p) {
+  const parts = [p.exerciseName, p.category];
+  if (p.category === 'strength') {
+    if (p.sub1) parts.push(p.sub1);
+    if (p.sub2) parts.push(p.sub2);
+    if (p.sub3) parts.push(p.sub3);
+    if (p.sub4) parts.push(p.sub4);
+  } else if (p.category === 'jump') {
+    if (p.sub1) parts.push(p.sub1);
+    if (p.sub2) parts.push(p.sub2);
+  } else if (p.category === 'sprint') {
+    if (p.sub1) parts.push(p.sub1);
+    if (p.sub2) parts.push(p.sub2);
+  } else if (p.category === 'mobility') {
+    if (p.sub1) parts.push(p.sub1);
+    if (p.sub2) parts.push(p.sub2);
+  }
+  return parts.filter(Boolean).join('_');
+}
+
 function renderRenameCard({ id, file, status, name }) {
   const existing = document.getElementById('rcard-' + id);
   if (existing) existing.remove();
@@ -362,9 +404,137 @@ function renderRenameCard({ id, file, status, name }) {
   card.className = 'rename-card ' + (status === 'done' ? 'done' : status === 'error' ? 'error' : status === 'processing' ? 'processing' : '');
   card.id = 'rcard-' + id;
   const f = renameFiles.find(f => f.id === id);
-  const statusText = status === 'done' ? '✓ Fertig' : status === 'error' ? '✗ Fehler' : status === 'processing' ? '⟳ Analysiere...' : '◷ Wartend';
-  card.innerHTML = `<img src="${f.url}" alt=""><div class="rename-card-body"><div class="rename-status">${statusText}</div><div class="rename-name">${name || file.name}</div></div>`;
+  const statusText = status === 'done' ? '✓ Fertig – klicken zum Bearbeiten' : status === 'error' ? '✗ Fehler' : status === 'processing' ? '⟳ Analysiere...' : '◷ Wartend';
+  
+  const p = parseFilename(name);
+  
+  const editorHtml = status === 'done' ? `
+    <div class="rename-editor" id="editor-${id}">
+      <div class="rename-editor-title">✏️ Kategorien anpassen</div>
+      <input type="text" id="ename-${id}" value="${p.exerciseName}" placeholder="Übungsname" oninput="updatePreview('${id}')">
+      <select id="ecat-${id}" onchange="updateEditor('${id}')">
+        <option value="strength" ${p.category==='strength'?'selected':''}>strength</option>
+        <option value="jump" ${p.category==='jump'?'selected':''}>jump</option>
+        <option value="sprint" ${p.category==='sprint'?'selected':''}>sprint</option>
+        <option value="mobility" ${p.category==='mobility'?'selected':''}>mobility</option>
+        <option value="misc" ${p.category==='misc'?'selected':''}>misc</option>
+      </select>
+      <div id="esubs-${id}"></div>
+      <div class="rename-editor-preview" id="epreview-${id}">${name}</div>
+      <button class="rename-editor-btn" onclick="applyEdit('${id}')">✓ Übernehmen</button>
+    </div>` : '';
+
+  card.innerHTML = `<img src="${f.url}" alt=""><div class="rename-card-body"><div class="rename-status">${statusText}</div><div class="rename-name" id="rname-${id}">${name || file.name}</div></div>${editorHtml}`;
+  
+  if (status === 'done') {
+    card.querySelector('.rename-card-body').addEventListener('click', () => toggleEditor(id));
+    setTimeout(() => { updateEditor(id); }, 0);
+  }
+  
   renameGrid.appendChild(card);
+}
+
+function toggleEditor(id) {
+  const editor = document.getElementById('editor-' + id);
+  const card = document.getElementById('rcard-' + id);
+  if (!editor) return;
+  const isOpen = editor.classList.contains('open');
+  editor.classList.toggle('open', !isOpen);
+  card.classList.toggle('editing', !isOpen);
+}
+
+function updateEditor(id) {
+  const cat = document.getElementById('ecat-' + id)?.value;
+  const subs = document.getElementById('esubs-' + id);
+  if (!subs || !cat) return;
+  
+  const p = parseFilename(renameResults[id] || '');
+  
+  if (cat === 'strength') {
+    subs.innerHTML = `
+      <select id="esub1-${id}" onchange="updatePreview('${id}')">
+        <option value="upper" ${p.sub1==='upper'?'selected':''}>upper</option>
+        <option value="lower" ${p.sub1==='lower'?'selected':''}>lower</option>
+      </select>
+      <select id="esub2-${id}" onchange="updatePreview('${id}')">
+        <option value="push" ${p.sub2==='push'?'selected':''}>push</option>
+        <option value="pull" ${p.sub2==='pull'?'selected':''}>pull</option>
+        <option value="core" ${p.sub2==='core'?'selected':''}>core</option>
+        <option value="adduction" ${p.sub2==='adduction'?'selected':''}>adduction</option>
+        <option value="abduction" ${p.sub2==='abduction'?'selected':''}>abduction</option>
+      </select>
+      <select id="esub3-${id}" onchange="updatePreview('${id}')">
+        <option value="dyn" ${p.sub3==='dyn'?'selected':''}>dyn</option>
+        <option value="sta" ${p.sub3==='sta'?'selected':''}>sta</option>
+      </select>
+      <select id="esub4-${id}" onchange="updatePreview('${id}')">
+        <option value="bi" ${p.sub4==='bi'?'selected':''}>bi</option>
+        <option value="uni" ${p.sub4==='uni'?'selected':''}>uni</option>
+      </select>`;
+  } else if (cat === 'jump') {
+    subs.innerHTML = `
+      <select id="esub1-${id}" onchange="updatePreview('${id}')">
+        <option value="vertical" ${p.sub1==='vertical'?'selected':''}>vertical</option>
+        <option value="horizontal" ${p.sub1==='horizontal'?'selected':''}>horizontal</option>
+        <option value="lateral" ${p.sub1==='lateral'?'selected':''}>lateral</option>
+      </select>
+      <select id="esub2-${id}" onchange="updatePreview('${id}')">
+        <option value="jump" ${p.sub2==='jump'?'selected':''}>jump</option>
+        <option value="hop" ${p.sub2==='hop'?'selected':''}>hop</option>
+        <option value="bounce" ${p.sub2==='bounce'?'selected':''}>bounce</option>
+      </select>`;
+  } else if (cat === 'sprint') {
+    subs.innerHTML = `
+      <select id="esub1-${id}" onchange="updatePreview('${id}')">
+        <option value="acceleration" ${p.sub1==='acceleration'?'selected':''}>acceleration</option>
+        <option value="max_speed" ${p.sub1==='max_speed'?'selected':''}>max_speed</option>
+        <option value="deceleration" ${p.sub1==='deceleration'?'selected':''}>deceleration</option>
+      </select>
+      <select id="esub2-${id}" onchange="updatePreview('${id}')">
+        <option value="dyn" ${p.sub2==='dyn'?'selected':''}>dyn</option>
+        <option value="sta" ${p.sub2==='sta'?'selected':''}>sta</option>
+      </select>`;
+  } else if (cat === 'mobility') {
+    subs.innerHTML = `
+      <select id="esub1-${id}" onchange="updatePreview('${id}')">
+        <option value="full_body" ${p.sub1==='full_body'?'selected':''}>full_body</option>
+        <option value="upper" ${p.sub1==='upper'?'selected':''}>upper</option>
+        <option value="lower" ${p.sub1==='lower'?'selected':''}>lower</option>
+      </select>
+      <select id="esub2-${id}" onchange="updatePreview('${id}')">
+        <option value="dyn" ${p.sub2==='dyn'?'selected':''}>dyn</option>
+        <option value="sta" ${p.sub2==='sta'?'selected':''}>sta</option>
+      </select>`;
+  } else {
+    subs.innerHTML = '';
+  }
+  updatePreview(id);
+}
+
+function updatePreview(id) {
+  const cat = document.getElementById('ecat-' + id)?.value || '';
+  const name = document.getElementById('ename-' + id)?.value || '';
+  const sub1 = document.getElementById('esub1-' + id)?.value || '';
+  const sub2 = document.getElementById('esub2-' + id)?.value || '';
+  const sub3 = document.getElementById('esub3-' + id)?.value || '';
+  const sub4 = document.getElementById('esub4-' + id)?.value || '';
+  const filename = buildFilename({ exerciseName: name, category: cat, sub1, sub2, sub3, sub4 });
+  const preview = document.getElementById('epreview-' + id);
+  if (preview) preview.textContent = filename + '.png';
+}
+
+function applyEdit(id) {
+  const cat = document.getElementById('ecat-' + id)?.value || '';
+  const name = document.getElementById('ename-' + id)?.value || '';
+  const sub1 = document.getElementById('esub1-' + id)?.value || '';
+  const sub2 = document.getElementById('esub2-' + id)?.value || '';
+  const sub3 = document.getElementById('esub3-' + id)?.value || '';
+  const sub4 = document.getElementById('esub4-' + id)?.value || '';
+  const newName = buildFilename({ exerciseName: name, category: cat, sub1, sub2, sub3, sub4 });
+  renameResults[id] = newName;
+  const nameEl = document.getElementById('rname-' + id);
+  if (nameEl) nameEl.textContent = newName + '.png';
+  toggleEditor(id);
 }
 
 async function analyzeAll() {
