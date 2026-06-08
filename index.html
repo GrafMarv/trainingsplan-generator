@@ -360,14 +360,16 @@ function renderPlan(blocks) {
   const allExercises = [];
   blocks.forEach(block => block.exercises.forEach(ex => allExercises.push({ ...ex, blockType: block.type, blockLabel: block.label })));
 
-  // Seiten aufteilen – Supersets nie trennen
+  // Seiten aufteilen – Supersets nie trennen, Blöcke möglichst nicht mischen
   const pages = [];
   let currentPage = [];
-  
+  let currentPageBlock = null;
+
   for (let i = 0; i < allExercises.length; i++) {
     const ex = allExercises[i];
     const group = ex.group || '-';
-    
+    const blockType = ex.blockType;
+
     // Prüfen wie viele Übungen diese Gruppe noch hat
     let groupSize = 1;
     if (group !== '-') {
@@ -376,19 +378,29 @@ function renderPlan(blocks) {
         else break;
       }
     }
-    
-    // Wenn Superset nicht mehr auf aktuelle Seite passt → neue Seite
+
+    // Blockwechsel: neue Seite wenn mehr als 2 Übungen bereits auf der Seite sind
+    const isBlockChange = currentPageBlock !== null && currentPageBlock !== blockType;
+    if (isBlockChange && currentPage.length >= 2) {
+      pages.push(currentPage);
+      currentPage = [];
+      currentPageBlock = null;
+    }
+
+    // Superset passt nicht mehr auf Seite → neue Seite
     if (currentPage.length > 0 && currentPage.length + groupSize > MAX_PER_PAGE) {
       pages.push(currentPage);
       currentPage = [];
+      currentPageBlock = null;
     }
-    
+
+    if (currentPageBlock === null) currentPageBlock = blockType;
     currentPage.push(ex);
-    
-    // Einzelübung oder letzte des Supersets → normal weiter
+
     if (currentPage.length >= MAX_PER_PAGE) {
       pages.push(currentPage);
       currentPage = [];
+      currentPageBlock = null;
     }
   }
   if (currentPage.length > 0) pages.push(currentPage);
