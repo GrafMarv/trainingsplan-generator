@@ -1112,18 +1112,37 @@ function searchWissen() {
 function wissenCard(entry) {
   const typeLabel = entry.type === 'konzept' ? 'Konzept' : entry.type === 'studie' ? 'Studie' : 'Dokument';
   const typeColor = entry.type === 'konzept' ? '#007aff' : entry.type === 'studie' ? '#34c759' : '#ff9500';
+  const short = entry.inhalt.slice(0,200);
+  const hasMore = entry.inhalt.length > 200;
   return `<div style="background:#fff;border-radius:14px;padding:18px 20px;border:0.5px solid #e5e5ea;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;background:${typeColor}20;color:${typeColor};">${typeLabel}</span>
         <span style="font-size:11px;color:#8e8e93;">${entry.datum}</span>
         ${entry.autoren ? `<span style="font-size:11px;color:#8e8e93;">${entry.autoren}</span>` : ''}
       </div>
-      <button onclick="deleteWissen(${entry.id})" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:13px;padding:0;">Löschen</button>
+      <button onclick="deleteWissen(${entry.id})" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:13px;padding:0;flex-shrink:0;">Löschen</button>
     </div>
-    <p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:6px;">${entry.titel}</p>
-    <p style="font-size:13px;color:#636366;line-height:1.5;">${entry.inhalt.slice(0,200)}${entry.inhalt.length > 200 ? '...' : ''}</p>
+    <p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">${entry.titel}</p>
+    <div id="wcard-short-${entry.id}">
+      <p style="font-size:13px;color:#636366;line-height:1.6;white-space:pre-line;">${short}${hasMore ? '...' : ''}</p>
+      ${hasMore ? `<button onclick="wissenExpand(${entry.id})" style="background:none;border:none;color:#007aff;cursor:pointer;font-size:13px;font-family:inherit;padding:6px 0 0 0;font-weight:500;">Mehr anzeigen</button>` : ''}
+    </div>
+    <div id="wcard-full-${entry.id}" style="display:none;">
+      <p style="font-size:13px;color:#636366;line-height:1.6;white-space:pre-line;">${entry.inhalt}</p>
+      <button onclick="wissenCollapse(${entry.id})" style="background:none;border:none;color:#007aff;cursor:pointer;font-size:13px;font-family:inherit;padding:6px 0 0 0;font-weight:500;">Weniger anzeigen</button>
+    </div>
   </div>`;
+}
+
+function wissenExpand(id) {
+  document.getElementById('wcard-short-' + id).style.display = 'none';
+  document.getElementById('wcard-full-' + id).style.display = 'block';
+}
+
+function wissenCollapse(id) {
+  document.getElementById('wcard-short-' + id).style.display = 'block';
+  document.getElementById('wcard-full-' + id).style.display = 'none';
 }
 
 function renderWissenList(list) {
