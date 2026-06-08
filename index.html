@@ -1150,6 +1150,43 @@ function renderStudieList() {
 }
 
 // Init wissen on load
+// Beispiel-Studie vorbefüllen wenn DB leer
+if (wissenDB.length === 0) {
+  wissenDB = [{
+    id: 1,
+    type: 'studie',
+    titel: 'Resisted Sprint Training verbessert Sprintleistung im Mannschaftssport',
+    autoren: 'Ward et al., Sports Medicine 2024',
+    inhalt: `KERNFRAGE: Verbessert Resisted Sprint Training (RST) – also Sprint mit Schlitten, Weste oder Band – die Sprintleistung bei Mannschaftssportlern?
+
+METHODE: Systematisches Review + Metaanalyse. 23 Studien, 537 Athleten. Fußball, Rugby, Hockey u.a. Interventionen 4-12 Wochen.
+
+ERGEBNISSE:
+- RST verbessert 5m-Sprintzeit signifikant (SMD = -0.87)
+- RST verbessert 10m-Sprintzeit signifikant (SMD = -0.40)
+- 20m weniger deutlich aber positiv
+- Schlitten-Training am effektivsten bei 10-20% Körpergewicht Last
+- Kein signifikanter Unterschied zwischen Schlitten, Weste oder Band
+
+PRAXISRELEVANZ FÜR COACHING:
+- 2x/Woche RST reicht für messbare Verbesserungen
+- Last: 10-20% Körpergewicht beim Schlitten
+- Distanz: 10-20m pro Sprint
+- Wiederholungen: 6-10 pro Session
+- Besonders effektiv in der Vorbereitungsphase
+- Kombination mit freiem Sprint empfohlen (nicht nur RST)
+
+LIMITATIONEN:
+- Hohe Heterogenität der Studien
+- Unterschiedliche Messmethoden
+- Wenig Daten zu Frauen und Jugendlichen
+
+FAZIT: RST ist ein wirksames Werkzeug zur Sprintverbesserung im Mannschaftssport. Klare Empfehlung für Einsatz 2x/Woche mit moderater Last.`,
+    kategorie: 'studie',
+    datum: '08.06.2026'
+  }];
+  saveWissenDB();
+}
 updateWissenCount();
 
 function toBase64(file) {
