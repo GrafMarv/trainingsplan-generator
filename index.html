@@ -163,8 +163,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </head>
 <body>
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('generator', this)">✨ Trainingsplan</div>
-  <div class="tab" onclick="switchTab('umbenenner', this)">🏷️ Übung Umbenenner</div>
+  <div class="tab active" onclick="switchTab('generator', this)">Trainingsplan</div>
+  <div class="tab" onclick="switchTab('umbenenner', this)">Übung Umbenenner</div>
 </div>
 
 <div id="page-generator" class="page active">
@@ -178,7 +178,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <textarea id="plan-input" placeholder="z.B. Warm-up: World Greatest Stretch, Cat-Cow. Hauptblock: Pull-up Superset mit Tripod Row 4x8 RPE 8 Pause 90 Sek., Split Squat 3x10 80% Pause 120 Sek. Cool-down: Couch Stretch, Pigeon Pose."></textarea>
       <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Spracheingabe">🎤</button>
     </div>
-    <p class="hint">💡 Wenn du Warm-up oder Cool-down erwähnst, werden sie automatisch als eigene Blöcke erkannt. Intensität (RPE, %) und Pausen sind optional.</p>
+    <p class="hint">Wenn du Warm-up oder Cool-down erwähnst, werden sie automatisch als eigene Blöcke erkannt. Intensität (RPE, %) und Pausen sind optional.</p>
   </div>
 
   <div class="card">
@@ -188,13 +188,13 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
   </div>
 
-  <button class="btn-primary" id="generate-btn" onclick="generateWithAI()">✨ Trainingsplan generieren</button>
+  <button class="btn-primary" id="generate-btn" onclick="generateWithAI()">Trainingsplan generieren</button>
   <div class="status-box" id="status-box"></div>
 
   <div class="plan-wrapper" id="plan-wrapper">
     <div class="plan-actions">
-      <button class="btn-secondary" onclick="window.print()">🖨️ Drucken / als PDF</button>
-      <button class="btn-secondary" onclick="resetPlan()">↺ Neu generieren</button>
+      <button class="btn-secondary" onclick="window.print()">Drucken / als PDF</button>
+      <button class="btn-secondary" onclick="resetPlan()">Neu generieren</button>
       <span>Im Druckdialog "Als PDF speichern" wählen</span>
     </div>
     <div id="pages-container"></div>
@@ -207,15 +207,15 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <h1>Übung Umbenenner</h1>
   <p class="subtitle">Bilder reinziehen → KI erkennt Übung → fertig benannte Dateien herunterladen</p>
   <div class="drop-zone-rename" id="drop-zone-rename" onclick="document.getElementById('rename-file-input').click()">
-    📂 Übungsbilder hier reinziehen oder klicken<br>
+    Übungsbilder hier reinziehen oder klicken<br>
     <small style="font-size:12px;color:#aaa;">PNG, JPG – beliebig viele auf einmal</small>
     <input type="file" id="rename-file-input" multiple accept="image/*" style="display:none;">
   </div>
   <div class="progress-bar" id="rename-progress-bar"><div class="progress-fill" id="rename-progress-fill"></div></div>
   <div class="rename-grid" id="rename-grid"></div>
   <div class="rename-actions">
-    <button class="btn-primary" id="rename-analyze-btn" onclick="analyzeAll()" disabled style="flex:1;">KI analysieren</button>
-    <button class="btn-secondary" id="rename-upload-btn" onclick="uploadAll()" disabled>⬆️ Zu GitHub hochladen</button>
+    <button class="btn-primary" id="rename-analyze-btn" onclick="analyzeAll()" disabled style="flex:1;">Analysieren</button>
+    <button class="btn-secondary" id="rename-upload-btn" onclick="uploadAll()" disabled>Zu GitHub hochladen</button>
     <button class="btn-secondary" id="rename-download-btn" onclick="downloadAll()" disabled>Alle herunterladen</button>
   </div>
   <div class="status-box" id="upload-status" style="margin-top:8px;"></div>
@@ -283,7 +283,7 @@ async function generateWithAI() {
     status.textContent = 'Fehler: ' + e.message;
   }
   btn.disabled = false;
-  btn.textContent = '✨ Trainingsplan generieren';
+  btn.textContent = 'Trainingsplan generieren';
 }
 
 function resetPlan() { document.getElementById('plan-wrapper').style.display = 'none'; }
@@ -459,13 +459,13 @@ function renderRenameCard({ id, file, status, name }) {
   card.className = 'rename-card ' + (status === 'done' ? 'done' : status === 'error' ? 'error' : status === 'processing' ? 'processing' : '');
   card.id = 'rcard-' + id;
   const f = renameFiles.find(f => f.id === id);
-  const statusText = status === 'done' ? '✓ Fertig – klicken zum Bearbeiten' : status === 'error' ? '✗ Fehler' : status === 'processing' ? '⟳ Analysiere...' : '◷ Wartend';
+  const statusText = status === 'done' ? 'Fertig – klicken zum Bearbeiten' : status === 'error' ? 'Fehler' : status === 'processing' ? 'Analysiere...' : 'Wartend';
   
   const p = parseFilename(name);
   
   const editorHtml = status === 'done' ? `
     <div class="rename-editor" id="editor-${id}">
-      <div class="rename-editor-title">✏️ Kategorien anpassen</div>
+      <div class="rename-editor-title">Kategorien anpassen</div>
       <input type="text" id="ename-${id}" value="${p.exerciseName}" placeholder="Übungsname" oninput="updatePreview('${id}')">
       <select id="ecat-${id}" onchange="updateEditor('${id}')">
         <option value="strength" ${p.category==='strength'?'selected':''}>strength</option>
@@ -476,7 +476,7 @@ function renderRenameCard({ id, file, status, name }) {
       </select>
       <div id="esubs-${id}"></div>
       <div class="rename-editor-preview" id="epreview-${id}">${name}</div>
-      <button class="rename-editor-btn" onclick="applyEdit('${id}')">✓ Übernehmen</button>
+      <button class="rename-editor-btn" onclick="applyEdit('${id}')">Übernehmen</button>
     </div>` : '';
 
   card.innerHTML = `<img src="${f.url}" alt=""><div class="rename-card-body"><div class="rename-status">${statusText}</div><div class="rename-name" id="rname-${id}">${name || file.name}</div></div>${editorHtml}`;
@@ -622,7 +622,7 @@ async function analyzeAll() {
     document.getElementById('rename-progress-fill').style.width = (done / renameFiles.length * 100) + '%';
     await new Promise(r => setTimeout(r, 300));
   }
-  btn.disabled = false; btn.textContent = 'KI analysieren';
+  btn.disabled = false; btn.textContent = 'Analysieren';
   if (Object.keys(renameResults).length > 0) {
     document.getElementById('rename-download-btn').disabled = false;
     document.getElementById('rename-upload-btn').disabled = false;
@@ -714,7 +714,7 @@ async function uploadAll() {
   const btn = document.getElementById('rename-upload-btn');
   const status = document.getElementById('upload-status');
   btn.disabled = true;
-  btn.textContent = '⬆️ Lädt hoch...';
+  btn.textContent = 'Lädt hoch...';
   status.style.display = 'block';
   status.className = 'status-box';
   
@@ -737,7 +737,7 @@ async function uploadAll() {
       if (data.success) {
         success++;
         const card = document.getElementById('rcard-' + f.id);
-        if (card) card.querySelector('.rename-status').textContent = '✓ Auf GitHub';
+        if (card) card.querySelector('.rename-status').textContent = 'Auf GitHub';
       } else {
         errors++;
       }
@@ -748,7 +748,7 @@ async function uploadAll() {
   }
   
   btn.disabled = false;
-  btn.textContent = '⬆️ Zu GitHub hochladen';
+  btn.textContent = 'Zu GitHub hochladen';
   status.textContent = `${success} hochgeladen${errors > 0 ? ', ' + errors + ' Fehler' : ''} – Übungsliste wird automatisch aktualisiert!`;
   status.className = success > 0 ? 'status-box' : 'status-box error';
 }
