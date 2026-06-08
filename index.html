@@ -360,8 +360,38 @@ function renderPlan(blocks) {
   const allExercises = [];
   blocks.forEach(block => block.exercises.forEach(ex => allExercises.push({ ...ex, blockType: block.type, blockLabel: block.label })));
 
+  // Seiten aufteilen – Supersets nie trennen
   const pages = [];
-  for (let i = 0; i < allExercises.length; i += MAX_PER_PAGE) pages.push(allExercises.slice(i, i + MAX_PER_PAGE));
+  let currentPage = [];
+  
+  for (let i = 0; i < allExercises.length; i++) {
+    const ex = allExercises[i];
+    const group = ex.group || '-';
+    
+    // Prüfen wie viele Übungen diese Gruppe noch hat
+    let groupSize = 1;
+    if (group !== '-') {
+      for (let j = i + 1; j < allExercises.length; j++) {
+        if ((allExercises[j].group || '-') === group) groupSize++;
+        else break;
+      }
+    }
+    
+    // Wenn Superset nicht mehr auf aktuelle Seite passt → neue Seite
+    if (currentPage.length > 0 && currentPage.length + groupSize > MAX_PER_PAGE) {
+      pages.push(currentPage);
+      currentPage = [];
+    }
+    
+    currentPage.push(ex);
+    
+    // Einzelübung oder letzte des Supersets → normal weiter
+    if (currentPage.length >= MAX_PER_PAGE) {
+      pages.push(currentPage);
+      currentPage = [];
+    }
+  }
+  if (currentPage.length > 0) pages.push(currentPage);
   const groupPositions = buildGroupCounters(allExercises);
 
   pages.forEach((pageExercises, pageIdx) => {
