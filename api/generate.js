@@ -61,7 +61,7 @@ Format:
 ]
 
 Nur Blöcke einschließen die in der Eingabe vorkommen!
-imageKey muss exakt einem der verfügbaren Übungsnamen entsprechen.
+imageKey MUSS exakt einem der verfügbaren Übungsnamen entsprechen – kopiere den Namen wortwörtlich aus der Liste. Wenn du dir nicht sicher bist welcher Dateiname passt, wähle den ähnlichsten aus der Liste. Erfinde KEINE neuen Dateinamen.
 Supersets: gleiche Gruppe vergeben A, B, C. Einzelübungen = "-".
 intensity: RPE z.B. "RPE 8" oder "80%" – nur wenn angegeben, sonst null.
 rest: Pause z.B. "90 Sek." – nur wenn angegeben, sonst null.`,
