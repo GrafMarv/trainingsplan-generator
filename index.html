@@ -151,8 +151,10 @@ textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
   <div class="rename-grid" id="rename-grid"></div>
   <div class="rename-actions">
     <button class="btn-primary" id="rename-analyze-btn" onclick="analyzeAll()" disabled style="flex:1;">KI analysieren</button>
+    <button class="btn-secondary" id="rename-upload-btn" onclick="uploadAll()" disabled>⬆️ Zu GitHub hochladen</button>
     <button class="btn-secondary" id="rename-download-btn" onclick="downloadAll()" disabled>Alle herunterladen</button>
   </div>
+  <div class="status-box" id="upload-status" style="margin-top:8px;"></div>
 </div>
 </div>
 
@@ -417,6 +419,49 @@ function toBase64(file) {
     reader.onerror = rej;
     reader.readAsDataURL(file);
   });
+}
+
+async function uploadAll() {
+  const btn = document.getElementById('rename-upload-btn');
+  const status = document.getElementById('upload-status');
+  btn.disabled = true;
+  btn.textContent = '⬆️ Lädt hoch...';
+  status.style.display = 'block';
+  status.className = 'status-box';
+  
+  let success = 0, errors = 0;
+  
+  for (const f of renameFiles) {
+    const name = renameResults[f.id];
+    if (!name) continue;
+    
+    status.textContent = `Lade hoch: ${name}.png...`;
+    
+    try {
+      const base64 = await toBase64(f.file);
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: name + '.png', imageBase64: base64 })
+      });
+      const data = await response.json();
+      if (data.success) {
+        success++;
+        const card = document.getElementById('rcard-' + f.id);
+        if (card) card.querySelector('.rename-status').textContent = '✓ Auf GitHub';
+      } else {
+        errors++;
+      }
+    } catch(e) {
+      errors++;
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  
+  btn.disabled = false;
+  btn.textContent = '⬆️ Zu GitHub hochladen';
+  status.textContent = `${success} hochgeladen${errors > 0 ? ', ' + errors + ' Fehler' : ''} – Übungsliste wird automatisch aktualisiert!`;
+  status.className = success > 0 ? 'status-box' : 'status-box error';
 }
 </script>
 </body>
