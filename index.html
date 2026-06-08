@@ -20,7 +20,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f5f5f5; co
 label.section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #666; display: block; margin-bottom: 8px; }
 input[type=text], textarea, select { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; color: #1a1a1a; background: #fafafa; }
 input[type=text]:focus, textarea:focus, select:focus { outline: none; border-color: #999; background: #fff; }
-textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
+textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
 .row { display: flex; gap: 12px; margin-bottom: 10px; }
 .row > div { flex: 1; }
 .row label { font-size: 11px; color: #888; display: block; margin-bottom: 4px; }
@@ -32,6 +32,7 @@ textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
 .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
 .status-box { background: #f0f4ff; border: 1px solid #c0d0ff; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #333; margin-top: 8px; display: none; }
 .status-box.error { background: #fff0f0; border-color: #ffc0c0; color: #c00; }
+.hint { font-size: 12px; color: #aaa; margin-top: 8px; line-height: 1.5; }
 .plan-wrapper { display: none; margin-top: 32px; }
 .plan-actions { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
 .plan-actions span { font-size: 13px; color: #666; }
@@ -108,27 +109,24 @@ textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
 <div id="page-generator" class="page active">
 <div class="ui">
   <h1>Trainingsplan Generator</h1>
-  <p class="subtitle">Beschreibe deinen Trainingsplan – RPE, Intensität und Pausen optional mit angeben.</p>
+  <p class="subtitle">Beschreibe deinen Trainingsplan in einem Satz – die KI erkennt automatisch Warm-up, Hauptblock und Cool-down.</p>
+
   <div class="input-section">
-    <label class="section-label">🔥 Warm-up <span style="font-weight:400;color:#aaa;">(optional)</span></label>
-    <textarea id="warmup-input" placeholder="z.B. World Greatest Stretch 2x5, Cat-Cow 10 Wdh., Hip Flexor Stretch 30 Sek."></textarea>
+    <label class="section-label">Trainingsplan beschreiben</label>
+    <textarea id="plan-input" placeholder="z.B. Warm-up: World Greatest Stretch, Cat-Cow. Hauptblock: Pull-up Superset mit Tripod Row 4x8 RPE 8 Pause 90 Sek., Split Squat 3x10 80% Pause 120 Sek. Cool-down: Couch Stretch, Pigeon Pose."></textarea>
+    <p class="hint">💡 Wenn du Warm-up oder Cool-down erwähnst, werden sie automatisch als eigene Blöcke erkannt. Intensität (RPE, %) und Pausen sind optional.</p>
   </div>
-  <div class="input-section">
-    <label class="section-label">💪 Hauptblock</label>
-    <textarea id="main-input" placeholder="z.B. Pull-up Superset mit Tripod Row 4x8 RPE 8 Pause 90 Sek., dann Split Squat 3x10 80% Pause 120 Sek."></textarea>
-  </div>
-  <div class="input-section">
-    <label class="section-label">❄️ Cool-down <span style="font-weight:400;color:#aaa;">(optional)</span></label>
-    <textarea id="cooldown-input" placeholder="z.B. Couch Stretch 60 Sek., Pigeon Pose, Thoracic Rotation Stretch"></textarea>
-  </div>
+
   <div class="input-section">
     <div class="row">
       <div><label>Planname</label><input type="text" id="plan-name" value="Krafttraining A"></div>
       <div><label>Footer</label><input type="text" id="plan-footer" value="Coach: _______________ · Athlet: _______________"></div>
     </div>
   </div>
+
   <button class="btn-primary" id="generate-btn" onclick="generateWithAI()">✨ Trainingsplan generieren</button>
   <div class="status-box" id="status-box"></div>
+
   <div class="plan-wrapper" id="plan-wrapper">
     <div class="plan-actions">
       <button class="btn-secondary" onclick="window.print()">🖨️ Drucken / als PDF</button>
@@ -172,37 +170,29 @@ const MAX_PER_PAGE = 7;
 const EXERCISES = ['air-squat_strength_lower_push_dyn_bi','australian-pull-up_strength_upper_pull_dyn_bi','back-squat-barbell_strength_lower_push_dyn_bi','barbell-hip-thrust_strength_lower_pull_dyn_bi','bench-press-barbell_strength_upper_push_dyn_bi','bird-dog_strength_upper_core_dyn_bi','bulgarian-split-squat-kettlebell_strength_lower_push_dyn_uni','calf-raise_strength_lower_push_sta_bi','cat-cow_mobility_full_body_dyn','chin-up_strength_upper_pull_dyn_bi','copenhagen-plank_strength_lower_adduction_sta_uni','couch-stretch_mobility_lower_sta','counter-movement-jump_jump_vertical_jump','dead-bug_strength_upper_core_dyn_bi','deep-squat-hold_mobility_lower_sta','downward-dog-to-cobra_mobility_full_body_dyn','drop-jump_jump_vertical_jump','einbeiniges-kreuzheben-kettlebell_strength_lower_pull_dyn_uni','frog-stretch_mobility_lower_sta','glute-bridge_strength_lower_pull_sta_bi','goblet-squat-kettlebell_strength_lower_push_dyn_bi','hamstring-stretch-mit-band_mobility_lower_sta','hamstring-walkout_strength_lower_pull_dyn_bi','hand-walk_mobility_full_body_dyn','high-knees_sprint_acceleration_dyn','hip-flexor-stretch_mobility_lower_sta','hollow-body-hold_strength_upper_core_sta_bi','incline-dumbbell-press_strength_upper_push_dyn_bi','kneeling-medicine-ball-chest-pass_strength_upper_push_dyn_bi','landmine-press-half-kneeling_strength_upper_push_dyn_uni','landmine-press-standing_strength_upper_push_dyn_bi','lat-pulldown_strength_upper_pull_dyn_bi','medicine-ball-chest-pass_strength_upper_push_dyn_bi','medicine-ball-throw_strength_upper_push_dyn_bi','nordic-curl_strength_lower_pull_dyn_bi','pallof-press-band_strength_upper_core_dyn_bi','pigeon-pose_mobility_lower_sta','pigeon-stretch_mobility_lower_sta','plank_strength_upper_core_sta_bi','pogo-jump_jump_vertical_jump','pull-up_strength_upper_pull_dyn_bi','push-up_strength_upper_push_dyn_bi','reverse-crunch_strength_upper_core_dyn_bi','reverse-plank_strength_upper_core_sta_bi','seated-dumbbell-shoulder-press_strength_upper_push_dyn_bi','side-plank_strength_upper_core_sta_uni','single-leg-bound_jump_horizontal_jump','single-leg-box-squat_strength_lower_push_dyn_uni','single-leg-calf-raise_strength_lower_push_sta_uni','single-leg-deadlift_strength_lower_pull_dyn_uni','single-leg-glute-bridge_strength_lower_pull_sta_uni','split-squat-barbell_strength_lower_push_dyn_uni','sprint-lauf_sprint_acceleration_dyn','sprint-start_sprint_acceleration_dyn','squat-jump_jump_vertical_jump','standing-forward-fold_mobility_lower_sta','standing-long-jump_jump_horizontal_jump','superman-swimmer_strength_upper_core_dyn_bi','thoracic-rotation-stretch_mobility_full_body_dyn','thread-the-needle_mobility_upper_sta','tripod-row-kettlebell_strength_upper_pull_dyn_uni','wall-sit_strength_lower_push_sta_bi','world-greatest-stretch_mobility_full_body_dyn','y-raise_strength_upper_pull_dyn_bi'];
 
 async function generateWithAI() {
-  const warmup = document.getElementById('warmup-input').value.trim();
-  const main = document.getElementById('main-input').value.trim();
-  const cooldown = document.getElementById('cooldown-input').value.trim();
-  if (!main) { alert('Bitte mindestens den Hauptblock beschreiben!'); return; }
+  const input = document.getElementById('plan-input').value.trim();
+  if (!input) { alert('Bitte den Trainingsplan beschreiben!'); return; }
+
   const btn = document.getElementById('generate-btn');
   const status = document.getElementById('status-box');
   btn.disabled = true;
   btn.textContent = 'KI generiert deinen Plan...';
   status.style.display = 'block';
   status.className = 'status-box';
+  status.textContent = 'KI analysiert deine Eingabe...';
   document.getElementById('plan-wrapper').style.display = 'none';
-  const blocks = [];
-  if (warmup) blocks.push({ type: 'warmup', label: 'Warm-up', input: warmup });
-  blocks.push({ type: 'main', label: 'Hauptblock', input: main });
-  if (cooldown) blocks.push({ type: 'cooldown', label: 'Cool-down', input: cooldown });
+
   try {
-    const results = [];
-    for (const block of blocks) {
-      status.textContent = `Generiere ${block.label}...`;
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: block.input, exercises: EXERCISES.join(', ') })
-      });
-      if (!response.ok) throw new Error('API Fehler');
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      results.push({ ...block, exercises: data.plan });
-    }
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input, exercises: EXERCISES.join(', '), mode: 'auto' })
+    });
+    if (!response.ok) throw new Error('API Fehler');
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
     status.style.display = 'none';
-    renderPlan(results);
+    renderPlan(data.plan);
   } catch(e) {
     status.className = 'status-box error';
     status.textContent = 'Fehler: ' + e.message;
@@ -229,8 +219,10 @@ function renderPlan(blocks) {
   const date = new Date().toLocaleDateString('de-DE', {day:'2-digit',month:'long',year:'numeric'});
   const container = document.getElementById('pages-container');
   container.innerHTML = '';
+
   const allExercises = [];
   blocks.forEach(block => block.exercises.forEach(ex => allExercises.push({ ...ex, blockType: block.type, blockLabel: block.label })));
+
   const pages = [];
   for (let i = 0; i < allExercises.length; i += MAX_PER_PAGE) pages.push(allExercises.slice(i, i + MAX_PER_PAGE));
   const groupPositions = buildGroupCounters(allExercises);
@@ -269,24 +261,19 @@ function renderPlan(blocks) {
 
       const row = document.createElement('div');
       row.className = 'exercise-row' + (isCompact ? ' compact' : '');
-
       const sidebar = document.createElement('div');
       sidebar.className = 'ex-sidebar' + (hasGroup ? '' : ' no-group');
       sidebar.style.background = hasGroup ? color : '#e8e8e8';
       if (hasGroup) sidebar.innerHTML = `<span class="group-label">${group}</span>`;
-
       const imgBox = document.createElement('div');
       imgBox.className = 'ex-img-box';
       imgBox.style.borderLeft = hasGroup ? `3px solid ${color}` : '1px solid #bbb';
       if (imgSrc) {
         const img = document.createElement('img');
-        img.src = imgSrc;
-        img.alt = ex.exercise;
+        img.src = imgSrc; img.alt = ex.exercise;
         img.onerror = () => { imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`; };
         imgBox.appendChild(img);
-      } else {
-        imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`;
-      }
+      } else { imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`; }
 
       const infoBox = document.createElement('div');
       infoBox.className = 'ex-info-box';
@@ -296,7 +283,6 @@ function renderPlan(blocks) {
         ex.intensity ? `<span class="ex-tag intensity">⚡ ${ex.intensity}</span>` : '',
         ex.rest ? `<span class="ex-tag rest">⏱ ${ex.rest}</span>` : ''
       ].filter(Boolean).join('');
-
       infoBox.innerHTML = `
         ${hasGroup ? `<div class="group-tag" style="background:${color}"></div>` : ''}
         <div class="ex-name-row">
@@ -312,10 +298,7 @@ function renderPlan(blocks) {
         <div class="ex-sets-row">${setsHtml}</div>
         ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
       `;
-
-      row.appendChild(sidebar);
-      row.appendChild(imgBox);
-      row.appendChild(infoBox);
+      row.appendChild(sidebar); row.appendChild(imgBox); row.appendChild(infoBox);
       exContainer.appendChild(row);
     });
 
