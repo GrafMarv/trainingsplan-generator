@@ -1001,7 +1001,84 @@
       ],
       "quelle": "HIIT Science, Kap. 6",
       "inhalt": "Kohlenhydrate: 8–12 g/kg/Tag bei sehr hohem Trainingsvolumen. Nach HIIT: Kohlenhydrate priorisieren für Glykogen-Resynthese. Protein: 1.2–1.7 g/kg/Tag, nach Kraft und nach HIIT. 20g Protein-Dose stimuliert maximale Muskelprotein-Synthese — öfter essen besser als große Einzeldosen. Kombination KH + Protein nach Training: beschleunigt Glykogen-Resynthese und Muskelreparatur. Kreatin und Koffein: evidenzbasierte Ergänzungen die Interferenzeffekt teilweise mildern. Koffein verbessert HIIT-Leistung und reduziert wahrgenommene Ermüdung. Strategie bei Doppelbelastung: nach HIIT sofort KH + Protein, dann 2–3h vor nächster Session normal essen."
+    },
+    {
+      "id": "hiit_weapons_injury_risk_01",
+      "titel": "HIIT Verletzungsrisiko: Übersicht nach Format",
+      "tags": [
+        "verletzung",
+        "verletzungsrisiko",
+        "HIIT",
+        "COD",
+        "SSG",
+        "RST",
+        "SIT",
+        "format",
+        "oberfläche"
+      ],
+      "quelle": "HIIT Science, Kap. 5, Tabelle 5.4",
+      "inhalt": "Verletzungsrisiko nach HIIT-Format (Tabelle 5.4): Game-based HIIT = Traumatisch (Kontakt, Umknicken) + Overuse-Risiko. Lange Intervalle geradeaus = Traumatisch (Muskelzerrung), Overuse. Lange Intervalle bergauf = Traumatisch + Overuse (Sehnen). Kurze Intervalle geradeaus = Traumatisch+ Overuse++. Kurze Intervalle COD (Shuttle) = Traumatisch++ (Knöchel-Verstauchung, Knie) + Overuse+. RST <20s gerade = Traumatisch+, kein wesentliches Overuse. RST mit COD = Traumatisch++ + Overuse++. SIT >20s = Traumatisch+++ + Overuse. Fazit: COD-Formate und SSG erhöhen Verletzungsrisiko gegenüber Geradelauf deutlich. Oberfläche: weichere Oberflächen (Gras, Sand) reduzieren Belastungsspitzen, erhöhen aber Umknickrisko. Kunstrasens Kompromiss für Feldhockey."
+    },
+    {
+      "id": "hiit_short_intervals_01",
+      "titel": "Kurze Intervalle: Das vielseitigste HIIT-Werkzeug",
+      "tags": [
+        "kurze intervalle",
+        "10-60s",
+        "VO2max",
+        "T at VO2max",
+        "anaerob",
+        "neuromuskulär",
+        "praktisch"
+      ],
+      "quelle": "HIIT Science, Kap. 5 — Short Intervals",
+      "inhalt": "Kurze Intervalle (10–60 Sek) sind das vielseitigste HIIT-Format — können Typ 1-4 Targets treffen je nach Manipulation. Vorteil: durch kurze Intervalle bleiben Laktatwerte niedrig trotz hoher Herzfrequenz → weniger Ermüdung, mehr Volumen möglich. Optimal für T at VO2max: Work:Rest 1:1 mit aktiver Erholung bei 60-70% vVO2max. Work-Intensität: 100-120% vVO2max / 89-100% VIFT. Kürzere Arbeitsphasen (<15 Sek) = mehr aerob durch Myoglobin-Beitrag. Work ≥30 Sek mit passiver Erholung = höhere Laktatakkumulation. Für Feldhockey: 10-20 Sek Arbeit / 10-20 Sek aktive Pause bei 90-100% VIFT = ideale Kombination aus aerober Anpassung + Spielnähe."
+    },
+    {
+      "id": "hiit_long_intervals_01",
+      "titel": "Lange Intervalle: Optimale Prescription",
+      "tags": [
+        "lange intervalle",
+        "2-5 min",
+        "VO2max",
+        "T at VO2max",
+        "aerob",
+        "prescription"
+      ],
+      "quelle": "HIIT Science, Kap. 5 — Long Intervals",
+      "inhalt": "Lange Intervalle (2–5 Min) = primäres Werkzeug für maximale aerobe Entwicklung (VO2max-Anpassung). Ziel-T at VO2max: 6–14 Min pro Session. Optimal: 2–4 Sätze à 4 Min bei 90–95% vVO2max / 85-95% VIFT, passive Erholung 2 Min. T at VO2max / Exercise Time Ratio sollte 40-60% sein. Zu hohes Volumen bei langen Intervallen → Glykogendepletion, übermäßige neuromuskuläre Ermüdung. Bergauf-HIIT: neuromuskuläre Ermüdung reduziert, aerobe Antwort ähnlich → gut für Verletzungsprävention. Für Feldhockey Off-Season: 3-5×4 Min bei 90-95% VIFT mit 3 Min Pause = bewährtes Format."
+    },
+    {
+      "id": "hiit_ssg_prescription_01",
+      "titel": "SSG Prescription: Manipulation der Intensität",
+      "tags": [
+        "SSG",
+        "small sided games",
+        "feldhockey",
+        "spielerzahl",
+        "feldgröße",
+        "intensität",
+        "manipulation"
+      ],
+      "quelle": "HIIT Science, Kap. 5 — GBHIIT",
+      "inhalt": "SSG-Intensität steigern durch: mehr Spieler → höhere HR und Laktat. Kleineres Feld → mehr Intensität pro Flächeneinheit. Kürzere Spielzeiten mit längeren Pausen → anaerober Charakter. Torwart inklusive → reduziert HR (defensive Neuorganisation). Trainer-Ermutigung → erhöht HR. Für maximale physiologische Antwort: 4v4 bis 6v6, kleineres Feld, kurze Spielzeiten (3-5 Min), 2-4 Min passive Pause. Für technisch-taktische Entwicklung: größeres Feld, mehr Spieler, längere Spielzeiten. SSG auf Kunstrasens vs. Gras: ähnliche HR und Laktat. Sand erhöht Belastung leicht aber Unfallrisiko."
+    },
+    {
+      "id": "hiit_manipulation_variables_01",
+      "titel": "HIIT-Variablen: Was wie manipulieren",
+      "tags": [
+        "HIIT",
+        "variablen",
+        "manipulation",
+        "intensität",
+        "dauer",
+        "pause",
+        "work:rest",
+        "volumen"
+      ],
+      "quelle": "HIIT Science, Kap. 4 + 5",
+      "inhalt": "12 manipulierbare HIIT-Variablen: Arbeitsintensität, Arbeitsdauer, Erholungsintensität, Erholungsdauer, Anzahl Wiederholungen, Anzahl Serien, Serien-Erholung, Modalität, Oberfläche, Neigung, Warm-up. Für aerobe Anpassung (VO2max): Intensität 90-100% VIFT, Work:Rest ~1:1, aktive Erholung bei 50-60% vVO2max. Für anaerobe Anpassung: Intensität >110% VIFT / All-out, Work:Rest >1:3, passive Erholung. Für neuromuskuläre Entwicklung: explosive Modalities (COD, Sprünge), kurze Work (<5 Sek), lange Rest. Goldene Regel: nie Intensität UND Volumen gleichzeitig steigern."
     }
   ],
-  "totalChunks": 64
+  "totalChunks": 69
 }
