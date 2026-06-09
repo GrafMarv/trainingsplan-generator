@@ -1267,7 +1267,157 @@
       ],
       "quelle": "NSCA 4th Ed., Kap. 14 + HIIT Science Kap. 25",
       "inhalt": "Feldhockey-spezifisches Warm-up berücksichtigt: Tiefposition beim Ball (Hip-Flexor-Mobilisation zwingend), Asymmetrie durch Stick-Haltung (Rumpf-Rotation beidseitig), COD-Vorbereitung (laterale Bewegungsmuster), Sprint-Vorbereitung (progressive Beschleunigung). Empfohlene Reihenfolge: (1) Allgemein: leichtes Laufen mit Bewegungsmustern (A-Skip, Seitwärts, Rückwärts). (2) Mobilisation: Hip-90-90, Couch-Stretch, Thorakale Rotation, World Greatest Stretch. (3) Aktivierung: Glute Bridge, Dead Bug, Band-Walk. (4) Potenzierung: progressive Sprints 50-70-90%, COD-Drills, ballspezifische Einstimmung. Statisches Dehnen vermeiden vor Training. Dynamische Mobilisation schützt und aktiviert gleichzeitig."
+    },
+    {
+      "id": "inscyd_01_energiesysteme_framework",
+      "titel": "INSCYD: 5-Energiesystem-Framework",
+      "tags": [
+        "energiesysteme",
+        "atp",
+        "pcr",
+        "glykolyse",
+        "oxidation",
+        "fettverbrennung",
+        "anaerobe schwelle",
+        "mlss",
+        "inscyd",
+        "stoffwechsel"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "INSCYD unterscheidet 5 parallel aktive Energiesysteme: (1) ATP/PCr-System — sofort verfügbar, limitiert, dominant <10s. (2) Glykolyse — mittlere Intensität, Laktat als Endprodukt. (3) Oxidative Phosphorylation (aerober Stoffwechsel) — Hauptenergielieferant bei Ausdauerbelastungen. (4) Anaerobe Schwelle / MLSS (maximal lactate steady state) — der Punkt, an dem Laktatproduktion = Laktatverbrennung; entscheidend für Dauerleistung. (5) Fettverbrennung (Beta-Oxidation) — niedrige Intensität, hohe Kapazität. Alle 5 Systeme sind immer gleichzeitig aktiv — nur die Anteile verschieben sich mit Intensität und Dauer. Das klassische sequenzielle Modell (erst ATP, dann PCr, dann Glykolyse, dann aerob) ist eine didaktische Vereinfachung, die in der Praxis irreführt."
+    },
+    {
+      "id": "inscyd_02_generating_power",
+      "titel": "INSCYD: Leistungsverständnis — Energiesystemanteile bei gleicher Wattzahl",
+      "tags": [
+        "leistungsdiagnostik",
+        "inscyd",
+        "energiesystemanteile",
+        "watt",
+        "oxidation",
+        "glykolyse",
+        "pcr",
+        "trainingswirkung",
+        "metabolisch"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "Gleiche externe Leistung kann durch unterschiedliche Energiesystemkombinationen erzeugt werden. Beispiel 4 min @ 475 W: Pre-Training — PCr 35 W (7,5%), Glykolyse 27 W (5,5%), Oxidation 413 W (87%). Post-Training — PCr 28 W (6,0%), Glykolyse 42 W (8,9%), Oxidation 405 W (85%). Obwohl die externe Leistung gleich blieb, veränderten sich die Systemanteile. Kernaussage: Es reicht nicht, die Wattzahl zu kennen — man muss verstehen, welches System die Leistung generiert. Durch gezieltes Ausdauertraining lässt sich die oxidative Kapazität steigern, sodass perspektivisch 490 W (+15 W) möglich werden ohne proportionale Steigerung der anaeroben Systeme."
+    },
+    {
+      "id": "inscyd_03_pcr_atp_mechanismus",
+      "titel": "PCr & ATP: Mechanismus, Abbau und Wiederauffüllung",
+      "tags": [
+        "pcr",
+        "creatinphosphat",
+        "atp",
+        "muskelkontraktion",
+        "querbrückenzyklus",
+        "rigor mortis",
+        "resynthesezeit",
+        "trainingszustand"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "ATP ist die einzige direkt nutzbare Energiewährung im Querbrückenzyklus (Aktin/Myosin). Bei Erschöpfung des ATP (Reduktion auf 15% des Ruhewerts) setzt Rigor ein. PCr resynthetisiert ATP schnell aber in begrenzter Menge. PCr-Depletion erfolgt bereits innerhalb weniger Sekunden maximaler Belastung. Wiederauffüllung von PCr erfolgt aerob (oxidativ) und dauert bei passiver Erholung 2–3 Minuten für vollständige Resynthese. Trainierte Athleten (Elite) resynthetisieren PCr signifikant schneller als Untrainierte — messbarer Trainingseffekt. Bei hochglykolytischer Belastung verläuft die PCr-Resynthese langsamer wegen pH-Einfluss. PCr-Resynthese ist ein indirektes Maß für die aerobe Kapazität des Muskels."
+    },
+    {
+      "id": "inscyd_04_vlamax",
+      "titel": "VLamax: Maximale Glykolyserate als Leistungsparameter",
+      "tags": [
+        "vlamax",
+        "glykolyse",
+        "laktatproduktion",
+        "sprint",
+        "anaerob",
+        "leistungsdiagnostik",
+        "inscyd",
+        "pfk",
+        "ldh"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "VLamax (maximale Laktatbildungsrate) ist der entscheidende Parameter für das glykolytische System. Einheit: mmol/l/s. 100m-Sprint in 9,8s benötigt ca. 1,00 mmol/l/s. Athlete mit VLamax 0,6 mmol/l/s: Prognose ~11,8s. Athlete mit VLamax 0,25 mmol/l/s: Prognose ~16,5s. Glykolyse läuft in 2 Phasen: Phase I investiert ATP (Hexokinase, PFK), Phase II produziert netto +3 ATP (aus Glycogen) oder +2 ATP (aus Glucose). Laktat ist IMMER das Endprodukt der Glykolyse — nicht nur bei Sauerstoffmangel. Die PFK (Phosphofructokinase) ist das Schlüsselenzym und wird durch pH reguliert: Acidose hemmt PFK, Alkalose steigert sie. Daher hat pH direkten Einfluss auf die glykolytische Leistung."
+    },
+    {
+      "id": "inscyd_05_laktat_shuttle_acidose",
+      "titel": "Laktat-Shuttle, MCT und Acidose-Management",
+      "tags": [
+        "laktat",
+        "laktatshuttle",
+        "mct",
+        "acidose",
+        "ph",
+        "h+",
+        "erholung",
+        "puffer",
+        "brooks"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "Laktat ist immer das Endprodukt der Glykolyse (Brooks, 2015) und dient als primärer diffusiver Transporter, der Glykolyse und oxidative Phosphorylation verbindet. H+ und Laktat verlassen den Muskel gemeinsam über MCT-Transporter (Monocarboxylat-Transporter) entlang des pH-Gradienten. Laktat ist kein 'Abfallprodukt', sondern Substrat für die oxidative Verbrennung in anderen Muskelfasern, Herzmuskel und Leber. pH reguliert die PFK und damit die Glykolyserate. Acidose: hemmt PFK → reduziert Glykolyseleistung; verkürzt Ausdauerzeit bei 95% VO2max von 4,56 auf 3,13 min. Alkalose: steigert Glykolyseleistung; verlängert Ausdauerzeit auf 5,44 min. Laktatverbrennung steigt proportional mit aerober Kapazität — bis 75% VO2max linear."
+    },
+    {
+      "id": "inscyd_06_mlss_anaerobe_schwelle",
+      "titel": "MLSS / Anaerobe Schwelle: Gleichgewicht von Laktatproduktion und -verbrennung",
+      "tags": [
+        "mlss",
+        "anaerobe schwelle",
+        "laktatgleichgewicht",
+        "laktatproduktion",
+        "laktatverbrennung",
+        "vlamax",
+        "vo2max",
+        "schwelle",
+        "dauerleistung"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "MLSS (Maximal Lactate Steady State) = anaerobe Schwelle = der Leistungspunkt, an dem Laktatproduktion = Laktatverbrennung (Gleichgewicht). Unterhalb MLSS: Verbrennung > Produktion → stabil. Oberhalb MLSS: Produktion > Verbrennung → progressiver Laktatanstieg → Erschöpfung. MLSS wird bestimmt durch zwei Motoren: anaerober Motor (VLamax) und aerober Motor (VO2max). Hohe VLamax → mehr Laktatproduktion → MLSS verschiebt sich nach links (niedrigere Wattleistung). Hohe VO2max → mehr Laktatverbrennung → MLSS verschiebt sich nach rechts (höhere Wattleistung). Trainingsziel Ausdauersport: VO2max steigern + VLamax reduzieren → MLSS maximieren. Erholungszeit nach supramaximaler Belastung berechenbar: Beispiel 407W × 4min = 4 mmol/l Lakkat ÷ 0,6 mmol/l/min Verbrennung = 6'40\" Erholung."
+    },
+    {
+      "id": "inscyd_07_vo2max_limitierende_faktoren",
+      "titel": "VO2max: Limitierende Faktoren, Kinetik und Trainingsrelevanz",
+      "tags": [
+        "vo2max",
+        "sauerstoffaufnahme",
+        "herzminutenvolumen",
+        "sauerstoffkinetik",
+        "tau",
+        "limitierende faktoren",
+        "cardiac output"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "VO2max = Q × (CaO2 – CvO2); Q = Herzminutenvolumen (SV × HF). Limitierende Faktoren: pulmonale Diffusionskapazität, Herzminutenvolumen, O2-Transportkapazität, Skelettmuskelkapazität. Sauerstoffaufnahmekinetik: VO2(t) = VO2(b) + A(1-e^(-t-TD/tau)). Tau (τ) = Zeitkonstante des VO2-Anstiegs. Trainierte haben niedrigeres τ (schnellerer O2-Anstieg). τ = 15s vs. 45s hat bei 4-min Maximalbelastung erheblichen Einfluss auf tatsächlich genutzte VO2. Benötigte VO2max für 300W @ MLSS hängt von % VO2max @MLSS ab: bei 70% → 5,36 l/min; bei 90% → 4,17 l/min. Athleten mit höherer MLSS-Utilization benötigen strukturell weniger VO2max für gleiche Leistung."
+    },
+    {
+      "id": "inscyd_08_fettverbrennung",
+      "titel": "Beta-Oxidation, FatMax und der Einfluss von VLamax auf Fettverbrennung",
+      "tags": [
+        "fettverbrennung",
+        "beta oxidation",
+        "fatmax",
+        "cpt1",
+        "pdh",
+        "laktat hemmt fett",
+        "substratnutzung",
+        "kohlenhydrate",
+        "ausdauertraining"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "Beta-Oxidation = Fettabbau in der Mitochondrienmatrix via CPT1/CPT2-Transport. FatMax-Zone (maximale Fettoxidationsrate) ist hochindividuell und trainierbar — keine allgemeine Empfehlung möglich. FatMax liegt bei gut trainierten Athleten bei höherer % VO2max als bei Untrainierten. Entscheidendes Mechanismus: Laktat aktiviert PDH (Pyruvat-Dehydrogenase), das Gate zur oxidativen Phosphorylation. Hohe Laktatkonzentrationen → PDH fast vollständig aktiviert → Pyruvat-Fluss → mehr KH-Verbrennung, weniger Fett. Praktische Konsequenz: VLamax ↑ → mehr Laktat → mehr KH, weniger Fett → MLSS niedriger. VLamax ↓ → weniger Laktat → mehr Fett → MLSS höher. Beispiel: Gleicher Athlet (80kg, VO2max 60 ml/min/kg) mit VLamax 0,4 vs. 0,7 hat deutlich unterschiedliche Substratnutzung und Dauerleistung."
+    },
+    {
+      "id": "inscyd_09_trainingsreize",
+      "titel": "Trainingsreize und Belastungsprotokolle aus INSCYD-Perspektive",
+      "tags": [
+        "trainingsreiz",
+        "belastungsprotokoll",
+        "vo2max training",
+        "vlamax senken",
+        "glykolyse",
+        "aerob",
+        "intensity",
+        "trainingssteuerung"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
+      "inhalt": "Aus metabolischer Sicht gibt es zwei Haupttrainingsreize: (1) VO2max steigern: Intensitäten nahe VO2max, Sauerstoffkinetik verbessern, aerobe Kapazität erhöhen → Laktatverbrennung steigt. (2) VLamax reduzieren: Lange, moderate Belastungen unter MLSS; glykolytischer Stress wird vermieden → PFK-Aktivität adaptiert sich herunter. Achtung Konflikt: HIIT-Einheiten steigern zwar VO2max, können aber VLamax erhöhen, wenn zu viel Glykolyse-Stress entsteht. Für Ausdauersport (Triathlon, Radrennen) oft sinnvoller: selektiv VLamax senken statt blind HIIT. Für Spielsportarten (Feldhockey, Fußball): höhere VLamax oft gewünscht (Sprint-Wiederholungsleistung), aber MLSS-Stabilität trotzdem relevant für Match-Ausdauer."
     }
   ],
-  "totalChunks": 81
+  "totalChunks": 90
 }
