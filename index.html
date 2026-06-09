@@ -403,7 +403,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     }
 
     function bTick(){
-      if(document.getElementById('home-screen').style.display!=='none'){
+      const homeVisible=document.getElementById('home-screen').style.display!=='none';
+      bgCv.style.display=homeVisible?'block':'none';
+      if(homeVisible){
         bDraw();
         if(bAuto)bRotY+=0.0018;
       }
