@@ -1,0 +1,198 @@
+{
+  "version": "1.0",
+  "source": "NSCA Essentials of Strength Training and Conditioning, 4th Ed. (Haff & Triplett, 2016)",
+  "chunks": [
+
+    {
+      "id": "nsca_exercise_order_01",
+      "titel": "Übungsreihenfolge: Neural vor metabolisch",
+      "tags": ["übungsreihenfolge", "session", "power", "neural", "planung", "reihenfolge"],
+      "quelle": "NSCA 4th Ed., Kap. 17",
+      "inhalt": "Power-Übungen (Cleans, Jump Squats, Sprints, Plyometrics) immer zuerst — sie haben die höchste neurale Anforderung und sind am stärksten technikabhängig. Danach Kernübungen (Squat, Deadlift, Bench, RDL), zuletzt Assistenzübungen (Isolationsübungen). Begründung: Fatigue beeinträchtigt Technik bei Powerübungen unverhältnismäßig stark."
+    },
+
+    {
+      "id": "nsca_exercise_order_02",
+      "titel": "Superset-Logik: Antagonisten und Upper/Lower",
+      "tags": ["superset", "übungsreihenfolge", "antagonist", "push", "pull", "upper", "lower", "pairing"],
+      "quelle": "NSCA 4th Ed., Kap. 17",
+      "inhalt": "Supersets funktionieren am besten mit Antagonisten (z.B. Leg Curl + Leg Extension, Bench Press + Seated Row) oder Push/Pull-Paaren (Overhead Press + Lat Pulldown). Upper/Lower-Supersets (Split Squat + Dumbbell Row) reduzieren Gesamttrainingszeit ohne lokale Muskelermüdung zu erhöhen. Schlechte Kombinationen: Mehrere Zugübungen hintereinander → Bizeps erschöpft; mehrere Druckübungen → Trizeps erschöpft."
+    },
+
+    {
+      "id": "nsca_load_reps_01",
+      "titel": "Belastungsparameter nach Trainingsziel",
+      "tags": ["last", "wiederholungen", "sätze", "pause", "intensität", "1rm", "kraft", "hypertrophie", "ausdauer", "power"],
+      "quelle": "NSCA 4th Ed., Kap. 17, Tabelle 17.9 + 17.12",
+      "inhalt": "Maximalkraft: ≥85% 1RM, ≤6 Wdh, 2–6 Sätze, 2–5 Min Pause. Power (Oly-Lifts): 75–85% 1RM, ≤5 Wdh, 3–5 Sätze, 2–5 Min Pause. Hypertrophie: 67–85% 1RM, 6–12 Wdh, 3–6 Sätze, 30 Sek–1,5 Min Pause. Kraftausdauer: ≤67% 1RM, ≥12 Wdh, 2–3 Sätze, <30 Sek Pause. Power-Sonderregel: Nie bis Muskelversagen — Technikverfall kommt vor Muskelerschöpfung."
+    },
+
+    {
+      "id": "nsca_load_reps_02",
+      "titel": "Power-Training: Optimale Last",
+      "tags": ["power", "explosiv", "last", "jump squat", "medball", "velocity", "schnelligkeit"],
+      "quelle": "NSCA 4th Ed., Kap. 17",
+      "inhalt": "Non-Weightlifting Power-Übungen (Jump Squat, Medball, Bench Press Throw): Maximale Leistungsentwicklung bei 0–30% 1RM. Bei zu schwerer Last wird Verzögerung am Bewegungsende erforderlich — untergräbt das Ziel. Jump Squat im Power Rack als Ausnahme. Weightlifting-Derivate (Clean, Snatch): 75–85% 1RM für optimale Power-Entwicklung."
+    },
+
+    {
+      "id": "nsca_plyometrics_01",
+      "titel": "Plyometrics: Planungsregeln und Session-Reihenfolge",
+      "tags": ["plyometrics", "sprungkraft", "session", "reihenfolge", "aerob", "kraft", "kombinieren"],
+      "quelle": "NSCA 4th Ed., Kap. 18",
+      "inhalt": "Plyometrics immer VOR Ausdauertraining — aerobe Arbeit reduziert Poweroutput signifikant. Bei kombinierten Sessions: Unterkörper-Plyometrics + Oberkörper-Kraft ODER Oberkörper-Plyometrics + Unterkörper-Kraft. Schweres Krafttraining + Plyometrics am selben Tag generell NICHT empfohlen. Ausnahme: Complex Training (schwere Kraft → direkt danach Plyometrics) nur für erfahrene Athleten — nutzt Post-Activation Potentiation (PAP)."
+    },
+
+    {
+      "id": "nsca_plyometrics_02",
+      "titel": "Plyometrics: Frequenz, Pausen, Voraussetzungen",
+      "tags": ["plyometrics", "pause", "frequenz", "erholung", "jugend", "technik", "valgus"],
+      "quelle": "NSCA 4th Ed., Kap. 18",
+      "inhalt": "Mindestabstand zwischen Plyometric-Sessions: 48–72 Stunden. Typisch: 2–3 Sessions/Woche Off-Season, 1–2 Sessions/Woche In-Season. Pausen: 5–10 Sek zwischen Wdh, 2–3 Min zwischen Sätzen. Work:Rest Ratio 1:5 bis 1:10. Jugendathleten: Technik vor Belastung — kein Mindestkraftlevel für einfache Plyometrics nötig. Kritisch: Knie über Zehen, kein dynamischer Valgus (ACL-Risiko)."
+    },
+
+    {
+      "id": "nsca_plyometrics_03",
+      "titel": "Complex Training: PAP für erfahrene Athleten",
+      "tags": ["complex training", "PAP", "post-activation potentiation", "power", "fortgeschritten", "squat", "jump"],
+      "quelle": "NSCA 4th Ed., Kap. 18",
+      "inhalt": "Complex Training: Schwere Kraftübung (z.B. Squat 85%+ 1RM) direkt gefolgt von explosiver Plyometric-Übung. Nutzt Post-Activation Potentiation (PAP) — neuromuskuläre Potenzierung durch vorangehende schwere Kontraktion. Beispiel: Back Squat 3 Wdh 85% 1RM → Jump Squat mit 30% 1RM. Nur für Athleten mit Erfahrung in hochintensivem Plyometric-Training. Ausreichend Erholung zwischen den Blöcken notwendig."
+    },
+
+    {
+      "id": "nsca_speed_01",
+      "titel": "Sprint & Agility: Reihenfolge und Frische",
+      "tags": ["sprint", "schnelligkeit", "agility", "CNS", "neural", "reihenfolge", "session", "frisch"],
+      "quelle": "NSCA 4th Ed., Kap. 19",
+      "inhalt": "Sprinttraining braucht frisches Nervensystem — immer am Anfang der Session oder an ausgeruhten Tagen. Sprint nach schwerem Krafttraining = kompromittierte Technik + erhöhtes Verletzungsrisiko. Reihenfolge am selben Tag zwingend: Sprint/Agility → Kraft (nie umgekehrt). Sprint ist eine Fertigkeit — Qualität der Ausführung vor Quantität."
+    },
+
+    {
+      "id": "nsca_speed_02",
+      "titel": "Agility vs. Change of Direction",
+      "tags": ["agility", "COD", "change of direction", "reaktion", "wahrnehmung", "feldhockey", "spielnah"],
+      "quelle": "NSCA 4th Ed., Kap. 19",
+      "inhalt": "Change of Direction (COD) = technisch, planbar, trainierbar mit Hütchen und Leitern. Agility = reaktiv, wahrnehmungs- und entscheidungsabhängig — braucht spielnahe Reize, nicht nur vorgeplante Muster. Feldhockey: Agility-Training muss kognitive Komponente haben (Reaktion auf Gegner/Ball). COD-Technik: Bremsimpuls erzeugen, starke Rumpfposition halten, Richtungswechsel über Außenkante."
+    },
+
+    {
+      "id": "nsca_speed_03",
+      "titel": "Sprintmechanik und Coaching-Cues",
+      "tags": ["sprint", "mechanik", "technik", "beschleunigung", "maximalgeschwindigkeit", "coaching", "cue"],
+      "quelle": "NSCA 4th Ed., Kap. 19",
+      "inhalt": "Beschleunigungsphase: Vorwärtsneigung, kurze Bodenkontaktzeiten, Kraft nach hinten/unten in den Boden. Maximalgeschwindigkeit: Aufrechte Position, Knie hoch, Arme aktiv. Häufiger Fehler: Überstreckung der Schrittlänge (overstriding) — Fokus auf Frequenz, nicht Länge. Arme treiben nach unten/hinten (nicht quer). Ermüdungssignal: Armarbeit lässt nach — bedeutet maximale Sprintintensität erschöpft."
+    },
+
+    {
+      "id": "nsca_bioenergetics_01",
+      "titel": "Energiesysteme: Überblick und Zeitrahmen",
+      "tags": ["energiesystem", "phosphagen", "glykolyse", "oxidativ", "aerob", "anaerob", "sprint", "ausdauer"],
+      "quelle": "NSCA 4th Ed., Kap. 3",
+      "inhalt": "Phosphagensystem (ATP-PCr): 0–10 Sek, maximale Intensität — dominant bei Sprints, Sprüngen, Gewichtheben. Glykolyse: 10 Sek–2 Min, hohe bis moderate Intensität. Oxidatives System: >2 Min, niedrige bis moderate Intensität. Alle drei Systeme sind immer aktiv — Intensität bestimmt die Dominanz, nicht Dauer allein. Feldhockey-Implikation: 1–3 Sek Sprints = phosphagen-dominant, RSA-Kapazität = glykolytisch."
+    },
+
+    {
+      "id": "nsca_bioenergetics_02",
+      "titel": "Erholungszeiten nach Energiesystemen",
+      "tags": ["erholung", "pause", "phosphagen", "PCr", "laktat", "sprint", "recovery", "RSA"],
+      "quelle": "NSCA 4th Ed., Kap. 3",
+      "inhalt": "ATP-Resynthese: vollständig in 3–5 Min. Phosphokreatin (PCr)-Resynthese: vollständig in 8 Min. Laktat-Peak im Blut: ~5 Min nach Belastungsende. Laktatclearance: Rückkehr zu Ruhewerten innerhalb 1 Stunde (bei aktiver Erholung schneller). Aktive Erholung (leichte Bewegung) beschleunigt Laktatclearance gegenüber passiver Pause. Trainierte Athleten haben schnellere Clearance als Untrainierte."
+    },
+
+    {
+      "id": "nsca_bioenergetics_03",
+      "titel": "Work:Rest Ratio nach Energiesystem",
+      "tags": ["work:rest", "pause", "intervall", "RSA", "sprint", "feldhockey", "ausdauer"],
+      "quelle": "NSCA 4th Ed., Kap. 3",
+      "inhalt": "Phosphagen-Training (maximale Sprints): Work:Rest 1:12 bis 1:20 für vollständige Erholung. Glykolytisches Training (RSA, HIIT): Work:Rest 1:3 bis 1:5. Aerobe Basis: Work:Rest 1:1 bis 2:1. Feldhockey RSA-Training: kurze Sprints (2–5 Sek) mit 15–30 Sek Pause simuliert Spielanforderungen. Für Leistungssteigerung: Pause erst reduzieren wenn Technik stabil bleibt."
+    },
+
+    {
+      "id": "nsca_hormonal_01",
+      "titel": "Hormonelle Reaktionen auf Training",
+      "tags": ["hormone", "testosteron", "kortisol", "wachstumshormon", "anabolismus", "katabolismus", "regeneration"],
+      "quelle": "NSCA 4th Ed., Kap. 5",
+      "inhalt": "Akute anabole Reaktion (Testosteron, GH, IGF-1): maximal nach großen Muskelgruppen-Übungen mit moderater bis hoher Intensität und Volumen + kurzen Pausen. Kleines Volumen (1–2 Wdh) mit sehr schwerer Last kann Testosteron kaum stimulieren. Kortisol steigt bei hoher Laktatakkumulation — zeigt katabolen Stress an. Testosteron:Kortisol-Verhältnis als indirekter Erholungsindikator: sinkendes T:C-Ratio = Übertraining-Signal."
+    },
+
+    {
+      "id": "nsca_hormonal_02",
+      "titel": "Übertraining und Überreichen erkennen",
+      "tags": ["übertraining", "overtraining", "überreichen", "erholung", "leistungsabfall", "regeneration", "warning"],
+      "quelle": "NSCA 4th Ed., Kap. 5",
+      "inhalt": "Funktionelles Überreichen (FOR): kurzzeitiger Leistungsabfall, Erholung in Tagen bis Wochen — kann als geplante Phase eingesetzt werden (Overreach → Taper → Supercompensation). Nicht-funktionelles Überreichen (NFOR): Leistungsabfall über Wochen/Monate. Übertrainingssyndrom (OTS): anhaltende Maladaptation. Frühe Signale: Leistungsabfall, erhöhte Müdigkeit, Stimmungsschwankungen, Schlafprobleme, erhöhte Ruheherzfrequenz. Nicht-Training-Stress (Schlaf, Schule, Beziehungen) addiert sich zum Trainingsvolumen."
+    },
+
+    {
+      "id": "nsca_frequency_recovery_01",
+      "titel": "Trainingsfrequenz und Erholungsregeln",
+      "tags": ["frequenz", "erholung", "trainingshäufigkeit", "split", "ganzkörper", "regeneration", "woche"],
+      "quelle": "NSCA 4th Ed., Kap. 17",
+      "inhalt": "Grundregel: Mindestens 1, maximal 3 Ruhetage zwischen Sessions die dieselbe Muskelgruppe belasten. Einsteiger: 2–3x/Woche Ganzkörper. Fortgeschrittene: 3–4x/Woche, Split möglich. Elite: bis 5–6x/Woche mit präziser Split-Planung. Maximale Last (>90% 1RM) → mehr Erholung nötig. Hohe Last = strukturelle Ermüdung, hohe Wiederholung = metabolische Ermüdung."
+    },
+
+    {
+      "id": "nsca_inseason_01",
+      "titel": "In-Season Trainingsplanung",
+      "tags": ["in-season", "wettkampf", "saison", "erhaltung", "volumen", "intensität", "spieltag", "feldhockey"],
+      "quelle": "NSCA 4th Ed., Kap. 17 + 21",
+      "inhalt": "In-Season: Volumen reduzieren, Intensität halten. 1–2 Kraftsessions/Woche reichen für Erhaltung bereits erworbener Stärke. Kein Training bis Muskelversagen (erhöht Übertrainingsrisiko). Keine schwere Session ≤48h vor Spieltag. Prozentbasiertes Training statt RM-Training in der Saison empfohlen. Sportspezifisches Training erhält Priorität — Krafttraining ist Ergänzung, nicht Hauptfokus."
+    },
+
+    {
+      "id": "nsca_periodization_01",
+      "titel": "Periodisierungszyklen: Makro, Meso, Mikro",
+      "tags": ["periodisierung", "makrozyklus", "mesozyklus", "mikrozyklus", "jahresplan", "planung"],
+      "quelle": "NSCA 4th Ed., Kap. 21",
+      "inhalt": "Makrozyklus: mehrere Monate bis 1 Jahr, enthält Vorbereitungs-, Wettkampf- und Übergangsphasen. Mesozyklus: 2–6 Wochen (typisch 4 Wochen), ein Trainingsblock. Mikrozyklus: mehrere Tage bis 2 Wochen (typisch 1 Woche). Trainingsjahr für Feldhockey: Off-Season (Grundlagen/Hypertrophie) → Vorbereitung (Kraft/Power) → Vorbereitung Saison (Power/Schnelligkeit) → In-Season (Erhaltung) → Off (aktive Erholung)."
+    },
+
+    {
+      "id": "nsca_periodization_02",
+      "titel": "Phasen der Vorbereitung: Volumen und Intensität",
+      "tags": ["periodisierung", "vorbereitung", "off-season", "volumen", "intensität", "hypertrophie", "kraft", "power"],
+      "quelle": "NSCA 4th Ed., Kap. 21",
+      "inhalt": "Volumen und Intensität sind invers: hohes Volumen = niedrige Intensität und umgekehrt. Off-Season/Allgemeine Vorbereitung: hohes Volumen, niedrige bis moderate Intensität (Hypertrophie/Grundlagenausdauer). Spezifische Vorbereitung: Volumen sinkt, Intensität steigt (Kraft → Power). Wettkampfphase: niedrigstes Volumen, höchste Intensität + Spielbelastung. Supercompensation entsteht durch: Overreach → Entlastung → Peak."
+    },
+
+    {
+      "id": "nsca_periodization_03",
+      "titel": "Nichtlineare Periodisierung (DUP)",
+      "tags": ["DUP", "nonlinear", "undulierend", "periodisierung", "abwechslung", "woche", "mikrozyklus"],
+      "quelle": "NSCA 4th Ed., Kap. 21",
+      "inhalt": "Daily Undulating Periodization (DUP): Wechsel von Trainingszielen innerhalb einer Woche — z.B. Montag Kraft (85% 1RM), Mittwoch Power (60%), Freitag Hypertrophie (75%). Vorteil: verhindert Anpassungsplateau, flexibler für sportliche Rahmenbedingungen. Besonders geeignet für In-Season oder wenn Spielplan Wochenstruktur vorgibt. Sportler mit variabler Spielbelastung profitieren mehr von DUP als von linearer Periodisierung."
+    },
+
+    {
+      "id": "nsca_warmup_01",
+      "titel": "Warm-up Prinzipien",
+      "tags": ["warm-up", "aufwärmen", "dehnen", "mobilisation", "aktivierung", "statisch", "dynamisch"],
+      "quelle": "NSCA 4th Ed., Kap. 14",
+      "inhalt": "Statisches Dehnen VOR dem Training reduziert Kraftleistung und Explosivität — daher im Warm-up vermeiden. Dynamisches Dehnen und aktivierende Bewegungen sind optimal. Warm-up-Reihenfolge: (1) Allgemein: Herzfrequenz hoch (5–10 Min leichte aerobe Arbeit), (2) Mobilisierung relevanter Gelenke, (3) Sportspezifische Aktivierung (z.B. Sprungvorbereitung vor Plyometrics, Hüftmobilisation vor Squat), (4) Spezifische Eingewöhnungssätze mit der Hauptübung. Warm-up bereitet die dominante Bewegung des Hauptblocks vor."
+    },
+
+    {
+      "id": "nsca_needs_analysis_01",
+      "titel": "Bedarfsanalyse vor der Programmgestaltung",
+      "tags": ["bedarfsanalyse", "needs analysis", "SAID", "sport", "bewegungsmuster", "verletzung", "planung"],
+      "quelle": "NSCA 4th Ed., Kap. 17",
+      "inhalt": "Vier Fragen vor jedem Programm: (1) Sportanalyse: Welche Bewegungsmuster dominieren? (Feldhockey: Sprinten, Bremsen, COD, Schlagbewegung, Tiefposition). (2) Energiesystemanalyse: Welches System überwiegt? (Feldhockey: phosphagen-anaerob dominant, aerobe Basis essentiell für RSA-Recovery). (3) Verletzungsprofil: Typische Risikostellen absichern (Feldhockey: Hamstrings, Knöchel, Knie, Rücken durch Tiefposition). (4) Trainingsstatus: Technik vor Last — bei Zweifel einfachere Variante wählen. SAID-Prinzip: Je ähnlicher die Übung der Sportbewegung, desto direkter der Transfer."
+    },
+
+    {
+      "id": "nsca_concurrent_01",
+      "titel": "Kraft + Ausdauer kombinieren: Interferenzeffekt",
+      "tags": ["concurrent training", "kraft", "ausdauer", "interferenz", "reihenfolge", "feldhockey", "kombinieren"],
+      "quelle": "NSCA 4th Ed., Kap. 5",
+      "inhalt": "Interferenzeffekt: Gleichzeitiges Kraft- und Ausdauertraining kann Kraftentwicklung (besonders Power) beeinträchtigen. Power ist am stärksten betroffen. Mindestabstand bei getrennten Sessions verringert Interferenz. Wenn kombiniert: Kraft VOR Ausdauer in derselben Session. Ausdauertraining nach Kraft vermindert Kraftanpassung weniger als umgekehrt. 3x/Woche kombiniert (nicht täglich) reduziert Interferenzeffekt deutlich."
+    },
+
+    {
+      "id": "nsca_youth_01",
+      "titel": "Jugendathleten: Besonderheiten",
+      "tags": ["jugend", "jugendliche", "youth", "kinder", "anfänger", "technik", "sicherheit", "wachstum"],
+      "quelle": "NSCA 4th Ed., Kap. 7",
+      "inhalt": "Jugendliche profitieren von Krafttraining — keine erhöhtes Verletzungsrisiko bei korrekter Technik und Aufsicht. Hauptziel: Bewegungsqualität und Technik vor Lastprogression. Kein Maximaltest (1RM) bei Jugendlichen — Multiple-RM Tests (z.B. 6–10 RM) bevorzugen. Freie Gewichte sind nach Technikschulung geeignet. Plyometrics: geeignet für alle Jugendlichen die laufen, springen und bremsen müssen — Technik ist Voraussetzung, kein Mindestalter."
+    }
+  ]
+}
