@@ -420,33 +420,297 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     <!-- COACHING BRAIN -->
     <div id="wissen-brain" style="display:none;">
-      <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div>
-            <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:2px;">Coaching Brain</p>
-            <p style="font-size:13px;color:#1c1c1e;">Destilliertes Fachwissen — wird beim Generieren aktiv genutzt</p>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span id="brain-count-badge" style="font-size:12px;font-weight:600;color:#fff;background:#007aff;padding:3px 10px;border-radius:20px;">0 Einträge</span>
-            <button onclick="loadBrainFromGitHub()" style="padding:7px 14px;background:#f2f2f7;color:#1c1c1e;border:none;border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">↓ Neu laden</button>
-          </div>
-        </div>
-        <input type="text" id="brain-search" placeholder="Suche nach Thema, Tag oder Quelle..." oninput="renderBrainList()" style="width:100%;padding:10px 14px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;background:#f9f9f9;">
+  <div style="background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;overflow:hidden;margin-bottom:16px;">
+    
+    <!-- Header -->
+    <div style="padding:16px 20px;border-bottom:0.5px solid #e5e5ea;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#1c1c1e;margin-bottom:2px;">Coaching Brain</p>
+        <p id="brain-chunk-count" style="font-size:12px;color:#8e8e93;">Lade Chunks...</p>
       </div>
-
-      <!-- Chunk hinzufügen -->
-      <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;margin-bottom:16px;">
-        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:12px;">Neuen Eintrag hinzufügen</p>
-        <input type="text" id="brain-titel" placeholder="Titel z.B. Sprint-Reihenfolge in der Session" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
-        <input type="text" id="brain-tags" placeholder="Tags (kommagetrennt) z.B. sprint, session, reihenfolge" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
-        <input type="text" id="brain-quelle" placeholder="Quelle z.B. NSCA 4th Ed., eigene Erfahrung" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
-        <textarea id="brain-inhalt" placeholder="Inhalt — Coaching-Prinzip, Faustregeln, Kontraindikationen..." style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;min-height:100px;resize:vertical;line-height:1.6;margin-bottom:8px;"></textarea>
-        <button onclick="saveBrainChunk()" style="padding:9px 20px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Eintrag speichern</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="loadBrainAndVisualize()" style="padding:6px 14px;background:#f2f2f7;border:none;border-radius:8px;font-size:12px;font-weight:500;color:#1c1c1e;cursor:pointer;font-family:inherit;">↓ Neu laden</button>
       </div>
-
-      <div id="brain-list" style="display:flex;flex-direction:column;gap:10px;"></div>
-      <p id="brain-empty" style="text-align:center;color:#8e8e93;font-size:14px;padding:40px;display:none;">Noch keine Einträge. Lade das Brain von GitHub oder füge eigene Einträge hinzu.</p>
     </div>
+
+    <!-- 3D Brain Visual -->
+    <div style="position:relative;background:#fafafa;">
+      <canvas id="brain-3d" style="display:block;width:100%;height:520px;cursor:grab;"></canvas>
+      
+      <!-- Tooltip -->
+      <div id="brain-tooltip" style="position:absolute;background:#fff;border:0.5px solid #e5e5ea;border-radius:10px;padding:12px 14px;font-size:12px;max-width:220px;pointer-events:none;display:none;z-index:9;box-shadow:0 4px 20px rgba(0,0,0,0.1);line-height:1.6;"></div>
+      
+      <!-- Chunk Detail Panel -->
+      <div id="brain-panel" style="position:absolute;top:0;right:0;width:280px;height:100%;background:#fff;border-left:0.5px solid #e5e5ea;padding:20px;overflow-y:auto;display:none;z-index:8;">
+        <button onclick="document.getElementById('brain-panel').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;cursor:pointer;color:#8e8e93;">×</button>
+        <p id="panel-cluster" style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;"></p>
+        <p id="panel-title" style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;line-height:1.3;"></p>
+        <p id="panel-source" style="font-size:11px;color:#8e8e93;margin-bottom:14px;"></p>
+        <p id="panel-content" style="font-size:13px;color:#3c3c43;line-height:1.7;"></p>
+      </div>
+
+      <!-- Zoom hint -->
+      <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;pointer-events:none;opacity:0.7;">Drehen · Scrollen zum Zoomen · Klicken für Details</div>
+    </div>
+
+    <!-- Filter -->
+    <div style="padding:12px 16px;border-top:0.5px solid #e5e5ea;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <button class="brain-filter-btn active" onclick="brainFilter('all',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#1c1c1e;color:#fff;">Alle</button>
+      <button class="brain-filter-btn" onclick="brainFilter('energie',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#8e8e93;">Energie</button>
+      <button class="brain-filter-btn" onclick="brainFilter('sprint',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#8e8e93;">Sprint</button>
+      <button class="brain-filter-btn" onclick="brainFilter('ausdauer',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#8e8e93;">Ausdauer</button>
+      <button class="brain-filter-btn" onclick="brainFilter('kraft',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#8e8e93;">Kraft</button>
+      <button class="brain-filter-btn" onclick="brainFilter('warmup',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#8e8e93;">Warm-Up</button>
+      <button class="brain-filter-btn" onclick="brainFilter('recovery',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#8e8e93;">Recovery</button>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <span style="width:8px;height:8px;background:#D85A30;border-radius:50%;display:inline-block;"></span><span style="font-size:11px;color:#8e8e93;">Energie</span>
+        <span style="width:8px;height:8px;background:#1D9E75;border-radius:50%;display:inline-block;"></span><span style="font-size:11px;color:#8e8e93;">Sprint</span>
+        <span style="width:8px;height:8px;background:#378ADD;border-radius:50%;display:inline-block;"></span><span style="font-size:11px;color:#8e8e93;">Ausdauer</span>
+        <span style="width:8px;height:8px;background:#7F77DD;border-radius:50%;display:inline-block;"></span><span style="font-size:11px;color:#8e8e93;">Kraft</span>
+        <span style="width:8px;height:8px;background:#D4537E;border-radius:50%;display:inline-block;"></span><span style="font-size:11px;color:#8e8e93;">Warm-Up</span>
+        <span style="width:8px;height:8px;background:#BA7517;border-radius:50%;display:inline-block;"></span><span style="font-size:11px;color:#8e8e93;">Recovery</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const CLUSTER_COLORS={energie:'#D85A30',sprint:'#1D9E75',ausdauer:'#378ADD',kraft:'#7F77DD',warmup:'#D4537E',recovery:'#BA7517'};
+    const CLUSTER_LABELS={energie:'Energie & Metabolismus',sprint:'Sprint & Schnelligkeit',ausdauer:'Ausdauer & Belastung',kraft:'Kraft & Plyometrie',warmup:'Warm-Up & Bewegung',recovery:'Recovery & Gesundheit'};
+    const CLUSTER_CENTERS={
+      energie:{ax:0.3,ay:1.5,az:0.2}, sprint:{ax:1.8,ay:-0.2,az:0.5},
+      ausdauer:{ax:-0.2,ay:-1.6,az:0.3}, kraft:{ax:-1.8,ay:0.4,az:-0.3},
+      warmup:{ax:0.1,ay:0.3,az:-1.9}, recovery:{ax:0.8,ay:-0.5,az:1.8}
+    };
+
+    // Thematische Chunk-Zuordnung (wird mit echten Brain-Daten überschrieben)
+    const THEME_MAP={
+      'energie':['energiesystem','energie','atp','pcr','laktat','glykolyse','oxidation','mlss','vlamax','vo2','fett','metabol','inscyd','schwelle','substrat'],
+      'sprint':['sprint','rsa','schnell','agility','cod','antritt','geschwindigkeit','gps','30-15','ift','beschleunigung'],
+      'ausdauer':['hiit','ausdauer','vo2max','mikrozyklus','off-season','ssg','acwr','concurrent','periodisier','belastung','intervall'],
+      'kraft':['kraft','plyometr','sprung','übungsreih','belastungsparam','hormon','jugend','wachstum','robust','detraining'],
+      'warmup':['warm','aufwärm','ramp','5-a','bewegungsebene','dehnen','pap','hf-protokoll','organisation','anbahnen','mobilisation'],
+      'recovery':['recovery','hrv','schlaf','stress','verletzung','red-s','gesundheit','rehab','prävention','coaching-archety','athletengesundheit']
+    };
+
+    function guessCluster(chunk){
+      const text=(chunk.titel+' '+(chunk.tags||[]).join(' ')+' '+chunk.inhalt.slice(0,200)).toLowerCase();
+      let best='energie', bestScore=0;
+      for(const[cl,kws] of Object.entries(THEME_MAP)){
+        const score=kws.filter(k=>text.includes(k)).length;
+        if(score>bestScore){bestScore=score;best=cl;}
+      }
+      return best;
+    }
+
+    const rng=s=>{let x=Math.sin(s+1)*9999;return x-Math.floor(x)};
+    let brainNodes=[];
+    let brainChunksData=[];
+
+    function buildNodes(chunks){
+      brainChunksData=chunks;
+      brainNodes=chunks.map((c,i)=>{
+        const cl=guessCluster(c);
+        const center=CLUSTER_CENTERS[cl];
+        const sp=0.6;
+        return{
+          id:c.id, label:c.titel, cluster:cl, col:CLUSTER_COLORS[cl],
+          source:c.quelle||'', desc:c.inhalt.slice(0,120)+'...', fullChunk:c,
+          x:center.ax+(rng(i*3+1)-0.5)*sp,
+          y:center.ay+(rng(i*3+2)-0.5)*sp,
+          z:center.az+(rng(i*3+3)-0.5)*sp,
+          vis:true
+        };
+      });
+      document.getElementById('brain-chunk-count').textContent=chunks.length+' Chunks geladen';
+      startViz();
+    }
+
+    window.loadBrainAndVisualize=async function(){
+      document.getElementById('brain-chunk-count').textContent='Lade...';
+      try{
+        const r=await fetch('https://raw.githubusercontent.com/GrafMarv/trainingsplan-generator/main/knowledge.json?t='+Date.now());
+        const d=await r.json();
+        buildNodes(d.chunks);
+      }catch(e){
+        document.getElementById('brain-chunk-count').textContent='Fehler beim Laden';
+      }
+    };
+
+    window.brainFilter=function(f,el){
+      document.querySelectorAll('.brain-filter-btn').forEach(b=>{
+        b.style.background='#fff';b.style.color='#8e8e93';b.style.borderColor='#e5e5ea';
+        b.classList.remove('active');
+      });
+      el.classList.add('active');
+      if(f==='all'){el.style.background='#1c1c1e';el.style.color='#fff';}
+      else{el.style.background=CLUSTER_COLORS[f];el.style.color='#fff';el.style.borderColor='transparent';}
+      brainNodes.forEach(n=>n.vis=f==='all'||n.cluster===f);
+    };
+
+    const XLINKS=[[3,9],[4,8],[5,17],[6,16],[7,24],[10,25],[11,27],[12,30],[15,31],[18,23],[19,22],[28,40],[29,41],[32,42],[34,43]];
+
+    let cv,ctx,W,H,DPR;
+    let rotX=0.2,rotY=0.6,drag=false,lx,ly,autoRot=true,zoom=1;
+
+    function setupCanvas(){
+      cv=document.getElementById('brain-3d');
+      if(!cv)return;
+      ctx=cv.getContext('2d');
+      DPR=Math.min(window.devicePixelRatio||1,2);
+      resize();
+      window.addEventListener('resize',resize);
+      cv.addEventListener('mousedown',e=>{drag=true;autoRot=false;lx=e.clientX;ly=e.clientY;cv.style.cursor='grabbing';});
+      cv.addEventListener('mousemove',onMouseMove);
+      cv.addEventListener('mouseup',()=>{drag=false;cv.style.cursor='grab';});
+      cv.addEventListener('mouseleave',()=>{drag=false;document.getElementById('brain-tooltip').style.display='none';});
+      cv.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.min(2.8,Math.max(0.45,zoom-e.deltaY*0.001));},{passive:false});
+      cv.addEventListener('click',onClick);
+      cv.addEventListener('touchstart',e=>{autoRot=false;lx=e.touches[0].clientX;ly=e.touches[0].clientY;},{passive:true});
+      cv.addEventListener('touchmove',e=>{rotY+=(e.touches[0].clientX-lx)*0.007;rotX+=(e.touches[0].clientY-ly)*0.007;lx=e.touches[0].clientX;ly=e.touches[0].clientY;},{passive:true});
+    }
+
+    function resize(){
+      if(!cv)return;
+      const r=cv.parentElement.getBoundingClientRect();
+      W=cv.width=r.width*DPR; H=cv.height=520*DPR;
+      cv.style.width=r.width+'px'; cv.style.height='520px';
+    }
+
+    function proj(x,y,z){
+      const cx=Math.cos(rotX),sx=Math.sin(rotX);
+      const cy=Math.cos(rotY),sy=Math.sin(rotY);
+      let nx=x*cy-z*sy,nz=x*sy+z*cy;
+      let ny=y*cx-nz*sx; nz=y*sx+nz*cx;
+      const fov=4.8,sc=fov/(fov+nz)*zoom;
+      return{px:W/2+nx*W*0.17*sc,py:H/2+ny*H*0.17*sc,sc,nz};
+    }
+
+    function hex2rgba(h,a){
+      const rv=parseInt(h.slice(1,3),16),gv=parseInt(h.slice(3,5),16),bv=parseInt(h.slice(5,7),16);
+      return`rgba(${rv},${gv},${bv},${a})`;
+    }
+
+    function draw(){
+      if(!ctx||!brainNodes.length)return;
+      ctx.clearRect(0,0,W,H);
+
+      // cross links
+      XLINKS.forEach(([i,j])=>{
+        if(i>=brainNodes.length||j>=brainNodes.length)return;
+        const ni=brainNodes[i],nj=brainNodes[j];
+        if(!ni.vis||!nj.vis)return;
+        const pi=proj(ni.x,ni.y,ni.z),pj=proj(nj.x,nj.y,nj.z);
+        ctx.beginPath();ctx.moveTo(pi.px,pi.py);ctx.lineTo(pj.px,pj.py);
+        ctx.strokeStyle='rgba(150,150,150,0.15)';ctx.lineWidth=1.2*DPR;
+        ctx.setLineDash([4*DPR,3*DPR]);ctx.stroke();ctx.setLineDash([]);
+      });
+
+      // intra-cluster links
+      brainNodes.forEach((n,i)=>{
+        if(!n.vis)return;
+        brainNodes.forEach((m,j)=>{
+          if(j<=i||!m.vis||m.cluster!==n.cluster||rng(i*53+j)>0.22)return;
+          const pi=proj(n.x,n.y,n.z),pj=proj(m.x,m.y,m.z);
+          ctx.beginPath();ctx.moveTo(pi.px,pi.py);ctx.lineTo(pj.px,pj.py);
+          ctx.strokeStyle=hex2rgba(n.col,0.1);ctx.lineWidth=0.7*DPR;ctx.stroke();
+        });
+      });
+
+      // nodes back→front
+      const sorted=[...brainNodes].sort((a,b)=>proj(a.x,a.y,a.z).nz-proj(b.x,b.y,b.z).nz);
+      const done={};
+      sorted.forEach(n=>{
+        if(!n.vis)return;
+        const{px,py,sc}=proj(n.x,n.y,n.z);
+        const r=Math.max(4,7*sc)*DPR;
+        ctx.beginPath();ctx.arc(px,py,r+2.5*DPR,0,Math.PI*2);
+        ctx.fillStyle=hex2rgba(n.col,0.13);ctx.fill();
+        ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);
+        ctx.fillStyle=n.col;ctx.globalAlpha=0.9;ctx.fill();ctx.globalAlpha=1;
+        ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1*DPR;ctx.stroke();
+        if(sc>0.7){
+          const fs=Math.round(9*sc*DPR);
+          ctx.font=fs+'px -apple-system,sans-serif';
+          ctx.textAlign='center';ctx.textBaseline='top';
+          ctx.fillStyle='rgba(28,28,30,0.65)';
+          ctx.fillText(n.label.slice(0,16),px,py+r+3*DPR);
+        }
+        if(!done[n.cluster]){
+          done[n.cluster]=true;
+          ctx.font='500 '+(12*DPR)+'px -apple-system,sans-serif';
+          ctx.textAlign='center';ctx.textBaseline='bottom';
+          ctx.fillStyle=n.col;ctx.globalAlpha=0.9;
+          ctx.fillText(CLUSTER_LABELS[n.cluster],px,py-r-8*DPR);
+          ctx.globalAlpha=1;
+        }
+      });
+    }
+
+    function getHit(mx,my){
+      let hit=null;
+      brainNodes.forEach(n=>{
+        if(!n.vis)return;
+        const{px,py,sc}=proj(n.x,n.y,n.z);
+        const r=Math.max(4,7*sc)*DPR;
+        if(Math.hypot(px-mx,py-my)<r+8*DPR)hit=n;
+      });
+      return hit;
+    }
+
+    function onMouseMove(e){
+      if(drag){rotY+=(e.clientX-lx)*0.007;rotX+=(e.clientY-ly)*0.007;lx=e.clientX;ly=e.clientY;return;}
+      const rect=cv.getBoundingClientRect();
+      const mx=(e.clientX-rect.left)*DPR,my=(e.clientY-rect.top)*DPR;
+      const hit=getHit(mx,my);
+      const tip=document.getElementById('brain-tooltip');
+      if(hit){
+        tip.style.display='block';
+        tip.style.left=(e.clientX-rect.left+14)+'px';
+        tip.style.top=(e.clientY-rect.top-10)+'px';
+        tip.innerHTML='<strong style="color:'+hit.col+';font-size:13px;display:block;margin-bottom:3px;">'+hit.label+'</strong>'
+          +'<span style="font-size:10px;color:#8e8e93;display:block;margin-bottom:5px;">'+hit.source+'</span>'
+          +'<span style="font-size:12px;color:#3c3c43;">'+hit.desc+'</span>';
+        cv.style.cursor='pointer';
+      } else {
+        tip.style.display='none';
+        cv.style.cursor=drag?'grabbing':'grab';
+      }
+    }
+
+    function onClick(e){
+      const rect=cv.getBoundingClientRect();
+      const mx=(e.clientX-rect.left)*DPR,my=(e.clientY-rect.top)*DPR;
+      const hit=getHit(mx,my);
+      if(!hit)return;
+      const panel=document.getElementById('brain-panel');
+      document.getElementById('panel-cluster').textContent=CLUSTER_LABELS[hit.cluster];
+      document.getElementById('panel-cluster').style.color=hit.col;
+      document.getElementById('panel-title').textContent=hit.label;
+      document.getElementById('panel-source').textContent=hit.source;
+      document.getElementById('panel-content').textContent=hit.fullChunk.inhalt;
+      panel.style.display='block';
+    }
+
+    function tick(){draw();if(autoRot)rotY+=0.0025;requestAnimationFrame(tick);}
+
+    function startViz(){
+      if(!cv)setupCanvas();
+      if(!document.getElementById('brain-3d'))return;
+      tick();
+    }
+
+    // Auto-load wenn Tab geöffnet wird
+    const origWissenTab=window.wissenTab;
+    window.wissenTab=function(tab){
+      if(origWissenTab)origWissenTab(tab);
+      if(tab==='brain'&&brainNodes.length===0){
+        setTimeout(()=>{setupCanvas();loadBrainAndVisualize();},100);
+      }
+    };
+  })();
+  </script>
+
 
   </div>
 </div>
