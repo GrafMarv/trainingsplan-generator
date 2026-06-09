@@ -302,7 +302,122 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 <body>
 <!-- HOME SCREEN -->
 <div id="home-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;">
-  <div style="position:fixed;left:0;top:0;bottom:0;width:180px;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;">
+
+  <!-- Brain Background Canvas -->
+  <canvas id="bg-brain" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.75;"></canvas>
+
+  <!-- Dark overlay so UI remains readable -->
+  <div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background:linear-gradient(135deg,rgba(10,10,25,0.55) 0%,rgba(10,10,25,0.4) 100%);pointer-events:none;"></div>
+
+  <script>
+  (function(){
+    const bgCv=document.getElementById('bg-brain');
+    if(!bgCv)return;
+    const bgCtx=bgCv.getContext('2d');
+    let bW,bH,bDPR=Math.min(window.devicePixelRatio||1,2);
+    let bRotX=0.15,bRotY=0.3,bZoom=1;
+    let bAuto=true;
+
+    function bResize(){
+      bW=bgCv.width=window.innerWidth*bDPR;
+      bH=bgCv.height=window.innerHeight*bDPR;
+    }
+    window.addEventListener('resize',bResize);
+    bResize();
+
+    const COLS={energie:'#D85A30',sprint:'#1D9E75',ausdauer:'#378ADD',kraft:'#7F77DD',warmup:'#D4537E',recovery:'#BA7517'};
+    const CENTERS={
+      energie:{ax:0.4,ay:1.4,az:0.2},sprint:{ax:1.9,ay:-0.2,az:0.5},
+      ausdauer:{ax:-0.3,ay:-1.7,az:0.3},kraft:{ax:-1.9,ay:0.4,az:-0.3},
+      warmup:{ax:0.1,ay:0.3,az:-2.0},recovery:{ax:0.9,ay:-0.5,az:1.9}
+    };
+    const SRCS=['energie','energie','energie','energie','energie','energie','energie','energie','energie',
+      'sprint','sprint','sprint','sprint','sprint','sprint','sprint',
+      'ausdauer','ausdauer','ausdauer','ausdauer','ausdauer','ausdauer','ausdauer','ausdauer','ausdauer',
+      'kraft','kraft','kraft','kraft','kraft','kraft','kraft',
+      'warmup','warmup','warmup','warmup','warmup','warmup','warmup','warmup',
+      'recovery','recovery','recovery','recovery','recovery','recovery','recovery','recovery'];
+
+    const rng=s=>{let x=Math.sin(s+1)*9999;return x-Math.floor(x)};
+    function h2r(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
+
+    const BG_NODES=SRCS.map((s,i)=>{
+      const c=CENTERS[s],sp=0.65;
+      return{s,col:COLS[s],
+        x:c.ax+(rng(i*3+1)-0.5)*sp,
+        y:c.ay+(rng(i*3+2)-0.5)*sp,
+        z:c.az+(rng(i*3+3)-0.5)*sp};
+    });
+
+    function bProj(x,y,z){
+      const cx=Math.cos(bRotX),sx=Math.sin(bRotX),cy=Math.cos(bRotY),sy=Math.sin(bRotY);
+      let nx=x*cy-z*sy,nz=x*sy+z*cy,ny=y*cx-nz*sx;nz=y*sx+nz*cx;
+      const fov=5,sc=fov/(fov+nz)*bZoom;
+      return{px:bW/2+nx*bW*0.22*sc,py:bH/2+ny*bH*0.22*sc,sc,nz};
+    }
+
+    function bDraw(){
+      bgCtx.clearRect(0,0,bW,bH);
+      bgCtx.fillStyle='#080814';
+      bgCtx.fillRect(0,0,bW,bH);
+
+      // Stars
+      bgCtx.fillStyle='rgba(255,255,255,0.3)';
+      for(let s=0;s<120;s++){
+        bgCtx.beginPath();
+        bgCtx.arc(rng(s*7+1)*bW,rng(s*7+2)*bH,rng(s*7+3)*1.5*bDPR,0,Math.PI*2);
+        bgCtx.fill();
+      }
+
+      // Links
+      BG_NODES.forEach((n,i)=>{
+        BG_NODES.forEach((m,j)=>{
+          if(j<=i||m.s!==n.s||rng(i*53+j)>0.2)return;
+          const pi=bProj(n.x,n.y,n.z),pj=bProj(m.x,m.y,m.z);
+          bgCtx.beginPath();bgCtx.moveTo(pi.px,pi.py);bgCtx.lineTo(pj.px,pj.py);
+          bgCtx.strokeStyle=h2r(n.col,0.15);bgCtx.lineWidth=0.8*bDPR;bgCtx.stroke();
+        });
+      });
+
+      // Cross links
+      const xpairs=[[0,9],[3,16],[6,23],[1,32],[8,40],[14,25],[17,34],[22,41]];
+      xpairs.forEach(([i,j])=>{
+        if(i>=BG_NODES.length||j>=BG_NODES.length)return;
+        const pi=bProj(BG_NODES[i].x,BG_NODES[i].y,BG_NODES[i].z);
+        const pj=bProj(BG_NODES[j].x,BG_NODES[j].y,BG_NODES[j].z);
+        bgCtx.beginPath();bgCtx.moveTo(pi.px,pi.py);bgCtx.lineTo(pj.px,pj.py);
+        bgCtx.strokeStyle='rgba(255,255,255,0.05)';bgCtx.lineWidth=0.6*bDPR;
+        bgCtx.setLineDash([3*bDPR,5*bDPR]);bgCtx.stroke();bgCtx.setLineDash([]);
+      });
+
+      // Nodes
+      const sorted=[...BG_NODES].sort((a,b)=>bProj(a.x,a.y,a.z).nz-bProj(b.x,b.y,b.z).nz);
+      sorted.forEach(n=>{
+        const{px,py,sc}=bProj(n.x,n.y,n.z);
+        const r=Math.max(5,10*sc)*bDPR;
+        const grad=bgCtx.createRadialGradient(px,py,0,px,py,r*4);
+        grad.addColorStop(0,h2r(n.col,0.4));
+        grad.addColorStop(1,'transparent');
+        bgCtx.beginPath();bgCtx.arc(px,py,r*4,0,Math.PI*2);
+        bgCtx.fillStyle=grad;bgCtx.fill();
+        bgCtx.beginPath();bgCtx.arc(px,py,r,0,Math.PI*2);
+        bgCtx.fillStyle=n.col;bgCtx.globalAlpha=0.9;bgCtx.fill();bgCtx.globalAlpha=1;
+        bgCtx.beginPath();bgCtx.arc(px-r*0.28,py-r*0.28,r*0.3,0,Math.PI*2);
+        bgCtx.fillStyle='rgba(255,255,255,0.4)';bgCtx.fill();
+      });
+    }
+
+    function bTick(){
+      if(document.getElementById('home-screen').style.display!=='none'){
+        bDraw();
+        if(bAuto)bRotY+=0.0018;
+      }
+      requestAnimationFrame(bTick);
+    }
+    bTick();
+  })();
+  </script>
+  <div style="position:fixed;left:0;top:0;bottom:0;width:180px;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;z-index:2;">
     <span style="font-size:52px;font-weight:700;color:#d1d1d6;letter-spacing:-1px;writing-mode:vertical-rl;transform:rotate(180deg);user-select:none;">Coaching Brain</span>
   </div>
   <div style="max-width:860px;width:100%;padding:48px 24px;position:relative;z-index:1;">
