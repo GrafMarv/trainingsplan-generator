@@ -5,19 +5,34 @@ export default async function handler(req, res) {
   try {
     const { input } = req.body;
 
-    // Übungsliste direkt von GitHub holen - immer aktuell
+    // Übungsliste aus exercises.json laden
     let exercises = [];
+    let exercisesWithImage = [];
     try {
       const exResp = await fetch(
-        'https://api.github.com/repos/GrafMarv/trainingsplan-generator/contents/exercises',
-        { headers: { 'Accept': 'application/vnd.github.v3+json' } }
+        'https://raw.githubusercontent.com/GrafMarv/trainingsplan-generator/main/exercises.json?t=' + Date.now(),
+        { headers: { 'Accept': 'application/json' } }
       );
-      const files = await exResp.json();
-      exercises = files
-        .filter(f => f.name.endsWith('.png') && f.name.includes('_') && !f.name.startsWith('ChatGPT') && !f.name.startsWith('placeholder'))
-        .map(f => f.name.replace('.png', '').toLowerCase());
+      const exData = await exResp.json();
+      exercises = exData.exercises.map(e => e.id);
+      exercisesWithImage = exData.exercises.filter(e => e.hasImage).map(e => e.id);
     } catch(e) {
-      exercises = req.body.exercises ? req.body.exercises.split(', ') : [];
+      // Fallback: Bilder direkt von GitHub
+      try {
+        const ghResp = await fetch(
+          'https://api.github.com/repos/GrafMarv/trainingsplan-generator/contents/exercises',
+          { headers: { 'Accept': 'application/vnd.github.v3+json' } }
+        );
+        const files = await ghResp.json();
+        const imgExercises = files
+          .filter(f => f.name.endsWith('.png') && f.name.includes('_') && !f.name.startsWith('placeholder'))
+          .map(f => f.name.replace('.png', '').toLowerCase());
+        exercises = imgExercises;
+        exercisesWithImage = imgExercises;
+      } catch(e2) {
+        exercises = req.body.exercises ? req.body.exercises.split(', ') : [];
+        exercisesWithImage = exercises;
+      }
     }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -29,14 +44,22 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-opus-4-5',
-        max_tokens: 2000,
-        system: `Du bist ein Trainingsplan-Assistent. Verfügbare Übungen: ${exercises.join(', ')}.
+        max_tokens: 2500,
+        system: `Du bist ein Trainingsplan-Assistent für Feldhockey-Athletiktraining.
+
+ÜBUNGSDATENBANK (alle verfügbaren Übungen):
+${exercises.join(', ')}
+
+ÜBUNGEN MIT GRAFIK (bevorzuge diese wenn gleichwertig):
+${exercisesWithImage.join(', ')}
 
 Analysiere die Eingabe und erkenne automatisch ob Warm-up, Hauptblock und/oder Cool-down beschrieben werden.
 - Wenn "Warm-up", "Aufwärmen" oder ähnliches erwähnt wird → eigener Warm-up Block
 - Wenn "Cool-down", "Abwärmen", "Dehnen am Ende" oder ähnliches erwähnt wird → eigener Cool-down Block
 - Alles andere → Hauptblock
 - Wenn nichts explizit erwähnt wird → alles ist Hauptblock
+
+WICHTIG: Wähle die trainingswissenschaftlich beste Übung für den Kontext — nicht nur die mit Grafik. Wenn ein Coaching Brain Kontext mitgegeben wird, beachte die darin enthaltenen Prinzipien.
 
 Antworte NUR mit einem JSON-Array von Blöcken. Kein Text davor oder danach.
 Format:
@@ -47,7 +70,7 @@ Format:
     "exercises": [
       {
         "exercise": "lesbarer Name",
-        "imageKey": "exakter_dateiname_ohne_png",
+        "imageKey": "exakter_id_aus_übungsdatenbank",
         "group": "-",
         "type": "reps",
         "sets": 3,
@@ -61,7 +84,8 @@ Format:
 ]
 
 Nur Blöcke einschließen die in der Eingabe vorkommen!
-imageKey MUSS exakt einem der verfügbaren Übungsnamen entsprechen – kopiere den Namen wortwörtlich aus der Liste. Wenn du dir nicht sicher bist welcher Dateiname passt, wähle den ähnlichsten aus der Liste. Erfinde KEINE neuen Dateinamen.
+imageKey MUSS exakt einem der IDs aus der Übungsdatenbank entsprechen.
+Wenn keine passende Übung existiert, wähle die ähnlichste. Erfinde KEINE neuen IDs.
 Supersets: gleiche Gruppe vergeben A, B, C. Einzelübungen = "-".
 intensity: RPE z.B. "RPE 8" oder "80%" – nur wenn angegeben, sonst null.
 rest: Pause z.B. "90 Sek." – nur wenn angegeben, sonst null.`,
