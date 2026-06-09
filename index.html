@@ -20,6 +20,74 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f2f2f7; col
   z-index: 0;
   overflow: hidden;
 }
+/* Left Panel Filter */
+.left-panel {
+  position: fixed;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 160px;
+  background: #fff;
+  border: 1px solid #e5e5ea;
+  border-radius: 14px;
+  padding: 16px 14px;
+  z-index: 10;
+  pointer-events: all;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  display: none;
+}
+.left-panel.visible { display: block; }
+.left-panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8e8e93;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.toggle-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1c1c1e;
+  line-height: 1.3;
+}
+.toggle-sublabel {
+  font-size: 11px;
+  color: #8e8e93;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+/* iOS-style Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  cursor: pointer;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #e5e5ea;
+  border-radius: 13px;
+  transition: background 0.2s;
+}
+.toggle-switch input:checked + .toggle-track { background: #34c759; }
+.toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked ~ .toggle-thumb { transform: translateX(18px); }
 .deco-right {
   position: fixed;
   right: 0; top: 0; bottom: 0;
@@ -371,6 +439,19 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <button onclick="goHome()" style="background:none;border:none;font-size:14px;color:#007aff;cursor:pointer;font-family:inherit;font-weight:500;padding:0;">← Zurück</button>
 </div>
 
+<div class="left-panel" id="left-panel">
+  <div class="left-panel-title">Filter</div>
+  <div class="toggle-row">
+    <span class="toggle-label">Nur mit Grafiken</span>
+    <span class="toggle-sublabel">Übungen ohne Bild ausblenden</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="toggle-grafik" onchange="applyGrafikFilter()">
+      <div class="toggle-track"></div>
+      <div class="toggle-thumb"></div>
+    </label>
+  </div>
+</div>
+
 <div class="deco-left">
   <span class="deco-name">Marvin Erxleben</span>
 </div>
@@ -565,7 +646,11 @@ async function generateWithAI() {
   btn.textContent = 'Trainingsplan generieren';
 }
 
-function resetPlan() { document.getElementById('plan-wrapper').style.display = 'none'; }
+function resetPlan() {
+  document.getElementById('plan-wrapper').style.display = 'none';
+  document.getElementById('left-panel').classList.remove('visible');
+  document.getElementById('toggle-grafik').checked = false;
+}
 
 function buildGroupCounters(exercises) {
   const counters = {};
@@ -662,11 +747,14 @@ function renderPlan(blocks) {
       const pos = groupPositions[globalIdx];
       const badgeLabel = hasGroup ? group + pos : '';
       const metricLabel = ex.type === 'time' ? 'Sek.' : 'Wdh.';
+      const PLACEHOLDER_SRC = GITHUB_RAW + 'placeholder.png';
       const imgSrc = ex.imageKey ? GITHUB_RAW + ex.imageKey + '.png' : null;
+      const hasImage = !!ex.imageKey;
       const isCompact = ex.blockType !== 'main';
 
       const row = document.createElement('div');
       row.className = 'exercise-row' + (isCompact ? ' compact' : '');
+      row.dataset.hasImage = hasImage ? '1' : '0';
       const sidebar = document.createElement('div');
       sidebar.className = 'ex-sidebar' + (hasGroup ? '' : ' no-group');
       sidebar.style.background = hasGroup ? color : '#e8e8e8';
@@ -677,9 +765,23 @@ function renderPlan(blocks) {
       if (imgSrc) {
         const img = document.createElement('img');
         img.src = imgSrc; img.alt = ex.exercise;
-        img.onerror = () => { imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`; };
+        img.onerror = () => {
+          imgBox.innerHTML = '';
+          const ph = document.createElement('img');
+          ph.src = PLACEHOLDER_SRC;
+          ph.alt = 'Keine Grafik';
+          ph.style.cssText = 'width:100%;height:100%;object-fit:contain;padding:6px;opacity:0.5;';
+          imgBox.appendChild(ph);
+          row.dataset.hasImage = '0';
+        };
         imgBox.appendChild(img);
-      } else { imgBox.innerHTML = `<div class="no-img">Keine Grafik</div>`; }
+      } else {
+        const ph = document.createElement('img');
+        ph.src = PLACEHOLDER_SRC;
+        ph.alt = 'Keine Grafik';
+        ph.style.cssText = 'width:100%;height:100%;object-fit:contain;padding:6px;opacity:0.5;';
+        imgBox.appendChild(ph);
+      }
 
       const infoBox = document.createElement('div');
       infoBox.className = 'ex-info-box';
@@ -718,6 +820,20 @@ function renderPlan(blocks) {
 
   document.getElementById('plan-wrapper').style.display = 'block';
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
+  // Show left panel filter
+  document.getElementById('left-panel').classList.add('visible');
+}
+
+function applyGrafikFilter() {
+  const onlyWithImages = document.getElementById('toggle-grafik').checked;
+  const rows = document.querySelectorAll('.exercise-row');
+  rows.forEach(row => {
+    if (onlyWithImages && row.dataset.hasImage === '0') {
+      row.style.display = 'none';
+    } else {
+      row.style.display = '';
+    }
+  });
 }
 
 // UMBENENNER
@@ -1289,3 +1405,4 @@ async function uploadAll() {
 </div><!-- end app-screen -->
 </body>
 </html>
+
