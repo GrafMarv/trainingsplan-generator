@@ -415,9 +415,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 <!-- WISSEN SCREEN -->
 <div id="wissen-screen" style="display:none;">
-  <div style="max-width:960px;margin:0 auto;padding:24px 32px 0;display:flex;align-items:center;justify-content:space-between;">
-    <button onclick="goHome()" style="background:none;border:none;font-size:14px;color:#007aff;cursor:pointer;font-family:inherit;font-weight:500;padding:0;">← Zurück</button>
-    <span style="font-size:16px;font-weight:600;color:#1c1c1e;">Wissen</span>
+  <div style="max-width:960px;margin:0 auto;padding:20px 32px 0;display:flex;align-items:center;justify-content:space-between;">
+    <button onclick="goHome()" style="display:flex;align-items:center;gap:6px;background:none;border:0.5px solid #e5e5ea;border-radius:20px;font-size:13px;color:#1c1c1e;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurück</button>
     <div style="width:60px;"></div>
   </div>
 
@@ -499,44 +498,69 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
   <div id="wissen-brain" style="display:block;">
-    <div style="background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;overflow:hidden;">
-      <div style="padding:14px 18px;border-bottom:0.5px solid #e5e5ea;display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <p style="font-size:13px;font-weight:600;color:#1c1c1e;margin-bottom:2px;">Coaching Brain</p>
-          <p id="brain-chunk-count" style="font-size:12px;color:#8e8e93;">Lade...</p>
-        </div>
-        <button onclick="loadBrain(true)" style="padding:5px 12px;background:#f2f2f7;border:none;border-radius:8px;font-size:12px;font-weight:500;color:#1c1c1e;cursor:pointer;font-family:inherit;">&#8595; Neu laden</button>
-      </div>
-      <div style="position:relative;background:#080814;">
-        <canvas id="brain-3d" style="display:block;width:100%;height:540px;cursor:grab;"></canvas>
+    
+    <!-- Gehirn Header -->
+    <div style="text-align:center;padding:32px 0 24px;">
+      <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:#8e8e93;margin-bottom:10px;">Coaching Brain</p>
+      <h2 style="font-size:32px;font-weight:700;letter-spacing:-1px;color:#1c1c1e;margin-bottom:6px;">99 Chunks Wissen</h2>
+      <p style="font-size:14px;color:#8e8e93;">Semantisch vernetzt &middot; Feldhockey &middot; Kraft &middot; Metabolismus</p>
+    </div>
+
+    <!-- Gehirn Canvas Container -->
+    <div style="position:relative;display:flex;justify-content:center;align-items:center;padding:0 0 32px;">
+      
+      <!-- SVG mit Gehirn-Clip-Path -->
+      <svg width="0" height="0" style="position:absolute;">
+        <defs>
+          <clipPath id="brain-clip" clipPathUnits="objectBoundingBox">
+            <path d="M0.5,0.04 C0.62,0.02 0.74,0.06 0.82,0.13 C0.91,0.20 0.96,0.30 0.96,0.41 C0.97,0.50 0.93,0.57 0.88,0.62 C0.94,0.67 0.97,0.75 0.95,0.83 C0.93,0.91 0.86,0.96 0.78,0.97 C0.72,0.98 0.66,0.95 0.62,0.90 C0.58,0.96 0.52,1.0 0.45,0.99 C0.38,0.98 0.33,0.93 0.31,0.87 C0.27,0.93 0.20,0.97 0.13,0.96 C0.06,0.95 0.01,0.89 0.01,0.82 C0.00,0.75 0.04,0.68 0.10,0.64 C0.05,0.58 0.02,0.50 0.03,0.42 C0.04,0.31 0.10,0.21 0.19,0.14 C0.27,0.07 0.38,0.04 0.5,0.04 Z"/>
+          </clipPath>
+        </defs>
+      </svg>
+
+      <div style="position:relative;width:680px;max-width:100%;">
+        <!-- Gehirn Glow Hintergrund -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:520px;height:480px;background:radial-gradient(ellipse at center, rgba(55,138,221,0.08) 0%, rgba(127,119,221,0.05) 40%, transparent 70%);border-radius:50%;pointer-events:none;z-index:0;"></div>
+        
+        <canvas id="brain-3d" style="display:block;width:680px;height:520px;max-width:100%;cursor:grab;clip-path:url(#brain-clip);border-radius:0;"></canvas>
+        
+        <!-- Gehirn Outline SVG drüber -->
+        <svg viewBox="0 0 680 520" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;">
+          <path d="M340,21 C382,14 422,28 450,52 C480,77 496,114 497,152 C498,182 486,207 467,224 C492,242 505,272 502,303 C499,334 481,358 456,368 C441,387 418,398 393,397 C375,413 352,420 328,418 C307,416 288,406 275,390 C256,403 232,409 208,405 C184,401 164,386 156,365 C131,358 112,337 108,311 C104,284 116,257 138,242 C120,225 109,201 111,175 C114,137 132,101 162,77 C190,53 230,37 270,28 C292,23 316,22 340,21 Z" fill="none" stroke="rgba(127,119,221,0.25)" stroke-width="1.5"/>
+          <!-- Mittellinie -->
+          <line x1="340" y1="30" x2="338" y2="400" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,6"/>
+          <!-- Faltung Andeutungen -->
+          <path d="M200,150 C220,140 240,145 255,160" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <path d="M420,180 C440,170 460,178 470,195" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <path d="M180,280 C195,270 215,275 225,290" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <path d="M440,260 C458,252 475,260 482,277" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        </svg>
+
         <div id="brain-tip" style="position:absolute;background:#1a1a2e;border:0.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;font-size:12px;max-width:220px;pointer-events:none;display:none;z-index:9;color:#e0e0e0;line-height:1.6;"></div>
-        <div id="brain-panel" style="position:absolute;top:0;right:0;width:270px;height:100%;background:#111827;border-left:0.5px solid rgba(255,255,255,0.1);padding:20px;overflow-y:auto;display:none;z-index:8;">
+        <div id="brain-panel" style="position:absolute;top:0;right:-290px;width:270px;height:100%;background:#fff;border:0.5px solid #e5e5ea;border-radius:16px;padding:20px;overflow-y:auto;display:none;z-index:8;box-shadow:0 8px 32px rgba(0,0,0,0.1);">
           <button onclick="document.getElementById('brain-panel').style.display='none'" style="position:absolute;top:10px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#8e8e93;">&#215;</button>
           <p id="bp-cluster" style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;"></p>
-          <p id="bp-title" style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px;line-height:1.4;"></p>
-          <p id="bp-source" style="font-size:11px;color:#6b7280;margin-bottom:14px;"></p>
-          <p id="bp-content" style="font-size:12px;color:#d1d5db;line-height:1.7;"></p>
-        </div>
-        <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);color:rgba(255,255,255,0.6);font-size:11px;padding:4px 10px;border-radius:20px;pointer-events:none;white-space:nowrap;">Drehen &middot; Scrollen = Zoom &middot; Klick = Details</div>
-      </div>
-      <div style="padding:10px 14px;border-top:0.5px solid #1e1e2e;background:#0d0d1a;border-radius:0 0 16px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-        <button class="bf" onclick="setBrainFilter('all',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.2);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">Alle</button>
-        <button class="bf" onclick="setBrainFilter('energie',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Energie</button>
-        <button class="bf" onclick="setBrainFilter('sprint',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Sprint</button>
-        <button class="bf" onclick="setBrainFilter('ausdauer',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Ausdauer</button>
-        <button class="bf" onclick="setBrainFilter('kraft',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Kraft</button>
-        <button class="bf" onclick="setBrainFilter('warmup',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Warm-Up</button>
-        <button class="bf" onclick="setBrainFilter('recovery',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Recovery</button>
-        <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
-          <span style="width:7px;height:7px;background:#D85A30;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Energie</span>
-          <span style="width:7px;height:7px;background:#1D9E75;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Sprint</span>
-          <span style="width:7px;height:7px;background:#378ADD;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Ausdauer</span>
-          <span style="width:7px;height:7px;background:#7F77DD;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Kraft</span>
-          <span style="width:7px;height:7px;background:#D4537E;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Warm-Up</span>
-          <span style="width:7px;height:7px;background:#BA7517;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Recovery</span>
+          <p id="bp-title" style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;line-height:1.4;"></p>
+          <p id="bp-source" style="font-size:11px;color:#8e8e93;margin-bottom:14px;"></p>
+          <p id="bp-content" style="font-size:12px;color:#3c3c43;line-height:1.7;"></p>
         </div>
       </div>
     </div>
+
+    <!-- Filter + Legende -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;padding:0 0 16px;">
+      <button class="bf" onclick="setBrainFilter('all',this)" style="padding:6px 16px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:#1c1c1e;color:#fff;">Alle</button>
+      <button class="bf" onclick="setBrainFilter('energie',this)" style="padding:6px 16px;border-radius:20px;border:0.5px solid #D85A30;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#D85A30;">Energie</button>
+      <button class="bf" onclick="setBrainFilter('sprint',this)" style="padding:6px 16px;border-radius:20px;border:0.5px solid #1D9E75;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#1D9E75;">Sprint</button>
+      <button class="bf" onclick="setBrainFilter('ausdauer',this)" style="padding:6px 16px;border-radius:20px;border:0.5px solid #378ADD;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#378ADD;">Ausdauer</button>
+      <button class="bf" onclick="setBrainFilter('kraft',this)" style="padding:6px 16px;border-radius:20px;border:0.5px solid #7F77DD;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#7F77DD;">Kraft</button>
+      <button class="bf" onclick="setBrainFilter('warmup',this)" style="padding:6px 16px;border-radius:20px;border:0.5px solid #D4537E;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#D4537E;">Warm-Up</button>
+      <button class="bf" onclick="setBrainFilter('recovery',this)" style="padding:6px 16px;border-radius:20px;border:0.5px solid #BA7517;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#BA7517;">Recovery</button>
+      <button onclick="loadBrain(true)" style="padding:6px 14px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;margin-left:8px;">&#8595; Neu laden</button>
+    </div>
+    <p style="text-align:center;font-size:11px;color:#c7c7cc;padding-bottom:24px;">Drehen &middot; Scrollen = Zoom &middot; Klick = Details &nbsp;&nbsp;<span id="brain-chunk-count"></span></p>
+
+  </div>
   </div>
 
   </div>
