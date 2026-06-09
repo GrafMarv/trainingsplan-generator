@@ -348,7 +348,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button onclick="wissenTab('bibliothek')" id="wtab-bibliothek" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Bibliothek</button>
       <button onclick="wissenTab('konzepte')" id="wtab-konzepte" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Konzepte</button>
       <button onclick="wissenTab('studien')" id="wtab-studien" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Studien</button>
-      <button onclick="wissenTab('brain')" id="wtab-brain" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">🧠 Coaching Brain</button>
+      <button onclick="wissenTab('brain');setTimeout(function(){if(typeof setupCanvas==='function'&&typeof loadBrainAndVisualize==='function'){setupCanvas();loadBrainAndVisualize();}},150);" id="wtab-brain" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">🧠 Coaching Brain</button>
     </div>
 
     <!-- BIBLIOTHEK -->
@@ -707,14 +707,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       tick();
     }
 
-    // Auto-load wenn Tab geöffnet wird
-    const origWissenTab=window.wissenTab;
-    window.wissenTab=function(tab){
-      if(origWissenTab)origWissenTab(tab);
-      if(tab==='brain'&&brainNodes.length===0){
-        setTimeout(()=>{setupCanvas();loadBrainAndVisualize();},100);
-      }
-    };
+    // setupCanvas und loadBrainAndVisualize global verfügbar machen
+    window.setupCanvas=setupCanvas;
   })();
   </script>
 
