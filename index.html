@@ -669,6 +669,9 @@ function goTo(screen) {
     document.getElementById('page-' + screen)?.classList.add('active');
   } else {
     document.getElementById(screen + '-screen').style.display = 'block';
+    if (screen === 'wissen') {
+      setTimeout(function(){ wissenTab('brain'); }, 80);
+    }
   }
 }
 
@@ -696,6 +699,9 @@ function goTo(screen) {
     document.getElementById('page-' + screen)?.classList.add('active');
   } else {
     document.getElementById(screen + '-screen').style.display = 'block';
+    if (screen === 'wissen') {
+      setTimeout(function(){ wissenTab('brain'); }, 80);
+    }
   }
 }
 function goHome() {
