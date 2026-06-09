@@ -34,9 +34,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f2f2f7; col
   z-index: 10;
   pointer-events: all;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  display: none;
 }
-.left-panel.visible { display: block; }
 .left-panel-title {
   font-size: 11px;
   font-weight: 600;
@@ -648,7 +646,6 @@ async function generateWithAI() {
 
 function resetPlan() {
   document.getElementById('plan-wrapper').style.display = 'none';
-  document.getElementById('left-panel').classList.remove('visible');
   document.getElementById('toggle-grafik').checked = false;
 }
 
@@ -820,8 +817,6 @@ function renderPlan(blocks) {
 
   document.getElementById('plan-wrapper').style.display = 'block';
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
-  // Show left panel filter
-  document.getElementById('left-panel').classList.add('visible');
 }
 
 function applyGrafikFilter() {
