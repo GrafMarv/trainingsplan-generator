@@ -1417,7 +1417,156 @@
       ],
       "quelle": "DOSB Athletiktrainer-Fortbildung, Weber/INSCYD 2026",
       "inhalt": "Aus metabolischer Sicht gibt es zwei Haupttrainingsreize: (1) VO2max steigern: Intensitäten nahe VO2max, Sauerstoffkinetik verbessern, aerobe Kapazität erhöhen → Laktatverbrennung steigt. (2) VLamax reduzieren: Lange, moderate Belastungen unter MLSS; glykolytischer Stress wird vermieden → PFK-Aktivität adaptiert sich herunter. Achtung Konflikt: HIIT-Einheiten steigern zwar VO2max, können aber VLamax erhöhen, wenn zu viel Glykolyse-Stress entsteht. Für Ausdauersport (Triathlon, Radrennen) oft sinnvoller: selektiv VLamax senken statt blind HIIT. Für Spielsportarten (Feldhockey, Fußball): höhere VLamax oft gewünscht (Sprint-Wiederholungsleistung), aber MLSS-Stabilität trotzdem relevant für Match-Ausdauer."
+    },
+    {
+      "id": "warmup_01_definition_ziele",
+      "titel": "Warm-Up: Definition, Ziele und Kontexte",
+      "tags": [
+        "warm-up",
+        "aufwärmen",
+        "ziele",
+        "verletzungsprävention",
+        "leistung",
+        "training",
+        "wettkampf"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024",
+      "inhalt": "Warm-Up = Vorbereitung auf physische Leistungsfähigkeit UND Vermittlung athletischer Inhalte. Vier Ziele: (A) Verletzungsrisiko minimieren, (B) Trainingsbereitschaft erzeugen, (C) Verbesserung athletischer Fähigkeiten, (D) Leistungsfähigkeit steigern. Warm-Up findet in verschiedenen Kontexten statt: Training vs. Wettkampf, On Pitch vs. Off Pitch, individuell vs. Team. Kontextspezifische Varianten: Pick-Up (individuell vor Training), Re-Warm-Up (Subs im Wettkampf), Halbzeit-Aktivierung. Grundprinzip: Physiologisch / metabolisch-neuronal / emotional ansprechen. Coaching-Maxime: Einen anderen Menschen so lange organisieren, bis er gelernt hat, sich selbst zu organisieren."
+    },
+    {
+      "id": "warmup_02_physiologische_effekte",
+      "titel": "Physiologische Effekte des Warm-Up",
+      "tags": [
+        "warm-up",
+        "muskeltemperatur",
+        "vasodilatation",
+        "o2 kinetik",
+        "myosin atpase",
+        "synovialflüssigkeit",
+        "sensomotorik",
+        "physiologie"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024 (nach Joyce & Lewindon, 2014)",
+      "inhalt": "Effekte eines Aufwärmprogramms: (1) Erhöhte Muskeltemperatur → Vasodilatation, verbesserte ROM durch reduzierte Gewebeviskosität, schnellere Muskelkontraktionen, verbesserte Myosin-ATPase-Aktivität. (2) Verbesserter O2/CO2-Austausch und O2-Transportfähigkeit. (3) Verbesserte O2-Kinetik (schnellerer VO2-Anstieg). (4) Verbesserte Muskelglykogen-Dynamik. (5) Gesteigerte Synovialflüssigkeit. (6) Aktivierung des endokrinen Systems, gesteigerte Hormonaktivität. (7) Steigerung der Herz-Kreislaufaktivität. (8) Gesteigerte Muskelflexibilität → weniger Mikrotraumen. (9) Verbesserung der sensomotorischen Kontrolle. (10) Steigerung der Aufmerksamkeit, Reduktion von Stress und Verletzungsangst. Temperaturerhöhung ist die primäre Priorität — und diese aufrecht zu erhalten."
+    },
+    {
+      "id": "warmup_03_studienlage_dehnen_pap",
+      "titel": "Studienlage: Dehnen, PAP und Warm-Up-Methoden",
+      "tags": [
+        "warm-up",
+        "statisches dehnen",
+        "dynamisches dehnen",
+        "pap",
+        "post activation potentiation",
+        "studienlage",
+        "sprint",
+        "sprung"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024 (Contreras 2013, Joyce & Lewindon 2014, Soomro 2015)",
+      "inhalt": "Take-Home-Points aus der Studienlage: (1) Dynamisches Dehnen übertrifft andere Dehnmethoden für Warm-Up-Zwecke. (2) Statisches Dehnen unmittelbar vor explosiven Bewegungen nicht zu lange halten — negativer Effekt wird aber durch anschließendes dynamisches Aufwärmen aufgehoben. (3) CMJ und 20m-Sprint werden durch statisches Dehnen nicht beeinträchtigt (Sprünge und kurze Sprints bleiben stabil). (4) Organismus während Warm-Up nicht zu sehr ermüden (Tomaras & MacIntosh 2011: Less is more). (5) PAP (Post Activation Potentiation) funktioniert und sollte individuell eingesetzt werden — biomechanisch ähnliche Aktivierungsübung vor der explosiven Zielübung. (6) Übungen mit großen aktiven ROM haben höhere Relevanz für Sprint-Warm-Up als Core Stability oder Glute Activation. (7) Kraftübungen wie Umsetzen können allein positiven Effekt auf Explosivkraftleistungen haben. (8) Verletzungspräventionsprogramme in Jugendsport wirksam (Soomro 2015). (9) 5-minütiges spezifisches oder allgemeines Warm-Up besser als kein Warm-Up (Joyce & Lewindon 2014)."
+    },
+    {
+      "id": "warmup_04_struktur_5As",
+      "titel": "Warm-Up Struktur: Die 5 As (DOSB-Modell)",
+      "tags": [
+        "warm-up",
+        "5as",
+        "abholen",
+        "aufwecken",
+        "aufwärmen",
+        "aktivieren",
+        "anbahnen",
+        "struktur",
+        "modell"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024",
+      "inhalt": "Das 5-A-Modell strukturiert das Warm-Up in fünf aufeinander aufbauende Phasen: (1) ABHOLEN — individueller Bereich: Gewebehygiene (SMR, Foam Rolling, Flossing), Beweglichkeitshygiene (Dehnen, Mobilisation), Stabilitätshygiene (statische Kontrolle in primitiven/transitionalen Positionen); evtl. Neuroathletik. (2) AUFWECKEN — kognitiv-koordinativer Anspruch steigt: Reaktionsspiele, Life Kinetik, Neuro-Integration, Spaß-Element, Bewegungsvariabilität, polysportive Aufgaben. (3) AUFWÄRMEN — Funktions- und Bewegungshygiene: dynamische Kontrolle (Rippen-Becken, Beinachse), Movement Preps auf den Füßen mit viel Amplitude (Funktionsübungen, Bewegungsübungen, 360° ABC, Lauf-ABC). (4) AKTIVIEREN — Elastizitätshygiene: DVZ-Aktivierung, reaktive Anteile, Sprünge, Frequenz, Leitertempo. (5) ANBAHNEN — Übergang zur Zielsportart: Defensiv, Richtungswechsel, Exekutivfunktionen, Antritt & Beschleunigung, Maximalgeschwindigkeit. Dauer gesamt: 15–20 Minuten."
+    },
+    {
+      "id": "warmup_05_herzfrequenz_protokoll",
+      "titel": "Warm-Up Herzfrequenz-Protokoll und Zeitstruktur",
+      "tags": [
+        "warm-up",
+        "herzfrequenz",
+        "hrmax",
+        "vo2max",
+        "hfr",
+        "vt2",
+        "intensität",
+        "protokoll",
+        "zeitstruktur"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024",
+      "inhalt": "Empfohlene Herzfrequenzstruktur im Warm-Up: Phase 1 (30–60s): Körpertemperatur hochbringen — minimale Belastung. Phase 2 (12–15 min): 65–75% HRmax halten; wenn bekannt: unter 70% VO2max bzw. 70% HFR (Herzfrequenzreserve). Phase 3 (3–5 min): 80% – VT2 (zweite ventilatorische Schwelle) — letzter Anstieg zur Aktivierung. Ziel: Körper auf Trainingsintensität vorbereiten ohne vorzeitige Ermüdung. Temperaturerhöhung ist die primäre Priorität und sollte kontinuierlich aufrechterhalten werden."
+    },
+    {
+      "id": "warmup_06_bewegungsebenen",
+      "titel": "Bewegungsorganisation: Gewebe, Funktion, Bewegung, Elastizität",
+      "tags": [
+        "warm-up",
+        "bewegungsebenen",
+        "gewebehygiene",
+        "funktionsübungen",
+        "bewegungsübungen",
+        "elastizität",
+        "dvz",
+        "rom",
+        "mobilität"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024",
+      "inhalt": "Bewegung organisiert sich aus Sensorik, Beweglichkeit und Stabilität. Hierarchie der Bewegungsebenen im Warm-Up: (1) Gewebeebene: SMR, Foam Rolling, Flossing — Gewebeviskosität reduzieren, TED/JMD adressieren. (2) Stabilitätsebene: statische motorische Kontrolle in primitiven und transitionalen Positionen, Fokus auf einzelne Segmente (Skapula, LWS, Becken, Knie, Fuß). (3) Funktionsebene: dynamische Kontrolle mehrerer Segmente in Bewegung, Krafttransfer von Füßen zu Händen durch Körpermitte, funktionelle Muskellinien aktivieren — Kontrolle vor Länge. (4) Bewegungsebene: aktive ROM auf Länge bringen, sportspezifische Muster anbahnen, Loaded Movements möglich (MB, ViPR, KB) — Länge nach Kontrolle. (5) Elastizitätsebene: DVZ (Dehnungsverkürzungszyklus) aktivieren, reaktive Anteile, ausschließlich funktionelle Postures. Drei Systeme unterstützen Zielbewegung: visuelles System, propriozeptives System, vestibuläres System."
+    },
+    {
+      "id": "warmup_07_organisation_aufstellung",
+      "titel": "Warm-Up Organisation und Aufstellungsformen",
+      "tags": [
+        "warm-up",
+        "organisation",
+        "aufstellung",
+        "coaching",
+        "gruppenführung",
+        "übersicht",
+        "kommunikation"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024",
+      "inhalt": "Organisationsformen mit Vor- und Nachteilen: (1) In eine Richtung: Coach im Zentrum/Teil der Gruppe, gutes WIR-Gefühl, gute Kommunikation — Nachteil: teils Athleten im Rücken, einfache Dynamik. (2) Im Raum: chaotische Laufwege, Richtungswechsel, Dynamik — Nachteil: unübersichtlicher, schlechter coachbar. (3) Von Linie zu Linie: klare Grenzen — Nachteil: Linearität, kaum Tempowechsel. (4) Mehrere Linien: klare Grenzen, Tempowechsel, Aufgabenwechsel, Variation. (5) Als Gruppe im Kreis: aufeinander zu, Wettkampf, Coach im Mittelpunkt — Nachteil: Richtungen nicht identisch. (6) 2+ Gruppen gleichzeitig: Pausen, Anfeuern, weniger Coachingaufwand. (7) 2+ Gruppen zeitversetzt: Wettkampf & Partnerkontrolle, 50% Coachingaufwand. (8) Partneraufgaben: kleinere Gruppe zu coachen — Nachteil: nicht alle im Blick. (9) Zirkel."
+    },
+    {
+      "id": "warmup_08_anbahnen_sportspezifik",
+      "titel": "Anbahnen: Warm-Up Übergang zur Sportartspezifik",
+      "tags": [
+        "anbahnen",
+        "warm-up",
+        "sportspezifik",
+        "richtungswechsel",
+        "antritt",
+        "sprint",
+        "maximalgeschwindigkeit",
+        "feldhockey",
+        "defense"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024",
+      "inhalt": "ANBAHNEN ist die letzte Phase des Warm-Up — der Übergang zur Zielsportart als optimale Schnittstelle zwischen Warm-Up und Training. Die Übungskategorien sind stark von der Zielsportart abhängig. Inhalte: Defensivbewegungen, Richtungswechsel (COD), Exekutivfunktionen (kognitive Aufgaben mit Bewegung), Antritt & Beschleunigung, Maximalgeschwindigkeit. Für Spielsportarten (z.B. Feldhockey): sportspezifische Bewegungsmuster anbahnen, reaktive Richtungswechsel, spielnahe Startpositionen. DREAM-Modell (D-R-E-A-M) strukturiert die Aktivierungshierarchie von Elastizitäts- bis Anbahnungsübungen."
+    },
+    {
+      "id": "warmup_09_sprungmatrix",
+      "titel": "Sprung-Progressionsmatrix im Warm-Up und Training",
+      "tags": [
+        "sprünge",
+        "plyometrie",
+        "sprungmatrix",
+        "dvz",
+        "reaktiv",
+        "amortiv",
+        "jump",
+        "hop",
+        "bound",
+        "warm-up",
+        "aktivierung"
+      ],
+      "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024",
+      "inhalt": "Sprungübungen werden nach Pattern und Progressionsstufe klassifiziert: Pattern: Jump (2-Bein), Hopser (1-Bein), Split. Progressionsstufen: Explosiv (maximale Höhe) → Amortiv (Landekontrolle) → Doppelkontakt → Reaktiv aus 15cm. Höhenorientierung: 2-Bein: 40% Körperhöhe (explosiv) bis 50% (reaktiv). 1-Bein: Unterschenkel-Länge bis 120%. Sprung-Formen: Leap, Hop, Bound. Für Warm-Up-Zwecke: einfache reaktive Formen (Storchen, Sprunggelenk, Hopser, Skip, Prellhopser). Für Aktivierungsphase: Leitertempo, Frequenzübungen, Reaktionsantritte. Progression immer von explosiv → amortiv → reaktiv, nicht umgekehrt."
     }
   ],
-  "totalChunks": 90
+  "totalChunks": 99
 }
