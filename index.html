@@ -1193,12 +1193,10 @@ function updateWissenCount() {
 }
 
 function wissenTab(tab) {
-    if (tab === 'brain') {
-      if (!window._brainInit) { window._brainInit = true; setTimeout(initBrain, 80); }
-    }
-  ['bibliothek','konzepte','studien'].forEach(t => {
-    document.getElementById('wissen-' + t).style.display = t === tab ? 'block' : 'none';
-    const btn = document.getElementById('wtab-' + t);
+  ['bibliothek','konzepte','studien','brain'].forEach(function(t) {
+    var el = document.getElementById('wissen-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+    var btn = document.getElementById('wtab-' + t);
     if (btn) {
       btn.style.background = t === tab ? '#fff' : 'transparent';
       btn.style.color = t === tab ? '#1c1c1e' : '#8e8e93';
@@ -1208,6 +1206,9 @@ function wissenTab(tab) {
   if (tab === 'bibliothek') renderWissenList();
   if (tab === 'konzepte') renderKonzeptList();
   if (tab === 'studien') renderStudieList();
+  if (tab === 'brain') {
+    if (!window._brainInit) { window._brainInit = true; setTimeout(initBrain, 80); }
+  }
 }
 
 function uploadWissen(input) {
