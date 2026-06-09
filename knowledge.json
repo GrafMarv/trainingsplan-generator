@@ -1158,7 +1158,116 @@
       ],
       "quelle": "HIIT Science, Kap. 10 — Putting It All Together",
       "inhalt": "5 Schritte für effektives HIIT-Programming: (1) KONTEXT verstehen: Sport, Position, Saisonphase, Athlete-Profil (aerob vs. anaerob), aktuelle Trainingsstatus. (2) TARGET definieren: Was soll diese Session entwickeln? Kardiopulmonär (Schlagvolumen, VO2max), anaerob-glykolytisch, neuromuskulär, oder kombiniert. (3) WAFFE wählen: Welches HIIT-Format trifft das Target am besten mit geringstem Risiko? (Typ 1-5 + GBHIIT). (4) VARIABLEN manipulieren: Intensität, Dauer, Pause, Anzahl, Modalität, Oberfläche. (5) LOAD MONITOREN: Externe und interne Marker erfassen, anpassen. Übergeordnet: nie Volumen und Intensität gleichzeitig steigern. Jede Session braucht einen klaren physiologischen Zweck."
+    },
+    {
+      "id": "nsca_injury_prevention_01",
+      "titel": "Hamstring-Verletzungsprävention: Feldhockey-spezifisch",
+      "tags": [
+        "verletzungsprävention",
+        "hamstring",
+        "nordic curl",
+        "exzentrisch",
+        "feldhockey",
+        "prävention",
+        "risiko"
+      ],
+      "quelle": "NSCA 4th Ed., Kap. 22 — Rehabilitation and Reconditioning",
+      "inhalt": "Hamstring-Verletzungen häufigste Muskelverletzung im Teamsport. Hauptrisikofaktoren: vorangegangene Verletzung, Ermüdung, unzureichende exzentrische Kraft, Dysbalance Quad:Hamstring. Prävention: Nordic Curl Programm reduziert Hamstring-Verletzungsrisiko um bis zu 51% (Petersen et al.). Nordic Curl einführen: schrittweise über 4-6 Wochen, nie in Kombination mit RDL und Sprint in derselben Session. Weitere Präventionsübungen: Single-leg Deadlift, Hamstring Walkout, Copenhagen Plank (Adduktoren). Feldhockey-spezifisch: Tiefposition beim Ball führen belastet Hüftbeuger chronisch → Hip-Flexor-Mobilisation im Warm-up Pflicht. Knöchel-Verletzungen: Propriozeption-Training (Balance-Übungen, COD auf verschiedenen Oberflächen) als Prävention."
+    },
+    {
+      "id": "nsca_injury_prevention_02",
+      "titel": "Rehabilitation: Phasen und Return-to-Play",
+      "tags": [
+        "rehabilitation",
+        "verletzung",
+        "return to play",
+        "phasen",
+        "heilung",
+        "progression",
+        "sport"
+      ],
+      "quelle": "NSCA 4th Ed., Kap. 22",
+      "inhalt": "Drei Heilungsphasen: (1) Entzündungsphase (0–5 Tage): Verletzungsareal schonen, umliegende Muskulatur und Ausdauer erhalten, kein aktives Training der betroffenen Struktur. (2) Fibroblastische Reparaturphase (5 Tage–6 Wochen): submaximale isometrische und isotonische Übungen, Balance und Propriozeption einführen. (3) Remodellierungsphase (6 Wochen–Monate): progressive Belastungssteigerung, gelenkwinkel-spezifische Kräftigung, geschwindigkeitsspezifische Belastung, sportspezifische Übungen. Return-to-Play-Kriterien: Kraft ≥90% der Gegenseite, schmerzfreie sportspezifische Bewegungen, normales Laufmuster. Grundsatz: Heilungsgewebe niemals übermäßig belasten. Fortschritt ist kriteriengeleitet, nicht zeitbasiert."
+    },
+    {
+      "id": "nsca_injury_prevention_03",
+      "titel": "ACL-Prävention: Feldhockey und COD",
+      "tags": [
+        "ACL",
+        "kreuzband",
+        "valgus",
+        "knie",
+        "COD",
+        "prävention",
+        "sprung",
+        "landung",
+        "feldhockey"
+      ],
+      "quelle": "NSCA 4th Ed., Kap. 18 + 22",
+      "inhalt": "ACL-Verletzungen häufig bei Richtungswechseln und Landungen — besonders bei weiblichen Athleten. Hauptrisikofaktor: dynamischer Knievalgus (Knie fällt nach innen) bei Landung und COD. Präventionstraining: Plyometrics-Technik mit Fokus auf neutrale Knieposition über Zehen. Cueing: 'Knie über zweitem Zeh', 'weich landen', 'Kraft gleichmäßig verteilen'. Effektive Programme: FIFA 11+, PEP-Programm — reduzieren ACL-Risiko um 50-60% bei weiblichen Sportlern. Im Feldhockey: Kunstrasens erhöht Traktionskräfte → höheres ACL-Risiko als Naturrasen. COD-Training auf Kunstrasens vorsichtig einführen, Schuhwerk beachten."
+    },
+    {
+      "id": "hiit_red_s_lea_01",
+      "titel": "RED-S und Low Energy Availability bei Athletinnen",
+      "tags": [
+        "RED-S",
+        "low energy availability",
+        "LEA",
+        "female athlete",
+        "weiblich",
+        "essstörung",
+        "menstruation",
+        "knochen"
+      ],
+      "quelle": "HIIT Science, Kap. 7 — HIIT and Athlete Health",
+      "inhalt": "Relative Energy Deficiency in Sport (RED-S): chronische Unterversorgung mit Energie relativ zur Trainingsbelastung. Betrifft vor allem weibliche Athleten, aber auch männliche. Symptome bei Athletinnen: ausbleibende Menstruation (Amenorrhoe), reduzierte Knochendichte, erhöhtes Stress-Fraktur-Risiko, Leistungsabfall, Stimmungsschwankungen, Erschöpfung. Waist-to-Height Ratio >0.5 = erhöhtes metabolisches Risiko. Früherkennung wichtig: Wellness-Fragebogen, Menstruationsstatus, Energieaufnahme beobachten. Besonders relevant in intensiven Trainingsperioden (Off-Season Aufbau, Campperioden). Maßnahme: Energiezufuhr erhöhen, nicht Trainingsvolumen primär reduzieren. Überweisung an Sporternährungsberater bei Verdacht."
+    },
+    {
+      "id": "hiit_coaching_archetypes_01",
+      "titel": "Coaching-Archetypen: Wie Athleten auf Training reagieren",
+      "tags": [
+        "coaching",
+        "psychologie",
+        "archetyp",
+        "motivation",
+        "komfort",
+        "wachstum",
+        "athlet",
+        "umgang"
+      ],
+      "quelle": "HIIT Science, Kap. 10 — Putting It All Together",
+      "inhalt": "Drei Athleten-Archetypen nach Buchheit & Laursen: (1) EGOZENTRISCH — definiert sich über Erscheinungsbild und Anerkennung, reagiert gut auf externe Bestätigung, braucht klare Ziele und sichtbare Erfolge. Risiko: lässt sich von Misserfolg leicht demotivieren. (2) KOMFORTZENTRIERT — vermeidet Unbehagen und Diskomfort, hält Training lieber im Komfortbereich, schwer für hochintensive Sessions zu motivieren. Risiko: bleibt unter Potenzial. (3) WACHSTUMSORIENTIERT — sucht aktiv Herausforderung, akzeptiert Misserfolg als Lernchance, intrinsisch motiviert, selbstkritisch ohne destruktiv zu sein. Coaching-Konsequenz: gleiche Trainingseinheit trifft Athleten unterschiedlich. Aufgabe des Coaches: den richtigen Reiz zum richtigen Zeitpunkt für den richtigen Athleten wählen. Kein Archetyp ist 'besser' — alle brauchen unterschiedliche Ansprache."
+    },
+    {
+      "id": "hiit_periodization_feldhockey_02",
+      "titel": "Feldhockey: Physische Anforderungen und Robustheit",
+      "tags": [
+        "feldhockey",
+        "robustheit",
+        "wiederholung",
+        "ermüdung",
+        "physisch",
+        "qualitäten",
+        "leistung"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey",
+      "inhalt": "Drei physische Kernqualitäten im Feldhockey laut Hamilton/Nichol: (1) DAUERHAFTIGKEIT — Fähigkeit, tägliche Trainingsbelastung (40-70 Minuten Spielbelastung) zu tolerieren ohne Leistungsabfall. Verletzungsprävention als Grundlage. (2) ROBUSTHEIT — Fähigkeit, wiederholte hochintensive Aktionen (RSA) aufrechtzuerhalten. Metabolische und neuromuskuläre Belastbarkeit. (3) WIEDERHOLUNGSFÄHIGKEIT — Fähigkeit, Session nach Session zu performen ohne Ausfall. Hängt von Erholung, Schlaf, Ernährung, Stressmanagement ab. Alle drei sind trainierbar und aufeinander aufbauend. Basis: Dauerhaftigkeit → Robustheit → Wiederholungsfähigkeit. Verletzungsanfällige Spieler können keine Robustheit entwickeln."
+    },
+    {
+      "id": "nsca_warm_up_sport_specific_01",
+      "titel": "Sportspezifisches Warm-up Feldhockey",
+      "tags": [
+        "warm-up",
+        "feldhockey",
+        "sportspezifisch",
+        "aktivierung",
+        "hüfte",
+        "mobilisation",
+        "sprint"
+      ],
+      "quelle": "NSCA 4th Ed., Kap. 14 + HIIT Science Kap. 25",
+      "inhalt": "Feldhockey-spezifisches Warm-up berücksichtigt: Tiefposition beim Ball (Hip-Flexor-Mobilisation zwingend), Asymmetrie durch Stick-Haltung (Rumpf-Rotation beidseitig), COD-Vorbereitung (laterale Bewegungsmuster), Sprint-Vorbereitung (progressive Beschleunigung). Empfohlene Reihenfolge: (1) Allgemein: leichtes Laufen mit Bewegungsmustern (A-Skip, Seitwärts, Rückwärts). (2) Mobilisation: Hip-90-90, Couch-Stretch, Thorakale Rotation, World Greatest Stretch. (3) Aktivierung: Glute Bridge, Dead Bug, Band-Walk. (4) Potenzierung: progressive Sprints 50-70-90%, COD-Drills, ballspezifische Einstimmung. Statisches Dehnen vermeiden vor Training. Dynamische Mobilisation schützt und aktiviert gleichzeitig."
     }
   ],
-  "totalChunks": 74
+  "totalChunks": 81
 }
