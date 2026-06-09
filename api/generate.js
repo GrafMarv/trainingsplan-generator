@@ -1,3 +1,5 @@
+// api/generate.js — mit Supabase semantischer Suche
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -5,7 +7,12 @@ export default async function handler(req, res) {
   try {
     const { input } = req.body;
 
-    // Übungsliste aus exercises.json laden
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+    const OPENAI_KEY = process.env.OPENAI_API_KEY;
+    const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+
+    // Übungsliste laden
     let exercises = [];
     let exercisesWithImage = [];
     try {
@@ -17,64 +24,115 @@ export default async function handler(req, res) {
       exercises = exData.exercises.map(e => e.id);
       exercisesWithImage = exData.exercises.filter(e => e.hasImage).map(e => e.id);
     } catch(e) {
+      exercises = [];
+      exercisesWithImage = [];
+    }
+
+    // Semantische Suche via Supabase (wenn verfügbar)
+    let brainContext = '';
+    if (SUPABASE_URL && SUPABASE_KEY && OPENAI_KEY) {
       try {
-        const ghResp = await fetch(
-          'https://api.github.com/repos/GrafMarv/trainingsplan-generator/contents/exercises',
-          { headers: { 'Accept': 'application/vnd.github.v3+json' } }
-        );
-        const files = await ghResp.json();
-        const imgExercises = files
-          .filter(f => f.name.endsWith('.png') && f.name.includes('_') && !f.name.startsWith('placeholder'))
-          .map(f => f.name.replace('.png', '').toLowerCase());
-        exercises = imgExercises;
-        exercisesWithImage = imgExercises;
-      } catch(e2) {
-        exercises = req.body.exercises ? req.body.exercises.split(', ') : [];
-        exercisesWithImage = exercises;
+        // 1. Input embedden
+        const embedResp = await fetch('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${OPENAI_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'text-embedding-3-small',
+            input: input.slice(0, 2000)
+          })
+        });
+
+        if (embedResp.ok) {
+          const embedData = await embedResp.json();
+          const queryEmbedding = embedData.data[0].embedding;
+
+          // 2. Semantisch ähnlichste Chunks aus Supabase holen
+          const matchResp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/match_chunks`, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              query_embedding: queryEmbedding,
+              match_count: 6
+            })
+          });
+
+          if (matchResp.ok) {
+            const matchData = await matchResp.json();
+            if (matchData && matchData.length > 0) {
+              brainContext = matchData.map(c =>
+                `[${c.titel}]\n${c.inhalt}`
+              ).join('\n\n---\n\n');
+            }
+          }
+        }
+      } catch(e) {
+        // Fallback zu keyword-basiert wenn Supabase nicht erreichbar
+        brainContext = '';
       }
     }
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-5',
-        max_tokens: 2500,
-        system: `Du bist ein Trainingsplan-Assistent für Feldhockey-Athletiktraining.
+    // Fallback: keyword-basierte Suche aus knowledge.json
+    if (!brainContext) {
+      try {
+        const knResp = await fetch(
+          'https://raw.githubusercontent.com/GrafMarv/trainingsplan-generator/main/knowledge.json?t=' + Date.now()
+        );
+        const knData = await knResp.json();
+        const inputLower = input.toLowerCase();
+        const keywords = inputLower.split(/\s+/).filter(w => w.length > 3);
+        
+        const scored = knData.chunks.map(chunk => {
+          const text = (chunk.titel + ' ' + chunk.inhalt + ' ' + (chunk.tags||[]).join(' ')).toLowerCase();
+          const score = keywords.filter(k => text.includes(k)).length;
+          return { ...chunk, score };
+        }).filter(c => c.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 6);
 
-WISSENSPRIORITÄT (bei Konflikten zwischen Quellen gilt diese Reihenfolge):
+        if (scored.length > 0) {
+          brainContext = scored.map(c => `[${c.titel}]\n${c.inhalt}`).join('\n\n---\n\n');
+        }
+      } catch(e) {}
+    }
+
+    const systemPrompt = `Du bist ein Trainingsplan-Assistent für Feldhockey-Athletiktraining.
+
+WISSENSPRIORITÄT (bei Konflikten zwischen Quellen):
 1. Coaching-Philosophie des Trainers (eigene Chunks) — höchste Priorität
 2. INSCYD / Sebastian Weber — metabolische Präzision (VLamax, MLSS, Energiesystemanteile)
-3. HIIT Science / Buchheit & Laursen — Feldhockey-spezifische Belastungssteuerung, RSA, GPS-Daten
-4. DOSB Fortbildung / Stefan Adler — Warm-Up Struktur, Bewegungsebenen, Pädagogik
+3. HIIT Science / Buchheit & Laursen — Feldhockey-spezifische Belastungssteuerung, RSA
+4. DOSB / Stefan Adler — Warm-Up Struktur, Bewegungsebenen, Pädagogik
 5. NSCA — allgemeine Trainingswissenschaft, Grundlagen
 
 KONTEXTREGELN:
-- Bei Feldhockey-spezifischen Fragen: Quellen 2–4 bevorzugen
-- Bei Laktat/Energiesystemen: INSCYD-Frame nutzen (Laktat ist immer Endprodukt der Glykolyse, kein Abfallprodukt)
-- Bei Warm-Up: 5-A-Modell (Abholen→Aufwecken→Aufwärmen→Aktivieren→Anbahnen), 15–20 min, HF-Protokoll beachten
-- Bei Dehnmethoden: Dynamisch bevorzugen, statisch nur im Abholen — nicht pauschal verbieten
-- Bei VLamax-Konflikt: Für Spielsportarten höhere VLamax oft gewünscht (Sprint), aber MLSS-Stabilität für Matchausdauer trotzdem relevant
+- Bei Feldhockey: Quellen 2–4 bevorzugen
+- Laktat = immer Endprodukt der Glykolyse, kein Abfallprodukt (INSCYD-Frame)
+- Warm-Up: 5-A-Modell (Abholen→Aufwecken→Aufwärmen→Aktivieren→Anbahnen), 15–20 min
+- Dynamisches Dehnen bevorzugen, statisches Dehnen nur im Abholen
+- VLamax: für Spielsportarten höher erwünscht (Sprint), MLSS-Stabilität trotzdem relevant
 
-ÜBUNGSDATENBANK (alle verfügbaren Übungen):
+${brainContext ? `COACHING BRAIN — RELEVANTE WISSENSBASIS:\n${brainContext}\n` : ''}
+
+ÜBUNGSDATENBANK:
 ${exercises.join(', ')}
 
-ÜBUNGEN MIT GRAFIK (bevorzuge diese wenn gleichwertig):
+ÜBUNGEN MIT GRAFIK (bevorzuge wenn gleichwertig):
 ${exercisesWithImage.join(', ')}
 
 Analysiere die Eingabe und erkenne automatisch ob Warm-up, Hauptblock und/oder Cool-down beschrieben werden.
-- Wenn "Warm-up", "Aufwärmen" oder ähnliches erwähnt wird → eigener Warm-up Block
-- Wenn "Cool-down", "Abwärmen", "Dehnen am Ende" oder ähnliches erwähnt wird → eigener Cool-down Block
+- "Warm-up", "Aufwärmen" → eigener Warm-up Block
+- "Cool-down", "Abwärmen" → eigener Cool-down Block  
 - Alles andere → Hauptblock
-- Wenn nichts explizit erwähnt wird → alles ist Hauptblock
+- Nichts erwähnt → alles Hauptblock
 
-WICHTIG: Wähle die trainingswissenschaftlich beste Übung für den Kontext — nicht nur die mit Grafik. Wenn ein Coaching Brain Kontext mitgegeben wird, beachte die darin enthaltenen Prinzipien und die obige Wissenspriorität.
-
-Antworte NUR mit einem JSON-Array von Blöcken. Kein Text davor oder danach.
+Antworte NUR mit einem JSON-Array. Kein Text davor oder danach.
 Format:
 [
   {
@@ -96,12 +154,22 @@ Format:
   }
 ]
 
-Nur Blöcke einschließen die in der Eingabe vorkommen!
-imageKey MUSS exakt einem der IDs aus der Übungsdatenbank entsprechen.
-Wenn keine passende Übung existiert, wähle die ähnlichste. Erfinde KEINE neuen IDs.
-Supersets: gleiche Gruppe vergeben A, B, C. Einzelübungen = "-".
-intensity: RPE z.B. "RPE 8" oder "80%" – nur wenn angegeben, sonst null.
-rest: Pause z.B. "90 Sek." – nur wenn angegeben, sonst null.`,
+imageKey MUSS exakt einem ID aus der Übungsdatenbank entsprechen.
+Supersets: gleiche Gruppe A, B, C. Einzelübungen = "-".
+intensity: "RPE 8" oder "80%" — nur wenn angegeben, sonst null.
+rest: "90 Sek." — nur wenn angegeben, sonst null.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 2500,
+        system: systemPrompt,
         messages: [{ role: 'user', content: input }]
       })
     });
