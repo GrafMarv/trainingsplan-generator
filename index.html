@@ -348,6 +348,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button onclick="wissenTab('bibliothek')" id="wtab-bibliothek" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Bibliothek</button>
       <button onclick="wissenTab('konzepte')" id="wtab-konzepte" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Konzepte</button>
       <button onclick="wissenTab('studien')" id="wtab-studien" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Studien</button>
+      <button onclick="wissenTab('brain')" id="wtab-brain" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">🧠 Coaching Brain</button>
     </div>
 
     <!-- BIBLIOTHEK -->
@@ -417,10 +418,38 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <div id="studie-list" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
 
+    <!-- COACHING BRAIN -->
+    <div id="wissen-brain" style="display:none;">
+      <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:2px;">Coaching Brain</p>
+            <p style="font-size:13px;color:#1c1c1e;">Destilliertes Fachwissen — wird beim Generieren aktiv genutzt</p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span id="brain-count-badge" style="font-size:12px;font-weight:600;color:#fff;background:#007aff;padding:3px 10px;border-radius:20px;">0 Einträge</span>
+            <button onclick="loadBrainFromGitHub()" style="padding:7px 14px;background:#f2f2f7;color:#1c1c1e;border:none;border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">↓ Neu laden</button>
+          </div>
+        </div>
+        <input type="text" id="brain-search" placeholder="Suche nach Thema, Tag oder Quelle..." oninput="renderBrainList()" style="width:100%;padding:10px 14px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;background:#f9f9f9;">
+      </div>
+
+      <!-- Chunk hinzufügen -->
+      <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;margin-bottom:16px;">
+        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:12px;">Neuen Eintrag hinzufügen</p>
+        <input type="text" id="brain-titel" placeholder="Titel z.B. Sprint-Reihenfolge in der Session" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+        <input type="text" id="brain-tags" placeholder="Tags (kommagetrennt) z.B. sprint, session, reihenfolge" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+        <input type="text" id="brain-quelle" placeholder="Quelle z.B. NSCA 4th Ed., eigene Erfahrung" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+        <textarea id="brain-inhalt" placeholder="Inhalt — Coaching-Prinzip, Faustregeln, Kontraindikationen..." style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;min-height:100px;resize:vertical;line-height:1.6;margin-bottom:8px;"></textarea>
+        <button onclick="saveBrainChunk()" style="padding:9px 20px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Eintrag speichern</button>
+      </div>
+
+      <div id="brain-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <p id="brain-empty" style="text-align:center;color:#8e8e93;font-size:14px;padding:40px;display:none;">Noch keine Einträge. Lade das Brain von GitHub oder füge eigene Einträge hinzu.</p>
+    </div>
+
   </div>
 </div>
-
-<!-- PROFILE SCREEN -->
 <div id="profile-screen" style="display:none;">
   <div style="max-width:960px;margin:0 auto;padding:24px 32px 0;">
     <button onclick="goHome()" style="background:none;border:none;font-size:14px;color:#007aff;cursor:pointer;font-family:inherit;font-weight:500;padding:0;">← Zurück</button>
@@ -629,10 +658,11 @@ async function generateWithAI() {
   document.getElementById('plan-wrapper').style.display = 'none';
 
   try {
+    const brainContext = getBrainChunksForInput(input);
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input, exercises: EXERCISES.join(', '), mode: 'auto' })
+      body: JSON.stringify({ input: input + brainContext, exercises: EXERCISES.join(', '), mode: 'auto' })
     });
     if (!response.ok) throw new Error('API Fehler');
     const data = await response.json();
@@ -1151,7 +1181,7 @@ function updateWissenCount() {
 }
 
 function wissenTab(tab) {
-  ['bibliothek','konzepte','studien'].forEach(t => {
+  ['bibliothek','konzepte','studien','brain'].forEach(t => {
     document.getElementById('wissen-' + t).style.display = t === tab ? 'block' : 'none';
     const btn = document.getElementById('wtab-' + t);
     if (btn) {
@@ -1163,6 +1193,126 @@ function wissenTab(tab) {
   if (tab === 'bibliothek') renderWissenList();
   if (tab === 'konzepte') renderKonzeptList();
   if (tab === 'studien') renderStudieList();
+  if (tab === 'brain') { loadBrainIfEmpty(); renderBrainList(); }
+}
+
+// ===== COACHING BRAIN =====
+let brainDB = JSON.parse(localStorage.getItem('brainDB') || '[]');
+
+function saveBrainDB() {
+  localStorage.setItem('brainDB', JSON.stringify(brainDB));
+  renderBrainList();
+}
+
+async function loadBrainFromGitHub() {
+  const badge = document.getElementById('brain-count-badge');
+  badge.textContent = 'Lädt...';
+  try {
+    const resp = await fetch('https://raw.githubusercontent.com/GrafMarv/trainingsplan-generator/main/knowledge.json?t=' + Date.now());
+    const data = await resp.json();
+    if (data.chunks && data.chunks.length) {
+      // Merge: GitHub chunks als Basis, lokale Ergänzungen behalten
+      const githubIds = data.chunks.map(c => c.id);
+      const localOnly = brainDB.filter(c => !githubIds.includes(c.id));
+      brainDB = [...data.chunks, ...localOnly];
+      saveBrainDB();
+      badge.textContent = brainDB.length + ' Einträge';
+    }
+  } catch(e) {
+    badge.textContent = brainDB.length + ' Einträge';
+    alert('Fehler beim Laden: ' + e.message);
+  }
+}
+
+function loadBrainIfEmpty() {
+  if (brainDB.length === 0) loadBrainFromGitHub();
+  else {
+    const badge = document.getElementById('brain-count-badge');
+    if (badge) badge.textContent = brainDB.length + ' Einträge';
+  }
+}
+
+function saveBrainChunk() {
+  const titel = document.getElementById('brain-titel').value.trim();
+  const inhalt = document.getElementById('brain-inhalt').value.trim();
+  if (!titel || !inhalt) { alert('Titel und Inhalt sind Pflichtfelder.'); return; }
+  const chunk = {
+    id: 'custom_' + Date.now(),
+    titel,
+    tags: document.getElementById('brain-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    quelle: document.getElementById('brain-quelle').value.trim() || 'Eigene Erfahrung',
+    inhalt
+  };
+  brainDB.unshift(chunk);
+  saveBrainDB();
+  ['brain-titel','brain-tags','brain-quelle','brain-inhalt'].forEach(id => document.getElementById(id).value = '');
+}
+
+function deleteBrainChunk(id) {
+  if (!confirm('Eintrag löschen?')) return;
+  brainDB = brainDB.filter(c => c.id !== id);
+  saveBrainDB();
+}
+
+function renderBrainList() {
+  const list = document.getElementById('brain-list');
+  const empty = document.getElementById('brain-empty');
+  const badge = document.getElementById('brain-count-badge');
+  const q = (document.getElementById('brain-search')?.value || '').toLowerCase();
+  if (!list) return;
+
+  const filtered = brainDB.filter(c => {
+    if (!q) return true;
+    return (c.titel + c.inhalt + (c.tags||[]).join(' ') + (c.quelle||'')).toLowerCase().includes(q);
+  });
+
+  if (badge) badge.textContent = brainDB.length + ' Einträge';
+
+  if (filtered.length === 0) {
+    list.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  list.innerHTML = filtered.map(c => `
+    <div style="background:#fff;border-radius:14px;border:0.5px solid #e5e5ea;overflow:hidden;">
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">${c.titel}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            ${(c.tags||[]).slice(0,4).map(t => `<span style="font-size:11px;padding:2px 8px;background:#f2f2f7;border-radius:6px;color:#636366;">${t}</span>`).join('')}
+            ${c.quelle ? `<span style="font-size:11px;color:#8e8e93;">· ${c.quelle}</span>` : ''}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+          <span style="font-size:18px;color:#8e8e93;">›</span>
+          <button onclick="event.stopPropagation();deleteBrainChunk('${c.id}')" style="background:none;border:none;color:#ff3b30;font-size:13px;cursor:pointer;padding:4px 8px;border-radius:6px;">✕</button>
+        </div>
+      </div>
+      <div style="display:none;padding:0 16px 14px;border-top:0.5px solid #f2f2f7;">
+        <p style="font-size:13px;color:#3a3a3c;line-height:1.7;margin-top:12px;white-space:pre-wrap;">${c.inhalt}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Brain-Chunks für Generator abrufen (keyword-basiert)
+function getBrainChunksForInput(input) {
+  if (!brainDB || brainDB.length === 0) return '';
+  const words = input.toLowerCase().split(/\s+/);
+  const scored = brainDB.map(c => {
+    const text = (c.titel + ' ' + (c.tags||[]).join(' ') + ' ' + c.inhalt).toLowerCase();
+    let score = 0;
+    words.forEach(w => { if (w.length > 3 && text.includes(w)) score++; });
+    // Tag-Direkttreffer höher gewichten
+    (c.tags||[]).forEach(tag => { if (input.toLowerCase().includes(tag)) score += 3; });
+    return { ...c, score };
+  }).filter(c => c.score > 0).sort((a,b) => b.score - a.score).slice(0, 6);
+
+  if (scored.length === 0) return '';
+  return '\n\n--- COACHING BRAIN (Fachwissen für diesen Plan) ---\n' +
+    scored.map(c => `[${c.titel}]\n${c.inhalt}`).join('\n\n');
 }
 
 function uploadWissen(input) {
