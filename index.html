@@ -348,6 +348,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button onclick="wissenTab('bibliothek')" id="wtab-bibliothek" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Bibliothek</button>
       <button onclick="wissenTab('konzepte')" id="wtab-konzepte" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Konzepte</button>
       <button onclick="wissenTab('studien')" id="wtab-studien" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Studien</button>
+      <button onclick="wissenTab('brain')" id="wtab-brain" style="padding:7px 18px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">&#129504; Brain</button>
     </div>
 
     <!-- BIBLIOTHEK -->
@@ -416,6 +417,47 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       </div>
       <div id="studie-list" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
+
+  <div id="wissen-brain" style="display:none;">
+    <div style="background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;overflow:hidden;">
+      <div style="padding:14px 18px;border-bottom:0.5px solid #e5e5ea;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <p style="font-size:13px;font-weight:600;color:#1c1c1e;margin-bottom:2px;">Coaching Brain</p>
+          <p id="brain-chunk-count" style="font-size:12px;color:#8e8e93;">Lade...</p>
+        </div>
+        <button onclick="loadBrain(true)" style="padding:5px 12px;background:#f2f2f7;border:none;border-radius:8px;font-size:12px;font-weight:500;color:#1c1c1e;cursor:pointer;font-family:inherit;">&#8595; Neu laden</button>
+      </div>
+      <div style="position:relative;background:#080814;">
+        <canvas id="brain-3d" style="display:block;width:100%;height:540px;cursor:grab;"></canvas>
+        <div id="brain-tip" style="position:absolute;background:#1a1a2e;border:0.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;font-size:12px;max-width:220px;pointer-events:none;display:none;z-index:9;color:#e0e0e0;line-height:1.6;"></div>
+        <div id="brain-panel" style="position:absolute;top:0;right:0;width:270px;height:100%;background:#111827;border-left:0.5px solid rgba(255,255,255,0.1);padding:20px;overflow-y:auto;display:none;z-index:8;">
+          <button onclick="document.getElementById('brain-panel').style.display='none'" style="position:absolute;top:10px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#8e8e93;">&#215;</button>
+          <p id="bp-cluster" style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;"></p>
+          <p id="bp-title" style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px;line-height:1.4;"></p>
+          <p id="bp-source" style="font-size:11px;color:#6b7280;margin-bottom:14px;"></p>
+          <p id="bp-content" style="font-size:12px;color:#d1d5db;line-height:1.7;"></p>
+        </div>
+        <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);color:rgba(255,255,255,0.6);font-size:11px;padding:4px 10px;border-radius:20px;pointer-events:none;white-space:nowrap;">Drehen &middot; Scrollen = Zoom &middot; Klick = Details</div>
+      </div>
+      <div style="padding:10px 14px;border-top:0.5px solid #1e1e2e;background:#0d0d1a;border-radius:0 0 16px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <button class="bf" onclick="setBrainFilter('all',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.2);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">Alle</button>
+        <button class="bf" onclick="setBrainFilter('energie',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Energie</button>
+        <button class="bf" onclick="setBrainFilter('sprint',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Sprint</button>
+        <button class="bf" onclick="setBrainFilter('ausdauer',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Ausdauer</button>
+        <button class="bf" onclick="setBrainFilter('kraft',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Kraft</button>
+        <button class="bf" onclick="setBrainFilter('warmup',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Warm-Up</button>
+        <button class="bf" onclick="setBrainFilter('recovery',this)" style="padding:3px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.15);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#aaa;">Recovery</button>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+          <span style="width:7px;height:7px;background:#D85A30;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Energie</span>
+          <span style="width:7px;height:7px;background:#1D9E75;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Sprint</span>
+          <span style="width:7px;height:7px;background:#378ADD;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Ausdauer</span>
+          <span style="width:7px;height:7px;background:#7F77DD;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Kraft</span>
+          <span style="width:7px;height:7px;background:#D4537E;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Warm-Up</span>
+          <span style="width:7px;height:7px;background:#BA7517;border-radius:50%;display:inline-block;"></span><span style="font-size:10px;color:#666;">Recovery</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   </div>
 </div>
@@ -1151,6 +1193,9 @@ function updateWissenCount() {
 }
 
 function wissenTab(tab) {
+    if (tab === 'brain') {
+      if (!window._brainInit) { window._brainInit = true; setTimeout(initBrain, 80); }
+    }
   ['bibliothek','konzepte','studien'].forEach(t => {
     document.getElementById('wissen-' + t).style.display = t === tab ? 'block' : 'none';
     const btn = document.getElementById('wtab-' + t);
@@ -1401,6 +1446,145 @@ async function uploadAll() {
 </div>
 
 </div><!-- end app-screen -->
+
+<script>
+(function(){
+  var CC={energie:'#D85A30',sprint:'#1D9E75',ausdauer:'#378ADD',kraft:'#7F77DD',warmup:'#D4537E',recovery:'#BA7517'};
+  var CL={energie:'Energie & Metabolismus',sprint:'Sprint & Schnelligkeit',ausdauer:'Ausdauer & Belastung',kraft:'Kraft & Plyometrie',warmup:'Warm-Up & Bewegung',recovery:'Recovery & Gesundheit'};
+  var CX={energie:{ax:0.3,ay:1.5,az:0.2},sprint:{ax:1.8,ay:-0.2,az:0.5},ausdauer:{ax:-0.2,ay:-1.6,az:0.3},kraft:{ax:-1.8,ay:0.4,az:-0.3},warmup:{ax:0.1,ay:0.3,az:-1.9},recovery:{ax:0.8,ay:-0.5,az:1.8}};
+  var TM={energie:['energiesystem','energie','atp','pcr','laktat','glykolyse','oxidation','mlss','vlamax','vo2','fett','metabol','inscyd','schwelle'],sprint:['sprint','rsa','schnell','agility','cod','antritt','gps','30-15','ift'],ausdauer:['hiit','ausdauer','vo2max','mikrozyklus','off-season','ssg','acwr','concurrent','periodisier','belastung'],kraft:['kraft','plyometr','sprung','uebungsreih','belastungsparam','hormon','jugend','wachstum','robust'],warmup:['warm','aufwaerm','ramp','5-a','bewegungsebene','dehnen','pap','hf-protokoll','organisation','anbahnen'],recovery:['recovery','hrv','schlaf','stress','verletzung','red-s','gesundheit','rehab','praevention','detraining']};
+  var rng=function(s){var x=Math.sin(s+1)*9999;return x-Math.floor(x);};
+  function h2r(h,a){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')';}
+  function guessCluster(c){var text=(c.titel+' '+(c.tags||[]).join(' ')+' '+c.inhalt.slice(0,200)).toLowerCase();var best='energie',bs=0;for(var cl in TM){var sc=TM[cl].filter(function(k){return text.indexOf(k)>=0;}).length;if(sc>bs){bs=sc;best=cl;}}return best;}
+
+  var nodes=[],chunks=[],cv,ctx,W,H,DPR=1,rotX=0.2,rotY=0.6,drag=false,lx,ly,aRot=true,zoom=1,rotTimer=null,af='all',running=false;
+
+  window.loadBrain=function(force){
+    fetch('https://raw.githubusercontent.com/GrafMarv/trainingsplan-generator/main/knowledge.json?t='+Date.now())
+      .then(function(r){return r.json();})
+      .then(function(d){buildNodes(d.chunks);})
+      .catch(function(){document.getElementById('brain-chunk-count').textContent='Fehler';});
+  };
+
+  function buildNodes(cks){
+    chunks=cks;
+    nodes=cks.map(function(c,i){
+      var cl=guessCluster(c),cx=CX[cl],sp=0.62;
+      return{label:c.titel,cluster:cl,col:CC[cl],source:c.quelle||'',desc:c.inhalt.slice(0,100),full:c,
+        x:cx.ax+(rng(i*3+1)-0.5)*sp,y:cx.ay+(rng(i*3+2)-0.5)*sp,z:cx.az+(rng(i*3+3)-0.5)*sp,vis:true};
+    });
+    document.getElementById('brain-chunk-count').textContent=cks.length+' Chunks';
+    if(!running){running=true;requestAnimationFrame(tick);}
+  }
+
+  function proj(x,y,z){
+    var cx=Math.cos(rotX),sx=Math.sin(rotX),cy=Math.cos(rotY),sy=Math.sin(rotY);
+    var nx=x*cy-z*sy,nz=x*sy+z*cy,ny=y*cx-nz*sx;nz=y*sx+nz*cx;
+    var fov=4.8,sc=fov/(fov+nz)*zoom;
+    return{px:W/2+nx*W*0.17*sc,py:H/2+ny*H*0.17*sc,sc:sc,nz:nz};
+  }
+
+  function draw(){
+    if(!ctx||!nodes.length)return;
+    ctx.fillStyle='#080814';ctx.fillRect(0,0,W,H);
+    for(var s=0;s<100;s++){ctx.beginPath();ctx.arc(rng(s*7+1)*W,rng(s*7+2)*H,rng(s*7+3)*1.4*DPR,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.25)';ctx.fill();}
+    nodes.forEach(function(n,i){
+      if(!n.vis)return;
+      nodes.forEach(function(m,j){
+        if(j<=i||!m.vis||m.cluster!==n.cluster||rng(i*53+j)>0.2)return;
+        var pi=proj(n.x,n.y,n.z),pj=proj(m.x,m.y,m.z);
+        ctx.beginPath();ctx.moveTo(pi.px,pi.py);ctx.lineTo(pj.px,pj.py);
+        ctx.strokeStyle=h2r(n.col,0.15);ctx.lineWidth=0.8*DPR;ctx.stroke();
+      });
+    });
+    var sorted=nodes.slice().sort(function(a,b){return proj(a.x,a.y,a.z).nz-proj(b.x,b.y,b.z).nz;});
+    var clCenters={};
+    sorted.forEach(function(n){
+      if(!n.vis)return;
+      var p=proj(n.x,n.y,n.z),r=Math.max(4,8*p.sc)*DPR;
+      var g=ctx.createRadialGradient(p.px,p.py,0,p.px,p.py,r*3.5);
+      g.addColorStop(0,h2r(n.col,0.35));g.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.arc(p.px,p.py,r*3.5,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+      ctx.beginPath();ctx.arc(p.px,p.py,r,0,Math.PI*2);ctx.fillStyle=n.col;ctx.globalAlpha=0.92;ctx.fill();ctx.globalAlpha=1;
+      ctx.beginPath();ctx.arc(p.px-r*0.28,p.py-r*0.28,r*0.3,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.4)';ctx.fill();
+      if(!clCenters[n.cluster])clCenters[n.cluster]={x:0,y:0,n:0};
+      clCenters[n.cluster].x+=p.px;clCenters[n.cluster].y+=p.py;clCenters[n.cluster].n++;
+    });
+    Object.keys(clCenters).forEach(function(cl){
+      var c=clCenters[cl],cx=c.x/c.n,cy=c.y/c.n,col=CC[cl],lbl=CL[cl];
+      var fs=Math.round(11*DPR);ctx.font='600 '+fs+'px -apple-system,sans-serif';
+      var tw=ctx.measureText(lbl).width,pd=7*DPR,ph=17*DPR,lx2=cx-tw/2-pd,ly2=cy-80*DPR;
+      ctx.beginPath();ctx.moveTo(lx2+ph/2,ly2);ctx.lineTo(lx2+tw+pd*2-ph/2,ly2);
+      ctx.arcTo(lx2+tw+pd*2,ly2,lx2+tw+pd*2,ly2+ph/2,ph/2);
+      ctx.arcTo(lx2+tw+pd*2,ly2+ph,lx2+tw+pd*2-ph/2,ly2+ph,ph/2);
+      ctx.lineTo(lx2+ph/2,ly2+ph);
+      ctx.arcTo(lx2,ly2+ph,lx2,ly2+ph/2,ph/2);ctx.arcTo(lx2,ly2,lx2+ph/2,ly2,ph/2);ctx.closePath();
+      ctx.fillStyle=h2r(col,0.2);ctx.fill();ctx.strokeStyle=h2r(col,0.5);ctx.lineWidth=0.8*DPR;ctx.stroke();
+      ctx.fillStyle=col;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbl,cx,ly2+ph/2);
+    });
+  }
+
+  function tick(){
+    if(document.getElementById('wissen-brain')&&document.getElementById('wissen-brain').style.display!=='none'){draw();if(aRot)rotY+=0.0025;}
+    requestAnimationFrame(tick);
+  }
+
+  function resize(){
+    if(!cv)return;
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    var r=cv.parentElement.getBoundingClientRect();
+    W=cv.width=r.width*DPR;H=cv.height=540*DPR;
+    cv.style.width=r.width+'px';cv.style.height='540px';
+  }
+
+  function getHit(mx,my){
+    var hit=null;
+    nodes.forEach(function(n){
+      if(!n.vis)return;
+      var p=proj(n.x,n.y,n.z),r=Math.max(4,8*p.sc)*DPR;
+      if(Math.sqrt((p.px-mx)*(p.px-mx)+(p.py-my)*(p.py-my))<r+8*DPR)hit=n;
+    });
+    return hit;
+  }
+
+  window.initBrain=function(){
+    cv=document.getElementById('brain-3d');
+    if(!cv)return;
+    ctx=cv.getContext('2d');
+    resize();
+    window.addEventListener('resize',resize);
+    cv.addEventListener('mousedown',function(e){drag=true;aRot=false;lx=e.clientX;ly=e.clientY;cv.style.cursor='grabbing';if(rotTimer)clearTimeout(rotTimer);});
+    cv.addEventListener('mouseup',function(){drag=false;cv.style.cursor='grab';if(rotTimer)clearTimeout(rotTimer);rotTimer=setTimeout(function(){aRot=true;},3000);});
+    cv.addEventListener('mouseleave',function(){drag=false;document.getElementById('brain-tip').style.display='none';});
+    cv.addEventListener('mousemove',function(e){
+      if(drag){rotY+=(e.clientX-lx)*0.007;rotX+=(e.clientY-ly)*0.007;lx=e.clientX;ly=e.clientY;return;}
+      var rect=cv.getBoundingClientRect(),mx=(e.clientX-rect.left)*DPR,my=(e.clientY-rect.top)*DPR;
+      var hit=getHit(mx,my),tip=document.getElementById('brain-tip');
+      if(hit){tip.style.display='block';tip.style.left=(e.clientX-rect.left+14)+'px';tip.style.top=(e.clientY-rect.top-10)+'px';tip.innerHTML='<strong style="color:'+hit.col+';display:block;margin-bottom:3px;">'+hit.label+'</strong><span style="font-size:10px;color:#9ca3af;display:block;margin-bottom:4px;">'+hit.source+'</span><span style="font-size:11px;">'+hit.desc+'</span>';cv.style.cursor='pointer';}
+      else{tip.style.display='none';cv.style.cursor=drag?'grabbing':'grab';}
+    });
+    cv.addEventListener('click',function(e){
+      var rect=cv.getBoundingClientRect(),mx=(e.clientX-rect.left)*DPR,my=(e.clientY-rect.top)*DPR;
+      var hit=getHit(mx,my);if(!hit)return;
+      var pan=document.getElementById('brain-panel');
+      document.getElementById('bp-cluster').textContent=CL[hit.cluster];document.getElementById('bp-cluster').style.color=hit.col;
+      document.getElementById('bp-title').textContent=hit.label;document.getElementById('bp-source').textContent=hit.source;
+      document.getElementById('bp-content').textContent=hit.full.inhalt;pan.style.display='block';
+    });
+    cv.addEventListener('wheel',function(e){e.preventDefault();zoom=Math.min(2.8,Math.max(0.45,zoom-e.deltaY*0.001));},{passive:false});
+    cv.addEventListener('touchstart',function(e){aRot=false;lx=e.touches[0].clientX;ly=e.touches[0].clientY;if(rotTimer)clearTimeout(rotTimer);},{passive:true});
+    cv.addEventListener('touchmove',function(e){rotY+=(e.touches[0].clientX-lx)*0.007;rotX+=(e.touches[0].clientY-ly)*0.007;lx=e.touches[0].clientX;ly=e.touches[0].clientY;},{passive:true});
+    cv.addEventListener('touchend',function(){if(rotTimer)clearTimeout(rotTimer);rotTimer=setTimeout(function(){aRot=true;},3000);},{passive:true});
+    loadBrain(false);
+  };
+
+  window.setBrainFilter=function(f,el){
+    document.querySelectorAll('.bf').forEach(function(b){b.style.background='transparent';b.style.color='#aaa';b.style.borderColor='rgba(255,255,255,0.15)';});
+    el.style.background=f==='all'?'#fff':CC[f];el.style.color=f==='all'?'#1c1c1e':'#fff';el.style.borderColor='transparent';
+    nodes.forEach(function(n){n.vis=f==='all'||n.cluster===f;});
+  };
+})();
+</script>
 </body>
 </html>
 
