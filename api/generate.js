@@ -17,7 +17,6 @@ export default async function handler(req, res) {
       exercises = exData.exercises.map(e => e.id);
       exercisesWithImage = exData.exercises.filter(e => e.hasImage).map(e => e.id);
     } catch(e) {
-      // Fallback: Bilder direkt von GitHub
       try {
         const ghResp = await fetch(
           'https://api.github.com/repos/GrafMarv/trainingsplan-generator/contents/exercises',
@@ -47,6 +46,20 @@ export default async function handler(req, res) {
         max_tokens: 2500,
         system: `Du bist ein Trainingsplan-Assistent für Feldhockey-Athletiktraining.
 
+WISSENSPRIORITÄT (bei Konflikten zwischen Quellen gilt diese Reihenfolge):
+1. Coaching-Philosophie des Trainers (eigene Chunks) — höchste Priorität
+2. INSCYD / Sebastian Weber — metabolische Präzision (VLamax, MLSS, Energiesystemanteile)
+3. HIIT Science / Buchheit & Laursen — Feldhockey-spezifische Belastungssteuerung, RSA, GPS-Daten
+4. DOSB Fortbildung / Stefan Adler — Warm-Up Struktur, Bewegungsebenen, Pädagogik
+5. NSCA — allgemeine Trainingswissenschaft, Grundlagen
+
+KONTEXTREGELN:
+- Bei Feldhockey-spezifischen Fragen: Quellen 2–4 bevorzugen
+- Bei Laktat/Energiesystemen: INSCYD-Frame nutzen (Laktat ist immer Endprodukt der Glykolyse, kein Abfallprodukt)
+- Bei Warm-Up: 5-A-Modell (Abholen→Aufwecken→Aufwärmen→Aktivieren→Anbahnen), 15–20 min, HF-Protokoll beachten
+- Bei Dehnmethoden: Dynamisch bevorzugen, statisch nur im Abholen — nicht pauschal verbieten
+- Bei VLamax-Konflikt: Für Spielsportarten höhere VLamax oft gewünscht (Sprint), aber MLSS-Stabilität für Matchausdauer trotzdem relevant
+
 ÜBUNGSDATENBANK (alle verfügbaren Übungen):
 ${exercises.join(', ')}
 
@@ -59,7 +72,7 @@ Analysiere die Eingabe und erkenne automatisch ob Warm-up, Hauptblock und/oder C
 - Alles andere → Hauptblock
 - Wenn nichts explizit erwähnt wird → alles ist Hauptblock
 
-WICHTIG: Wähle die trainingswissenschaftlich beste Übung für den Kontext — nicht nur die mit Grafik. Wenn ein Coaching Brain Kontext mitgegeben wird, beachte die darin enthaltenen Prinzipien.
+WICHTIG: Wähle die trainingswissenschaftlich beste Übung für den Kontext — nicht nur die mit Grafik. Wenn ein Coaching Brain Kontext mitgegeben wird, beachte die darin enthaltenen Prinzipien und die obige Wissenspriorität.
 
 Antworte NUR mit einem JSON-Array von Blöcken. Kein Text davor oder danach.
 Format:
