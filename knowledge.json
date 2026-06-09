@@ -620,7 +620,229 @@
       ],
       "quelle": "NSCA 4th Ed., Kap. 21",
       "inhalt": "General Adaptation Syndrome (GAS): Alarm → Widerstand → Erschöpfung. Training = kontrollierter Alarm. Supercompensation: nach adäquater Erholung steigt Leistung über Ausgangsniveau. Fitness-Fatigue-Modell: Training erzeugt gleichzeitig Fitness und Fatigue. Performance = Fitness minus Fatigue. Taper-Phase: Volumen stark reduzieren (40–60%), Intensität halten → Fatigue sinkt schneller als Fitness → Performance-Peak. Typische Taper-Dauer: 1–3 Wochen vor Saison-Highlight. Zu langes Taper: Detraining; zu kurzes Taper: zuviel Fatigue bleibt. Für Feldhockey: Taper 10–14 Tage vor Turnier-Highlight."
+    },
+    {
+      "id": "hiit_fh_gps_data_01",
+      "titel": "Feldhockey GPS-Daten: Distanz, Arbeitstempo, Positionsunterschiede",
+      "tags": [
+        "feldhockey",
+        "GPS",
+        "distanz",
+        "arbeitstempo",
+        "position",
+        "stürmer",
+        "verteidiger",
+        "mittelfeld"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey (Matt Nichol), Tabelle 25.2–25.4",
+      "inhalt": "Internationale Feldhockey-Spieler legen pro Spiel ca. 5700–6000m zurück (männlich), Frauen ähnlich. Arbeitstempozone: ca. 122–136 m/min. High-Speed-Running (>15 km/h): ~10–18% der Gesamtdistanz. Sprintanteil (>19 km/h): ~5–10%. Positionsunterschiede: Stürmer und Mittelfeldspieler höchste Gesamtdistanz und Arbeitstempo. Verteidiger geringste Gesamtdistanz aber sehr hohe hochintensive Aktionen. Torhüter komplett andere Anforderungen. Spielzeit-Effekt: Arbeitstempo sinkt mit zunehmenden Spielminuten — aerobe Ausdauer beeinflusst RSA-Kapazität direkt."
+    },
+    {
+      "id": "hiit_fh_gps_data_02",
+      "titel": "Feldhockey: Spielformat-Änderung und physische Auswirkungen",
+      "tags": [
+        "feldhockey",
+        "format",
+        "quarter",
+        "viertel",
+        "halbzeit",
+        "arbeitstempo",
+        "erholung",
+        "GPS"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey",
+      "inhalt": "Formatwechsel von 2×35 Min Halbzeiten auf 4×15 Min Viertel: Arbeitstempo stieg durch kürzere Erholungspausen zwischen Spielabschnitten. 15-Min-Viertel ermöglicht 2 min Erholungspause zwischen Vierteln — weniger Erholung als Halbzeitpause. Mittleres Arbeitstempo über das gesamte Spiel gestiegen. Auswirkung Training: RSA-Kapazität und aerobe Basis wichtiger denn je. Spieler müssen höhere Intensitäten über kürzere Perioden tolerieren."
+    },
+    {
+      "id": "hiit_fh_rsa_01",
+      "titel": "Feldhockey RSA: Wiederholte Sprintfähigkeit als Kernkompetenz",
+      "tags": [
+        "RSA",
+        "repeated sprint ability",
+        "feldhockey",
+        "sprint",
+        "erholung",
+        "anaerob",
+        "aerob"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey",
+      "inhalt": "Repeated Sprint Ability (RSA) = entscheidende physische Qualität im Feldhockey. Spieler müssen kurze Sprints (0–30 Sek) wiederholt ausführen mit 3 Min Erholungszeit dazwischen. Hamilton RSA-Protokoll für Feldhockey: 0,5m hinter Startlinie, Sprint zum 20m Kegel, zurück zum 5m Kegel, dann zu 20m Ziellinie. 4 Sprints à 40m (Shuttle), aktive Erholung 30 Sek. RSA-Training mit Stick-und-Ball möglich (spielnäher) oder ohne. Positive Nebeneffekte: verbessert auch Muskel-Sehnen-Steifigkeit und neuromuskuläre Kontrolle."
+    },
+    {
+      "id": "hiit_fh_mas_30_15_01",
+      "titel": "30-15 IFT: Der wichtigste Ausdauertest für Feldhockey",
+      "tags": [
+        "30-15 IFT",
+        "MAS",
+        "aerobe Kapazität",
+        "test",
+        "VIFT",
+        "diagnostik",
+        "feldhockey"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey",
+      "inhalt": "30-15 Intermittent Fitness Test (30-15 IFT) = bevorzugter Test für Feldhockey. Misst maximale aerobe Geschwindigkeit (VIFT) durch intermittierendes Laufprotokoll. Vorteil gegenüber klassischem VO2max-Test: simuliert Stop-and-Go-Natur des Sports, zuverlässiger für Intermittent-Sports. VIFT dient als Basis für alle HIIT-Trainingsintensitäten. Typischer Elite-Wert: 19–22 km/h. Trainingssteuerung: MAS-Prescriptions als % von VIFT. Wird auch für Längsschnitt-Monitoring genutzt — zeigt Trainingsfortschritt über Quadrennial-Zyklus."
+    },
+    {
+      "id": "hiit_fh_hiit_weapons_01",
+      "titel": "HIIT Weapons im Feldhockey: Typen und Jahresverteilung",
+      "tags": [
+        "HIIT",
+        "weapons",
+        "typ1",
+        "typ2",
+        "typ3",
+        "MAS",
+        "zentral",
+        "peripher",
+        "feldhockey"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey, Abbildung 25.9",
+      "inhalt": "Jahresverteilung HIIT im Feldhockey (GB/US Olympic Teams): HIIT kurz (kurze Intervalle) 20%, HIIT lang (lange Intervalle) 10%, GBHIIT (game-based HIIT) 65%, RSA 5%. Drei Haupttypen: Typ 1 = MAS-Gerade (gesteuerte Strecke, z.B. 3×12 bei 95% VIFT) für zentralen Fokus; Typ 2 = MAS-Shuttle (Richtungswechsel, z.B. 3×12 bei 100% VIFT) für peripheren Fokus; Typ 3 = Laufband/Track (hohe Genauigkeit der Intensitätssteuerung). GBHIIT (game-based) dominiert — spielnäher, motivierender, gleichzeitig technisch-taktische Belastung."
+    },
+    {
+      "id": "hiit_fh_hiit_prescription_01",
+      "titel": "HIIT-Prescription im Feldhockey: In-Season und Off-Season",
+      "tags": [
+        "HIIT",
+        "prescription",
+        "in-season",
+        "off-season",
+        "MAS",
+        "VIFT",
+        "volumen",
+        "intensität",
+        "progression"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey, Tabelle 25.7",
+      "inhalt": "Off-Season-Progression über 6 Wochen (Beispiel): Woche 1–2: 3×12 bei 95% VIFT; Woche 3–4: 3×12/10/10 bei 100% VIFT; Woche 5–6: höheres Volumen mit Shuttle-Optionen. In-Season: gerade MAS-Strecken bevorzugt (kontrollierter, weniger mechanische Belastung durch COD). Shuttle-Varianten für peripheren Fokus in Vorbereitung. Progression: zuerst Volumen erhöhen, dann Intensität. Nicht beides gleichzeitig steigern. MAS-Strecken erlauben präzise Steuerung — für Coaching ohne GPS-System ideal."
+    },
+    {
+      "id": "hiit_fh_weekly_structure_01",
+      "titel": "Feldhockey Mikrozyklus: Wochenstruktur International",
+      "tags": [
+        "mikrozyklus",
+        "woche",
+        "feldhockey",
+        "struktur",
+        "gym",
+        "hockey",
+        "conditioning",
+        "spieltag"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey, Tabelle 25.8",
+      "inhalt": "Beispiel-Mikrozyklus internationales Feldhockey (eine Woche): Montag: Gym. Dienstag: Hockey + MAS-Training Typ 1. Mittwoch: Gym. Donnerstag: Hockey + SSG (Small-Sided Games). Freitag: Gym + Hockey. Samstag: Conditioning + MAS-Training. Sonntag: OFF. Gym-Trainings beinhalten: Kraft, Kraft-Ausdauer, Power-Entwicklung. Wichtig: Hockey-Training und Conditioning gezielt verzahnt — kein isoliertes Konditionstraining das losgelöst vom Spielkontext steht."
+    },
+    {
+      "id": "hiit_fh_6week_offseason_01",
+      "titel": "6-Wochen Off-Season Konditionierungsplan Feldhockey",
+      "tags": [
+        "off-season",
+        "6 wochen",
+        "treadmill",
+        "konditionierung",
+        "feldhockey",
+        "plan",
+        "progression"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey, Tabelle 25.6",
+      "inhalt": "6-Wochen Off-Season Konditionsplan: Recovery-Woche 1: Fahrrad 30 Min bei 60–80 RPM, niedriger Widerstand. Wochen 2–3: Treadmill 5×3 Min bei 88% VIFT (30-15), 3 Min Pause (zentraler Fokus). Wochen 3–5: Treadmill 6×3 Min bei 85% VIFT, 3 Min Pause. Woche 5: 4-Meilen-Lauf unter 28 Min. Wochen 4–6: Speed-Sessions + Repeat-Sprint-Training. Prinzip: Zunächst aerobe Basis aufbauen (zentraler Fokus), dann zunehmend Intensität und Sprintkomponente. Treadmill erlaubt präzise Intensitätssteuerung ohne GPS."
+    },
+    {
+      "id": "hiit_fh_physical_profiling_01",
+      "titel": "Feldhockey Athletenprofil: Benchmarking-Tests",
+      "tags": [
+        "profil",
+        "testing",
+        "benchmarking",
+        "feldhockey",
+        "stärken",
+        "schwächen",
+        "ampel",
+        "diagnostik"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey, Tabelle 25.1 + Abbildung 25.3",
+      "inhalt": "Benchmarking-Tests für Feldhockey-Athleten (Traffic-Light-System): Kraft: Back Squat, Bench Press, Isometric Mid-Thigh Pull. Power: CMJ (Countermovement Jump), Jump Squat. Schnelligkeit: 10m, 20m, 40m Sprint. Aerobe Kapazität: 30-15 IFT (VIFT). Anaerobe Ausdauer/RSA: Hamilton RSA-Test. Bewegungsqualität: Bewegungsbeurteilung. Anaerobic Speed Reserve: Differenz aus Maximalgeschwindigkeit und MAS. Ampel-System (grün/gelb/rot) zeigt Stärken/Schwächen — ermöglicht individuelle Trainingssteuerung. Wichtig: Relative Werte (bezogen auf Körpergewicht) für Kraft und Power."
+    },
+    {
+      "id": "hiit_fh_neuromuscular_01",
+      "titel": "Neuromuskuläres Profil und Spielspezifische Anforderungen",
+      "tags": [
+        "neuromuskulär",
+        "tiefposition",
+        "stick",
+        "linke hand",
+        "asymmetrie",
+        "körperhaltung",
+        "feldhockey"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey",
+      "inhalt": "Feldhockey erzwingt extreme neuromuskuläre Asymmetrien: Stick wird mit linker Hand unten gehalten — erzeugt asymmetrische Belastung der Rumpf- und Schultermuskulatur. Tiefposition beim Ball führen: chronische Hüftbeuger-Verkürzung, erhöhte Lendenwirbelsäulenbelastung. Hochexplosive Aktionen aus Tiefposition (Schuss, Tackling): hohe exzentrische Belastung für Hüfte, Knie, Ischiocrurale. Konsequenz für Training: Hüftmobiltät und Rumpfstabilität sind Pflicht im Warm-up. Einseitige Übungen (Unilateral) wichtig zum Ausgleich der Stick-Asymmetrie. Isometrische Mittelzug-Tests besonders wertvoll für diesen Sport."
+    },
+    {
+      "id": "hiit_fh_periodization_01",
+      "titel": "Feldhockey Makrozyklus und Jahresplanung",
+      "tags": [
+        "makrozyklus",
+        "jahresplanung",
+        "feldhockey",
+        "olympia",
+        "quadrennial",
+        "vorbereitung",
+        "turnier",
+        "peak"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey, Abbildung 25.13",
+      "inhalt": "Internationaler Feldhockey-Kalender: World Cups, Champions Trophy, Continental Cups, Olympic Games. Quadrennial-Planung (4-Jahres-Zyklus) um Olympia als Haupthighlight. Saisonstruktur: Off-Season (Grundlagenaufbau) → Vorbereitung (Kraft/Power-Peak) → Pre-Season (Spielspezifik, MAS-Aufbau) → In-Season (Erhaltung, Wettkampf) → Post-Season (aktive Erholung). Jahresplan beinhaltet mehrere Mesozyklus-Peaks (Turniere). Training: 4-Wochen-Zyklen mit 3 Aufbauwochen + 1 Entlastungswoche. Manipulation der Variablen: Volumen (sinkt zur Saison), Intensität (steigt), Modalitäten (B = Bike-Training für zentralen Fokus bei hoher Spielbelastung)."
+    },
+    {
+      "id": "hiit_fh_load_monitoring_01",
+      "titel": "Trainingssteuerung und Monitoring: GPS + RPE + Wellness",
+      "tags": [
+        "monitoring",
+        "GPS",
+        "RPE",
+        "wellness",
+        "load",
+        "trainingssteuerung",
+        "übertraining",
+        "feldhockey"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey",
+      "inhalt": "Dreisäulen-Monitoring: (1) GPS — quantifiziert Distanz, Arbeitstempo, HIA-Aktionen, Sprintanzahl. (2) Session RPE (sRPE) — Athlet bewertet Belastungsempfinden nach Session (1–10). Einfach, günstig, zuverlässig. (3) Wellness-Fragebogen — tägliche Abfrage von Schlaf, Stimmung, Muskelkater, Energielevel, Stresslevel. Wellness-Daten ermöglichen frühzeitige Erkennung von Übertraining. GPS-Kennzahl: High-Intensity Actions (HIA) = Aktionen über 15 km/h. Anaerobic Speed Reserve (Maximalgeschwindigkeit minus MAS) = wichtiger individueller Parameter für Intensitätssteuerung. Trainingsbelastung = Volumen × Intensität × Modalität."
+    },
+    {
+      "id": "hiit_fh_game_based_01",
+      "titel": "Game-Based HIIT (GBHIIT): SSG und spielnahe Konditionierung",
+      "tags": [
+        "GBHIIT",
+        "SSG",
+        "small sided games",
+        "spielnah",
+        "konditionierung",
+        "technik",
+        "taktik",
+        "feldhockey"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey",
+      "inhalt": "GBHIIT (Game-Based HIIT) = dominant im Feldhockey-Training (65% aller HIIT-Einheiten). Vorteile: gleichzeitig physisch, technisch und taktisch. Spieler tolerieren höhere Belastungen durch Spielmotivation. Small-Sided Games (SSG): kleinere Spielfelder, weniger Spieler — erhöht Kontaktrate und Intensität. Nachteil: Intensitätssteuerung schwieriger als bei isolierter MAS-Arbeit. Lösung: MAS-basierte Isolation für spezifische physische Adaptation, SSG für Spielkompetenz. Manipulation von SSG: Feldgröße, Spielerzahl, Regeln (z.B. Ballkontakt-Limits) steuern physische Anforderung. Direkte Messbarkeit via GPS."
+    },
+    {
+      "id": "hiit_fh_position_specific_01",
+      "titel": "Positionsspezifische Anforderungen: Stürmer, Mittelfeld, Verteidiger, Tor",
+      "tags": [
+        "position",
+        "stürmer",
+        "verteidiger",
+        "mittelfeld",
+        "torwart",
+        "feldhockey",
+        "GPS",
+        "spezialisierung"
+      ],
+      "quelle": "HIIT Science, Kap. 25 — Field Hockey, Tabelle 25.4",
+      "inhalt": "Stürmer: höchstes Arbeitstempo, viele hochintensive Aktionen, hoher Sprintanteil. Mittelfeld: höchste Gesamtdistanz (~6000m), konstante aerobe Belastung, balancierte High-Speed-Aktionen. Verteidiger: geringere Gesamtdistanz aber explosive Richtungswechsel, hohe Tackling-Anforderungen, Körperkontakt. Auswärts-Spieler (Flanken): höchste %-High-Speed-Aktionen im Vergleich zum Feldtyp. Torhüter: komplett unterschiedliche Anforderungen — Reaktionsschnelligkeit, Flexibilität Hüfte/Schulter, kurze explosive Aktionen, spezifisches Equipment beeinflusst Beweglichkeit. Konsequenz: positionsspezifische Trainingsblöcke besonders in Vorbereitungsphase."
     }
   ],
-  "totalChunks": 40
+  "totalChunks": 54
 }
