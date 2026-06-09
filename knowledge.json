@@ -1078,7 +1078,87 @@
       ],
       "quelle": "HIIT Science, Kap. 4 + 5",
       "inhalt": "12 manipulierbare HIIT-Variablen: Arbeitsintensität, Arbeitsdauer, Erholungsintensität, Erholungsdauer, Anzahl Wiederholungen, Anzahl Serien, Serien-Erholung, Modalität, Oberfläche, Neigung, Warm-up. Für aerobe Anpassung (VO2max): Intensität 90-100% VIFT, Work:Rest ~1:1, aktive Erholung bei 50-60% vVO2max. Für anaerobe Anpassung: Intensität >110% VIFT / All-out, Work:Rest >1:3, passive Erholung. Für neuromuskuläre Entwicklung: explosive Modalities (COD, Sprünge), kurze Work (<5 Sek), lange Rest. Goldene Regel: nie Intensität UND Volumen gleichzeitig steigern."
+    },
+    {
+      "id": "hiit_30_15ift_01",
+      "titel": "30-15 IFT: Entwicklung, Protokoll und Normwerte",
+      "tags": [
+        "30-15 IFT",
+        "VIFT",
+        "test",
+        "intermittent",
+        "aerob",
+        "feldtest",
+        "normwerte",
+        "buchheit"
+      ],
+      "quelle": "HIIT Science, Kap. 2 — Traditional Methods of HIIT Programming",
+      "inhalt": "30-15 Intermittent Fitness Test (30-15 IFT): 30 Sek Laufen / 15 Sek Gehen, progressiv schneller, startet bei 8 km/h, Steigerung 0.5 km/h alle 45 Sek. Endziel: maximale intermittente Geschwindigkeit (VIFT) bestimmen. Vorteil: misst intermittente aerobe Kapazität, nicht Ausdauer bei konstanter Intensität — näher am Teamsport. VIFT-Normwerte nach Level: U16 national ~18.5 km/h, Senior U18 ~19 km/h, Senior national ~19.5-20 km/h, Elite international ~20-21 km/h. VIFT-basierte HIIT-Prescription: Trainingsintensitäten als % VIFT. App: 30-15.com. Schüchterne Schätzung: VIFT ≈ vVO2max + 2 km/h."
+    },
+    {
+      "id": "hiit_anaerobic_speed_reserve_01",
+      "titel": "Anaerobic Speed Reserve (ASR): Das individuelle Profil",
+      "tags": [
+        "ASR",
+        "anaerobic speed reserve",
+        "maximalgeschwindigkeit",
+        "VIFT",
+        "vVO2max",
+        "sprint",
+        "profil",
+        "individuell"
+      ],
+      "quelle": "HIIT Science, Kap. 2",
+      "inhalt": "Anaerobic Speed Reserve (ASR) = Maximalgeschwindigkeit (MSS/sprint) minus vVO2max (Laufgeschwindigkeit bei VO2max). ASR repräsentiert den anaeroben Anteil eines Athleten. Großes ASR = Sprinter-Profil: besser bei Hochintensivem, schlechter bei rein aerober Dauerbelastung. Kleines ASR = Ausdauerathlet-Profil. Für HIIT-Prescription: HIIT-Intensitäten können als % ASR-Anteil eingestellt werden — individuelle Anpassung ohne Labortest. Feldhockey: MSS typisch 28-32 km/h, vVO2max 15-18 km/h → ASR 10-15 km/h. Training bei 50% ASR über vVO2max trifft aerobe Targets gut."
+    },
+    {
+      "id": "hiit_prescription_methods_01",
+      "titel": "HIIT Prescription: Herzfrequenz, Geschwindigkeit, RPE im Vergleich",
+      "tags": [
+        "prescription",
+        "herzfrequenz",
+        "HR",
+        "geschwindigkeit",
+        "RPE",
+        "VIFT",
+        "vVO2max",
+        "individuell"
+      ],
+      "quelle": "HIIT Science, Kap. 2",
+      "inhalt": "Drei Prescriptions-Methoden verglichen: (1) RPE-basiert: einfach, keine Technologie, stark individuell — gut für Team ohne GPS. Limit: dissoziiert von physiologischer Reaktion bei Distanzläufen. (2) Herzfrequenz-basiert: gut für Ausdauertraining, wenig geeignet für kurze Intervalle (<2 Min) da HF-Kinetik zu langsam. Bei SSG und langen Intervallen am besten. (3) Geschwindigkeits-/Distanzbasiert (% VIFT, % vVO2max): präziseste Methode, GPS oder Treadmill nötig. Beste Kontrolle über externe Last. Empfehlung Feldhockey: Geradelauf = % VIFT, SSG = HR-Monitoring als Kontrollvariable, Sprint = all-out/RPE."
+    },
+    {
+      "id": "hiit_cardio_targets_01",
+      "titel": "Kardiovaskuläre HIIT-Targets: Schlagvolumen und VO2max",
+      "tags": [
+        "VO2max",
+        "schlagvolumen",
+        "herz",
+        "kardiovaskulär",
+        "T at VO2max",
+        "adaption",
+        "aerob"
+      ],
+      "quelle": "HIIT Science, Kap. 3 — Physiological Targets of HIIT",
+      "inhalt": "Hauptziel aerober HIIT-Anpassung: Schlagvolumen (SV) maximieren = T at VO2max maximieren. Schlagvolumen ist höher bei passiver Recovery als bei aktiver Recovery bei Intensitäten >50% vVO2max. Für maximale kardiale Anpassung: lange bis mittelange Intervalle (2-4 Min) mit passiver Recovery (2 Min gehen) optimal. Schlagvolumen-Plateau bei ~60-70% VO2max bei gut trainierten Athleten — zu niedrige Intensität reicht nicht für Adaptation. Für Feldhockey: primäres Target in Off-Season-Periode. 3-5 × 4 Min bei 90-95% VIFT mit passiver Erholung = ideales Schlagvolumen-Training."
+    },
+    {
+      "id": "hiit_programming_summary_01",
+      "titel": "HIIT Programming: Gesamtübersicht 5-Schritte",
+      "tags": [
+        "programming",
+        "planung",
+        "übersicht",
+        "5 schritte",
+        "kontext",
+        "target",
+        "format",
+        "waffe",
+        "monitoring"
+      ],
+      "quelle": "HIIT Science, Kap. 10 — Putting It All Together",
+      "inhalt": "5 Schritte für effektives HIIT-Programming: (1) KONTEXT verstehen: Sport, Position, Saisonphase, Athlete-Profil (aerob vs. anaerob), aktuelle Trainingsstatus. (2) TARGET definieren: Was soll diese Session entwickeln? Kardiopulmonär (Schlagvolumen, VO2max), anaerob-glykolytisch, neuromuskulär, oder kombiniert. (3) WAFFE wählen: Welches HIIT-Format trifft das Target am besten mit geringstem Risiko? (Typ 1-5 + GBHIIT). (4) VARIABLEN manipulieren: Intensität, Dauer, Pause, Anzahl, Modalität, Oberfläche. (5) LOAD MONITOREN: Externe und interne Marker erfassen, anpassen. Übergeordnet: nie Volumen und Intensität gleichzeitig steigern. Jede Session braucht einen klaren physiologischen Zweck."
     }
   ],
-  "totalChunks": 69
+  "totalChunks": 74
 }
