@@ -810,8 +810,18 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         const pad=8*DPR, ph=18*DPR;
         const lx2=cx-tw/2-pad, ly2=cy-85*DPR-ph/2;
 
+        const rx=ph/2;
         ctx.beginPath();
-        ctx.roundRect(lx2,ly2,tw+pad*2,ph,ph/2);
+        ctx.moveTo(lx2+rx,ly2);
+        ctx.lineTo(lx2+tw+pad*2-rx,ly2);
+        ctx.arcTo(lx2+tw+pad*2,ly2,lx2+tw+pad*2,ly2+rx,rx);
+        ctx.lineTo(lx2+tw+pad*2,ly2+ph-rx);
+        ctx.arcTo(lx2+tw+pad*2,ly2+ph,lx2+tw+pad*2-rx,ly2+ph,rx);
+        ctx.lineTo(lx2+rx,ly2+ph);
+        ctx.arcTo(lx2,ly2+ph,lx2,ly2+ph-rx,rx);
+        ctx.lineTo(lx2,ly2+rx);
+        ctx.arcTo(lx2,ly2,lx2+rx,ly2,rx);
+        ctx.closePath();
         ctx.fillStyle=hex2rgba(col,0.18);ctx.fill();
         ctx.strokeStyle=hex2rgba(col,0.5);ctx.lineWidth=0.8*DPR;ctx.stroke();
 
