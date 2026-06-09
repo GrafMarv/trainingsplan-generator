@@ -842,7 +842,166 @@
       ],
       "quelle": "HIIT Science, Kap. 25 — Field Hockey, Tabelle 25.4",
       "inhalt": "Stürmer: höchstes Arbeitstempo, viele hochintensive Aktionen, hoher Sprintanteil. Mittelfeld: höchste Gesamtdistanz (~6000m), konstante aerobe Belastung, balancierte High-Speed-Aktionen. Verteidiger: geringere Gesamtdistanz aber explosive Richtungswechsel, hohe Tackling-Anforderungen, Körperkontakt. Auswärts-Spieler (Flanken): höchste %-High-Speed-Aktionen im Vergleich zum Feldtyp. Torhüter: komplett unterschiedliche Anforderungen — Reaktionsschnelligkeit, Flexibilität Hüfte/Schulter, kurze explosive Aktionen, spezifisches Equipment beeinflusst Beweglichkeit. Konsequenz: positionsspezifische Trainingsblöcke besonders in Vorbereitungsphase."
+    },
+    {
+      "id": "hiit_training_load_01",
+      "titel": "Trainingsbelastung: Extern vs. Intern",
+      "tags": [
+        "training load",
+        "extern",
+        "intern",
+        "RPE",
+        "GPS",
+        "herzfrequenz",
+        "monitoring",
+        "HIIT"
+      ],
+      "quelle": "HIIT Science, Kap. 8 — Quantifying Training Load",
+      "inhalt": "Trainingsbelastung = externe Last (was der Athlet tut: Distanz, Leistung, Geschwindigkeit) × interne Last (physiologische Antwort: HF, Laktat, RPE). Externe Last = Input. Interne Last = wie der Körper reagiert. Gleiche externe Belastung → unterschiedliche interne Reaktion je nach Erholungsstatus, Stress, Schlaf. Training = Workout + Recovery. Kernprinzip: 'You can't manage what you can't monitor.' Überwachung ohne Handlung ist sinnlos — Daten müssen Entscheidungen verändern. HIIT-Ziel-Variablen: (1) Arbeitsintensität, (2) Arbeitsdauer, (3) Erholungsintensität, (4) Erholungsdauer, (5) Anzahl Intervalle, (6) Anzahl Serien, (7) Serien-Erholung, (8) Gesamtarbeit."
+    },
+    {
+      "id": "hiit_training_load_02",
+      "titel": "sRPE: Session RPE als einfachstes Monitoring-Tool",
+      "tags": [
+        "sRPE",
+        "RPE",
+        "session",
+        "belastungssteuerung",
+        "monitoring",
+        "einfach",
+        "praktisch"
+      ],
+      "quelle": "HIIT Science, Kap. 8",
+      "inhalt": "Session RPE (sRPE) = Athlet bewertet Gesamtbelastung der Session auf Borg-Skala (1–10) × Sessiondauer in Minuten = Trainingsbelastung in AU (Arbitrary Units). Einfachstes valides Monitoring-Tool — funktioniert ohne Technologie. sRPE ×  Dauer korreliert stark mit Herzfrequenz-basierten Methoden (r=0.85). Einschränkung: subjektiv, nicht sitzungstyp-spezifisch. Trotzdem: Wochenlast-Tracking via sRPE ist für die meisten Teams das praktikabelste System. Im Feldhockey: 400–800 AU/Session normal, >1000 AU = sehr hohe Belastung."
+    },
+    {
+      "id": "hiit_training_load_03",
+      "titel": "Acute:Chronic Workload Ratio (ACWR) — Verletzungsrisiko",
+      "tags": [
+        "ACWR",
+        "acute chronic",
+        "verletzungsrisiko",
+        "workload",
+        "monitoring",
+        "ratio",
+        "sweet spot"
+      ],
+      "quelle": "HIIT Science, Kap. 8 + 9",
+      "inhalt": "Acute:Chronic Workload Ratio (ACWR) = aktuelle Wochenbelastung ÷ durchschnittliche Wochenbelastung der letzten 4 Wochen. Sweet Spot: ACWR 0.8–1.3 → niedrigstes Verletzungsrisiko. ACWR >1.5 → erhöhtes Verletzungsrisiko. ACWR <0.8 → Detraining-Risiko. Praktische Anwendung: Belastungssteigerung nicht >10% pro Woche (entspricht ACWR ~1.1). Nach Pause oder Krankheit: langsam zurück — ACWR bewusst unter 1.3 halten. Auch anwendbar auf GPS-Daten (Distanz, HIA) und sRPE."
+    },
+    {
+      "id": "hiit_hrv_monitoring_01",
+      "titel": "HRV-Monitoring: Prinzipien und Praxis",
+      "tags": [
+        "HRV",
+        "herzratenvariabilität",
+        "monitoring",
+        "rMSSD",
+        "erholung",
+        "übertraining",
+        "ANS"
+      ],
+      "quelle": "HIIT Science, Kap. 9 — Response to Load",
+      "inhalt": "Herzratenvariabilität (HRV) = Variation zwischen aufeinanderfolgenden Herzschlägen. rMSSD = wichtigster praktischer HRV-Index (parasympathische Aktivität). Messung: 5 Min liegend nach Aufwachen, vor dem Aufstehen (konsistente Bedingungen entscheidend). Ln rMSSD normiert Daten besser als roher rMSSD. Praktische Interpretation: sinkende HRV über mehrere Tage = akkumulierte Ermüdung. HRV-gesteuertes Training: trainieren wenn HRV normal/hoch, Intensität reduzieren wenn HRV niedrig. Limitierung: hohe individuelle Variabilität — eigene Baseline wichtiger als Normwerte. App-Empfehlung: HRV4Training, Elite HRV. Messung 3–4×/Woche reicht in den meisten Kontexten."
+    },
+    {
+      "id": "hiit_hrv_monitoring_02",
+      "titel": "HRV Interpretation: Chronische Muster und Stresssignale",
+      "tags": [
+        "HRV",
+        "übertraining",
+        "taper",
+        "parasympathisch",
+        "sympathisch",
+        "chronisch",
+        "akut"
+      ],
+      "quelle": "HIIT Science, Kap. 9, Tabelle 9.2",
+      "inhalt": "HRV-Interpretationsregeln: rMSSD steigt + HF sinkt = parasympathische Anpassung an Training (positiv). rMSSD sinkt + HF steigt stark = Übertrainingssignal oder Krankheit. rMSSD steigt + HF steigt = Taper-Reaktion (Ermüdung sinkt, Leistung kommt). rMSSD sinkt + HF sinkt = Sättigungsphänomen bei langer Trainingshistorie (nicht zwingend negativ). Goldene Regel: HRV immer im Kontext der Trainingsphase interpretieren. Nach schwerem HIIT: rMSSD sinkt akut für 24–48h — das ist normal. Alarm: rMSSD sinkt über 3+ Tage trotz Erholung."
+    },
+    {
+      "id": "hiit_stress_fatigue_01",
+      "titel": "HIIT, Stress und Athletengesundheit — Balancemodell",
+      "tags": [
+        "stress",
+        "fatigue",
+        "gesundheit",
+        "übertraining",
+        "balance",
+        "erholung",
+        "lifestyle",
+        "schlaf"
+      ],
+      "quelle": "HIIT Science, Kap. 7",
+      "inhalt": "Training = Workout + Recovery. Übertraining = Imbalance. Stressquellen addieren sich: Trainingsbelastung + Schlafmangel + Ernährungsprobleme + psychosozialer Stress. Zeichen von Excess-Stress (Tabelle 7.1): physisch (Leistungsabfall, Muskelkater, Bradykardie), biochemisch (Entzündung, erhöhte Creatinkinase, Malnutrition), mental-emotional (Essstörungen, Depression, Schlafstörungen, Motivationsverlust). HPA-Achse: chronischer Stress → erhöhtes Kortisol → unterdrücktes Testosteron → Maladaptation. 'Speed kills' — mehr ist nicht immer besser. Training = Stimulus + Adaptation, nicht nur Stimulus."
+    },
+    {
+      "id": "hiit_stress_fatigue_02",
+      "titel": "Schlaf als Regenerationsfaktor",
+      "tags": [
+        "schlaf",
+        "regeneration",
+        "erholung",
+        "HRV",
+        "leistung",
+        "qualität",
+        "quantität"
+      ],
+      "quelle": "HIIT Science, Kap. 7",
+      "inhalt": "Schlaf ist kritischste Regenerationsmaßnahme. Erwachsene brauchen 7h Minimum, Athleten 8–10h. Schlafverlängerung von 2 Wochen bei Basketball-Spielern: schnellere Sprints, bessere Reaktionszeit, verbesserte Stimmung. Schlafqualität (nicht nur Dauer) ist entscheidend: REM-Phasen für kognitive Regeneration, Tiefschlaf für körperliche. Kurzschlaf (30 Min) kann akute Ermüdung reduzieren ohne Nachtschlaf zu stören. Schlafmangel erhöht Verletzungsrisiko und verlangsamt Wundheilung. HRV-Signal: schlechter Schlaf → niedriger rMSSD nächsten Morgen. Praktisch: Schlafzeiten als Trainingsparameter behandeln."
+    },
+    {
+      "id": "hiit_concurrent_training_01",
+      "titel": "HIIT in Concurrent Training: Praktische Wochenstruktur",
+      "tags": [
+        "concurrent training",
+        "HIIT",
+        "kraft",
+        "interferenz",
+        "woche",
+        "sequenz",
+        "teamsport",
+        "feldhockey"
+      ],
+      "quelle": "HIIT Science, Kap. 6",
+      "inhalt": "Kernregeln für Concurrent Training (HIIT + Kraft): (1) Neuronale Ermüdung von Typ 4-5 HIIT kompromittiert folgende Kraft-Session — Mindestabstand 6h. (2) Kraft vor HIIT in derselben Session bevorzugen. (3) Typ 1-2 HIIT (kurze Intervalle) reduziert Interferenz mehr als Typ 4-5. (4) Laufbasiertes HIIT verursacht mehr neuromuskuläre Ermüdung als Rad/Ruder. (5) Richtungswechsel-HIIT (COD) belastet neuromuskuläre Struktur stärker als Geradelauf. Teamsport-Empfehlung: Kraft AM + HIIT PM (>6h Abstand) oder Kraft/HIIT an getrennten Tagen. Kryo-Therapie (Eisbad) kann neuromuskuläre Ermüdung nach HIIT kurzfristig reduzieren."
+    },
+    {
+      "id": "hiit_weapons_types_01",
+      "titel": "Die 5 HIIT-Waffen: Typen und Targets",
+      "tags": [
+        "HIIT",
+        "weapons",
+        "typ1",
+        "typ2",
+        "typ3",
+        "typ4",
+        "typ5",
+        "RSA",
+        "GBHIIT",
+        "target",
+        "cardiopulmonär",
+        "neuromuskulär"
+      ],
+      "quelle": "HIIT Science, Kap. 5",
+      "inhalt": "5 HIIT-Waffen nach Buchheit & Laursen: Typ 1 = lange Intervalle (>2 Min, 90–100% VO2max) → kardiopulmonäre Anpassung (Schlagvolumen, VO2max). Typ 2 = kurze Intervalle (10–60 Sek, 100–120% VO2max) → kardiopulmonär + neuromuskulär. Typ 3 = Sprint Interval Training (SIT, all-out <30 Sek) → anaerobe Kapazität. Typ 4 = RST (Repeated Sprint Training, <10 Sek, max) → RSA + neuromuskuläre Power. Typ 5 = Game-Based HIIT (SSG) → alle Targets + taktisch-technisch. Typ 4-5 = höchste neuromuskuläre Ermüdung → größtes Interferenzrisiko mit Kraft. Typ 1-2 = geringere neuromuskuläre Ermüdung → besser kombinierbar."
+    },
+    {
+      "id": "hiit_nutrition_concurrent_01",
+      "titel": "Ernährung bei Concurrent Training",
+      "tags": [
+        "ernährung",
+        "concurrent",
+        "kohlenhydrate",
+        "protein",
+        "glykogen",
+        "HIIT",
+        "interferenz",
+        "regeneration"
+      ],
+      "quelle": "HIIT Science, Kap. 6",
+      "inhalt": "Kohlenhydrate: 8–12 g/kg/Tag bei sehr hohem Trainingsvolumen. Nach HIIT: Kohlenhydrate priorisieren für Glykogen-Resynthese. Protein: 1.2–1.7 g/kg/Tag, nach Kraft und nach HIIT. 20g Protein-Dose stimuliert maximale Muskelprotein-Synthese — öfter essen besser als große Einzeldosen. Kombination KH + Protein nach Training: beschleunigt Glykogen-Resynthese und Muskelreparatur. Kreatin und Koffein: evidenzbasierte Ergänzungen die Interferenzeffekt teilweise mildern. Koffein verbessert HIIT-Leistung und reduziert wahrgenommene Ermüdung. Strategie bei Doppelbelastung: nach HIIT sofort KH + Protein, dann 2–3h vor nächster Session normal essen."
     }
   ],
-  "totalChunks": 54
+  "totalChunks": 64
 }
