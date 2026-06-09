@@ -434,11 +434,11 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <!-- 3D Brain Visual -->
-    <div style="position:relative;background:#fafafa;">
-      <canvas id="brain-3d" style="display:block;width:100%;height:520px;cursor:grab;"></canvas>
+    <div style="position:relative;background:#0d0d1a;border-radius:0 0 16px 16px;">
+      <canvas id="brain-3d" style="display:block;width:100%;height:560px;cursor:grab;"></canvas>
       
       <!-- Tooltip -->
-      <div id="brain-tooltip" style="position:absolute;background:#fff;border:0.5px solid #e5e5ea;border-radius:10px;padding:12px 14px;font-size:12px;max-width:220px;pointer-events:none;display:none;z-index:9;box-shadow:0 4px 20px rgba(0,0,0,0.1);line-height:1.6;"></div>
+      <div id="brain-tooltip" style="position:absolute;background:#1a1a2e;border:0.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 14px;font-size:12px;max-width:220px;pointer-events:none;display:none;z-index:9;box-shadow:0 4px 24px rgba(0,0,0,0.4);line-height:1.6;color:#e0e0e0;"></div>
       
       <!-- Chunk Detail Panel -->
       <div id="brain-panel" style="position:absolute;top:0;right:0;width:280px;height:100%;background:#fff;border-left:0.5px solid #e5e5ea;padding:20px;overflow-y:auto;display:none;z-index:8;">
@@ -454,7 +454,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <!-- Filter -->
-    <div style="padding:12px 16px;border-top:0.5px solid #e5e5ea;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+    <div style="padding:12px 16px;border-top:0.5px solid #2a2a3e;display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#0d0d1a;border-radius:0 0 16px 16px;">
       <button class="brain-filter-btn active" onclick="brainFilter('all',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#1c1c1e;color:#fff;">Alle</button>
       <button class="brain-filter-btn" onclick="brainFilter('energie',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#8e8e93;">Energie</button>
       <button class="brain-filter-btn" onclick="brainFilter('sprint',this)" style="padding:4px 12px;border-radius:20px;border:0.5px solid #e5e5ea;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#8e8e93;">Sprint</button>
@@ -580,8 +580,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     function resize(){
       if(!cv)return;
       const r=cv.parentElement.getBoundingClientRect();
-      W=cv.width=r.width*DPR; H=cv.height=520*DPR;
-      cv.style.width=r.width+'px'; cv.style.height='520px';
+      W=cv.width=r.width*DPR; H=cv.height=560*DPR;
+      cv.style.width=r.width+'px'; cv.style.height='560px';
     }
 
     function proj(x,y,z){
@@ -600,57 +600,95 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     function draw(){
       if(!ctx||!brainNodes.length)return;
-      ctx.clearRect(0,0,W,H);
 
-      // cross links
+      // Dunkler Hintergrund mit leichtem Sternen-Effekt
+      ctx.fillStyle='#0d0d1a';
+      ctx.fillRect(0,0,W,H);
+
+      // Subtile Sterne im Hintergrund
+      ctx.fillStyle='rgba(255,255,255,0.25)';
+      for(let s=0;s<80;s++){
+        const sx=rng(s*7+1)*W, sy=rng(s*7+2)*H;
+        const sr=rng(s*7+3)*1.2*DPR;
+        ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fill();
+      }
+
+      // Cross-cluster links — gestrichelt, subtil leuchtend
       XLINKS.forEach(([i,j])=>{
         if(i>=brainNodes.length||j>=brainNodes.length)return;
         const ni=brainNodes[i],nj=brainNodes[j];
         if(!ni.vis||!nj.vis)return;
         const pi=proj(ni.x,ni.y,ni.z),pj=proj(nj.x,nj.y,nj.z);
         ctx.beginPath();ctx.moveTo(pi.px,pi.py);ctx.lineTo(pj.px,pj.py);
-        ctx.strokeStyle='rgba(150,150,150,0.15)';ctx.lineWidth=1.2*DPR;
-        ctx.setLineDash([4*DPR,3*DPR]);ctx.stroke();ctx.setLineDash([]);
+        ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1*DPR;
+        ctx.setLineDash([3*DPR,4*DPR]);ctx.stroke();ctx.setLineDash([]);
       });
 
-      // intra-cluster links
+      // Intra-cluster links — Farbe des Clusters
       brainNodes.forEach((n,i)=>{
         if(!n.vis)return;
         brainNodes.forEach((m,j)=>{
           if(j<=i||!m.vis||m.cluster!==n.cluster||rng(i*53+j)>0.22)return;
           const pi=proj(n.x,n.y,n.z),pj=proj(m.x,m.y,m.z);
           ctx.beginPath();ctx.moveTo(pi.px,pi.py);ctx.lineTo(pj.px,pj.py);
-          ctx.strokeStyle=hex2rgba(n.col,0.1);ctx.lineWidth=0.7*DPR;ctx.stroke();
+          ctx.strokeStyle=hex2rgba(n.col,0.18);ctx.lineWidth=0.8*DPR;ctx.stroke();
         });
       });
 
-      // nodes back→front
+      // Nodes back→front
       const sorted=[...brainNodes].sort((a,b)=>proj(a.x,a.y,a.z).nz-proj(b.x,b.y,b.z).nz);
+      const clusterCenterPx={};
       const done={};
+
       sorted.forEach(n=>{
         if(!n.vis)return;
         const{px,py,sc}=proj(n.x,n.y,n.z);
-        const r=Math.max(4,7*sc)*DPR;
-        ctx.beginPath();ctx.arc(px,py,r+2.5*DPR,0,Math.PI*2);
-        ctx.fillStyle=hex2rgba(n.col,0.13);ctx.fill();
+        const r=Math.max(4,8*sc)*DPR;
+
+        // Glow — großer weicher Kreis
+        const grad=ctx.createRadialGradient(px,py,0,px,py,r*3.5);
+        grad.addColorStop(0,hex2rgba(n.col,0.35));
+        grad.addColorStop(1,'transparent');
+        ctx.beginPath();ctx.arc(px,py,r*3.5,0,Math.PI*2);
+        ctx.fillStyle=grad;ctx.fill();
+
+        // Innerer Kern
         ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);
-        ctx.fillStyle=n.col;ctx.globalAlpha=0.9;ctx.fill();ctx.globalAlpha=1;
-        ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1*DPR;ctx.stroke();
-        if(sc>0.7){
-          const fs=Math.round(9*sc*DPR);
-          ctx.font=fs+'px -apple-system,sans-serif';
-          ctx.textAlign='center';ctx.textBaseline='top';
-          ctx.fillStyle='rgba(28,28,30,0.65)';
-          ctx.fillText(n.label.slice(0,16),px,py+r+3*DPR);
-        }
-        if(!done[n.cluster]){
-          done[n.cluster]=true;
-          ctx.font='500 '+(12*DPR)+'px -apple-system,sans-serif';
-          ctx.textAlign='center';ctx.textBaseline='bottom';
-          ctx.fillStyle=n.col;ctx.globalAlpha=0.9;
-          ctx.fillText(CLUSTER_LABELS[n.cluster],px,py-r-8*DPR);
-          ctx.globalAlpha=1;
-        }
+        ctx.fillStyle=n.col;ctx.globalAlpha=0.95;ctx.fill();ctx.globalAlpha=1;
+
+        // Weißer Glanzpunkt
+        ctx.beginPath();ctx.arc(px-r*0.28,py-r*0.28,r*0.32,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,0.45)';ctx.fill();
+
+        // Cluster-Zentrum tracken für Label
+        if(!clusterCenterPx[n.cluster])clusterCenterPx[n.cluster]={px:0,py:0,count:0};
+        clusterCenterPx[n.cluster].px+=px;
+        clusterCenterPx[n.cluster].py+=py;
+        clusterCenterPx[n.cluster].count++;
+      });
+
+      // Cluster-Labels — groß, klar, zentriert über dem Cluster
+      Object.entries(clusterCenterPx).forEach(([cl,{px,py,count}])=>{
+        if(!count)return;
+        const cx=px/count, cy=py/count;
+        const col=CLUSTER_COLORS[cl];
+        const label=CLUSTER_LABELS[cl];
+
+        // Hintergrund-Pill für Label
+        const fs=Math.round(11.5*DPR);
+        ctx.font='600 '+fs+'px -apple-system,sans-serif';
+        const tw=ctx.measureText(label).width;
+        const pad=8*DPR, ph=18*DPR;
+        const lx2=cx-tw/2-pad, ly2=cy-85*DPR-ph/2;
+
+        ctx.beginPath();
+        ctx.roundRect(lx2,ly2,tw+pad*2,ph,ph/2);
+        ctx.fillStyle=hex2rgba(col,0.18);ctx.fill();
+        ctx.strokeStyle=hex2rgba(col,0.5);ctx.lineWidth=0.8*DPR;ctx.stroke();
+
+        ctx.fillStyle=col;ctx.globalAlpha=1;
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(label,cx,ly2+ph/2);
       });
     }
 
