@@ -2091,12 +2091,7 @@ async function uploadAll() {
     showPlayerList();
   };
 
-  // Auto-init wenn Profile Screen sichtbar
-  var origGoTo = window.goTo;
-  window.goTo = function(screen){
-    origGoTo(screen);
-    if(screen === 'profile') setTimeout(initProfileScreen, 50);
-  };
+  // initProfileScreen wird direkt in goTo aufgerufen
 
 })();
 </script>
