@@ -1860,19 +1860,27 @@ async function uploadAll() {
     }
     empty.style.display = 'none';
     grid.style.display = 'grid';
-    grid.innerHTML = players.map(function(p){
+    var html2 = '';
+    players.forEach(function(p){
       var age = calcAge(p.geburtsdatum);
       var initials = (p.vorname[0]||'') + (p.nachname[0]||'');
-      var photoHtml = p.photo 
-        ? '<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-        : '<span style="font-size:22px;">'+initials+'</span>';
-      return '<div onclick="openPlayer(''+p.id+'')" style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">'
-        +'<div style="width:52px;height:52px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden;">'+photoHtml+'</div>'
-        +'<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">'+p.vorname+' '+p.nachname+'</p>'
-        +'<p style="font-size:12px;color:#8e8e93;">'+p.position+' &middot; '+(age?age+' J.':'')+'</p>'
-        +'<p style="font-size:12px;color:#8e8e93;margin-top:2px;">'+p.verein+'</p>'
-        +'</div>';
-    }).join('');
+      var photoHtml = p.photo
+        ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+        : '<span style="font-size:22px;">' + initials + '</span>';
+      html2 += '<div id="pc-' + p.id + '" style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;cursor:pointer;transition:transform 0.15s;">';
+      html2 += '<div style="width:52px;height:52px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden;">' + photoHtml + '</div>';
+      html2 += '<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">' + p.vorname + ' ' + p.nachname + '</p>';
+      html2 += '<p style="font-size:12px;color:#8e8e93;">' + p.position + ' &middot; ' + (age ? age + ' J.' : '') + '</p>';
+      html2 += '<p style="font-size:12px;color:#8e8e93;margin-top:2px;">' + p.verein + '</p>';
+      html2 += '</div>';
+    });
+    grid.innerHTML = html2;
+    players.forEach(function(p){
+      var el = document.getElementById('pc-' + p.id);
+      if(el) el.addEventListener('click', function(){ openPlayer(p.id); });
+      if(el) el.addEventListener('mouseover', function(){ el.style.transform = 'translateY(-2px)'; });
+      if(el) el.addEventListener('mouseout', function(){ el.style.transform = 'none'; });
+    });
   }
 
   window.showNewPlayerForm = function(){
