@@ -126,13 +126,18 @@ ${exercises.join(', ')}
 ÜBUNGEN MIT GRAFIK (bevorzuge wenn gleichwertig):
 ${exercisesWithImage.join(', ')}
 
+ENTSCHEIDE ZUERST den Ausgabetyp:
+- EINZELEINHEIT (eine Trainingseinheit): Standardfall -> FORMAT A (JSON-Array).
+- MAKROZYKLUS (Mehrwochen-Planung: mehrere Wochen, Saison/Saisonvorbereitung, Periodisierung, Makro-/Mesozyklus, Aufbau ueber X Wochen) -> FORMAT B (JSON-Objekt mit "kind":"macro").
+
+=== FORMAT A — EINZELEINHEIT (JSON-Array) ===
 Analysiere die Eingabe und erkenne automatisch ob Warm-up, Hauptblock und/oder Cool-down beschrieben werden.
 - "Warm-up", "Aufwärmen" → eigener Warm-up Block
 - "Cool-down", "Abwärmen" → eigener Cool-down Block  
 - Alles andere → Hauptblock
 - Nichts erwähnt → alles Hauptblock
 
-Antworte NUR mit einem JSON-Array. Kein Text davor oder danach.
+Antworte NUR mit dem JSON (Array bei Format A, Objekt bei Format B). Kein Text davor oder danach.
 Format:
 [
   {
@@ -157,7 +162,26 @@ Format:
 imageKey MUSS exakt einem ID aus der Übungsdatenbank entsprechen.
 Supersets: gleiche Gruppe A, B, C. Einzelübungen = "-".
 intensity: "RPE 8" oder "80%" — nur wenn angegeben, sonst null.
-rest: "90 Sek." — nur wenn angegeben, sonst null.`;
+rest: "90 Sek." — nur wenn angegeben, sonst null.
+
+=== FORMAT B — MAKROZYKLUS (JSON-Objekt) ===
+{
+  "kind": "macro",
+  "title": "kurzer Titel des Plans",
+  "intro": "1-2 Saetze: Ziel, Methode (z.B. Step Loading 3:1), Peak-Zeitpunkt",
+  "weeks": [
+    { "week": 1, "phase": "Allg. Vorbereitung", "focus": "Aerobe Basis, Anatomische Anpassung", "load": "60%", "sessions": "3x", "deload": false }
+  ],
+  "note": "kurzer Hinweis, z.B. Taper-Logik vor dem Wettkampf"
+}
+Regeln FORMAT B:
+- Eine Zeile pro Woche, fortlaufend nummeriert (week: 1,2,3,...).
+- phase: Periodisierungsphase (Allg./Spez. Vorbereitung, Vorwettkampf, Wettkampf, Taper, Uebergang).
+- focus: konkrete Schwerpunkte der Woche (Biomotorik, metabolisch).
+- load: relative Last in % (Orientierung am Step-Loading-Muster, z.B. 60/70/80/Entlastung).
+- sessions: geplante Einheiten pro Woche (z.B. "3x").
+- deload: true bei Entlastungs-/Regenerationswochen (typisch jede 3.-4. Woche) und in der Taper-Woche.
+- Nutze das Periodisierungs-Wissen aus der Wissensbasis (Step Loading 3:1/4:1, Peaking 40-60%, Mikrozyklus-Frequenzen, Jahresplan-Typen).`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
