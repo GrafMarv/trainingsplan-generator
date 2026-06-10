@@ -825,6 +825,9 @@ function goTo(screen) {
     if (screen === 'wissen') {
       setTimeout(function(){ wissenTab('brain'); }, 80);
     }
+    if (screen === 'profile') {
+      setTimeout(function(){ if(window.initProfileScreen) initProfileScreen(); }, 80);
+    }
   }
 }
 
@@ -854,6 +857,9 @@ function goTo(screen) {
     document.getElementById(screen + '-screen').style.display = 'block';
     if (screen === 'wissen') {
       setTimeout(function(){ wissenTab('brain'); }, 80);
+    }
+    if (screen === 'profile') {
+      setTimeout(function(){ if(window.initProfileScreen) initProfileScreen(); }, 80);
     }
   }
 }
