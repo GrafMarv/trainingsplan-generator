@@ -551,159 +551,106 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 
 <!-- PROFILE SCREEN -->
-<div id="profile-screen" style="display:none;">
-
-  <!-- Topbar -->
-  <div style="max-width:960px;margin:0 auto;padding:20px 32px 0;display:flex;align-items:center;justify-content:space-between;">
-    <button onclick="goHome()" style="display:flex;align-items:center;gap:6px;background:none;border:0.5px solid #e5e5ea;border-radius:20px;font-size:13px;color:#1c1c1e;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurück</button>
-    <div style="width:80px;"></div>
+<div id="profile-screen" style="display:none;min-height:100vh;background:#f9f9f9;">
+  <div style="max-width:960px;margin:0 auto;padding:20px 24px 0;">
+    <button id="btn-back-profile" style="background:none;border:0.5px solid #e5e5ea;border-radius:20px;font-size:13px;color:#1c1c1e;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurueck</button>
   </div>
 
-  <!-- Spielerliste oder Detailansicht -->
-  <div id="profile-list-view" style="max-width:960px;margin:0 auto;padding:24px 32px;">
-    
-    <!-- Header -->
+  <!-- Listen-Ansicht -->
+  <div id="pv-list" style="max-width:960px;margin:0 auto;padding:24px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
       <div>
-        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#8e8e93;margin-bottom:6px;">Kader</p>
-        <h2 style="font-size:28px;font-weight:700;letter-spacing:-0.5px;color:#1c1c1e;">Spielerprofile</h2>
+        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#8e8e93;margin-bottom:6px;">KADER</p>
+        <h2 style="font-size:28px;font-weight:700;color:#1c1c1e;">Spielerprofile</h2>
       </div>
-      <button onclick="showNewPlayerForm()" style="display:flex;align-items:center;gap:8px;background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
-        + Neuer Spieler
-      </button>
+      <button id="btn-new-player" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Spieler</button>
     </div>
-
-    <!-- Spielerkarten Grid -->
-    <div id="player-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
-      <!-- wird per JS gefüllt -->
-    </div>
-
-    <!-- Leer-State -->
-    <div id="player-empty" style="text-align:center;padding:80px 0;">
-      <div style="font-size:48px;margin-bottom:16px;">👥</div>
+    <div id="pv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;"></div>
+    <div id="pv-empty" style="display:none;text-align:center;padding:80px 0;">
       <p style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">Noch keine Spieler</p>
-      <p style="font-size:14px;color:#8e8e93;margin-bottom:24px;">Füge deinen ersten Athleten hinzu</p>
-      <button onclick="showNewPlayerForm()" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">+ Ersten Spieler hinzufügen</button>
+      <p style="font-size:14px;color:#8e8e93;margin-bottom:24px;">Fuege deinen ersten Athleten hinzu</p>
+      <button id="btn-new-player-2" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">+ Ersten Spieler hinzufuegen</button>
     </div>
-
   </div>
 
-  <!-- Neuer Spieler Formular (Modal) -->
-  <div id="new-player-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:100;display:none;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:20px;padding:32px;width:480px;max-width:90vw;max-height:90vh;overflow-y:auto;position:relative;">
-      <button onclick="hideNewPlayerForm()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#8e8e93;">&#215;</button>
-      <h3 style="font-size:20px;font-weight:700;color:#1c1c1e;margin-bottom:24px;">Neuer Spieler</h3>
-      
-      <!-- Foto -->
-      <div style="text-align:center;margin-bottom:24px;">
-        <div id="photo-preview" onclick="document.getElementById('photo-input').click()" style="width:80px;height:80px;border-radius:50%;background:#f2f2f7;border:2px dashed #c7c7cc;display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 8px;font-size:28px;">👤</div>
-        <p style="font-size:12px;color:#8e8e93;">Foto optional</p>
-        <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="previewPhoto(this)">
+  <!-- Detail-Ansicht -->
+  <div id="pv-detail" style="display:none;max-width:960px;margin:0 auto;padding:24px;">
+    <button id="btn-back-list" style="background:none;border:none;font-size:13px;color:#8e8e93;cursor:pointer;font-family:inherit;padding:0;margin-bottom:20px;">&#8592; Alle Spieler</button>
+    <div style="display:flex;align-items:center;gap:20px;padding:20px;background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;margin-bottom:20px;">
+      <div id="pv-photo" style="width:60px;height:60px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#1c1c1e;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <h2 id="pv-name" style="font-size:22px;font-weight:700;color:#1c1c1e;margin-bottom:4px;"></h2>
+        <p id="pv-meta" style="font-size:13px;color:#8e8e93;"></p>
       </div>
+      <button id="btn-delete-player" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#ff3b30;cursor:pointer;font-family:inherit;">Loeschen</button>
+    </div>
+    <div style="display:flex;gap:4px;background:#f2f2f7;padding:4px;border-radius:12px;margin-bottom:20px;width:fit-content;">
+      <button id="ptab-diagnostik" style="padding:7px 14px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Diagnostik</button>
+      <button id="ptab-verletzungen" style="padding:7px 14px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Verletzungen</button>
+      <button id="ptab-notizen" style="padding:7px 14px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">Notizen</button>
+    </div>
+    <div id="ptc-diagnostik">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Diagnostikwerte</h3>
+        <button id="btn-add-diag" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Test</button>
+      </div>
+      <div id="pv-diag-list"></div>
+    </div>
+    <div id="ptc-verletzungen" style="display:none;">
+      <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:16px;">Verletzungshistorie</h3>
+      <p style="color:#8e8e93;font-size:14px;">Kommt bald.</p>
+    </div>
+    <div id="ptc-notizen" style="display:none;">
+      <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:16px;">Notizen</h3>
+      <textarea id="pv-notes" style="width:100%;min-height:180px;padding:12px;border:0.5px solid #e5e5ea;border-radius:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+    </div>
+  </div>
 
-      <!-- Formular Felder -->
-      <div style="display:flex;flex-direction:column;gap:14px;">
+  <!-- Modal: Neuer Spieler -->
+  <div id="pv-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:20px;padding:28px;width:440px;max-width:92vw;">
+      <h3 style="font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:20px;">Neuer Spieler</h3>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VORNAME</label><input id="np-fn" type="text" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">NACHNAME</label><input id="np-ln" type="text" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">GEBURTSDATUM</label><input id="np-dob" type="date" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
         <div>
-          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">VORNAME</label>
-          <input id="np-vorname" type="text" placeholder="Max" style="width:100%;padding:10px 14px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">NACHNAME</label>
-          <input id="np-nachname" type="text" placeholder="Müller" style="width:100%;padding:10px 14px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">GEBURTSDATUM</label>
-          <input id="np-geburtsdatum" type="date" style="width:100%;padding:10px 14px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">POSITION</label>
-          <div style="display:flex;gap:10px;">
-            <button id="pos-feld" onclick="selectPosition('Feldspieler')" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">⚽ Feldspieler</button>
-            <button id="pos-tor" onclick="selectPosition('Torwart')" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">🧤 Torwart</button>
+          <label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">POSITION</label>
+          <div style="display:flex;gap:8px;">
+            <button id="pos-feld" style="flex:1;padding:10px;border:0.5px solid #1c1c1e;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#1c1c1e;color:#fff;">Feldspieler</button>
+            <button id="pos-tor" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">Torwart</button>
           </div>
         </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">VEREIN</label>
-          <input id="np-verein" type="text" placeholder="DHB MU16" style="width:100%;padding:10px 14px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
-        </div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VEREIN</label><input id="np-club" type="text" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
       </div>
-
-      <button onclick="saveNewPlayer()" style="width:100%;margin-top:24px;background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Spieler speichern</button>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button id="btn-cancel-player" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>
+        <button id="btn-save-player" style="flex:2;padding:12px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Speichern</button>
+      </div>
     </div>
   </div>
 
-  <!-- Spieler Detail View -->
-  <div id="player-detail-view" style="display:none;max-width:960px;margin:0 auto;padding:24px 32px;">
-    
-    <!-- Zurück zur Liste -->
-    <button onclick="showPlayerList()" style="display:flex;align-items:center;gap:6px;background:none;border:none;font-size:13px;color:#8e8e93;cursor:pointer;font-family:inherit;padding:0;margin-bottom:24px;">&#8592; Alle Spieler</button>
-
-    <!-- Spieler Header -->
-    <div style="display:flex;align-items:center;gap:24px;margin-bottom:32px;padding:24px;background:#f9f9f9;border-radius:20px;border:0.5px solid #e5e5ea;">
-      <div id="detail-photo" style="width:72px;height:72px;border-radius:50%;background:#e5e5ea;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">👤</div>
-      <div style="flex:1;">
-        <h2 id="detail-name" style="font-size:24px;font-weight:700;color:#1c1c1e;margin-bottom:4px;"></h2>
-        <p id="detail-meta" style="font-size:14px;color:#8e8e93;"></p>
+  <!-- Modal: Diagnostik -->
+  <div id="pv-dmodal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:20px;padding:28px;width:460px;max-width:92vw;max-height:85vh;overflow-y:auto;">
+      <h3 style="font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:16px;">Diagnostik eintragen</h3>
+      <input type="date" id="dd-date" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">10M SPRINT (s)</label><input id="dd-s10" type="number" step="0.01" placeholder="1.85" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">30M SPRINT (s)</label><input id="dd-s30" type="number" step="0.01" placeholder="4.20" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">505 RECHTS (s)</label><input id="dd-cr" type="number" step="0.01" placeholder="2.35" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">505 LINKS (s)</label><input id="dd-cl" type="number" step="0.01" placeholder="2.35" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">MB WURF RECHTS (m)</label><input id="dd-mr" type="number" step="0.01" placeholder="8.50" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">MB WURF LINKS (m)</label><input id="dd-ml" type="number" step="0.01" placeholder="8.20" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">STANDWEIT (m)</label><input id="dd-sw" type="number" step="0.01" placeholder="2.15" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">IFT vIFT (km/h)</label><input id="dd-ift" type="number" step="0.5" placeholder="19.5" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>
       </div>
-      <button onclick="deletePlayer()" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#ff3b30;cursor:pointer;font-family:inherit;">Löschen</button>
-    </div>
-
-    <!-- Tabs -->
-    <div style="display:flex;gap:4px;background:#f2f2f7;padding:4px;border-radius:12px;width:fit-content;margin-bottom:24px;">
-      <button onclick="playerTab('diagnostik')" id="ptab-diagnostik" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;box-shadow:0 1px 3px rgba(0,0,0,0.1);">📊 Diagnostik</button>
-      <button onclick="playerTab('prehab')" id="ptab-prehab" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">🔧 Prehab</button>
-      <button onclick="playerTab('verletzungen')" id="ptab-verletzungen" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">🩹 Verletzungen</button>
-      <button onclick="playerTab('plaene')" id="ptab-plaene" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">📋 Pläne</button>
-      <button onclick="playerTab('notizen')" id="ptab-notizen" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">📝 Notizen</button>
-    </div>
-
-    <!-- Tab Inhalte -->
-    <div id="player-tab-diagnostik">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Diagnostikwerte</h3>
-        <button onclick="showDiagnostikForm()" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Test</button>
-      </div>
-      <div id="diagnostik-list" style="display:flex;flex-direction:column;gap:12px;">
-        <div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Diagnostikwerte</div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button id="btn-cancel-diag" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>
+        <button id="btn-save-diag" style="flex:2;padding:12px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Speichern</button>
       </div>
     </div>
-
-    <div id="player-tab-prehab" style="display:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Prehab & Beweglichkeit</h3>
-        <button onclick="showPrehabForm()" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Befund eintragen</button>
-      </div>
-      <div id="prehab-list" style="display:flex;flex-direction:column;gap:12px;">
-        <div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Befunde</div>
-      </div>
-    </div>
-
-    <div id="player-tab-verletzungen" style="display:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Verletzungshistorie</h3>
-        <button onclick="showVerletzungForm()" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Verletzung eintragen</button>
-      </div>
-      <div id="verletzungen-list" style="display:flex;flex-direction:column;gap:12px;">
-        <div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Keine Verletzungen eingetragen</div>
-      </div>
-    </div>
-
-    <div id="player-tab-plaene" style="display:none;">
-      <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:16px;">Trainingspläne</h3>
-      <div id="plaene-list" style="display:flex;flex-direction:column;gap:12px;">
-        <div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Pläne erstellt</div>
-      </div>
-    </div>
-
-    <div id="player-tab-notizen" style="display:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Notizen</h3>
-      </div>
-      <textarea id="notizen-text" placeholder="Notizen zum Athleten..." style="width:100%;min-height:200px;padding:14px;border:0.5px solid #e5e5ea;border-radius:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;" oninput="saveNotizen()"></textarea>
-    </div>
-
   </div>
-
 </div>
 
 <!-- APP SCREEN -->
@@ -1833,199 +1780,216 @@ async function uploadAll() {
 </script>
 
 <script>
-var CB_PLAYERS = JSON.parse(localStorage.getItem('cb_players') || '[]');
-var CB_CURRENT = null;
-var CB_POSITION = 'Feldspieler';
-var CB_PHOTO = null;
+var PL = JSON.parse(localStorage.getItem('cb_pl') || '[]');
+var PL_CUR = null;
+var PL_POS = 'Feldspieler';
 
-function cbSave() {
-  localStorage.setItem('cb_players', JSON.stringify(CB_PLAYERS));
-}
+function plSave() { localStorage.setItem('cb_pl', JSON.stringify(PL)); }
 
-function cbAge(dob) {
-  if (!dob) return '';
-  var ms = Date.now() - new Date(dob).getTime();
-  return Math.floor(ms / 31557600000);
+function plAge(d) {
+  if (!d) return '';
+  return Math.floor((Date.now() - new Date(d).getTime()) / 31557600000);
 }
 
 function initProfileScreen() {
-  showPlayerList();
+  plRenderList();
 }
 
-function showPlayerList() {
-  document.getElementById('player-list-view').style.display = 'block';
-  document.getElementById('player-detail-view').style.display = 'none';
-  var grid = document.getElementById('player-grid');
-  var empty = document.getElementById('player-empty');
-  if (CB_PLAYERS.length === 0) {
+function plRenderList() {
+  document.getElementById('pv-list').style.display = 'block';
+  document.getElementById('pv-detail').style.display = 'none';
+  var grid = document.getElementById('pv-grid');
+  var empty = document.getElementById('pv-empty');
+  if (PL.length === 0) {
+    grid.innerHTML = '';
     grid.style.display = 'none';
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
   grid.style.display = 'grid';
-  var html = '';
-  CB_PLAYERS.forEach(function(p) {
-    var age = cbAge(p.dob);
-    var init = (p.fn[0] || '') + (p.ln[0] || '');
-    html += '<div id="pc' + p.id + '" style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;cursor:pointer;">';
-    html += '<div style="width:52px;height:52px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:#1c1c1e;margin-bottom:12px;">' + init + '</div>';
-    html += '<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">' + p.fn + ' ' + p.ln + '</p>';
-    html += '<p style="font-size:12px;color:#8e8e93;">' + p.pos + (age ? ' &middot; ' + age + ' J.' : '') + '</p>';
-    html += '<p style="font-size:12px;color:#8e8e93;margin-top:2px;">' + (p.club || '') + '</p>';
-    html += '</div>';
+  var h = '';
+  PL.forEach(function(p) {
+    var age = plAge(p.dob);
+    var init = (p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '');
+    h += '<div id="plc' + p.id + '" style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;cursor:pointer;transition:box-shadow 0.15s;">';
+    h += '<div style="width:48px;height:48px;border-radius:50%;background:#e8e8f0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:12px;">' + init + '</div>';
+    h += '<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">' + p.fn + ' ' + p.ln + '</p>';
+    h += '<p style="font-size:12px;color:#8e8e93;">' + p.pos + (age ? ' &middot; ' + age + ' J.' : '') + '</p>';
+    h += '<p style="font-size:12px;color:#8e8e93;">' + (p.club || '') + '</p>';
+    h += '</div>';
   });
-  grid.innerHTML = html;
-  CB_PLAYERS.forEach(function(p) {
-    var el = document.getElementById('pc' + p.id);
-    if (el) el.onclick = function() { openPlayer(p.id); };
-  });
-}
-
-function showNewPlayerForm() {
-  CB_POSITION = 'Feldspieler';
-  CB_PHOTO = null;
-  document.getElementById('np-fn').value = '';
-  document.getElementById('np-ln').value = '';
-  document.getElementById('np-dob').value = '';
-  document.getElementById('np-club').value = '';
-  document.getElementById('pos-feld').style.background = '#1c1c1e';
-  document.getElementById('pos-feld').style.color = '#fff';
-  document.getElementById('pos-tor').style.background = '#fff';
-  document.getElementById('pos-tor').style.color = '#1c1c1e';
-  document.getElementById('new-player-modal').style.display = 'flex';
-}
-
-function hideNewPlayerForm() {
-  document.getElementById('new-player-modal').style.display = 'none';
-}
-
-function selectPosition(pos) {
-  CB_POSITION = pos;
-  document.getElementById('pos-feld').style.background = pos === 'Feldspieler' ? '#1c1c1e' : '#fff';
-  document.getElementById('pos-feld').style.color = pos === 'Feldspieler' ? '#fff' : '#1c1c1e';
-  document.getElementById('pos-tor').style.background = pos === 'Torwart' ? '#1c1c1e' : '#fff';
-  document.getElementById('pos-tor').style.color = pos === 'Torwart' ? '#fff' : '#1c1c1e';
-}
-
-function saveNewPlayer() {
-  var fn = document.getElementById('np-fn').value.trim();
-  var ln = document.getElementById('np-ln').value.trim();
-  if (!fn || !ln) { alert('Bitte Vor- und Nachname eingeben'); return; }
-  var p = {
-    id: Date.now().toString(),
-    fn: fn, ln: ln,
-    dob: document.getElementById('np-dob').value,
-    pos: CB_POSITION,
-    club: document.getElementById('np-club').value.trim(),
-    photo: CB_PHOTO,
-    diag: [],
-    notes: ''
-  };
-  CB_PLAYERS.push(p);
-  cbSave();
-  hideNewPlayerForm();
-  showPlayerList();
-}
-
-function openPlayer(id) {
-  CB_CURRENT = id;
-  var p = CB_PLAYERS.find(function(x) { return x.id === id; });
-  if (!p) return;
-  document.getElementById('player-list-view').style.display = 'none';
-  document.getElementById('player-detail-view').style.display = 'block';
-  var age = cbAge(p.dob);
-  document.getElementById('detail-name').textContent = p.fn + ' ' + p.ln;
-  document.getElementById('detail-meta').textContent = p.pos + (age ? ' &middot; ' + age + ' Jahre' : '') + (p.club ? ' &middot; ' + p.club : '');
-  document.getElementById('notizen-text').value = p.notes || '';
-  playerTab('diagnostik');
-  renderDiag(p);
-}
-
-function deletePlayer() {
-  if (!confirm('Spieler loeschen?')) return;
-  CB_PLAYERS = CB_PLAYERS.filter(function(p) { return p.id !== CB_CURRENT; });
-  cbSave();
-  showPlayerList();
-}
-
-function playerTab(tab) {
-  ['diagnostik','prehab','verletzungen','plaene','notizen'].forEach(function(t) {
-    var el = document.getElementById('player-tab-' + t);
-    var btn = document.getElementById('ptab-' + t);
-    if (el) el.style.display = t === tab ? 'block' : 'none';
-    if (btn) {
-      btn.style.background = t === tab ? '#fff' : 'transparent';
-      btn.style.color = t === tab ? '#1c1c1e' : '#8e8e93';
-      btn.style.boxShadow = t === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
+  grid.innerHTML = h;
+  PL.forEach(function(p) {
+    var el = document.getElementById('plc' + p.id);
+    if (el) {
+      el.addEventListener('click', function() { plOpen(p.id); });
+      el.addEventListener('mouseover', function() { el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'; });
+      el.addEventListener('mouseout', function() { el.style.boxShadow = 'none'; });
     }
   });
 }
 
-function saveNotizen() {
-  var p = CB_PLAYERS.find(function(x) { return x.id === CB_CURRENT; });
-  if (p) { p.notes = document.getElementById('notizen-text').value; cbSave(); }
-}
-
-function showDiagnostikForm() {
-  var modal = '<div id="dmodal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;">';
-  modal += '<div style="background:#fff;border-radius:20px;padding:28px;width:460px;max-width:90vw;max-height:85vh;overflow-y:auto;">';
-  modal += '<h3 style="font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:16px;">Diagnostik eintragen</h3>';
-  modal += '<input type="date" id="dd" value="' + new Date().toISOString().slice(0,10) + '" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit;">';
-  modal += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-  var tests = [['d10','10m Sprint','s'],['d30','30m Sprint','s'],['dcr','505 rechts','s'],['dcl','505 links','s'],['dmr','MB Wurf rechts','m'],['dml','MB Wurf links','m'],['dsw','Standweitsprung','m'],['dift','IFT vIFT','km/h']];
-  tests.forEach(function(t) {
-    modal += '<div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">' + t[1].toUpperCase() + ' (' + t[2] + ')</label>';
-    modal += '<input id="' + t[0] + '" type="number" step="0.01" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>';
-  });
-  modal += '</div>';
-  modal += '<div style="display:flex;gap:10px;margin-top:20px;">';
-  modal += '<button onclick="document.getElementById('dmodal').remove()" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>';
-  modal += '<button onclick="saveDiag()" style="flex:2;padding:12px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Speichern</button>';
-  modal += '</div></div></div>';
-  document.body.insertAdjacentHTML('beforeend', modal);
-}
-
-function saveDiag() {
-  var p = CB_PLAYERS.find(function(x) { return x.id === CB_CURRENT; });
+function plOpen(id) {
+  PL_CUR = id;
+  var p = PL.find(function(x) { return x.id === id; });
   if (!p) return;
-  var entry = { datum: document.getElementById('dd').value };
-  [['d10','sprint10'],['d30','sprint30'],['dcr','cod_r'],['dcl','cod_l'],['dmr','mb_r'],['dml','mb_l'],['dsw','standweit'],['dift','ift']].forEach(function(kv) {
-    var el = document.getElementById(kv[0]);
-    if (el && el.value) entry[kv[1]] = parseFloat(el.value);
+  document.getElementById('pv-list').style.display = 'none';
+  document.getElementById('pv-detail').style.display = 'block';
+  var age = plAge(p.dob);
+  var init = (p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '');
+  document.getElementById('pv-photo').textContent = init;
+  document.getElementById('pv-name').textContent = p.fn + ' ' + p.ln;
+  document.getElementById('pv-meta').textContent = p.pos + (age ? ' | ' + age + ' Jahre' : '') + (p.club ? ' | ' + p.club : '');
+  document.getElementById('pv-notes').value = p.notes || '';
+  plTabShow('diagnostik');
+  plRenderDiag(p);
+}
+
+function plTabShow(tab) {
+  ['diagnostik','verletzungen','notizen'].forEach(function(t) {
+    var c = document.getElementById('ptc-' + t);
+    var b = document.getElementById('ptab-' + t);
+    if (c) c.style.display = t === tab ? 'block' : 'none';
+    if (b) {
+      b.style.background = t === tab ? '#fff' : 'transparent';
+      b.style.color = t === tab ? '#1c1c1e' : '#8e8e93';
+      b.style.boxShadow = t === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
+    }
+  });
+}
+
+function plRenderDiag(p) {
+  var el = document.getElementById('pv-diag-list');
+  if (!p.diag || p.diag.length === 0) {
+    el.innerHTML = '<p style="color:#8e8e93;font-size:14px;padding:20px 0;">Noch keine Tests eingetragen.</p>';
+    return;
+  }
+  var lbl = {s10:'10m',s30:'30m',cr:'505R',cl:'505L',mr:'MB-R',ml:'MB-L',sw:'Weit',ift:'IFT'};
+  var unt = {s10:'s',s30:'s',cr:'s',cl:'s',mr:'m',ml:'m',sw:'m',ift:'km/h'};
+  var h = '';
+  p.diag.forEach(function(d) {
+    h += '<div style="background:#fff;border:0.5px solid #e5e5ea;border-radius:12px;padding:14px;margin-bottom:10px;">';
+    h += '<p style="font-size:12px;color:#8e8e93;margin-bottom:10px;">' + new Date(d.date).toLocaleDateString('de-DE') + '</p>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+    Object.keys(lbl).forEach(function(k) {
+      if (d[k] !== undefined) {
+        h += '<div style="background:#f2f2f7;border-radius:8px;padding:8px 10px;text-align:center;min-width:56px;">';
+        h += '<div style="font-size:10px;color:#8e8e93;">' + lbl[k] + '</div>';
+        h += '<div style="font-size:14px;font-weight:700;color:#1c1c1e;">' + d[k] + '</div>';
+        h += '<div style="font-size:10px;color:#8e8e93;">' + unt[k] + '</div>';
+        h += '</div>';
+      }
+    });
+    h += '</div></div>';
+  });
+  el.innerHTML = h;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Back buttons
+  document.getElementById('btn-back-profile').addEventListener('click', function() { goTo('home'); });
+  document.getElementById('btn-back-list').addEventListener('click', function() { plRenderList(); });
+
+  // New player buttons
+  document.getElementById('btn-new-player').addEventListener('click', function() { plShowModal(); });
+  document.getElementById('btn-new-player-2').addEventListener('click', function() { plShowModal(); });
+
+  // Modal buttons
+  document.getElementById('btn-cancel-player').addEventListener('click', function() { plHideModal(); });
+  document.getElementById('btn-save-player').addEventListener('click', function() { plSaveNew(); });
+
+  // Position toggle
+  document.getElementById('pos-feld').addEventListener('click', function() { plSetPos('Feldspieler'); });
+  document.getElementById('pos-tor').addEventListener('click', function() { plSetPos('Torwart'); });
+
+  // Tab buttons
+  document.getElementById('ptab-diagnostik').addEventListener('click', function() { plTabShow('diagnostik'); });
+  document.getElementById('ptab-verletzungen').addEventListener('click', function() { plTabShow('verletzungen'); });
+  document.getElementById('ptab-notizen').addEventListener('click', function() { plTabShow('notizen'); });
+
+  // Delete player
+  document.getElementById('btn-delete-player').addEventListener('click', function() {
+    if (!confirm('Spieler loeschen?')) return;
+    PL = PL.filter(function(p) { return p.id !== PL_CUR; });
+    plSave();
+    plRenderList();
+  });
+
+  // Notes autosave
+  document.getElementById('pv-notes').addEventListener('input', function() {
+    var p = PL.find(function(x) { return x.id === PL_CUR; });
+    if (p) { p.notes = this.value; plSave(); }
+  });
+
+  // Diagnostik modal
+  document.getElementById('btn-add-diag').addEventListener('click', function() {
+    document.getElementById('dd-date').value = new Date().toISOString().slice(0,10);
+    ['dd-s10','dd-s30','dd-cr','dd-cl','dd-mr','dd-ml','dd-sw','dd-ift'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('pv-dmodal').style.display = 'flex';
+  });
+  document.getElementById('btn-cancel-diag').addEventListener('click', function() {
+    document.getElementById('pv-dmodal').style.display = 'none';
+  });
+  document.getElementById('btn-save-diag').addEventListener('click', function() { plSaveDiag(); });
+});
+
+function plShowModal() {
+  PL_POS = 'Feldspieler';
+  document.getElementById('np-fn').value = '';
+  document.getElementById('np-ln').value = '';
+  document.getElementById('np-dob').value = '';
+  document.getElementById('np-club').value = '';
+  plSetPos('Feldspieler');
+  document.getElementById('pv-modal').style.display = 'flex';
+}
+
+function plHideModal() {
+  document.getElementById('pv-modal').style.display = 'none';
+}
+
+function plSetPos(pos) {
+  PL_POS = pos;
+  document.getElementById('pos-feld').style.background = pos === 'Feldspieler' ? '#1c1c1e' : '#fff';
+  document.getElementById('pos-feld').style.color = pos === 'Feldspieler' ? '#fff' : '#1c1c1e';
+  document.getElementById('pos-feld').style.borderColor = pos === 'Feldspieler' ? '#1c1c1e' : '#e5e5ea';
+  document.getElementById('pos-tor').style.background = pos === 'Torwart' ? '#1c1c1e' : '#fff';
+  document.getElementById('pos-tor').style.color = pos === 'Torwart' ? '#fff' : '#1c1c1e';
+  document.getElementById('pos-tor').style.borderColor = pos === 'Torwart' ? '#1c1c1e' : '#e5e5ea';
+}
+
+function plSaveNew() {
+  var fn = document.getElementById('np-fn').value.trim();
+  var ln = document.getElementById('np-ln').value.trim();
+  if (!fn || !ln) { alert('Bitte Vor- und Nachname eingeben'); return; }
+  PL.push({
+    id: Date.now().toString(),
+    fn: fn, ln: ln,
+    dob: document.getElementById('np-dob').value,
+    pos: PL_POS,
+    club: document.getElementById('np-club').value.trim(),
+    diag: [], notes: ''
+  });
+  plSave();
+  plHideModal();
+  plRenderList();
+}
+
+function plSaveDiag() {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  var entry = { date: document.getElementById('dd-date').value };
+  [['dd-s10','s10'],['dd-s30','s30'],['dd-cr','cr'],['dd-cl','cl'],['dd-mr','mr'],['dd-ml','ml'],['dd-sw','sw'],['dd-ift','ift']].forEach(function(kv) {
+    var v = document.getElementById(kv[0]).value;
+    if (v) entry[kv[1]] = parseFloat(v);
   });
   if (!p.diag) p.diag = [];
   p.diag.unshift(entry);
-  cbSave();
-  document.getElementById('dmodal').remove();
-  renderDiag(p);
-}
-
-function renderDiag(p) {
-  var list = document.getElementById('diagnostik-list');
-  if (!p.diag || p.diag.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Diagnostikwerte</div>';
-    return;
-  }
-  var labels = {sprint10:'10m',sprint30:'30m',cod_r:'505R',cod_l:'505L',mb_r:'MB R',mb_l:'MB L',standweit:'Weit',ift:'IFT'};
-  var units = {sprint10:'s',sprint30:'s',cod_r:'s',cod_l:'s',mb_r:'m',mb_l:'m',standweit:'m',ift:'km/h'};
-  var html = '';
-  p.diag.forEach(function(d) {
-    html += '<div style="background:#fff;border:0.5px solid #e5e5ea;border-radius:14px;padding:16px;margin-bottom:12px;">';
-    html += '<p style="font-size:12px;color:#8e8e93;margin-bottom:12px;">' + new Date(d.datum).toLocaleDateString('de-DE') + '</p>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
-    Object.keys(labels).forEach(function(k) {
-      if (d[k] !== undefined) {
-        html += '<div style="background:#f2f2f7;border-radius:8px;padding:8px 10px;text-align:center;min-width:60px;">';
-        html += '<div style="font-size:10px;color:#8e8e93;">' + labels[k] + '</div>';
-        html += '<div style="font-size:15px;font-weight:700;color:#1c1c1e;">' + d[k] + '</div>';
-        html += '<div style="font-size:10px;color:#8e8e93;">' + units[k] + '</div>';
-        html += '</div>';
-      }
-    });
-    html += '</div></div>';
-  });
-  list.innerHTML = html;
+  plSave();
+  document.getElementById('pv-dmodal').style.display = 'none';
+  plRenderDiag(p);
 }
 </script>
 </body>
