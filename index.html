@@ -873,7 +873,7 @@ async function generateWithAI() {
     const data = await response.json();
     if (data.error) throw new Error(data.error);
     status.style.display = 'none';
-    renderPlan(data.plan);
+    renderOutput(data.plan);
   } catch(e) {
     status.className = 'status-box error';
     status.textContent = 'Fehler: ' + e.message;
@@ -1052,6 +1052,84 @@ function renderPlan(blocks) {
     a4.appendChild(footerEl);
     container.appendChild(a4);
   });
+
+  document.getElementById('plan-wrapper').style.display = 'block';
+  document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
+}
+
+function renderOutput(plan){
+  if (plan && !Array.isArray(plan) && plan.kind === 'macro') { renderMacro(plan); }
+  else { renderPlan(plan); }
+}
+
+function renderMacro(doc){
+  const title = doc.title || document.getElementById('plan-name').value || 'Periodisierungsplan';
+  const footer = document.getElementById('plan-footer').value;
+  const date = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'});
+  const container = document.getElementById('pages-container');
+  container.innerHTML = '';
+
+  const a4 = document.createElement('div');
+  a4.className = 'a4';
+
+  const header = document.createElement('div');
+  header.className = 'plan-header';
+  header.innerHTML = '<span class="plan-header-title">'+title+'</span><span class="plan-header-sub">'+date+'</span>';
+  a4.appendChild(header);
+
+  const body = document.createElement('div');
+  body.style.cssText = 'flex:1;min-height:0;padding:6px 2px;overflow:auto;';
+
+  if (doc.intro){
+    const intro = document.createElement('div');
+    intro.style.cssText = 'font-size:13px;color:#3a3a3c;line-height:1.5;margin:4px 0 16px;padding:11px 14px;background:#f2f2f7;border-radius:8px;';
+    intro.textContent = doc.intro;
+    body.appendChild(intro);
+  }
+
+  const weeks = Array.isArray(doc.weeks) ? doc.weeks : [];
+  const table = document.createElement('table');
+  table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px;';
+  const th = 'text-align:left;padding:8px 10px;border-bottom:2px solid #1c1c1e;font-weight:600;color:#1c1c1e;';
+  table.innerHTML = '<thead><tr>'+
+    '<th style="'+th+'width:46px;">Woche</th>'+
+    '<th style="'+th+'">Phase</th>'+
+    '<th style="'+th+'">Schwerpunkt</th>'+
+    '<th style="'+th+'width:62px;">Last</th>'+
+    '<th style="'+th+'width:78px;">Einheiten</th>'+
+    '</tr></thead>';
+  const tbody = document.createElement('tbody');
+  weeks.forEach(function(w){
+    const dl = (w.deload === true || w.deload === 'true' || w.deload === 'ja');
+    const tr = document.createElement('tr');
+    tr.style.cssText = 'border-bottom:1px solid #e5e5ea;'+(dl?'background:#fff8ec;':'');
+    const td = 'padding:9px 10px;color:#1c1c1e;vertical-align:top;';
+    const wk = (w.week!=null?w.week:'');
+    const badge = dl?' <span style="display:inline-block;font-size:10px;font-weight:600;color:#b06f00;background:#ffe9c2;border-radius:5px;padding:1px 6px;margin-left:4px;">Deload</span>':'';
+    tr.innerHTML =
+      '<td style="'+td+'font-weight:700;">'+wk+'</td>'+
+      '<td style="'+td+'">'+(w.phase||'')+badge+'</td>'+
+      '<td style="'+td+'color:#3a3a3c;">'+(w.focus||'')+'</td>'+
+      '<td style="'+td+'font-weight:600;">'+(w.load||'')+'</td>'+
+      '<td style="'+td+'">'+(w.sessions||'')+'</td>';
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  body.appendChild(table);
+
+  if (doc.note){
+    const note = document.createElement('div');
+    note.style.cssText = 'font-size:12px;color:#3a3a3c;line-height:1.5;margin-top:18px;padding:11px 14px;border-left:3px solid #14B8C4;background:#f0fbfc;border-radius:0 8px 8px 0;';
+    note.textContent = doc.note;
+    body.appendChild(note);
+  }
+
+  a4.appendChild(body);
+  const footerEl = document.createElement('div');
+  footerEl.className = 'plan-footer';
+  footerEl.textContent = footer;
+  a4.appendChild(footerEl);
+  container.appendChild(a4);
 
   document.getElementById('plan-wrapper').style.display = 'block';
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
