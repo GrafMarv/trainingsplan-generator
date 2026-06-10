@@ -502,7 +502,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <!-- Gehirn Header -->
     <div style="text-align:center;padding:32px 0 24px;">
       <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:#8e8e93;margin-bottom:10px;">Coaching Brain</p>
-      <h2 style="font-size:32px;font-weight:700;letter-spacing:-1px;color:#1c1c1e;margin-bottom:6px;">99 Chunks Wissen</h2>
+      <h2 id="brain-headline" style="font-size:32px;font-weight:700;letter-spacing:-1px;color:#1c1c1e;margin-bottom:6px;">99 Chunks Wissen</h2>
       <p style="font-size:14px;color:#8e8e93;">Semantisch vernetzt &middot; Feldhockey &middot; Kraft &middot; Metabolismus</p>
     </div>
 
@@ -1667,6 +1667,7 @@ async function uploadAll() {
         x:cx.ax+(rng(i*3+1)-0.5)*sp,y:cx.ay+(rng(i*3+2)-0.5)*sp,z:cx.az+(rng(i*3+3)-0.5)*sp,vis:true};
     });
     document.getElementById('brain-chunk-count').textContent=cks.length+' Chunks';
+    var hl=document.getElementById('brain-headline'); if(hl) hl.textContent=cks.length+' Chunks Wissen';
     if(!running){running=true;requestAnimationFrame(tick);}
   }
 
