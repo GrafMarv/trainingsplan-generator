@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "source": "NSCA Essentials of Strength Training and Conditioning, 4th Ed. (Haff & Triplett, 2016)",
+  "version": "1.1",
+  "source": "NSCA Essentials of Strength Training and Conditioning, 4th Ed. (Haff & Triplett, 2016) + Bompa & Haff 2009, Periodization (5th Ed.)",
   "chunks": [
     {
       "id": "nsca_exercise_order_01",
@@ -1566,7 +1566,155 @@
       ],
       "quelle": "DOSB Athletiktrainer-Fortbildung, Stefan Adler 2024",
       "inhalt": "Sprungübungen werden nach Pattern und Progressionsstufe klassifiziert: Pattern: Jump (2-Bein), Hopser (1-Bein), Split. Progressionsstufen: Explosiv (maximale Höhe) → Amortiv (Landekontrolle) → Doppelkontakt → Reaktiv aus 15cm. Höhenorientierung: 2-Bein: 40% Körperhöhe (explosiv) bis 50% (reaktiv). 1-Bein: Unterschenkel-Länge bis 120%. Sprung-Formen: Leap, Hop, Bound. Für Warm-Up-Zwecke: einfache reaktive Formen (Storchen, Sprunggelenk, Hopser, Skip, Prellhopser). Für Aktivierungsphase: Leitertempo, Frequenzübungen, Reaktionsantritte. Progression immer von explosiv → amortiv → reaktiv, nicht umgekehrt."
+    },
+    {
+      "id": "bompa_01_jahresplan_phasen",
+      "titel": "Periodisierung: Phasen des Jahresplans",
+      "tags": [
+        "periodisierung",
+        "jahresplan",
+        "makrozyklus",
+        "vorbereitungsphase",
+        "wettkampfphase",
+        "uebergangsphase",
+        "planung"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Der Jahresplan gliedert sich in drei Hauptphasen: Vorbereitungsphase (allgemein + speziell), Wettkampfphase (Vorwettkampf + Hauptwettkampf) und Uebergangsphase (aktive Erholung). Die Vorbereitung baut von der allgemeinen Vorbereitung (Adaptation, breite Basis) ueber die spezielle Vorbereitung (Akkumulation, sportartnahe Belastung) zur Vorwettkampfphase (Stabilisierung, Peaking) auf. Massgeblich ist nicht die feste Dauer einer Phase, sondern die Sequenz und das Verhaeltnis der Phasen zueinander. Frueh ist das Volumen hoch und die Intensitaet niedrig; im Saisonverlauf kehrt sich dieses Verhaeltnis zugunsten der Intensitaet um."
+    },
+    {
+      "id": "bompa_02_lastprogression_steploading",
+      "titel": "Lastprogression: Step Loading statt Standard- oder Linearlast",
+      "tags": [
+        "periodisierung",
+        "belastungssteuerung",
+        "step-loading",
+        "progression",
+        "entlastung",
+        "mikrozyklus"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Drei Lastmodelle: Standardlast (gleichbleibende Last) bringt nur fruehen Fortschritt und plateaut danach. Lineare Last (stetig steigend ohne Entlastung) funktioniert nur kurzfristig - bei laengerer Anwendung droht Uebertraining. Bevorzugt wird Step Loading: mehrere steigende Belastungsmikrozyklen, gefolgt von einem Entlastungsmikrozyklus. Gaengige Verhaeltnisse Belastung:Entlastung sind 3:1 und 2:1, am Ende eines Makrozyklus oft 4:1 (Woche 4 = Regeneration). Fortgeschrittene mit langjaehriger Basis vertragen laengere Belastungsbloecke vor der Entlastung. Lasten immer graduell steigern - ploetzliche grosse Spruenge verlaengern die Adaptationszeit ueberproportional."
+    },
+    {
+      "id": "bompa_03_kraftperiodisierung",
+      "titel": "Kraftperiodisierung: AA -> Maximalkraft -> Konversion -> Erhalt",
+      "tags": [
+        "kraft",
+        "periodisierung",
+        "maximalkraft",
+        "hypertrophie",
+        "power",
+        "kraftausdauer",
+        "erhalt",
+        "anatomische-anpassung"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Krafttraining durchlaeuft im Jahresverlauf eine feste Sequenz: Anatomische Anpassung (AA: Sehnen, Baender, Gelenke und Gewebe vorbereiten, hoehere Wiederholungen, moderate Last) -> Maximalkraft (hohe Lasten, vor allem neurale Anpassung) -> Konversion in die sportartspezifisch geforderte Kraftform (Power und/oder Kraftausdauer) -> Erhalt waehrend der Wettkampfphase (Maximalkraft und Power mit reduziertem Volumen halten). In der Uebergangsphase Kompensation und Regeneration. Welche Kraftform in der Konversion betont wird, richtet sich nach dem Anforderungsprofil der Sportart."
+    },
+    {
+      "id": "bompa_04_periodisierung_ausdauer_speed",
+      "titel": "Periodisierung Ausdauer & Schnelligkeit ueber die Saison",
+      "tags": [
+        "ausdauer",
+        "sprint",
+        "schnelligkeit",
+        "periodisierung",
+        "aerobe-basis",
+        "agility",
+        "speed-endurance",
+        "laktattoleranz"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Ausdauer wird von der aeroben Basis (allgemeine Vorbereitung) ueber aerobe plus spezifische Ausdauer hin zu sportart- und wettkampfspezifischer Ausdauer entwickelt. Schnelligkeit baut auf aerob-anaerober Basis auf und entwickelt sich Richtung spezifische Schnelligkeit, Agilitaet, Reaktionszeit und Schnelligkeitsausdauer, ergaenzt durch hochintensives intervallbasiertes Training (HIT), anaerobe Power und Ausdauer sowie Laktattoleranz in Wettkampfnaehe. Die aerobe Grundlage wird zuerst gelegt, weil sie Erholungsfaehigkeit und Belastungsvertraeglichkeit fuer die intensiveren spaeteren Phasen schafft."
+    },
+    {
+      "id": "bompa_05_peaking_taper",
+      "titel": "Peaking & Taper: Last vor dem Wettkampf reduzieren",
+      "tags": [
+        "peaking",
+        "taper",
+        "wettkampf",
+        "formaufbau",
+        "recovery",
+        "superkompensation"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Vor dem Hauptwettkampf wird die Trainingslast reduziert, um Ermuedung abzubauen und bei richtigem Timing Superkompensation auszuloesen. Richtwert: Lastreduktion um ca. 40-60% ueber den Mikrozyklus vor dem Wettkampf. Alternativ ueber zwei Mikrozyklen mit gradueller Reduktion - Peaking gelingt so in etwa 8-14 Tagen. Je groesser der vorangegangene Trainingsreiz, desto ausgepraegter die moegliche Superkompensation. Ziel ist vollstaendige physische und psychische Erholung, sodass Spitzenleistung genau zum Wettkampf abrufbar ist."
+    },
+    {
+      "id": "bompa_06_superkompensation_timing",
+      "titel": "Superkompensation: Erholungsfenster nach Belastung",
+      "tags": [
+        "superkompensation",
+        "recovery",
+        "regeneration",
+        "trainingsfrequenz",
+        "zns",
+        "adaptation",
+        "ermuedung"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Nach einem optimalen Trainingsreiz dauert die Erholung inklusive Superkompensationsphase typischerweise ca. 24 h. Das Fenster variiert mit Reizart und Intensitaet: nach mittelintensiver aerober Einheit oft schon 6-8 h, nach Einheiten mit hoher ZNS-Last (maximale Intensitaet, Schnellkraft) bis zu 48 h. Wird im Superkompensationsfenster kein neuer Reiz gesetzt, folgt Involution - die Anpassung verfaellt ueber etwa 3-7 Tage. Zu haeufige maximale Reize ohne Erholung fuehren zu Uebertraining und Leistungsabfall. Bei dichter Trainingsfrequenz muss die Intensitaet alternieren, damit Adaptation moeglich bleibt."
+    },
+    {
+      "id": "bompa_07_trainingsvariablen",
+      "titel": "Trainingsvariablen: Volumen, Intensitaet, Dichte",
+      "tags": [
+        "belastungssteuerung",
+        "volumen",
+        "intensitaet",
+        "dichte",
+        "planung",
+        "periodisierung"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Trainingslast wird ueber drei Variablen gesteuert: Volumen (Gesamtmenge der Arbeit), Intensitaet (Hoehe und Qualitaet der Belastung) und Dichte (Haeufigkeit bzw. Verteilung der Arbeit pro Zeiteinheit, also das Verhaeltnis von Arbeit zu Erholung). Hoehere Dichte bedeutet kuerzere Erholung zwischen den Belastungsphasen. In der Vorbereitung dominiert das Volumen, spaeter verschiebt sich der Schwerpunkt zur Intensitaet. Diese Variablen werden ueber Phasen, Makro- und Mikrozyklen gezielt manipuliert - die graduelle, systematische Steuerung der Last ist der Kern der Periodisierung."
+    },
+    {
+      "id": "bompa_08_regenerations_mikrozyklus",
+      "titel": "Entlastungs- und Regenerationsmikrozyklus",
+      "tags": [
+        "recovery",
+        "regeneration",
+        "entlastung",
+        "mikrozyklus",
+        "makrozyklus",
+        "ermuedung",
+        "deload"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Ein Regenerations- bzw. Entlastungsmikrozyklus gehoert ans Ende jedes Makrozyklus (klassisch 4:1 - Woche 4 entlastet). Er kann wie ein normaler Mikrozyklus strukturiert sein, jedoch mit reduzierter Intensitaet, Dichte oder Frequenz. Alternativ enthaelt er gezielte Erholungseinheiten: laengeres Warm-up, kurze leichte sportartnahe Arbeit plus Regenerationsmassnahmen. Besonders wichtig in der Wettkampfphase, wo dichte Wettkampffolgen viel Ermuedung erzeugen. Erholung ist kein Gegenteil von Training, sondern integraler Teil - nur ueber gezieltes Ermuedungsmanagement entsteht Superkompensation."
+    },
+    {
+      "id": "bompa_09_prinzipien_ueberlast_individualisierung",
+      "titel": "Trainingsprinzipien: Progressive Ueberlast & Individualisierung",
+      "tags": [
+        "prinzipien",
+        "progression",
+        "ueberlast",
+        "individualisierung",
+        "jugend",
+        "adaptation",
+        "belastbarkeit"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Leistungsfortschritt entsteht nur durch progressive Ueberlast: der Reiz muss ueber das gewohnte Mass hinausgehen und ueber Zeit graduell steigen, sonst stagniert die Anpassung. Gleichzeitig gilt Individualisierung - die Belastung muss an Trainingsalter, physiologische Reife und Belastbarkeit des einzelnen Athleten angepasst werden. Gerade juengere oder weniger erfahrene Athleten duerfen nicht mit intensiven Wettkampf- und Belastungsschemata ueberfordert werden; bei ihnen ist Periodisierung besonders wichtig, um Adaptation zu sichern und Ueberlastung sowie Verletzungen zu vermeiden."
+    },
+    {
+      "id": "bompa_10_zyklenhierarchie",
+      "titel": "Trainingszyklen: Mikro-, Makrozyklus, Jahresplan",
+      "tags": [
+        "mikrozyklus",
+        "makrozyklus",
+        "jahresplan",
+        "struktur",
+        "planung",
+        "periodisierung"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Die Planungshierarchie reicht vom einzelnen Workout ueber den Mikrozyklus (typisch rund eine Woche, kleinste funktionale Planungseinheit mit alternierender Belastung) und den Makrozyklus (mehrere Mikrozyklen mit gemeinsamem Ziel, abgeschlossen durch eine Entlastungswoche) bis zum Jahresplan und gegebenenfalls mehrjaehrigen Plaenen. Innerhalb des Mikrozyklus wird die Intensitaet bewusst variiert (harte und leichte Tage), damit Erholung und Adaptation moeglich bleiben. Die gleiche graduelle Lastlogik gilt auf allen Ebenen - vom Mikrozyklus bis zum Mehrjahresplan."
     }
   ],
-  "totalChunks": 99
+  "totalChunks": 109
 }
