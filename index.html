@@ -765,7 +765,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <div class="card">
     <div class="row">
       <div><label>Planname</label><input type="text" id="plan-name" value="Krafttraining A"></div>
-      <div><label>Footer</label><input type="text" id="plan-footer" value="Coach: _______________ · Athlet: _______________"></div>
+      <div><label>Footer</label><input type="text" id="plan-footer" value="Coach: _______________ &middot; Athlet: _______________"></div>
     </div>
   </div>
 
@@ -1834,8 +1834,8 @@ async function uploadAll() {
 
 <script>
 (function(){
-  // Spieler werden lokal gespeichert (localStorage als Zwischenlösung)
-  // Später: Supabase sync
+  // Spieler werden lokal gespeichert (localStorage als Zwischenloesung)
+  // Spaeter: Supabase sync
   
   var players = JSON.parse(localStorage.getItem('cb_players') || '[]');
   var currentPlayerId = null;
@@ -1896,7 +1896,7 @@ async function uploadAll() {
     document.getElementById('np-nachname').value = '';
     document.getElementById('np-geburtsdatum').value = '';
     document.getElementById('np-verein').value = '';
-    document.getElementById('photo-preview').innerHTML = '👤';
+    document.getElementById('photo-preview').innerHTML = '&#128100;';
     document.getElementById('pos-feld').style.background = '#1c1c1e';
     document.getElementById('pos-feld').style.color = '#fff';
     document.getElementById('pos-tor').style.background = '#fff';
@@ -1958,11 +1958,11 @@ async function uploadAll() {
     document.getElementById('player-detail-view').style.display = 'block';
     var age = calcAge(p.geburtsdatum);
     document.getElementById('detail-name').textContent = p.vorname + ' ' + p.nachname;
-    document.getElementById('detail-meta').textContent = p.position + (age?' · '+age+' Jahre':'') + (p.verein?' · '+p.verein:'');
+    document.getElementById('detail-meta').textContent = p.position + (age?' &middot; '+age+' Jahre':'') + (p.verein?' &middot; '+p.verein:'');
     if(p.photo){
       document.getElementById('detail-photo').innerHTML = '<img src="'+p.photo+'" style="width:72px;height:72px;object-fit:cover;border-radius:50%;">';
     } else {
-      document.getElementById('detail-photo').innerHTML = '👤';
+      document.getElementById('detail-photo').innerHTML = '&#128100;';
     }
     document.getElementById('notizen-text').value = p.notizen || '';
     playerTab('diagnostik');
@@ -1970,7 +1970,7 @@ async function uploadAll() {
   };
 
   window.deletePlayer = function(){
-    if(!confirm('Spieler wirklich löschen?')) return;
+    if(!confirm('Spieler wirklich loeschen?')) return;
     players = players.filter(function(p){ return p.id !== currentPlayerId; });
     savePlayers();
     showPlayerList();
