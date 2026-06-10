@@ -1784,7 +1784,22 @@ var PL = JSON.parse(localStorage.getItem('cb_pl') || '[]');
 var PL_CUR = null;
 var PL_POS = 'Feldspieler';
 
-function plSave() { localStorage.setItem('cb_pl', JSON.stringify(PL)); }
+function plSave() { try { localStorage.setItem('cb_pl', JSON.stringify(PL)); } catch(e){} }
+
+var PL_NOTE_TIMER = null;
+
+function plUpsert(p) {
+  if (!p) return;
+  fetch('/api/players', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(p)
+  }).catch(function(){});
+}
+
+function plRemoteDelete(id) {
+  fetch('/api/players?id=' + encodeURIComponent(id), { method: 'DELETE' }).catch(function(){});
+}
 
 function plAge(d) {
   if (!d) return '';
@@ -1792,7 +1807,31 @@ function plAge(d) {
 }
 
 function initProfileScreen() {
+  // Show cached players instantly
   plRenderList();
+  var localBackup = PL.slice();
+  fetch('/api/players')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var server = (d && d.players) ? d.players : [];
+      if (server.length === 0 && localBackup.length > 0 && localStorage.getItem('cb_pl_migrated') !== '1') {
+        // First run with local-only data: push it up to Supabase
+        PL = localBackup;
+        fetch('/api/players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ players: localBackup })
+        }).then(function(){ localStorage.setItem('cb_pl_migrated','1'); }).catch(function(){});
+      } else {
+        PL = server;
+        localStorage.setItem('cb_pl_migrated','1');
+      }
+      plSave();
+      plRenderList();
+    })
+    .catch(function(){
+      // Offline: keep showing cached players
+    });
 }
 
 function plRenderList() {
@@ -1911,15 +1950,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // Delete player
   document.getElementById('btn-delete-player').addEventListener('click', function() {
     if (!confirm('Spieler loeschen?')) return;
-    PL = PL.filter(function(p) { return p.id !== PL_CUR; });
+    var delId = PL_CUR;
+    PL = PL.filter(function(p) { return p.id !== delId; });
     plSave();
+    plRemoteDelete(delId);
     plRenderList();
   });
 
   // Notes autosave
   document.getElementById('pv-notes').addEventListener('input', function() {
     var p = PL.find(function(x) { return x.id === PL_CUR; });
-    if (p) { p.notes = this.value; plSave(); }
+    if (p) {
+      p.notes = this.value;
+      plSave();
+      if (PL_NOTE_TIMER) clearTimeout(PL_NOTE_TIMER);
+      PL_NOTE_TIMER = setTimeout(function(){ plUpsert(p); }, 800);
+    }
   });
 
   // Diagnostik modal
@@ -1964,15 +2010,17 @@ function plSaveNew() {
   var fn = document.getElementById('np-fn').value.trim();
   var ln = document.getElementById('np-ln').value.trim();
   if (!fn || !ln) { alert('Bitte Vor- und Nachname eingeben'); return; }
-  PL.push({
+  var np = {
     id: Date.now().toString(),
     fn: fn, ln: ln,
     dob: document.getElementById('np-dob').value,
     pos: PL_POS,
     club: document.getElementById('np-club').value.trim(),
     diag: [], notes: ''
-  });
+  };
+  PL.push(np);
   plSave();
+  plUpsert(np);
   plHideModal();
   plRenderList();
 }
@@ -1988,6 +2036,7 @@ function plSaveDiag() {
   if (!p.diag) p.diag = [];
   p.diag.unshift(entry);
   plSave();
+  plUpsert(p);
   document.getElementById('pv-dmodal').style.display = 'none';
   plRenderDiag(p);
 }
