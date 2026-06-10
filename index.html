@@ -813,7 +813,7 @@ function goTo(screen) {
   if (screen === 'generator' || screen === 'umbenenner') {
     document.getElementById('app-screen').style.display = 'block';
     document.getElementById('app-tabs').style.display = 'flex';
-    document.getElementById('app-topbar-title').textContent = screen === 'generator' ? 'Trainingsplan Generator' : 'Übung Umbenenner';
+    document.getElementById('app-topbar-title').textContent = screen === 'generator' ? 'Trainingsplan Generator' : 'Uebung Umbenenner';
     // activate correct tab
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -883,14 +883,14 @@ const GROUP_COLORS = {A:'#2563EB',B:'#EA580C',C:'#16A34A',D:'#9333EA',E:'#DB2777
 const MAX_PER_PAGE = 7;
 let EXERCISES = [];
 
-// Übungsliste automatisch von GitHub laden
+// Uebungsliste automatisch von GitHub laden
 async function loadExercises() {
   try {
     const resp = await fetch('/api/exercises');
     const data = await resp.json();
     if (data.exercises && data.exercises.length > 0) {
       EXERCISES = data.exercises;
-      console.log('Übungen geladen:', EXERCISES.length);
+      console.log('Uebungen geladen:', EXERCISES.length);
     } else {
       EXERCISES = _FALLBACK;
     }
@@ -959,7 +959,7 @@ function renderPlan(blocks) {
   const allExercises = [];
   blocks.forEach(block => block.exercises.forEach(ex => allExercises.push({ ...ex, blockType: block.type, blockLabel: block.label })));
 
-  // Seiten aufteilen – Supersets nie trennen, Blöcke möglichst nicht mischen
+  // Seiten aufteilen - Supersets nie trennen, Bloecke moeglichst nicht mischen
   const pages = [];
   let currentPage = [];
   let currentPageBlock = null;
@@ -969,7 +969,7 @@ function renderPlan(blocks) {
     const group = ex.group || '-';
     const blockType = ex.blockType;
 
-    // Prüfen wie viele Übungen diese Gruppe noch hat
+    // Pruefen wie viele Uebungen diese Gruppe noch hat
     let groupSize = 1;
     if (group !== '-') {
       for (let j = i + 1; j < allExercises.length; j++) {
@@ -978,7 +978,7 @@ function renderPlan(blocks) {
       }
     }
 
-    // Blockwechsel: neue Seite wenn mehr als 2 Übungen bereits auf der Seite sind
+    // Blockwechsel: neue Seite wenn mehr als 2 Uebungen bereits auf der Seite sind
     const isBlockChange = currentPageBlock !== null && currentPageBlock !== blockType;
     if (isBlockChange && currentPage.length >= 2) {
       pages.push(currentPage);
@@ -986,7 +986,7 @@ function renderPlan(blocks) {
       currentPageBlock = null;
     }
 
-    // Superset passt nicht mehr auf Seite → neue Seite
+    // Superset passt nicht mehr auf Seite  neue Seite
     if (currentPage.length > 0 && currentPage.length + groupSize > MAX_PER_PAGE) {
       pages.push(currentPage);
       currentPage = [];
@@ -1075,8 +1075,8 @@ function renderPlan(blocks) {
       infoBox.style.borderLeft = hasGroup ? `3px solid ${color}` : '1px solid #bbb';
       const setsHtml = Array.from({length: ex.sets}, (_,i) => `<div class="set-bubble">${i+1}</div>`).join('');
       const tagsHtml = [
-        ex.intensity ? `<span class="ex-tag intensity">⚡ ${ex.intensity}</span>` : '',
-        ex.rest ? `<span class="ex-tag rest">⏱ ${ex.rest}</span>` : ''
+        ex.intensity ? `<span class="ex-tag intensity"> ${ex.intensity}</span>` : '',
+        ex.rest ? `<span class="ex-tag rest"> ${ex.rest}</span>` : ''
       ].filter(Boolean).join('');
       infoBox.innerHTML = `
         ${hasGroup ? `<div class="group-tag" style="background:${color}"></div>` : ''}
@@ -1087,7 +1087,7 @@ function renderPlan(blocks) {
         <div class="ex-metric-row">
           <span class="ex-reps">${ex.reps}</span>
           <span class="ex-reps-label">${metricLabel}</span>
-          <span class="ex-sets-text">&nbsp;·&nbsp; ${ex.sets} Sätze</span>
+          <span class="ex-sets-text">&nbsp;&middot;&nbsp; ${ex.sets} Saetze</span>
         </div>
         ${tagsHtml ? `<div class="ex-tags">${tagsHtml}</div>` : ''}
         <div class="ex-sets-row">${setsHtml}</div>
@@ -1181,14 +1181,14 @@ function renderRenameCard({ id, file, status, name }) {
   card.className = 'rename-card ' + (status === 'done' ? 'done' : status === 'error' ? 'error' : status === 'processing' ? 'processing' : '');
   card.id = 'rcard-' + id;
   const f = renameFiles.find(f => f.id === id);
-  const statusText = status === 'done' ? 'Fertig – klicken zum Bearbeiten' : status === 'error' ? 'Fehler' : status === 'processing' ? 'Analysiere...' : 'Wartend';
+  const statusText = status === 'done' ? 'Fertig - klicken zum Bearbeiten' : status === 'error' ? 'Fehler' : status === 'processing' ? 'Analysiere...' : 'Wartend';
   
   const p = parseFilename(name);
   
   const editorHtml = status === 'done' ? `
     <div class="rename-editor" id="editor-${id}">
       <div class="rename-editor-title">Kategorien anpassen</div>
-      <input type="text" id="ename-${id}" value="${p.exerciseName}" placeholder="Übungsname" oninput="updatePreview('${id}')">
+      <input type="text" id="ename-${id}" value="${p.exerciseName}" placeholder="Uebungsname" oninput="updatePreview('${id}')">
       <select id="ecat-${id}" onchange="updateEditor('${id}')">
         <option value="strength" ${p.category==='strength'?'selected':''}>strength</option>
         <option value="jump" ${p.category==='jump'?'selected':''}>jump</option>
@@ -1198,7 +1198,7 @@ function renderRenameCard({ id, file, status, name }) {
       </select>
       <div id="esubs-${id}"></div>
       <div class="rename-editor-preview" id="epreview-${id}">${name}</div>
-      <button class="rename-editor-btn" onclick="applyEdit('${id}')">Übernehmen</button>
+      <button class="rename-editor-btn" onclick="applyEdit('${id}')">Uebernehmen</button>
     </div>` : '';
 
   card.innerHTML = `<img src="${f.url}" alt=""><div class="rename-card-body"><div class="rename-status">${statusText}</div><div class="rename-name" id="rname-${id}">${name || file.name}</div></div>${editorHtml}`;
@@ -1368,7 +1368,7 @@ let isRecording = false;
 
 function toggleMic() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Spracherkennung wird in diesem Browser nicht unterstützt. Bitte Chrome verwenden.');
+    alert('Spracherkennung wird in diesem Browser nicht unterstuetzt. Bitte Chrome verwenden.');
     return;
   }
 
@@ -1390,7 +1390,7 @@ function toggleMic() {
   recognition.onstart = () => {
     isRecording = true;
     btn.classList.add('recording');
-    btn.textContent = '⏹️';
+    btn.textContent = '';
   };
 
   recognition.onresult = (e) => {
@@ -1410,14 +1410,14 @@ function toggleMic() {
   recognition.onend = () => {
     isRecording = false;
     btn.classList.remove('recording');
-    btn.textContent = '🎤';
+    btn.textContent = '';
     input.value = finalText;
   };
 
   recognition.onerror = (e) => {
     isRecording = false;
     btn.classList.remove('recording');
-    btn.textContent = '🎤';
+    btn.textContent = '';
   };
 
   recognition.start();
@@ -1434,7 +1434,7 @@ function saveWissenDB() {
 
 function updateWissenCount() {
   const el = document.getElementById('wissen-count');
-  if (el) el.textContent = wissenDB.length + ' Einträge';
+  if (el) el.textContent = wissenDB.length + ' Eintraege';
 }
 
 function wissenTab(tab) {
@@ -1526,7 +1526,7 @@ function wissenCard(entry) {
         <span style="font-size:11px;color:#8e8e93;">${entry.datum}</span>
         ${entry.autoren ? `<span style="font-size:11px;color:#8e8e93;">${entry.autoren}</span>` : ''}
       </div>
-      <button onclick="deleteWissen(${entry.id})" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:13px;padding:0;flex-shrink:0;">Löschen</button>
+      <button onclick="deleteWissen(${entry.id})" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:13px;padding:0;flex-shrink:0;">Loeschen</button>
     </div>
     <p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">${entry.titel}</p>
     <div id="wcard-short-${entry.id}">
@@ -1574,38 +1574,38 @@ function renderStudieList() {
 }
 
 // Init wissen on load
-// Beispiel-Studie vorbefüllen wenn DB leer
+// Beispiel-Studie vorbefuellen wenn DB leer
 if (wissenDB.length === 0) {
   wissenDB = [{
     id: 1,
     type: 'studie',
     titel: 'Resisted Sprint Training verbessert Sprintleistung im Mannschaftssport',
     autoren: 'Ward et al., Sports Medicine 2024',
-    inhalt: `KERNFRAGE: Verbessert Resisted Sprint Training (RST) – also Sprint mit Schlitten, Weste oder Band – die Sprintleistung bei Mannschaftssportlern?
+    inhalt: `KERNFRAGE: Verbessert Resisted Sprint Training (RST) - also Sprint mit Schlitten, Weste oder Band - die Sprintleistung bei Mannschaftssportlern?
 
-METHODE: Systematisches Review + Metaanalyse. 23 Studien, 537 Athleten. Fußball, Rugby, Hockey u.a. Interventionen 4-12 Wochen.
+METHODE: Systematisches Review + Metaanalyse. 23 Studien, 537 Athleten. Fussball, Rugby, Hockey u.a. Interventionen 4-12 Wochen.
 
 ERGEBNISSE:
 - RST verbessert 5m-Sprintzeit signifikant (SMD = -0.87)
 - RST verbessert 10m-Sprintzeit signifikant (SMD = -0.40)
 - 20m weniger deutlich aber positiv
-- Schlitten-Training am effektivsten bei 10-20% Körpergewicht Last
+- Schlitten-Training am effektivsten bei 10-20% Koerpergewicht Last
 - Kein signifikanter Unterschied zwischen Schlitten, Weste oder Band
 
-PRAXISRELEVANZ FÜR COACHING:
-- 2x/Woche RST reicht für messbare Verbesserungen
-- Last: 10-20% Körpergewicht beim Schlitten
+PRAXISRELEVANZ FUeR COACHING:
+- 2x/Woche RST reicht fuer messbare Verbesserungen
+- Last: 10-20% Koerpergewicht beim Schlitten
 - Distanz: 10-20m pro Sprint
 - Wiederholungen: 6-10 pro Session
 - Besonders effektiv in der Vorbereitungsphase
 - Kombination mit freiem Sprint empfohlen (nicht nur RST)
 
 LIMITATIONEN:
-- Hohe Heterogenität der Studien
+- Hohe Heterogenitaet der Studien
 - Unterschiedliche Messmethoden
 - Wenig Daten zu Frauen und Jugendlichen
 
-FAZIT: RST ist ein wirksames Werkzeug zur Sprintverbesserung im Mannschaftssport. Klare Empfehlung für Einsatz 2x/Woche mit moderater Last.`,
+FAZIT: RST ist ein wirksames Werkzeug zur Sprintverbesserung im Mannschaftssport. Klare Empfehlung fuer Einsatz 2x/Woche mit moderater Last.`,
     kategorie: 'studie',
     datum: '08.06.2026'
   }];
@@ -1626,7 +1626,7 @@ async function uploadAll() {
   const btn = document.getElementById('rename-upload-btn');
   const status = document.getElementById('upload-status');
   btn.disabled = true;
-  btn.textContent = 'Lädt hoch...';
+  btn.textContent = 'Laedt hoch...';
   status.style.display = 'block';
   status.className = 'status-box';
   
@@ -1661,7 +1661,7 @@ async function uploadAll() {
   
   btn.disabled = false;
   btn.textContent = 'Zu GitHub hochladen';
-  status.textContent = `${success} hochgeladen${errors > 0 ? ', ' + errors + ' Fehler' : ''} – Übungsliste wird automatisch aktualisiert!`;
+  status.textContent = `${success} hochgeladen${errors > 0 ? ', ' + errors + ' Fehler' : ''} - Uebungsliste wird automatisch aktualisiert!`;
   status.className = success > 0 ? 'status-box' : 'status-box error';
 }
 </script>
