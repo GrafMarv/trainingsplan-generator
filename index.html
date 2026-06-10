@@ -1833,267 +1833,200 @@ async function uploadAll() {
 </script>
 
 <script>
-(function(){
-  // Spieler werden lokal gespeichert (localStorage als Zwischenloesung)
-  // Spaeter: Supabase sync
-  
-  var players = JSON.parse(localStorage.getItem('cb_players') || '[]');
-  var currentPlayerId = null;
-  var selectedPosition = 'Feldspieler';
-  var photoData = null;
+var CB_PLAYERS = JSON.parse(localStorage.getItem('cb_players') || '[]');
+var CB_CURRENT = null;
+var CB_POSITION = 'Feldspieler';
+var CB_PHOTO = null;
 
-  function savePlayers(){ localStorage.setItem('cb_players', JSON.stringify(players)); }
+function cbSave() {
+  localStorage.setItem('cb_players', JSON.stringify(CB_PLAYERS));
+}
 
-  function calcAge(dob){
-    if(!dob) return '';
-    var diff = Date.now() - new Date(dob).getTime();
-    return Math.floor(diff / (1000*60*60*24*365.25));
+function cbAge(dob) {
+  if (!dob) return '';
+  var ms = Date.now() - new Date(dob).getTime();
+  return Math.floor(ms / 31557600000);
+}
+
+function initProfileScreen() {
+  showPlayerList();
+}
+
+function showPlayerList() {
+  document.getElementById('player-list-view').style.display = 'block';
+  document.getElementById('player-detail-view').style.display = 'none';
+  var grid = document.getElementById('player-grid');
+  var empty = document.getElementById('player-empty');
+  if (CB_PLAYERS.length === 0) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
   }
+  empty.style.display = 'none';
+  grid.style.display = 'grid';
+  var html = '';
+  CB_PLAYERS.forEach(function(p) {
+    var age = cbAge(p.dob);
+    var init = (p.fn[0] || '') + (p.ln[0] || '');
+    html += '<div id="pc' + p.id + '" style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;cursor:pointer;">';
+    html += '<div style="width:52px;height:52px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:#1c1c1e;margin-bottom:12px;">' + init + '</div>';
+    html += '<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">' + p.fn + ' ' + p.ln + '</p>';
+    html += '<p style="font-size:12px;color:#8e8e93;">' + p.pos + (age ? ' &middot; ' + age + ' J.' : '') + '</p>';
+    html += '<p style="font-size:12px;color:#8e8e93;margin-top:2px;">' + (p.club || '') + '</p>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+  CB_PLAYERS.forEach(function(p) {
+    var el = document.getElementById('pc' + p.id);
+    if (el) el.onclick = function() { openPlayer(p.id); };
+  });
+}
 
-  window.showPlayerList = function(){
-    document.getElementById('player-list-view').style.display = 'block';
-    document.getElementById('player-detail-view').style.display = 'none';
-    renderPlayerGrid();
+function showNewPlayerForm() {
+  CB_POSITION = 'Feldspieler';
+  CB_PHOTO = null;
+  document.getElementById('np-fn').value = '';
+  document.getElementById('np-ln').value = '';
+  document.getElementById('np-dob').value = '';
+  document.getElementById('np-club').value = '';
+  document.getElementById('pos-feld').style.background = '#1c1c1e';
+  document.getElementById('pos-feld').style.color = '#fff';
+  document.getElementById('pos-tor').style.background = '#fff';
+  document.getElementById('pos-tor').style.color = '#1c1c1e';
+  document.getElementById('new-player-modal').style.display = 'flex';
+}
+
+function hideNewPlayerForm() {
+  document.getElementById('new-player-modal').style.display = 'none';
+}
+
+function selectPosition(pos) {
+  CB_POSITION = pos;
+  document.getElementById('pos-feld').style.background = pos === 'Feldspieler' ? '#1c1c1e' : '#fff';
+  document.getElementById('pos-feld').style.color = pos === 'Feldspieler' ? '#fff' : '#1c1c1e';
+  document.getElementById('pos-tor').style.background = pos === 'Torwart' ? '#1c1c1e' : '#fff';
+  document.getElementById('pos-tor').style.color = pos === 'Torwart' ? '#fff' : '#1c1c1e';
+}
+
+function saveNewPlayer() {
+  var fn = document.getElementById('np-fn').value.trim();
+  var ln = document.getElementById('np-ln').value.trim();
+  if (!fn || !ln) { alert('Bitte Vor- und Nachname eingeben'); return; }
+  var p = {
+    id: Date.now().toString(),
+    fn: fn, ln: ln,
+    dob: document.getElementById('np-dob').value,
+    pos: CB_POSITION,
+    club: document.getElementById('np-club').value.trim(),
+    photo: CB_PHOTO,
+    diag: [],
+    notes: ''
   };
+  CB_PLAYERS.push(p);
+  cbSave();
+  hideNewPlayerForm();
+  showPlayerList();
+}
 
-  function renderPlayerGrid(){
-    var grid = document.getElementById('player-grid');
-    var empty = document.getElementById('player-empty');
-    if(players.length === 0){
-      grid.style.display = 'none';
-      empty.style.display = 'block';
-      return;
+function openPlayer(id) {
+  CB_CURRENT = id;
+  var p = CB_PLAYERS.find(function(x) { return x.id === id; });
+  if (!p) return;
+  document.getElementById('player-list-view').style.display = 'none';
+  document.getElementById('player-detail-view').style.display = 'block';
+  var age = cbAge(p.dob);
+  document.getElementById('detail-name').textContent = p.fn + ' ' + p.ln;
+  document.getElementById('detail-meta').textContent = p.pos + (age ? ' &middot; ' + age + ' Jahre' : '') + (p.club ? ' &middot; ' + p.club : '');
+  document.getElementById('notizen-text').value = p.notes || '';
+  playerTab('diagnostik');
+  renderDiag(p);
+}
+
+function deletePlayer() {
+  if (!confirm('Spieler loeschen?')) return;
+  CB_PLAYERS = CB_PLAYERS.filter(function(p) { return p.id !== CB_CURRENT; });
+  cbSave();
+  showPlayerList();
+}
+
+function playerTab(tab) {
+  ['diagnostik','prehab','verletzungen','plaene','notizen'].forEach(function(t) {
+    var el = document.getElementById('player-tab-' + t);
+    var btn = document.getElementById('ptab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+    if (btn) {
+      btn.style.background = t === tab ? '#fff' : 'transparent';
+      btn.style.color = t === tab ? '#1c1c1e' : '#8e8e93';
+      btn.style.boxShadow = t === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
     }
-    empty.style.display = 'none';
-    grid.style.display = 'grid';
-    var html2 = '';
-    players.forEach(function(p){
-      var age = calcAge(p.geburtsdatum);
-      var initials = (p.vorname[0]||'') + (p.nachname[0]||'');
-      var photoHtml = p.photo
-        ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-        : '<span style="font-size:22px;">' + initials + '</span>';
-      html2 += '<div id="pc-' + p.id + '" style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;cursor:pointer;transition:transform 0.15s;">';
-      html2 += '<div style="width:52px;height:52px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden;">' + photoHtml + '</div>';
-      html2 += '<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">' + p.vorname + ' ' + p.nachname + '</p>';
-      html2 += '<p style="font-size:12px;color:#8e8e93;">' + p.position + ' &middot; ' + (age ? age + ' J.' : '') + '</p>';
-      html2 += '<p style="font-size:12px;color:#8e8e93;margin-top:2px;">' + p.verein + '</p>';
-      html2 += '</div>';
-    });
-    grid.innerHTML = html2;
-    players.forEach(function(p){
-      var el = document.getElementById('pc-' + p.id);
-      if(el) el.addEventListener('click', function(){ openPlayer(p.id); });
-      if(el) el.addEventListener('mouseover', function(){ el.style.transform = 'translateY(-2px)'; });
-      if(el) el.addEventListener('mouseout', function(){ el.style.transform = 'none'; });
-    });
+  });
+}
+
+function saveNotizen() {
+  var p = CB_PLAYERS.find(function(x) { return x.id === CB_CURRENT; });
+  if (p) { p.notes = document.getElementById('notizen-text').value; cbSave(); }
+}
+
+function showDiagnostikForm() {
+  var modal = '<div id="dmodal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;">';
+  modal += '<div style="background:#fff;border-radius:20px;padding:28px;width:460px;max-width:90vw;max-height:85vh;overflow-y:auto;">';
+  modal += '<h3 style="font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:16px;">Diagnostik eintragen</h3>';
+  modal += '<input type="date" id="dd" value="' + new Date().toISOString().slice(0,10) + '" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit;">';
+  modal += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  var tests = [['d10','10m Sprint','s'],['d30','30m Sprint','s'],['dcr','505 rechts','s'],['dcl','505 links','s'],['dmr','MB Wurf rechts','m'],['dml','MB Wurf links','m'],['dsw','Standweitsprung','m'],['dift','IFT vIFT','km/h']];
+  tests.forEach(function(t) {
+    modal += '<div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">' + t[1].toUpperCase() + ' (' + t[2] + ')</label>';
+    modal += '<input id="' + t[0] + '" type="number" step="0.01" style="width:100%;padding:8px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;box-sizing:border-box;font-family:inherit;"></div>';
+  });
+  modal += '</div>';
+  modal += '<div style="display:flex;gap:10px;margin-top:20px;">';
+  modal += '<button onclick="document.getElementById('dmodal').remove()" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>';
+  modal += '<button onclick="saveDiag()" style="flex:2;padding:12px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Speichern</button>';
+  modal += '</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend', modal);
+}
+
+function saveDiag() {
+  var p = CB_PLAYERS.find(function(x) { return x.id === CB_CURRENT; });
+  if (!p) return;
+  var entry = { datum: document.getElementById('dd').value };
+  [['d10','sprint10'],['d30','sprint30'],['dcr','cod_r'],['dcl','cod_l'],['dmr','mb_r'],['dml','mb_l'],['dsw','standweit'],['dift','ift']].forEach(function(kv) {
+    var el = document.getElementById(kv[0]);
+    if (el && el.value) entry[kv[1]] = parseFloat(el.value);
+  });
+  if (!p.diag) p.diag = [];
+  p.diag.unshift(entry);
+  cbSave();
+  document.getElementById('dmodal').remove();
+  renderDiag(p);
+}
+
+function renderDiag(p) {
+  var list = document.getElementById('diagnostik-list');
+  if (!p.diag || p.diag.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Diagnostikwerte</div>';
+    return;
   }
-
-  window.showNewPlayerForm = function(){
-    selectedPosition = 'Feldspieler';
-    photoData = null;
-    document.getElementById('np-vorname').value = '';
-    document.getElementById('np-nachname').value = '';
-    document.getElementById('np-geburtsdatum').value = '';
-    document.getElementById('np-verein').value = '';
-    document.getElementById('photo-preview').innerHTML = '&#128100;';
-    document.getElementById('pos-feld').style.background = '#1c1c1e';
-    document.getElementById('pos-feld').style.color = '#fff';
-    document.getElementById('pos-tor').style.background = '#fff';
-    document.getElementById('pos-tor').style.color = '#1c1c1e';
-    var modal = document.getElementById('new-player-modal');
-    modal.style.display = 'flex';
-  };
-
-  window.hideNewPlayerForm = function(){
-    document.getElementById('new-player-modal').style.display = 'none';
-  };
-
-  window.selectPosition = function(pos){
-    selectedPosition = pos;
-    document.getElementById('pos-feld').style.background = pos==='Feldspieler'?'#1c1c1e':'#fff';
-    document.getElementById('pos-feld').style.color = pos==='Feldspieler'?'#fff':'#1c1c1e';
-    document.getElementById('pos-tor').style.background = pos==='Torwart'?'#1c1c1e':'#fff';
-    document.getElementById('pos-tor').style.color = pos==='Torwart'?'#fff':'#1c1c1e';
-  };
-
-  window.previewPhoto = function(input){
-    if(!input.files[0]) return;
-    var reader = new FileReader();
-    reader.onload = function(e){
-      photoData = e.target.result;
-      document.getElementById('photo-preview').innerHTML = '<img src="'+photoData+'" style="width:80px;height:80px;object-fit:cover;border-radius:50%;">';
-    };
-    reader.readAsDataURL(input.files[0]);
-  };
-
-  window.saveNewPlayer = function(){
-    var vn = document.getElementById('np-vorname').value.trim();
-    var nn = document.getElementById('np-nachname').value.trim();
-    if(!vn || !nn){ alert('Bitte Vor- und Nachname eingeben'); return; }
-    var player = {
-      id: Date.now().toString(),
-      vorname: vn,
-      nachname: nn,
-      geburtsdatum: document.getElementById('np-geburtsdatum').value,
-      position: selectedPosition,
-      verein: document.getElementById('np-verein').value.trim(),
-      photo: photoData,
-      diagnostik: [],
-      prehab: [],
-      verletzungen: [],
-      notizen: ''
-    };
-    players.push(player);
-    savePlayers();
-    hideNewPlayerForm();
-    renderPlayerGrid();
-  };
-
-  window.openPlayer = function(id){
-    currentPlayerId = id;
-    var p = players.find(function(x){ return x.id===id; });
-    if(!p) return;
-    document.getElementById('player-list-view').style.display = 'none';
-    document.getElementById('player-detail-view').style.display = 'block';
-    var age = calcAge(p.geburtsdatum);
-    document.getElementById('detail-name').textContent = p.vorname + ' ' + p.nachname;
-    document.getElementById('detail-meta').textContent = p.position + (age?' &middot; '+age+' Jahre':'') + (p.verein?' &middot; '+p.verein:'');
-    if(p.photo){
-      document.getElementById('detail-photo').innerHTML = '<img src="'+p.photo+'" style="width:72px;height:72px;object-fit:cover;border-radius:50%;">';
-    } else {
-      document.getElementById('detail-photo').innerHTML = '&#128100;';
-    }
-    document.getElementById('notizen-text').value = p.notizen || '';
-    playerTab('diagnostik');
-    renderDiagnostik(p);
-  };
-
-  window.deletePlayer = function(){
-    if(!confirm('Spieler wirklich loeschen?')) return;
-    players = players.filter(function(p){ return p.id !== currentPlayerId; });
-    savePlayers();
-    showPlayerList();
-  };
-
-  window.playerTab = function(tab){
-    ['diagnostik','prehab','verletzungen','plaene','notizen'].forEach(function(t){
-      var el = document.getElementById('player-tab-'+t);
-      var btn = document.getElementById('ptab-'+t);
-      if(el) el.style.display = t===tab?'block':'none';
-      if(btn){
-        btn.style.background = t===tab?'#fff':'transparent';
-        btn.style.color = t===tab?'#1c1c1e':'#8e8e93';
-        btn.style.boxShadow = t===tab?'0 1px 3px rgba(0,0,0,0.1)':'none';
+  var labels = {sprint10:'10m',sprint30:'30m',cod_r:'505R',cod_l:'505L',mb_r:'MB R',mb_l:'MB L',standweit:'Weit',ift:'IFT'};
+  var units = {sprint10:'s',sprint30:'s',cod_r:'s',cod_l:'s',mb_r:'m',mb_l:'m',standweit:'m',ift:'km/h'};
+  var html = '';
+  p.diag.forEach(function(d) {
+    html += '<div style="background:#fff;border:0.5px solid #e5e5ea;border-radius:14px;padding:16px;margin-bottom:12px;">';
+    html += '<p style="font-size:12px;color:#8e8e93;margin-bottom:12px;">' + new Date(d.datum).toLocaleDateString('de-DE') + '</p>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+    Object.keys(labels).forEach(function(k) {
+      if (d[k] !== undefined) {
+        html += '<div style="background:#f2f2f7;border-radius:8px;padding:8px 10px;text-align:center;min-width:60px;">';
+        html += '<div style="font-size:10px;color:#8e8e93;">' + labels[k] + '</div>';
+        html += '<div style="font-size:15px;font-weight:700;color:#1c1c1e;">' + d[k] + '</div>';
+        html += '<div style="font-size:10px;color:#8e8e93;">' + units[k] + '</div>';
+        html += '</div>';
       }
     });
-  };
-
-  window.saveNotizen = function(){
-    var p = players.find(function(x){ return x.id===currentPlayerId; });
-    if(!p) return;
-    p.notizen = document.getElementById('notizen-text').value;
-    savePlayers();
-  };
-
-  // Diagnostik
-  window.showDiagnostikForm = function(){
-    var tests = [
-      {key:'sprint10',label:'10m Sprint',unit:'s',placeholder:'1.85'},
-      {key:'sprint30',label:'30m Sprint',unit:'s',placeholder:'4.20'},
-      {key:'cod_r',label:'505 rechts',unit:'s',placeholder:'2.35'},
-      {key:'cod_l',label:'505 links',unit:'s',placeholder:'2.40'},
-      {key:'mb_r',label:'Medizinball rechts',unit:'m',placeholder:'8.50'},
-      {key:'mb_l',label:'Medizinball links',unit:'m',placeholder:'8.20'},
-      {key:'standweit',label:'Standweitsprung',unit:'m',placeholder:'2.15'},
-      {key:'ift',label:'IFT (30-15)',unit:'km/h',placeholder:'19.5'}
-    ];
-    var html2 = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;" id="diag-modal">'
-      +'<div style="background:#fff;border-radius:20px;padding:28px;width:460px;max-width:90vw;max-height:85vh;overflow-y:auto;">'
-      +'<h3 style="font-size:18px;font-weight:700;margin-bottom:6px;">Diagnostik eintragen</h3>'
-      +'<input type="date" id="diag-datum" value="'+new Date().toISOString().split('T')[0]+'" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:18px;">'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
-    tests.forEach(function(t){
-      html2 += '<div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">'+t.label.toUpperCase()+' ('+t.unit+')</label>'
-        +'<input id="diag-'+t.key+'" type="number" step="0.01" placeholder="'+t.placeholder+'" style="width:100%;padding:8px 10px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;"></div>';
-    });
-    html2 += '</div>'
-      +'<div style="display:flex;gap:10px;margin-top:20px;">'
-      +'<button onclick="document.getElementById('diag-modal').remove()" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>'
-      +'<button onclick="saveDiagnostik()" style="flex:2;padding:12px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Speichern</button>'
-      +'</div></div></div>';
-    document.body.insertAdjacentHTML('beforeend', html2);
-  };
-
-  window.saveDiagnostik = function(){
-    var p = players.find(function(x){ return x.id===currentPlayerId; });
-    if(!p) return;
-    var entry = { datum: document.getElementById('diag-datum').value };
-    ['sprint10','sprint30','cod_r','cod_l','mb_r','mb_l','standweit','ift'].forEach(function(k){
-      var val = document.getElementById('diag-'+k);
-      if(val && val.value) entry[k] = parseFloat(val.value);
-    });
-    if(!p.diagnostik) p.diagnostik = [];
-    p.diagnostik.unshift(entry);
-    savePlayers();
-    document.getElementById('diag-modal').remove();
-    renderDiagnostik(p);
-  };
-
-  function renderDiagnostik(p){
-    var list = document.getElementById('diagnostik-list');
-    if(!p.diagnostik || p.diagnostik.length===0){
-      list.innerHTML = '<div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Diagnostikwerte</div>';
-      return;
-    }
-    var labels = {sprint10:'10m Sprint',sprint30:'30m Sprint',cod_r:'505 rechts',cod_l:'505 links',mb_r:'MB rechts',mb_l:'MB links',standweit:'Standweit',ift:'IFT'};
-    var units = {sprint10:'s',sprint30:'s',cod_r:'s',cod_l:'s',mb_r:'m',mb_l:'m',standweit:'m',ift:'km/h'};
-    list.innerHTML = p.diagnostik.map(function(d){
-      var vals = Object.keys(labels).filter(function(k){ return d[k]!==undefined; })
-        .map(function(k){ return '<span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;background:#f2f2f7;border-radius:8px;padding:8px 12px;min-width:70px;">'
-          +'<span style="font-size:10px;color:#8e8e93;font-weight:500;">'+labels[k]+'</span>'
-          +'<span style="font-size:15px;font-weight:700;color:#1c1c1e;">'+d[k]+'</span>'
-          +'<span style="font-size:10px;color:#8e8e93;">'+units[k]+'</span></span>'; }).join('');
-      return '<div style="background:#fff;border:0.5px solid #e5e5ea;border-radius:14px;padding:16px;">'
-        +'<p style="font-size:12px;color:#8e8e93;margin-bottom:12px;font-weight:500;">'+new Date(d.datum).toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'})+'</p>'
-        +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'+vals+'</div></div>';
-    }).join('');
-  }
-
-  // Init
-  window.initProfileScreen = function(){
-    if(!localStorage.getItem('cb_players')){
-      var demo=[
-        {id:"1",vorname:"Maximilian",nachname:"Weber",geburtsdatum:"2007-03-15",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Starker Antritt, Ausdauer ausbaufaehig.",diagnostik:[{datum:"2025-10-12",sprint10:1.72,sprint30:4.05,cod_r:2.28,cod_l:2.35,mb_r:9.2,mb_l:8.7,standweit:2.34,ift:20.5},{datum:"2025-03-08",sprint10:1.78,sprint30:4.18,cod_r:2.35,cod_l:2.42,mb_r:8.8,mb_l:8.3,standweit:2.21,ift:19.0}],prehab:[],verletzungen:[]},
-        {id:"2",vorname:"Leon",nachname:"Hoffmann",geburtsdatum:"2006-07-22",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Sehr explosiv, COD links schwaecher.",diagnostik:[{datum:"2025-10-12",sprint10:1.68,sprint30:3.95,cod_r:2.22,cod_l:2.41,mb_r:9.8,mb_l:8.9,standweit:2.48,ift:21.0}],prehab:[],verletzungen:[]},
-        {id:"3",vorname:"Felix",nachname:"Mueller",geburtsdatum:"2007-01-09",position:"Torwart",verein:"DHB MU16",photo:null,notizen:"Gute Reaktion, Explosivkraft weiter entwickeln.",diagnostik:[{datum:"2025-10-12",sprint10:1.85,sprint30:4.35,cod_r:2.45,cod_l:2.48,mb_r:8.1,mb_l:7.9,standweit:2.05,ift:17.5}],prehab:[],verletzungen:[]},
-        {id:"4",vorname:"Noah",nachname:"Becker",geburtsdatum:"2006-11-30",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Top IFT, Sprint noch Potenzial.",diagnostik:[{datum:"2025-10-12",sprint10:1.75,sprint30:4.12,cod_r:2.31,cod_l:2.33,mb_r:9.0,mb_l:8.8,standweit:2.28,ift:21.5}],prehab:[],verletzungen:[]},
-        {id:"5",vorname:"Elias",nachname:"Schmidt",geburtsdatum:"2007-05-14",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.80,sprint30:4.22,cod_r:2.38,cod_l:2.36,mb_r:8.5,mb_l:8.6,standweit:2.18,ift:19.5}],prehab:[],verletzungen:[]},
-        {id:"6",vorname:"Paul",nachname:"Fischer",geburtsdatum:"2006-09-03",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Sehr ausgeglichen. Kapitaen-Kandidat.",diagnostik:[{datum:"2025-10-12",sprint10:1.74,sprint30:4.08,cod_r:2.29,cod_l:2.28,mb_r:9.4,mb_l:9.1,standweit:2.40,ift:20.0}],prehab:[],verletzungen:[]},
-        {id:"7",vorname:"Jonas",nachname:"Wagner",geburtsdatum:"2007-08-19",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Nach Sprunggelenk-OP Maerz 2025. Aufbau laeuft gut.",diagnostik:[{datum:"2025-10-12",sprint10:1.83,sprint30:4.28,cod_r:2.40,cod_l:2.52,mb_r:8.3,mb_l:7.8,standweit:2.12,ift:18.5}],prehab:[],verletzungen:[]},
-        {id:"8",vorname:"Tim",nachname:"Richter",geburtsdatum:"2006-04-27",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.71,sprint30:3.98,cod_r:2.25,cod_l:2.27,mb_r:9.5,mb_l:9.3,standweit:2.45,ift:20.5}],prehab:[],verletzungen:[]},
-        {id:"9",vorname:"Lukas",nachname:"Braun",geburtsdatum:"2007-12-05",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.79,sprint30:4.19,cod_r:2.37,cod_l:2.35,mb_r:8.7,mb_l:8.5,standweit:2.22,ift:19.0}],prehab:[],verletzungen:[]},
-        {id:"10",vorname:"David",nachname:"Krause",geburtsdatum:"2006-06-11",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Staerke: MB-Wurf. Ausdauer Baustelle.",diagnostik:[{datum:"2025-10-12",sprint10:1.76,sprint30:4.14,cod_r:2.32,cod_l:2.30,mb_r:10.2,mb_l:9.8,standweit:2.35,ift:18.0}],prehab:[],verletzungen:[]},
-        {id:"11",vorname:"Finn",nachname:"Wolf",geburtsdatum:"2007-02-28",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.77,sprint30:4.16,cod_r:2.34,cod_l:2.36,mb_r:8.9,mb_l:8.7,standweit:2.25,ift:19.5}],prehab:[],verletzungen:[]},
-        {id:"12",vorname:"Moritz",nachname:"Neumann",geburtsdatum:"2006-10-17",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Sehr guter COD. Schnellster im Team links.",diagnostik:[{datum:"2025-10-12",sprint10:1.73,sprint30:4.06,cod_r:2.26,cod_l:2.20,mb_r:9.1,mb_l:9.0,standweit:2.38,ift:20.0}],prehab:[],verletzungen:[]},
-        {id:"13",vorname:"Ben",nachname:"Schwarz",geburtsdatum:"2007-06-23",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.82,sprint30:4.26,cod_r:2.42,cod_l:2.40,mb_r:8.4,mb_l:8.2,standweit:2.14,ift:18.5}],prehab:[],verletzungen:[]},
-        {id:"14",vorname:"Philipp",nachname:"Hartmann",geburtsdatum:"2006-08-04",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.74,sprint30:4.09,cod_r:2.30,cod_l:2.31,mb_r:9.3,mb_l:9.2,standweit:2.36,ift:20.5}],prehab:[],verletzungen:[]},
-        {id:"15",vorname:"Jan",nachname:"Zimmermann",geburtsdatum:"2007-04-01",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Technik top. Athletik noch entwickeln.",diagnostik:[{datum:"2025-10-12",sprint10:1.84,sprint30:4.30,cod_r:2.44,cod_l:2.43,mb_r:8.0,mb_l:7.9,standweit:2.08,ift:18.0}],prehab:[],verletzungen:[]},
-        {id:"16",vorname:"Nico",nachname:"Schaefer",geburtsdatum:"2006-12-14",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.70,sprint30:3.93,cod_r:2.21,cod_l:2.23,mb_r:9.6,mb_l:9.4,standweit:2.50,ift:21.5}],prehab:[],verletzungen:[]},
-        {id:"17",vorname:"Marco",nachname:"Koenig",geburtsdatum:"2007-09-30",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.78,sprint30:4.17,cod_r:2.36,cod_l:2.38,mb_r:8.8,mb_l:8.6,standweit:2.20,ift:19.0}],prehab:[],verletzungen:[]},
-        {id:"18",vorname:"Simon",nachname:"Lang",geburtsdatum:"2006-05-07",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"",diagnostik:[{datum:"2025-10-12",sprint10:1.76,sprint30:4.13,cod_r:2.33,cod_l:2.32,mb_r:9.0,mb_l:8.8,standweit:2.30,ift:20.0}],prehab:[],verletzungen:[]},
-        {id:"19",vorname:"Tobias",nachname:"Sommer",geburtsdatum:"2007-07-16",position:"Torwart",verein:"DHB MU16",photo:null,notizen:"Zweiter Torwart. Gut entwickelt diese Saison.",diagnostik:[{datum:"2025-10-12",sprint10:1.87,sprint30:4.38,cod_r:2.47,cod_l:2.49,mb_r:7.9,mb_l:7.7,standweit:2.02,ift:17.0}],prehab:[],verletzungen:[]},
-        {id:"20",vorname:"Kevin",nachname:"Peters",geburtsdatum:"2006-03-20",position:"Feldspieler",verein:"DHB MU16",photo:null,notizen:"Verletzungsanfaellig. Prehab prioritaer.",diagnostik:[{datum:"2025-10-12",sprint10:1.81,sprint30:4.24,cod_r:2.39,cod_l:2.37,mb_r:8.6,mb_l:8.4,standweit:2.16,ift:19.0}],prehab:[],verletzungen:[]}
-      ];
-      localStorage.setItem('cb_players', JSON.stringify(demo));
-      players = demo;
-    }
-    showPlayerList();
-  };
-
-  // initProfileScreen wird direkt in goTo aufgerufen
-
-})();
+    html += '</div></div>';
+  });
+  list.innerHTML = html;
+}
 </script>
 </body>
 </html>
