@@ -552,13 +552,158 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 <!-- PROFILE SCREEN -->
 <div id="profile-screen" style="display:none;">
-  <div style="max-width:960px;margin:0 auto;padding:24px 32px 0;">
-    <button onclick="goHome()" style="background:none;border:none;font-size:14px;color:#007aff;cursor:pointer;font-family:inherit;font-weight:500;padding:0;">← Zurück</button>
+
+  <!-- Topbar -->
+  <div style="max-width:960px;margin:0 auto;padding:20px 32px 0;display:flex;align-items:center;justify-content:space-between;">
+    <button onclick="goHome()" style="display:flex;align-items:center;gap:6px;background:none;border:0.5px solid #e5e5ea;border-radius:20px;font-size:13px;color:#1c1c1e;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurück</button>
+    <div style="width:80px;"></div>
   </div>
-  <div style="max-width:960px;margin:0 auto;padding:80px 32px;text-align:center;">
-    <h2 style="font-size:24px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">Spielerprofile</h2>
-    <p style="font-size:14px;color:#8e8e93;">Athleten verwalten und Diagnostik – kommt bald.</p>
+
+  <!-- Spielerliste oder Detailansicht -->
+  <div id="profile-list-view" style="max-width:960px;margin:0 auto;padding:24px 32px;">
+    
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+      <div>
+        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#8e8e93;margin-bottom:6px;">Kader</p>
+        <h2 style="font-size:28px;font-weight:700;letter-spacing:-0.5px;color:#1c1c1e;">Spielerprofile</h2>
+      </div>
+      <button onclick="showNewPlayerForm()" style="display:flex;align-items:center;gap:8px;background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+        + Neuer Spieler
+      </button>
+    </div>
+
+    <!-- Spielerkarten Grid -->
+    <div id="player-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
+      <!-- wird per JS gefüllt -->
+    </div>
+
+    <!-- Leer-State -->
+    <div id="player-empty" style="text-align:center;padding:80px 0;">
+      <div style="font-size:48px;margin-bottom:16px;">👥</div>
+      <p style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">Noch keine Spieler</p>
+      <p style="font-size:14px;color:#8e8e93;margin-bottom:24px;">Füge deinen ersten Athleten hinzu</p>
+      <button onclick="showNewPlayerForm()" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">+ Ersten Spieler hinzufügen</button>
+    </div>
+
   </div>
+
+  <!-- Neuer Spieler Formular (Modal) -->
+  <div id="new-player-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:100;display:none;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:20px;padding:32px;width:480px;max-width:90vw;max-height:90vh;overflow-y:auto;position:relative;">
+      <button onclick="hideNewPlayerForm()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#8e8e93;">&#215;</button>
+      <h3 style="font-size:20px;font-weight:700;color:#1c1c1e;margin-bottom:24px;">Neuer Spieler</h3>
+      
+      <!-- Foto -->
+      <div style="text-align:center;margin-bottom:24px;">
+        <div id="photo-preview" onclick="document.getElementById('photo-input').click()" style="width:80px;height:80px;border-radius:50%;background:#f2f2f7;border:2px dashed #c7c7cc;display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 8px;font-size:28px;">👤</div>
+        <p style="font-size:12px;color:#8e8e93;">Foto optional</p>
+        <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="previewPhoto(this)">
+      </div>
+
+      <!-- Formular Felder -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">VORNAME</label>
+          <input id="np-vorname" type="text" placeholder="Max" style="width:100%;padding:10px 14px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">NACHNAME</label>
+          <input id="np-nachname" type="text" placeholder="Müller" style="width:100%;padding:10px 14px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">GEBURTSDATUM</label>
+          <input id="np-geburtsdatum" type="date" style="width:100%;padding:10px 14px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">POSITION</label>
+          <div style="display:flex;gap:10px;">
+            <button id="pos-feld" onclick="selectPosition('Feldspieler')" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">⚽ Feldspieler</button>
+            <button id="pos-tor" onclick="selectPosition('Torwart')" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">🧤 Torwart</button>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">VEREIN</label>
+          <input id="np-verein" type="text" placeholder="DHB MU16" style="width:100%;padding:10px 14px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
+        </div>
+      </div>
+
+      <button onclick="saveNewPlayer()" style="width:100%;margin-top:24px;background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Spieler speichern</button>
+    </div>
+  </div>
+
+  <!-- Spieler Detail View -->
+  <div id="player-detail-view" style="display:none;max-width:960px;margin:0 auto;padding:24px 32px;">
+    
+    <!-- Zurück zur Liste -->
+    <button onclick="showPlayerList()" style="display:flex;align-items:center;gap:6px;background:none;border:none;font-size:13px;color:#8e8e93;cursor:pointer;font-family:inherit;padding:0;margin-bottom:24px;">&#8592; Alle Spieler</button>
+
+    <!-- Spieler Header -->
+    <div style="display:flex;align-items:center;gap:24px;margin-bottom:32px;padding:24px;background:#f9f9f9;border-radius:20px;border:0.5px solid #e5e5ea;">
+      <div id="detail-photo" style="width:72px;height:72px;border-radius:50%;background:#e5e5ea;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">👤</div>
+      <div style="flex:1;">
+        <h2 id="detail-name" style="font-size:24px;font-weight:700;color:#1c1c1e;margin-bottom:4px;"></h2>
+        <p id="detail-meta" style="font-size:14px;color:#8e8e93;"></p>
+      </div>
+      <button onclick="deletePlayer()" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#ff3b30;cursor:pointer;font-family:inherit;">Löschen</button>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:4px;background:#f2f2f7;padding:4px;border-radius:12px;width:fit-content;margin-bottom:24px;">
+      <button onclick="playerTab('diagnostik')" id="ptab-diagnostik" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;box-shadow:0 1px 3px rgba(0,0,0,0.1);">📊 Diagnostik</button>
+      <button onclick="playerTab('prehab')" id="ptab-prehab" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">🔧 Prehab</button>
+      <button onclick="playerTab('verletzungen')" id="ptab-verletzungen" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">🩹 Verletzungen</button>
+      <button onclick="playerTab('plaene')" id="ptab-plaene" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">📋 Pläne</button>
+      <button onclick="playerTab('notizen')" id="ptab-notizen" style="padding:7px 16px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8e8e93;">📝 Notizen</button>
+    </div>
+
+    <!-- Tab Inhalte -->
+    <div id="player-tab-diagnostik">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Diagnostikwerte</h3>
+        <button onclick="showDiagnostikForm()" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Test</button>
+      </div>
+      <div id="diagnostik-list" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Diagnostikwerte</div>
+      </div>
+    </div>
+
+    <div id="player-tab-prehab" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Prehab & Beweglichkeit</h3>
+        <button onclick="showPrehabForm()" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Befund eintragen</button>
+      </div>
+      <div id="prehab-list" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Befunde</div>
+      </div>
+    </div>
+
+    <div id="player-tab-verletzungen" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Verletzungshistorie</h3>
+        <button onclick="showVerletzungForm()" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Verletzung eintragen</button>
+      </div>
+      <div id="verletzungen-list" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Keine Verletzungen eingetragen</div>
+      </div>
+    </div>
+
+    <div id="player-tab-plaene" style="display:none;">
+      <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:16px;">Trainingspläne</h3>
+      <div id="plaene-list" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Pläne erstellt</div>
+      </div>
+    </div>
+
+    <div id="player-tab-notizen" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Notizen</h3>
+      </div>
+      <textarea id="notizen-text" placeholder="Notizen zum Athleten..." style="width:100%;min-height:200px;padding:14px;border:0.5px solid #e5e5ea;border-radius:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;" oninput="saveNotizen()"></textarea>
+    </div>
+
+  </div>
+
 </div>
 
 <!-- APP SCREEN -->
@@ -1678,6 +1823,241 @@ async function uploadAll() {
     el.style.background=f==='all'?'#fff':CC[f];el.style.color=f==='all'?'#1c1c1e':'#fff';el.style.borderColor='transparent';
     nodes.forEach(function(n){n.vis=f==='all'||n.cluster===f;});
   };
+})();
+</script>
+
+<script>
+(function(){
+  // Spieler werden lokal gespeichert (localStorage als Zwischenlösung)
+  // Später: Supabase sync
+  
+  var players = JSON.parse(localStorage.getItem('cb_players') || '[]');
+  var currentPlayerId = null;
+  var selectedPosition = 'Feldspieler';
+  var photoData = null;
+
+  function savePlayers(){ localStorage.setItem('cb_players', JSON.stringify(players)); }
+
+  function calcAge(dob){
+    if(!dob) return '';
+    var diff = Date.now() - new Date(dob).getTime();
+    return Math.floor(diff / (1000*60*60*24*365.25));
+  }
+
+  window.showPlayerList = function(){
+    document.getElementById('player-list-view').style.display = 'block';
+    document.getElementById('player-detail-view').style.display = 'none';
+    renderPlayerGrid();
+  };
+
+  function renderPlayerGrid(){
+    var grid = document.getElementById('player-grid');
+    var empty = document.getElementById('player-empty');
+    if(players.length === 0){
+      grid.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    grid.style.display = 'grid';
+    grid.innerHTML = players.map(function(p){
+      var age = calcAge(p.geburtsdatum);
+      var initials = (p.vorname[0]||'') + (p.nachname[0]||'');
+      var photoHtml = p.photo 
+        ? '<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+        : '<span style="font-size:22px;">'+initials+'</span>';
+      return '<div onclick="openPlayer(''+p.id+'')" style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">'
+        +'<div style="width:52px;height:52px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden;">'+photoHtml+'</div>'
+        +'<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">'+p.vorname+' '+p.nachname+'</p>'
+        +'<p style="font-size:12px;color:#8e8e93;">'+p.position+' &middot; '+(age?age+' J.':'')+'</p>'
+        +'<p style="font-size:12px;color:#8e8e93;margin-top:2px;">'+p.verein+'</p>'
+        +'</div>';
+    }).join('');
+  }
+
+  window.showNewPlayerForm = function(){
+    selectedPosition = 'Feldspieler';
+    photoData = null;
+    document.getElementById('np-vorname').value = '';
+    document.getElementById('np-nachname').value = '';
+    document.getElementById('np-geburtsdatum').value = '';
+    document.getElementById('np-verein').value = '';
+    document.getElementById('photo-preview').innerHTML = '👤';
+    document.getElementById('pos-feld').style.background = '#1c1c1e';
+    document.getElementById('pos-feld').style.color = '#fff';
+    document.getElementById('pos-tor').style.background = '#fff';
+    document.getElementById('pos-tor').style.color = '#1c1c1e';
+    var modal = document.getElementById('new-player-modal');
+    modal.style.display = 'flex';
+  };
+
+  window.hideNewPlayerForm = function(){
+    document.getElementById('new-player-modal').style.display = 'none';
+  };
+
+  window.selectPosition = function(pos){
+    selectedPosition = pos;
+    document.getElementById('pos-feld').style.background = pos==='Feldspieler'?'#1c1c1e':'#fff';
+    document.getElementById('pos-feld').style.color = pos==='Feldspieler'?'#fff':'#1c1c1e';
+    document.getElementById('pos-tor').style.background = pos==='Torwart'?'#1c1c1e':'#fff';
+    document.getElementById('pos-tor').style.color = pos==='Torwart'?'#fff':'#1c1c1e';
+  };
+
+  window.previewPhoto = function(input){
+    if(!input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      photoData = e.target.result;
+      document.getElementById('photo-preview').innerHTML = '<img src="'+photoData+'" style="width:80px;height:80px;object-fit:cover;border-radius:50%;">';
+    };
+    reader.readAsDataURL(input.files[0]);
+  };
+
+  window.saveNewPlayer = function(){
+    var vn = document.getElementById('np-vorname').value.trim();
+    var nn = document.getElementById('np-nachname').value.trim();
+    if(!vn || !nn){ alert('Bitte Vor- und Nachname eingeben'); return; }
+    var player = {
+      id: Date.now().toString(),
+      vorname: vn,
+      nachname: nn,
+      geburtsdatum: document.getElementById('np-geburtsdatum').value,
+      position: selectedPosition,
+      verein: document.getElementById('np-verein').value.trim(),
+      photo: photoData,
+      diagnostik: [],
+      prehab: [],
+      verletzungen: [],
+      notizen: ''
+    };
+    players.push(player);
+    savePlayers();
+    hideNewPlayerForm();
+    renderPlayerGrid();
+  };
+
+  window.openPlayer = function(id){
+    currentPlayerId = id;
+    var p = players.find(function(x){ return x.id===id; });
+    if(!p) return;
+    document.getElementById('player-list-view').style.display = 'none';
+    document.getElementById('player-detail-view').style.display = 'block';
+    var age = calcAge(p.geburtsdatum);
+    document.getElementById('detail-name').textContent = p.vorname + ' ' + p.nachname;
+    document.getElementById('detail-meta').textContent = p.position + (age?' · '+age+' Jahre':'') + (p.verein?' · '+p.verein:'');
+    if(p.photo){
+      document.getElementById('detail-photo').innerHTML = '<img src="'+p.photo+'" style="width:72px;height:72px;object-fit:cover;border-radius:50%;">';
+    } else {
+      document.getElementById('detail-photo').innerHTML = '👤';
+    }
+    document.getElementById('notizen-text').value = p.notizen || '';
+    playerTab('diagnostik');
+    renderDiagnostik(p);
+  };
+
+  window.deletePlayer = function(){
+    if(!confirm('Spieler wirklich löschen?')) return;
+    players = players.filter(function(p){ return p.id !== currentPlayerId; });
+    savePlayers();
+    showPlayerList();
+  };
+
+  window.playerTab = function(tab){
+    ['diagnostik','prehab','verletzungen','plaene','notizen'].forEach(function(t){
+      var el = document.getElementById('player-tab-'+t);
+      var btn = document.getElementById('ptab-'+t);
+      if(el) el.style.display = t===tab?'block':'none';
+      if(btn){
+        btn.style.background = t===tab?'#fff':'transparent';
+        btn.style.color = t===tab?'#1c1c1e':'#8e8e93';
+        btn.style.boxShadow = t===tab?'0 1px 3px rgba(0,0,0,0.1)':'none';
+      }
+    });
+  };
+
+  window.saveNotizen = function(){
+    var p = players.find(function(x){ return x.id===currentPlayerId; });
+    if(!p) return;
+    p.notizen = document.getElementById('notizen-text').value;
+    savePlayers();
+  };
+
+  // Diagnostik
+  window.showDiagnostikForm = function(){
+    var tests = [
+      {key:'sprint10',label:'10m Sprint',unit:'s',placeholder:'1.85'},
+      {key:'sprint30',label:'30m Sprint',unit:'s',placeholder:'4.20'},
+      {key:'cod_r',label:'505 rechts',unit:'s',placeholder:'2.35'},
+      {key:'cod_l',label:'505 links',unit:'s',placeholder:'2.40'},
+      {key:'mb_r',label:'Medizinball rechts',unit:'m',placeholder:'8.50'},
+      {key:'mb_l',label:'Medizinball links',unit:'m',placeholder:'8.20'},
+      {key:'standweit',label:'Standweitsprung',unit:'m',placeholder:'2.15'},
+      {key:'ift',label:'IFT (30-15)',unit:'km/h',placeholder:'19.5'}
+    ];
+    var html2 = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;" id="diag-modal">'
+      +'<div style="background:#fff;border-radius:20px;padding:28px;width:460px;max-width:90vw;max-height:85vh;overflow-y:auto;">'
+      +'<h3 style="font-size:18px;font-weight:700;margin-bottom:6px;">Diagnostik eintragen</h3>'
+      +'<input type="date" id="diag-datum" value="'+new Date().toISOString().split('T')[0]+'" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:18px;">'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+    tests.forEach(function(t){
+      html2 += '<div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:4px;">'+t.label.toUpperCase()+' ('+t.unit+')</label>'
+        +'<input id="diag-'+t.key+'" type="number" step="0.01" placeholder="'+t.placeholder+'" style="width:100%;padding:8px 10px;border:0.5px solid #e5e5ea;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;"></div>';
+    });
+    html2 += '</div>'
+      +'<div style="display:flex;gap:10px;margin-top:20px;">'
+      +'<button onclick="document.getElementById('diag-modal').remove()" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>'
+      +'<button onclick="saveDiagnostik()" style="flex:2;padding:12px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Speichern</button>'
+      +'</div></div></div>';
+    document.body.insertAdjacentHTML('beforeend', html2);
+  };
+
+  window.saveDiagnostik = function(){
+    var p = players.find(function(x){ return x.id===currentPlayerId; });
+    if(!p) return;
+    var entry = { datum: document.getElementById('diag-datum').value };
+    ['sprint10','sprint30','cod_r','cod_l','mb_r','mb_l','standweit','ift'].forEach(function(k){
+      var val = document.getElementById('diag-'+k);
+      if(val && val.value) entry[k] = parseFloat(val.value);
+    });
+    if(!p.diagnostik) p.diagnostik = [];
+    p.diagnostik.unshift(entry);
+    savePlayers();
+    document.getElementById('diag-modal').remove();
+    renderDiagnostik(p);
+  };
+
+  function renderDiagnostik(p){
+    var list = document.getElementById('diagnostik-list');
+    if(!p.diagnostik || p.diagnostik.length===0){
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:#8e8e93;font-size:14px;">Noch keine Diagnostikwerte</div>';
+      return;
+    }
+    var labels = {sprint10:'10m Sprint',sprint30:'30m Sprint',cod_r:'505 rechts',cod_l:'505 links',mb_r:'MB rechts',mb_l:'MB links',standweit:'Standweit',ift:'IFT'};
+    var units = {sprint10:'s',sprint30:'s',cod_r:'s',cod_l:'s',mb_r:'m',mb_l:'m',standweit:'m',ift:'km/h'};
+    list.innerHTML = p.diagnostik.map(function(d){
+      var vals = Object.keys(labels).filter(function(k){ return d[k]!==undefined; })
+        .map(function(k){ return '<span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;background:#f2f2f7;border-radius:8px;padding:8px 12px;min-width:70px;">'
+          +'<span style="font-size:10px;color:#8e8e93;font-weight:500;">'+labels[k]+'</span>'
+          +'<span style="font-size:15px;font-weight:700;color:#1c1c1e;">'+d[k]+'</span>'
+          +'<span style="font-size:10px;color:#8e8e93;">'+units[k]+'</span></span>'; }).join('');
+      return '<div style="background:#fff;border:0.5px solid #e5e5ea;border-radius:14px;padding:16px;">'
+        +'<p style="font-size:12px;color:#8e8e93;margin-bottom:12px;font-weight:500;">'+new Date(d.datum).toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'})+'</p>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'+vals+'</div></div>';
+    }).join('');
+  }
+
+  // Init
+  window.initProfileScreen = function(){
+    showPlayerList();
+  };
+
+  // Auto-init wenn Profile Screen sichtbar
+  var origGoTo = window.goTo;
+  window.goTo = function(screen){
+    origGoTo(screen);
+    if(screen === 'profile') setTimeout(initProfileScreen, 50);
+  };
+
 })();
 </script>
 </body>
