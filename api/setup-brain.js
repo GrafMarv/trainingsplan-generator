@@ -111,7 +111,7 @@ export default async function handler(req, res) {
           'apikey': SUPABASE_KEY,
           'Authorization': `Bearer ${SUPABASE_KEY}`,
           'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
+          'Prefer': 'return=minimal,resolution=merge-duplicates'
         },
         body: JSON.stringify(batch)
       });
