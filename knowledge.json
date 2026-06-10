@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "source": "NSCA Essentials of Strength Training and Conditioning, 4th Ed. (Haff & Triplett, 2016) + Bompa & Haff 2009, Periodization (5th Ed.)",
   "chunks": [
     {
@@ -1714,7 +1714,67 @@
       ],
       "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
       "inhalt": "Die Planungshierarchie reicht vom einzelnen Workout ueber den Mikrozyklus (typisch rund eine Woche, kleinste funktionale Planungseinheit mit alternierender Belastung) und den Makrozyklus (mehrere Mikrozyklen mit gemeinsamem Ziel, abgeschlossen durch eine Entlastungswoche) bis zum Jahresplan und gegebenenfalls mehrjaehrigen Plaenen. Innerhalb des Mikrozyklus wird die Intensitaet bewusst variiert (harte und leichte Tage), damit Erholung und Adaptation moeglich bleiben. Die gleiche graduelle Lastlogik gilt auf allen Ebenen - vom Mikrozyklus bis zum Mehrjahresplan."
+    },
+    {
+      "id": "bompa_11_jahresplan_typen",
+      "titel": "Jahresplan-Typen: Mono-, Bi-, Trizyklus & Multi-Peak",
+      "tags": [
+        "periodisierung",
+        "jahresplan",
+        "monozyklus",
+        "bizyklus",
+        "multi-peak",
+        "saisonstruktur",
+        "planung"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Je nach Anzahl der Hauptwettkaempfe pro Jahr unterscheidet man Jahresplan-Typen: Monozyklus (eine Wettkampfphase, ein Peak - typisch fuer Sportarten mit einem Saisonhoehepunkt), Bizyklus (zwei Hauptwettkaempfe und Peaks), Trizyklus (drei) und Multi-Peak-Plaene. Der Monozyklus gliedert sich in Vorbereitung, Wettkampf und Uebergang. Bei Spielsportarten mit dichter Spielfolge (z.B. Fussball, Feldhockey) kann die allgemeine Vorbereitung sehr kurz ausfallen oder ganz entfallen. Praxis Feldhockey: eine geteilte Saison (Hin-/Rueckrunde oder Feld + Halle) entspricht eher einem Bi- oder Multi-Peak-Plan - es werden mehrere Form-Hoehepunkte geplant statt nur einer."
+    },
+    {
+      "id": "bompa_12_summierte_mikrozyklen",
+      "titel": "Summierte Mikrozyklen: zyklische Reizwiederholung",
+      "tags": [
+        "periodisierung",
+        "mikrozyklus",
+        "step-loading",
+        "reizsetzung",
+        "belastungssteuerung",
+        "kontrast"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Der summierte Mikrozyklus ist eine Variante des Step Loading (meist 3:1): Statt nur die Last zu steigern, bekommt jeder Belastungsmikrozyklus einen anderen Reizschwerpunkt, der zyklisch wiederkehrt (Beispiel: Woche 1 Kraftausdauer, Woche 2 Maximalkraft, Woche 3 Schnellkraft, Woche 4 Regeneration). Der hohe Kontrast zwischen den Mikrozyklen senkt das Risiko von Uebertraining und Involution, und die regelmaessige Wiedereinfuehrung jedes Reizes fuehrt langfristig zu konvergierenden, sich summierenden Trainingseffekten. Eher fuer fortgeschrittene Athleten geeignet."
+    },
+    {
+      "id": "bompa_13_konzentrierte_belastung_overreaching",
+      "titel": "Konzentrierte Belastung & geplantes Overreaching",
+      "tags": [
+        "periodisierung",
+        "overreaching",
+        "konzentrierte-belastung",
+        "block",
+        "verzoegerte-transformation",
+        "recovery",
+        "jugend"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Konzentrierte Belastung (geplantes Overreaching) ist eine kurzfristige Ueberlastung ueber wenige Wochen, von der sich der Athlet bei passender anschliessender Entlastung erholt. Besonderheit: Die Leistungssteigerung tritt verzoegert auf - oft erst 4-12 Wochen nach Ende des konzentrierten Blocks (verzoegerte Transformation). Je groesser und laenger der Block, desto mehr Erholungszeit ist noetig. Das Verhaeltnis Testosteron zu Cortisol (T:C-Ratio) dient als Indikator der anabol-katabolen Balance. Wichtig: Ohne ausreichende anschliessende Erholung kippt geplantes Overreaching in echtes Uebertraining - bei Jugendlichen daher nur mit Vorsicht und konservativ einsetzen."
+    },
+    {
+      "id": "bompa_14_mikrozyklus_konstruktion",
+      "titel": "Mikrozyklus-Konstruktion: Reizsequenz & Wochenfrequenzen",
+      "tags": [
+        "mikrozyklus",
+        "planung",
+        "reizsequenz",
+        "frequenz",
+        "ermuedung",
+        "technik",
+        "belastungssteuerung",
+        "wochenplan"
+      ],
+      "quelle": "Bompa & Haff 2009, Periodization (5th Ed.)",
+      "inhalt": "Beim Aufbau eines Mikrozyklus ist die Reizsequenz entscheidend: Ermuedung aus einer Einheit beeintraechtigt die folgende. Eine intensive oder Ausdauereinheit unmittelbar vor einer Technikeinheit verschlechtert die Lernqualitaet - technik- und koordinationslastige Inhalte gehoeren in den ausgeruhten Zustand. Orientierungswerte fuer die Wochenfrequenz: Maximallasten max. 2x/Woche; Plyometrie, Schnelligkeit und Agilitaet 2-3x/Woche; Erhalt von Kraft, Beweglichkeit und Schnelligkeit 1-2x/Woche; submaximale spezifische Ausdauer ca. 3x/Woche, hochintensive spezifische Ausdauer in der Wettkampfphase 2x/Woche. Maximale Belastungstage mit Tagen niedriger Intensitaet und aktiver Erholung abwechseln; aktive Erholung gehoert an den Tag nach dem Wettkampf."
     }
   ],
-  "totalChunks": 109
+  "totalChunks": 113
 }
