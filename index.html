@@ -551,6 +551,13 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
     <p style="text-align:center;font-size:11px;color:#c7c7cc;padding-bottom:24px;">Drehen &middot; Scrollen = Zoom &middot; Klick = Details &nbsp;&nbsp;<span id="brain-chunk-count"></span></p>
 
+    <div style="max-width:680px;margin:0 auto 32px;padding-top:16px;border-top:0.5px solid #e5e5ea;">
+      <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:8px;">Semantische Cluster-Analyse (Beta, im Hintergrund)</p>
+      <p style="font-size:12px;color:#8e8e93;margin-bottom:10px;line-height:1.6;">Berechnet auf Basis der Embeddings echte thematische Gruppen (k-Means) und vergibt Namen per Claude. Aendert NICHT die Visualisierung oben, sondern nur Metadaten der Chunks (cluster_id/cluster_label) fuer spaetere Nutzung.</p>
+      <button onclick="runBrainCluster()" id="brain-cluster-btn" style="padding:8px 16px;background:#f2f2f7;color:#1c1c1e;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">Semantische Cluster berechnen</button>
+      <div id="brain-cluster-result" style="margin-top:12px;"></div>
+    </div>
+
   </div>
   </div>
 
@@ -1828,6 +1835,34 @@ function distillCommit(id) {
       if (window.hideLoader) hideLoader();
       if (statusEl) statusEl.textContent = 'Fehler: ' + e.message;
       else alert('Fehler: ' + e.message);
+    });
+}
+
+function runBrainCluster() {
+  var btn = document.getElementById('brain-cluster-btn');
+  var out = document.getElementById('brain-cluster-result');
+  if (btn) { btn.disabled = true; btn.textContent = 'Berechne Cluster...'; }
+  if (out) out.innerHTML = '';
+  if (window.showLoader) showLoader('Berechne semantische Cluster (k-Means + Claude)...');
+  fetch('/api/brain-cluster?k=8', { method: 'POST' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (window.hideLoader) hideLoader();
+      if (btn) { btn.disabled = false; btn.textContent = 'Semantische Cluster berechnen'; }
+      if (d.error) { if (out) out.innerHTML = '<p style="font-size:12px;color:#ff3b30;">Fehler: ' + escHtml(d.error) + '</p>'; return; }
+      var rows = (d.clusters || []).slice().sort(function(a,b){ return b.count - a.count; }).map(function(c){
+        return '<div style="padding:8px 0;border-bottom:0.5px solid #f2f2f7;">'
+          + '<span style="font-weight:600;font-size:13px;color:#1c1c1e;">' + escHtml(c.label) + '</span>'
+          + ' <span style="font-size:11px;color:#8e8e93;">(' + c.count + ' Chunks)</span>'
+          + '<div style="font-size:11px;color:#8e8e93;margin-top:2px;">' + c.sample_titles.slice(0,4).map(escHtml).join(' &middot; ') + '</div>'
+          + '</div>';
+      }).join('');
+      if (out) out.innerHTML = '<p style="font-size:12px;color:#34c759;margin-bottom:6px;">' + d.total + ' Chunks in ' + d.k + ' Cluster eingeteilt:</p>' + rows;
+    })
+    .catch(function(e){
+      if (window.hideLoader) hideLoader();
+      if (btn) { btn.disabled = false; btn.textContent = 'Semantische Cluster berechnen'; }
+      if (out) out.innerHTML = '<p style="font-size:12px;color:#ff3b30;">Fehler: ' + e.message + '</p>';
     });
 }
 
