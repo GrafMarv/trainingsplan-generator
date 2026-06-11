@@ -169,6 +169,10 @@ rest: "90 Sek." — nur wenn angegeben, sonst null.
   "kind": "macro",
   "title": "kurzer Titel des Plans",
   "intro": "1-2 Saetze: Ziel, Methode (z.B. Step Loading 3:1), Peak-Zeitpunkt",
+  "geruest_strikt": true,
+  "uebungsgeruest": [
+    { "exercise": "Back Squat", "imageKey": "back-squat_strength_lower_squat_dyn_bi", "group": "Unterkoerper" }
+  ],
   "weeks": [
     { "week": 1, "phase": "Allg. Vorbereitung", "focus": "Aerobe Basis, Anatomische Anpassung", "load": "60%", "sessions": "3x", "deload": false, "details": "konkrete Belastungsvorgaben, Schluesseluebungen, metabolische Ziele dieser Woche (1-2 Saetze)" }
   ],
@@ -182,6 +186,8 @@ Regeln FORMAT B:
 - sessions: geplante Einheiten pro Woche (z.B. "3x").
 - deload: true bei Entlastungs-/Regenerationswochen (typisch jede 3.-4. Woche) und in der Taper-Woche.
 - details: pro Woche 1-2 Saetze mit konkreten Belastungsvorgaben, Schluesseluebungen und metabolischen Zielen. Dieses Feld wird in der Tabelle NICHT angezeigt, dient aber als Kontext fuer die spaetere Generierung der Einzeleinheit. Immer ausfuellen.
+- uebungsgeruest: gemeinsames Kernuebungs-Skelett fuer den GANZEN Zyklus (4-8 Hauptuebungen). Jede Uebung als Objekt { "exercise": Name, "imageKey": Dateiname aus der Uebungsliste ohne .png falls vorhanden sonst leerer String "", "group": grobe Kategorie wie Unterkoerper/Oberkoerper-Druck/Oberkoerper-Zug/Rumpf/Schnelligkeit }. Diese Uebungen bilden das progressive Geruest: ueber die Wochen werden DIESELBEN Uebungen verwendet, nur Last/Wiederholungen/Saetze aendern sich (Step Loading). Waehle imageKey nur aus der bereitgestellten Uebungsliste; wenn keine passende Grafik existiert, "".
+- geruest_strikt: true bei Kraft-/Maximalkraft-/Power-Plaenen (Grunduebungen muessen konstant bleiben, Tausch nur bewusst an Phasenuebergaengen mit Begruendung). false bei Kondition/Ausdauer/Feldtechnik-Plaenen (mehr Variation der konkreten Uebungen ist normal und erwuenscht). Setze den Wert passend zum Plantyp.
 - Nutze das Periodisierungs-Wissen aus der Wissensbasis (Step Loading 3:1/4:1, Peaking 40-60%, Mikrozyklus-Frequenzen, Jahresplan-Typen).`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
