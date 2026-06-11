@@ -16,13 +16,38 @@ function slugify(s) {
 }
 
 export default async function handler(req, res) {
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+  if (req.method === 'GET') {
+    if (!SUPABASE_URL || !SUPABASE_KEY) return res.status(500).json({ error: 'Env vars fehlen (Supabase)' });
+    try {
+      const r = await fetch(SUPABASE_URL + '/rest/v1/brain_chunks?select=id,titel,quelle&order=id.desc&limit=10', {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Prefer': 'count=exact',
+          'Range': '0-9'
+        }
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        return res.status(500).json({ error: 'GET failed: ' + t });
+      }
+      const rows = await r.json();
+      const range = r.headers.get('content-range'); // z.B. "0-9/123"
+      const total = range && range.includes('/') ? range.split('/')[1] : null;
+      return res.status(200).json({ total: total, latest: rows });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const SUPABASE_URL = process.env.SUPABASE_URL;
-    const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
     const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
     if (!SUPABASE_URL || !SUPABASE_KEY || !OPENAI_KEY) {
