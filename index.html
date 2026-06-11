@@ -1565,6 +1565,7 @@ function uploadWissen(input) {
     };
     wissenDB.unshift(entry);
     saveWissenDB();
+    kbUpsert(entry);
   };
   reader.readAsText(file);
 }
@@ -1574,8 +1575,10 @@ function saveKonzept() {
   const text = document.getElementById('konzept-text').value.trim();
   const kat = document.getElementById('konzept-kategorie').value;
   if (!titel || !text) return;
-  wissenDB.unshift({ id: Date.now(), type: 'konzept', titel, inhalt: text, kategorie: kat, datum: new Date().toLocaleDateString('de-DE') });
+  const entry = { id: Date.now(), type: 'konzept', titel, inhalt: text, kategorie: kat, datum: new Date().toLocaleDateString('de-DE') };
+  wissenDB.unshift(entry);
   saveWissenDB();
+  kbUpsert(entry);
   document.getElementById('konzept-titel').value = '';
   document.getElementById('konzept-text').value = '';
   renderKonzeptList();
@@ -1586,8 +1589,10 @@ function saveStudie() {
   const autoren = document.getElementById('studie-autoren').value.trim();
   const text = document.getElementById('studie-text').value.trim();
   if (!titel || !text) return;
-  wissenDB.unshift({ id: Date.now(), type: 'studie', titel, autoren, inhalt: text, kategorie: 'studie', datum: new Date().toLocaleDateString('de-DE') });
+  const entry = { id: Date.now(), type: 'studie', titel, autoren, inhalt: text, kategorie: 'studie', datum: new Date().toLocaleDateString('de-DE') };
+  wissenDB.unshift(entry);
   saveWissenDB();
+  kbUpsert(entry);
   document.getElementById('studie-titel').value = '';
   document.getElementById('studie-autoren').value = '';
   document.getElementById('studie-text').value = '';
@@ -1600,6 +1605,47 @@ function deleteWissen(id) {
   renderWissenList();
   renderKonzeptList();
   renderStudieList();
+  kbRemoteDelete(id);
+}
+
+// --- Supabase-Sync (cb_knowledge), analog zu Spielerprofilen ---
+function kbUpsert(entry) {
+  fetch('/api/knowledge', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry)
+  }).catch(function(){});
+}
+
+function kbRemoteDelete(id) {
+  fetch('/api/knowledge?id=' + encodeURIComponent(id), { method: 'DELETE' }).catch(function(){});
+}
+
+function kbInit() {
+  var localBackup = wissenDB.slice();
+  fetch('/api/knowledge')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var server = (d && d.entries) ? d.entries : [];
+      if (server.length === 0 && localBackup.length > 0 && localStorage.getItem('wissenDB_migrated') !== '1') {
+        // Erster Lauf mit nur lokalen Daten: in Supabase hochladen
+        wissenDB = localBackup;
+        fetch('/api/knowledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entries: localBackup })
+        }).then(function(){ localStorage.setItem('wissenDB_migrated','1'); }).catch(function(){});
+      } else {
+        wissenDB = server;
+        localStorage.setItem('wissenDB_migrated','1');
+      }
+      saveWissenDB();
+      renderKonzeptList();
+      renderStudieList();
+    })
+    .catch(function(){
+      // Offline: weiter mit lokalem Stand (Cache) arbeiten
+    });
 }
 
 function searchWissen() {
@@ -1706,6 +1752,7 @@ FAZIT: RST ist ein wirksames Werkzeug zur Sprintverbesserung im Mannschaftssport
   saveWissenDB();
 }
 updateWissenCount();
+kbInit();
 
 function toBase64(file) {
   return new Promise((res, rej) => {
