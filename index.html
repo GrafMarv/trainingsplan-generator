@@ -1182,13 +1182,17 @@ async function openWeekSession(idx){
       var nm = (g && g.exercise) ? g.exercise : '';
       var ik = (g && g.imageKey) ? g.imageKey : '';
       var gr = (g && g.group) ? g.group : '';
-      return '- '+nm+(gr?' ('+gr+')':'')+(ik?' [imageKey: '+ik+']':'');
+      var ss = (g && g.supersatz) ? g.supersatz : '';
+      var sc = (g && g.schema) ? g.schema : '';
+      return '- '+nm+(gr?' ('+gr+')':'')+(ss?' [Supersatz '+ss+']':' [Einzeluebung]')+(sc?' [Basisschema '+sc+']':'')+(ik?' [imageKey: '+ik+']':'');
     }).join(' ');
     ctx+='Gemeinsames Uebungsgeruest des Zyklus: '+gList+'. ';
     if(strikt){
-      ctx+='STRIKT: Verwende fuer den Hauptblock GENAU diese Kernuebungen. Erfinde keine neuen Grunduebungen. '
-        +'Variiere ueber die Wochen nur Last, Wiederholungen und Saetze progressiv (Step Loading) passend zur Belastung dieser Woche. '
-        +'Ein Uebungstausch ist nur an Phasenuebergaengen erlaubt und muss kurz begruendet werden. '
+      ctx+='STRIKT: Verwende fuer den Hauptblock GENAU diese Kernuebungen in DERSELBEN Struktur. '
+        +'Behalte ueber alle Wochen die Supersatz-Gruppierung (gleiche Buchstaben = gemeinsamer Supersatz, Einzeluebung bleibt Einzeluebung), '
+        +'die Reihenfolge und die Anzahl der Uebungen identisch. Erfinde keine neuen Grunduebungen und aendere die Block-Struktur nicht. '
+        +'Variiere ueber die Wochen NUR Last, Wiederholungen und Saetze progressiv (Step Loading, ausgehend vom Basisschema) passend zur Belastung dieser Woche. '
+        +'Ein Uebungstausch ODER Strukturwechsel ist ausschliesslich an einem Phasenuebergang erlaubt und muss kurz begruendet werden. '
         +'Nutze die angegebenen imageKeys als Dateinamen fuer die Grafiken. ';
     } else {
       ctx+='Das Geruest dient als Orientierung. Variation der konkreten Uebungen ist hier erlaubt, '
