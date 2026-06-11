@@ -1820,7 +1820,8 @@ function distillCommit(id) {
       }
       window.DISTILL[id] = [];
       var el = document.getElementById('distill-' + id);
-      if (el) el.innerHTML = '<p style="font-size:12px;color:#34c759;padding:8px 0;">' + d.count + ' Chunk(s) zur Wissensbasis hinzugefuegt. Im Brain-Tab sind sie nach einem Reload sichtbar.</p>';
+      if (el) el.innerHTML = '<p style="font-size:12px;color:#34c759;padding:8px 0;">' + d.count + ' Chunk(s) zur Wissensbasis hinzugefuegt.</p>';
+      if (window.loadBrain) loadBrain(true);
     })
     .catch(function(e){
       if (window.hideLoader) hideLoader();
@@ -2006,9 +2007,15 @@ async function uploadAll() {
   var nodes=[],chunks=[],cv,ctx,W,H,DPR=1,rotX=0.2,rotY=0.6,drag=false,lx,ly,aRot=true,zoom=1,rotTimer=null,af='all',running=false;
 
   window.loadBrain=function(force){
-    fetch('https://raw.githubusercontent.com/GrafMarv/trainingsplan-generator/main/knowledge.json?t='+Date.now())
+    fetch('/api/brain-list?t='+Date.now())
       .then(function(r){return r.json();})
-      .then(function(d){buildNodes(d.chunks);})
+      .then(function(d){
+        if(d.error || !d.chunks){
+          document.getElementById('brain-chunk-count').textContent='Fehler';
+          return;
+        }
+        buildNodes(d.chunks);
+      })
       .catch(function(){document.getElementById('brain-chunk-count').textContent='Fehler';});
   };
 
