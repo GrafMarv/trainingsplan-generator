@@ -1550,9 +1550,65 @@ function wissenTab(tab) {
   }
 }
 
-function uploadWissen(input) {
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve();
+  if (window._pdfjsLoading) return window._pdfjsLoading;
+  window._pdfjsLoading = new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = function() {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      resolve();
+    };
+    s.onerror = function() { reject(new Error('PDF-Bibliothek konnte nicht geladen werden')); };
+    document.head.appendChild(s);
+  });
+  return window._pdfjsLoading;
+}
+
+async function extractPdfText(file) {
+  await loadPdfJs();
+  var buf = await file.arrayBuffer();
+  var pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+  var text = '';
+  var maxPages = Math.min(pdf.numPages, 60);
+  for (var p = 1; p <= maxPages; p++) {
+    var page = await pdf.getPage(p);
+    var content = await page.getTextContent();
+    var strs = content.items.map(function(it){ return it.str; });
+    text += strs.join(' ') + '\n\n';
+    if (text.length > 40000) break;
+  }
+  return text.slice(0, 40000);
+}
+
+async function uploadWissen(input) {
   const file = input.files[0];
   if (!file) return;
+
+  if (/\.pdf$/i.test(file.name) || file.type === 'application/pdf') {
+    if (window.showLoader) showLoader('Lese PDF...');
+    try {
+      const text = await extractPdfText(file);
+      const entry = {
+        id: Date.now(),
+        type: 'dokument',
+        titel: file.name,
+        inhalt: text,
+        datum: new Date().toLocaleDateString('de-DE'),
+        kategorie: 'dokument'
+      };
+      wissenDB.unshift(entry);
+      saveWissenDB();
+      kbUpsert(entry);
+    } catch (e) {
+      alert('PDF konnte nicht gelesen werden: ' + e.message);
+    }
+    if (window.hideLoader) hideLoader();
+    input.value = '';
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = e => {
     const entry = {
@@ -1568,6 +1624,7 @@ function uploadWissen(input) {
     kbUpsert(entry);
   };
   reader.readAsText(file);
+  input.value = '';
 }
 
 function saveKonzept() {
@@ -1650,6 +1707,128 @@ function kbInit() {
     });
 }
 
+// --- Wissens-Distillation: Dokument -> Brain-Chunk-Vorschlaege ---
+window.DISTILL = window.DISTILL || {};
+
+function distillStart(id) {
+  if (!window.DISTILL[id]) window.DISTILL[id] = [];
+  distillRequest(id);
+}
+
+function distillRequest(id) {
+  var entry = wissenDB.find(function(e){ return e.id === id; });
+  if (!entry) return;
+  var existing = (window.DISTILL[id] || []).map(function(c){ return { titel: c.titel, tags: c.tags }; });
+  var btn = document.getElementById('distill-btn-' + id);
+  if (btn) { btn.disabled = true; btn.textContent = 'Claude analysiert...'; }
+  if (window.showLoader) showLoader('Claude liest das Dokument und schlaegt Wissens-Chunks vor...');
+  fetch('/api/distill', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: entry.inhalt, quelle: entry.titel, existing: existing })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (window.hideLoader) hideLoader();
+      if (btn) { btn.disabled = false; btn.textContent = '\u{1F9E0} Wissens-Chunks vorschlagen'; }
+      if (d.error) { alert('Fehler: ' + d.error); return; }
+      var neu = d.chunks || [];
+      window.DISTILL[id] = (window.DISTILL[id] || []).concat(neu);
+      renderDistillPanel(id);
+      if (neu.length === 0 && existing.length > 0) {
+        alert('Claude hat keine weiteren neuen Chunks in diesem Dokument gefunden.');
+      }
+    })
+    .catch(function(e){
+      if (window.hideLoader) hideLoader();
+      if (btn) { btn.disabled = false; btn.textContent = '\u{1F9E0} Wissens-Chunks vorschlagen'; }
+      alert('Fehler: ' + e.message);
+    });
+}
+
+function distillEdit(id, i, field, value) {
+  if (window.DISTILL[id] && window.DISTILL[id][i]) window.DISTILL[id][i][field] = value;
+}
+
+function distillEditTags(id, i, value) {
+  if (window.DISTILL[id] && window.DISTILL[id][i]) {
+    window.DISTILL[id][i].tags = value.split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+  }
+}
+
+function distillRemoveChunk(id, i) {
+  window.DISTILL[id].splice(i, 1);
+  renderDistillPanel(id);
+}
+
+function distillChunkCard(id, c, i) {
+  var tags = (c.tags || []).join(', ');
+  return '<div style="background:#f9f9fb;border:0.5px solid #e5e5ea;border-radius:10px;padding:12px 14px;margin-top:8px;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">'
+    + '<input value="' + escAttr(c.titel) + '" oninput="distillEdit(' + id + ',' + i + ',\'titel\',this.value)" style="flex:1;font-size:13px;font-weight:600;border:none;background:transparent;padding:2px 0;font-family:inherit;color:#1c1c1e;">'
+    + '<button onclick="distillRemoveChunk(' + id + ',' + i + ')" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:12px;font-family:inherit;flex-shrink:0;">Entfernen</button>'
+    + '</div>'
+    + '<textarea oninput="distillEdit(' + id + ',' + i + ',\'inhalt\',this.value)" style="width:100%;min-height:70px;font-size:12.5px;line-height:1.5;border:1px solid #e5e5ea;border-radius:6px;padding:6px 8px;font-family:inherit;resize:vertical;color:#3a3a3c;background:#fff;">' + escHtml(c.inhalt) + '</textarea>'
+    + '<input value="' + escAttr(tags) + '" oninput="distillEditTags(' + id + ',' + i + ',this.value)" placeholder="Tags, kommagetrennt" style="width:100%;margin-top:6px;font-size:11.5px;border:1px solid #e5e5ea;border-radius:6px;padding:5px 8px;font-family:inherit;color:#8e8e93;background:#fff;">'
+    + '</div>';
+}
+
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  return escHtml(s).replace(/"/g,'&quot;');
+}
+
+function renderDistillPanel(id) {
+  var el = document.getElementById('distill-' + id);
+  if (!el) return;
+  var list = window.DISTILL[id] || [];
+  if (list.length === 0) {
+    el.innerHTML = '';
+    return;
+  }
+  var cards = list.map(function(c, i){ return distillChunkCard(id, c, i); }).join('');
+  el.innerHTML = '<div style="margin-top:10px;">'
+    + '<p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:2px;">' + list.length + ' Chunk-Vorschlaege - bearbeiten oder entfernen, dann uebernehmen</p>'
+    + cards
+    + '<div style="display:flex;gap:8px;margin-top:10px;">'
+    + '<button onclick="distillRequest(' + id + ')" style="padding:8px 14px;background:#f2f2f7;color:#1c1c1e;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">+ Mehr finden</button>'
+    + '<button onclick="distillCommit(' + id + ')" style="padding:8px 14px;background:#34c759;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">In Wissensbasis (Brain) uebernehmen</button>'
+    + '</div>'
+    + '<div id="distill-status-' + id + '" style="font-size:12px;color:#8e8e93;margin-top:8px;"></div>'
+    + '</div>';
+}
+
+function distillCommit(id) {
+  var chunks = window.DISTILL[id] || [];
+  if (!chunks.length) return;
+  var statusEl = document.getElementById('distill-status-' + id);
+  if (window.showLoader) showLoader('Chunks werden eingebettet und in der Wissensbasis gespeichert...');
+  fetch('/api/brain-add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chunks: chunks })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (window.hideLoader) hideLoader();
+      if (d.error) {
+        if (statusEl) statusEl.textContent = 'Fehler: ' + d.error;
+        else alert('Fehler: ' + d.error);
+        return;
+      }
+      window.DISTILL[id] = [];
+      var el = document.getElementById('distill-' + id);
+      if (el) el.innerHTML = '<p style="font-size:12px;color:#34c759;padding:8px 0;">' + d.count + ' Chunk(s) zur Wissensbasis hinzugefuegt. Im Brain-Tab sind sie nach einem Reload sichtbar.</p>';
+    })
+    .catch(function(e){
+      if (window.hideLoader) hideLoader();
+      if (statusEl) statusEl.textContent = 'Fehler: ' + e.message;
+      else alert('Fehler: ' + e.message);
+    });
+}
+
 function searchWissen() {
   const q = document.getElementById('wissen-search').value.toLowerCase();
   const filtered = wissenDB.filter(e => e.titel.toLowerCase().includes(q) || e.inhalt.toLowerCase().includes(q));
@@ -1679,6 +1858,10 @@ function wissenCard(entry) {
       <p style="font-size:13px;color:#636366;line-height:1.6;white-space:pre-line;">${entry.inhalt}</p>
       <button onclick="wissenCollapse(${entry.id})" style="background:none;border:none;color:#007aff;cursor:pointer;font-size:13px;font-family:inherit;padding:6px 0 0 0;font-weight:500;">Weniger anzeigen</button>
     </div>
+    ${entry.type === 'dokument' ? `<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #e5e5ea;">
+      <button onclick="distillStart(${entry.id})" id="distill-btn-${entry.id}" style="padding:7px 14px;background:#f2f2f7;color:#1c1c1e;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">&#129504; Wissens-Chunks vorschlagen</button>
+      <div id="distill-${entry.id}"></div>
+    </div>` : ''}
   </div>`;
 }
 
