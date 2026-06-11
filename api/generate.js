@@ -170,7 +170,7 @@ rest: "90 Sek." — nur wenn angegeben, sonst null.
   "title": "kurzer Titel des Plans",
   "intro": "1-2 Saetze: Ziel, Methode (z.B. Step Loading 3:1), Peak-Zeitpunkt",
   "weeks": [
-    { "week": 1, "phase": "Allg. Vorbereitung", "focus": "Aerobe Basis, Anatomische Anpassung", "load": "60%", "sessions": "3x", "deload": false }
+    { "week": 1, "phase": "Allg. Vorbereitung", "focus": "Aerobe Basis, Anatomische Anpassung", "load": "60%", "sessions": "3x", "deload": false, "details": "konkrete Belastungsvorgaben, Schluesseluebungen, metabolische Ziele dieser Woche (1-2 Saetze)" }
   ],
   "note": "kurzer Hinweis, z.B. Taper-Logik vor dem Wettkampf"
 }
@@ -181,6 +181,7 @@ Regeln FORMAT B:
 - load: relative Last in % (Orientierung am Step-Loading-Muster, z.B. 60/70/80/Entlastung).
 - sessions: geplante Einheiten pro Woche (z.B. "3x").
 - deload: true bei Entlastungs-/Regenerationswochen (typisch jede 3.-4. Woche) und in der Taper-Woche.
+- details: pro Woche 1-2 Saetze mit konkreten Belastungsvorgaben, Schluesseluebungen und metabolischen Zielen. Dieses Feld wird in der Tabelle NICHT angezeigt, dient aber als Kontext fuer die spaetere Generierung der Einzeleinheit. Immer ausfuellen.
 - Nutze das Periodisierungs-Wissen aus der Wissensbasis (Step Loading 3:1/4:1, Peaking 40-60%, Mikrozyklus-Frequenzen, Jahresplan-Typen).`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
