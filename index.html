@@ -1162,10 +1162,25 @@ async function openWeekSession(idx){
   document.getElementById('plan-wrapper').style.display='block';
   container.innerHTML='<div style="padding:48px;text-align:center;color:#8e8e93;font-size:14px;">Generiere Einheit fuer Woche '+(w.week!=null?w.week:'')+'...</div>';
   document.getElementById('back-to-macro').style.display='inline-block';
+  var allWeeks = CURRENT_MACRO.weeks || [];
+  function weekLine(x){
+    if(!x) return '';
+    return 'W'+(x.week!=null?x.week:'?')+' ['+(x.phase||'')+'] '+(x.focus||'')+', Last '+(x.load||'')+(x.deload===true||x.deload==='true'||x.deload==='ja'?' (Deload)':'');
+  }
+  var prev = idx>0 ? allWeeks[idx-1] : null;
+  var next = idx<allWeeks.length-1 ? allWeeks[idx+1] : null;
+  var ctx='';
+  if(CURRENT_MACRO.intro) ctx+='Gesamtplan-Ziel/Methode: '+CURRENT_MACRO.intro+' ';
+  ctx+='Position im Zyklus: Woche '+(idx+1)+' von '+allWeeks.length+'. ';
+  if(prev) ctx+='Vorherige Woche: '+weekLine(prev)+'. ';
+  if(next) ctx+='Naechste Woche: '+weekLine(next)+'. ';
+  if(w.details) ctx+='Detailvorgaben dieser Woche: '+w.details+' ';
   var input='Erstelle EINE EINZELNE konkrete Trainingseinheit (Warm-up, Hauptblock, Cool-down). '
     +'Es ist Trainingswoche '+(w.week!=null?w.week:'')+' mit Schwerpunkt: '+(w.focus||'')+'. '
     +'Trainingsphase: '+(w.phase||'')+'. Relative Belastung: '+(w.load||'')+' (RPE entsprechend waehlen). '
     +(CURRENT_MACRO.title?'Einordnung im Gesamtplan: '+CURRENT_MACRO.title+'. ':'')
+    +ctx
+    +'Beruecksichtige die Position im Zyklus (Auf-/Entlastung relativ zu Nachbarwochen) bei Volumen und Intensitaet. '
     +'Gib nur diese eine Einheit aus, keinen Mehrwochenplan.';
   try{
     var resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input,exercises:EXERCISES.join(', '),mode:'auto'})});
