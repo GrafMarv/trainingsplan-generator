@@ -122,6 +122,12 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f2f2f7; col
 .ui h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 4px; color: #1c1c1e; }
 .ui p.subtitle { font-size: 14px; color: #8e8e93; margin-bottom: 32px; }
 
+#app-screen { background: #08081A; min-height: 100vh; }
+#app-screen .ui h1 { color: #fff; }
+#app-screen .ui p.subtitle { color: rgba(255,255,255,0.5); }
+#app-screen .tab { color: rgba(255,255,255,0.45); }
+#app-screen > div:first-child a, #app-screen > div:first-child button { color: #5AC8FA !important; }
+
 /* CARDS */
 .card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 label.section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #8e8e93; display: block; margin-bottom: 10px; }
@@ -379,7 +385,10 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     function tick(){
       var hs=document.getElementById('home-screen');
-      if(hs&&hs.style.display!=='none'){
+      var as=document.getElementById('app-screen');
+      var hsVisible = hs && hs.style.display!=='none';
+      var asVisible = as && as.style.display!=='none';
+      if(hsVisible || asVisible){
         draw();rotY+=0.0015;
       }
       requestAnimationFrame(tick);
@@ -667,42 +676,12 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 
 <!-- APP SCREEN -->
-<div class="left-panel" id="left-panel" style="display:none;">
-  <div class="left-panel-title">Filter</div>
-  <div class="toggle-row">
-    <span class="toggle-label">Nur mit Grafiken</span>
-    <span class="toggle-sublabel">Übungen ohne Bild ausblenden</span>
-    <label class="toggle-switch">
-      <input type="checkbox" id="toggle-grafik" onchange="applyGrafikFilter()">
-      <div class="toggle-track"></div>
-      <div class="toggle-thumb"></div>
-    </label>
-  </div>
-</div>
 
 <div id="app-screen" style="display:none;">
 <div style="max-width:960px;margin:0 auto;padding:24px 32px 0;position:relative;z-index:1;">
   <button onclick="goHome()" style="background:none;border:none;font-size:14px;color:#007aff;cursor:pointer;font-family:inherit;font-weight:500;padding:0;">← Zurück</button>
 </div>
 
-<div class="deco-left">
-  <span class="deco-name">Marvin Erxleben</span>
-</div>
-<div class="deco-right">
-  <svg width="200" height="300" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.18">
-    <!-- Sportfeld Geometrie -->
-    <rect x="20" y="40" width="160" height="220" rx="4" stroke="#8e8e93" stroke-width="1.5"/>
-    <line x1="20" y1="150" x2="180" y2="150" stroke="#8e8e93" stroke-width="1.5"/>
-    <circle cx="100" cy="150" r="30" stroke="#8e8e93" stroke-width="1.5"/>
-    <circle cx="100" cy="150" r="3" fill="#8e8e93"/>
-    <rect x="60" y="40" width="80" height="40" rx="2" stroke="#8e8e93" stroke-width="1.5"/>
-    <rect x="60" y="220" width="80" height="40" rx="2" stroke="#8e8e93" stroke-width="1.5"/>
-    <rect x="75" y="40" width="50" height="20" rx="2" stroke="#8e8e93" stroke-width="1.5"/>
-    <rect x="75" y="240" width="50" height="20" rx="2" stroke="#8e8e93" stroke-width="1.5"/>
-    <circle cx="100" cy="40" r="6" stroke="#8e8e93" stroke-width="1.5"/>
-    <circle cx="100" cy="260" r="6" stroke="#8e8e93" stroke-width="1.5"/>
-  </svg>
-</div>
 <div class="tabs">
   <div class="tab active" onclick="switchTab('generator', this)">Trainingsplan</div>
   <div class="tab" onclick="switchTab('umbenenner', this)">Übung Umbenenner</div>
@@ -770,10 +749,8 @@ function goTo(screen) {
   document.getElementById('wissen-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('left-panel').style.display = 'none';
   if (screen === 'generator' || screen === 'umbenenner') {
     document.getElementById('app-screen').style.display = 'block';
-    document.getElementById('left-panel').style.display = 'block';
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const idx = screen === 'generator' ? 0 : 1;
@@ -794,7 +771,6 @@ function goHome() {
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('wissen-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'none';
-  document.getElementById('left-panel').style.display = 'none';
 }
 
 function switchTab(tab, el) {
@@ -864,7 +840,6 @@ async function generateWithAI() {
 
 function resetPlan() {
   document.getElementById('plan-wrapper').style.display = 'none';
-  document.getElementById('toggle-grafik').checked = false;
 }
 
 function buildGroupCounters(exercises) {
@@ -1212,7 +1187,8 @@ function showWeekSession(idx, plan, ctxInput){
 }
 
 function applyGrafikFilter() {
-  const onlyWithImages = document.getElementById('toggle-grafik').checked;
+  const t = document.getElementById('toggle-grafik');
+  const onlyWithImages = t ? t.checked : false;
   const rows = document.querySelectorAll('.exercise-row');
   rows.forEach(row => {
     if (onlyWithImages && row.dataset.hasImage === '0') {
