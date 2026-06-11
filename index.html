@@ -1157,7 +1157,7 @@ function backToMacro(){ if(CURRENT_MACRO) renderMacro(CURRENT_MACRO); }
 async function openWeekSession(idx){
   if(!CURRENT_MACRO || !CURRENT_MACRO.weeks || !CURRENT_MACRO.weeks[idx]) return;
   var w = CURRENT_MACRO.weeks[idx];
-  if(CURRENT_MACRO._sessions && CURRENT_MACRO._sessions[idx]){ showWeekSession(idx, CURRENT_MACRO._sessions[idx]); return; }
+  if(CURRENT_MACRO._sessions && CURRENT_MACRO._sessions[idx]){ showWeekSession(idx, CURRENT_MACRO._sessions[idx], (CURRENT_MACRO._ctx||{})[idx]); return; }
   var container=document.getElementById('pages-container');
   document.getElementById('plan-wrapper').style.display='block';
   container.innerHTML='<div style="padding:48px;text-align:center;color:#8e8e93;font-size:14px;">Generiere Einheit fuer Woche '+(w.week!=null?w.week:'')+'...</div>';
@@ -1190,18 +1190,40 @@ async function openWeekSession(idx){
     var plan=data.plan;
     if(!Array.isArray(plan)) throw new Error('Unerwartetes Format (kein Einzelplan)');
     if(!CURRENT_MACRO._sessions) CURRENT_MACRO._sessions={};
+    if(!CURRENT_MACRO._ctx) CURRENT_MACRO._ctx={};
     CURRENT_MACRO._sessions[idx]=plan;
-    showWeekSession(idx, plan);
+    CURRENT_MACRO._ctx[idx]=input;
+    showWeekSession(idx, plan, input);
   }catch(e){
     container.innerHTML='<div style="padding:40px;text-align:center;color:#c0392b;font-size:14px;">Fehler: '+e.message+'<br><br><span style="color:#8e8e93;font-size:13px;">Tippe oben auf &larr; Wochenplan, um zurueckzukehren.</span></div>';
   }
 }
 
-function showWeekSession(idx, plan){
+function showWeekSession(idx, plan, ctxInput){
   var w=CURRENT_MACRO.weeks[idx];
   var title='Woche '+(w.week!=null?w.week:'')+(w.phase?' \u2014 '+w.phase:'');
   renderPlan(plan, title);
   document.getElementById('back-to-macro').style.display='inline-block';
+  if(ctxInput){
+    var cont=document.getElementById('pages-container');
+    var box=document.createElement('div');
+    box.style.cssText='margin:14px auto;max-width:760px;border:1px dashed #c7c7cc;border-radius:8px;background:#fafafa;';
+    var head=document.createElement('div');
+    head.style.cssText='padding:9px 14px;font-size:12px;font-weight:600;color:#8e8e93;cursor:pointer;user-select:none;';
+    var labelClosed='\\u25B8 Debug: gesendeter Kontext (zum Pruefen)';
+    var labelOpen='\\u25BE Debug: gesendeter Kontext (zum Pruefen)';
+    head.textContent=labelClosed;
+    var pre=document.createElement('div');
+    pre.style.cssText='display:none;padding:0 14px 14px;font-size:11.5px;line-height:1.55;color:#3a3a3c;white-space:pre-wrap;';
+    var dl=(w.details?'JA':'FEHLT');
+    pre.textContent='details-Feld dieser Woche: '+dl+'\\n\\n'+ctxInput;
+    head.addEventListener('click',function(){
+      var open=pre.style.display==='block';
+      pre.style.display=open?'none':'block';
+      head.textContent=open?labelClosed:labelOpen;
+    });
+    box.appendChild(head); box.appendChild(pre); cont.appendChild(box);
+  }
 }
 
 function applyGrafikFilter() {
