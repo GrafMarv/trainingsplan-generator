@@ -1,10 +1,12 @@
 // api/setup-brain.js
-// Einmalig aufrufen: GET /api/setup-brain?secret=dhb2026
-// Legt Supabase Tabelle an, embedded alle 99 Chunks mit OpenAI, lädt hoch
+// Einmalig aufrufen: GET /api/setup-brain?secret=<SETUP_SECRET>
+// Legt Supabase Tabelle an, embedded alle Chunks aus knowledge.json mit OpenAI, laedt hoch.
+// SICHERHEIT: Funktioniert nur, wenn die Env-Var SETUP_SECRET in Vercel gesetzt ist
+// und der secret-Parameter exakt uebereinstimmt. Ohne Env-Var ist der Endpoint deaktiviert.
 
 export default async function handler(req, res) {
-  // Einfacher Schutz damit nicht jeder den Endpoint aufrufen kann
-  if (req.query.secret !== 'dhb2026') {
+  const SETUP_SECRET = process.env.SETUP_SECRET;
+  if (!SETUP_SECRET || req.query.secret !== SETUP_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
