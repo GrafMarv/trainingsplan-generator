@@ -724,6 +724,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <div class="plan-actions">
       <button class="btn-secondary" onclick="window.print()">Drucken / als PDF</button>
       <button class="btn-secondary" onclick="resetPlan()">Neu generieren</button>
+      <button class="btn-secondary" id="back-to-macro" style="display:none;" onclick="backToMacro()">&larr; Wochenplan</button>
       <span>Im Druckdialog "Als PDF speichern" wählen</span>
     </div>
     <div id="pages-container"></div>
@@ -897,8 +898,9 @@ function buildGroupCounters(exercises) {
   });
 }
 
-function renderPlan(blocks) {
-  const title = document.getElementById('plan-name').value || 'Trainingsplan';
+function renderPlan(blocks, titleOverride) {
+  var _bk=document.getElementById('back-to-macro'); if(_bk) _bk.style.display='none';
+  const title = titleOverride || document.getElementById('plan-name').value || 'Trainingsplan';
   const footer = document.getElementById('plan-footer').value;
   const date = new Date().toLocaleDateString('de-DE', {day:'2-digit',month:'long',year:'numeric'});
   const container = document.getElementById('pages-container');
@@ -1057,6 +1059,8 @@ function renderPlan(blocks) {
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
 }
 
+var CURRENT_MACRO = null;
+
 function renderOutput(plan){
   if (plan && !Array.isArray(plan) && plan.kind === 'macro') { renderMacro(plan); }
   else { renderPlan(plan); }
@@ -1087,6 +1091,13 @@ function renderMacro(doc){
     body.appendChild(intro);
   }
 
+  CURRENT_MACRO = doc; if(!doc._sessions) doc._sessions = {};
+  var _bk2=document.getElementById('back-to-macro'); if(_bk2) _bk2.style.display='none';
+  const hint=document.createElement('div');
+  hint.style.cssText='font-size:11.5px;color:#8e8e93;margin:0 0 8px;';
+  hint.textContent='Tipp: Klick auf eine Woche generiert die konkrete Trainingseinheit.';
+  body.appendChild(hint);
+
   const weeks = Array.isArray(doc.weeks) ? doc.weeks : [];
   const table = document.createElement('table');
   table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px;';
@@ -1097,12 +1108,14 @@ function renderMacro(doc){
     '<th style="'+th+'">Schwerpunkt</th>'+
     '<th style="'+th+'width:62px;">Last</th>'+
     '<th style="'+th+'width:78px;">Einheiten</th>'+
+    '<th style="'+th+'width:22px;"></th>'+
     '</tr></thead>';
   const tbody = document.createElement('tbody');
-  weeks.forEach(function(w){
+  weeks.forEach(function(w,idx){
     const dl = (w.deload === true || w.deload === 'true' || w.deload === 'ja');
+    const baseBg = dl?'#fff8ec':'';
     const tr = document.createElement('tr');
-    tr.style.cssText = 'border-bottom:1px solid #e5e5ea;'+(dl?'background:#fff8ec;':'');
+    tr.style.cssText = 'border-bottom:1px solid #e5e5ea;cursor:pointer;'+(dl?'background:#fff8ec;':'');
     const td = 'padding:9px 10px;color:#1c1c1e;vertical-align:top;';
     const wk = (w.week!=null?w.week:'');
     const badge = dl?' <span style="display:inline-block;font-size:10px;font-weight:600;color:#b06f00;background:#ffe9c2;border-radius:5px;padding:1px 6px;margin-left:4px;">Deload</span>':'';
@@ -1111,7 +1124,11 @@ function renderMacro(doc){
       '<td style="'+td+'">'+(w.phase||'')+badge+'</td>'+
       '<td style="'+td+'color:#3a3a3c;">'+(w.focus||'')+'</td>'+
       '<td style="'+td+'font-weight:600;">'+(w.load||'')+'</td>'+
-      '<td style="'+td+'">'+(w.sessions||'')+'</td>';
+      '<td style="'+td+'">'+(w.sessions||'')+'</td>'+
+      '<td style="'+td+'color:#c7c7cc;text-align:center;font-size:16px;">&rsaquo;</td>';
+    tr.addEventListener('mouseenter',function(){tr.style.background='#eef4ff';});
+    tr.addEventListener('mouseleave',function(){tr.style.background=baseBg;});
+    tr.addEventListener('click',function(){openWeekSession(idx);});
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
@@ -1133,6 +1150,43 @@ function renderMacro(doc){
 
   document.getElementById('plan-wrapper').style.display = 'block';
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
+}
+
+function backToMacro(){ if(CURRENT_MACRO) renderMacro(CURRENT_MACRO); }
+
+async function openWeekSession(idx){
+  if(!CURRENT_MACRO || !CURRENT_MACRO.weeks || !CURRENT_MACRO.weeks[idx]) return;
+  var w = CURRENT_MACRO.weeks[idx];
+  if(CURRENT_MACRO._sessions && CURRENT_MACRO._sessions[idx]){ showWeekSession(idx, CURRENT_MACRO._sessions[idx]); return; }
+  var container=document.getElementById('pages-container');
+  document.getElementById('plan-wrapper').style.display='block';
+  container.innerHTML='<div style="padding:48px;text-align:center;color:#8e8e93;font-size:14px;">Generiere Einheit fuer Woche '+(w.week!=null?w.week:'')+'...</div>';
+  document.getElementById('back-to-macro').style.display='inline-block';
+  var input='Erstelle EINE EINZELNE konkrete Trainingseinheit (Warm-up, Hauptblock, Cool-down). '
+    +'Es ist Trainingswoche '+(w.week!=null?w.week:'')+' mit Schwerpunkt: '+(w.focus||'')+'. '
+    +'Trainingsphase: '+(w.phase||'')+'. Relative Belastung: '+(w.load||'')+' (RPE entsprechend waehlen). '
+    +(CURRENT_MACRO.title?'Einordnung im Gesamtplan: '+CURRENT_MACRO.title+'. ':'')
+    +'Gib nur diese eine Einheit aus, keinen Mehrwochenplan.';
+  try{
+    var resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input,exercises:EXERCISES.join(', '),mode:'auto'})});
+    if(!resp.ok) throw new Error('API Fehler');
+    var data=await resp.json();
+    if(data.error) throw new Error(data.error);
+    var plan=data.plan;
+    if(!Array.isArray(plan)) throw new Error('Unerwartetes Format (kein Einzelplan)');
+    if(!CURRENT_MACRO._sessions) CURRENT_MACRO._sessions={};
+    CURRENT_MACRO._sessions[idx]=plan;
+    showWeekSession(idx, plan);
+  }catch(e){
+    container.innerHTML='<div style="padding:40px;text-align:center;color:#c0392b;font-size:14px;">Fehler: '+e.message+'<br><br><span style="color:#8e8e93;font-size:13px;">Tippe oben auf &larr; Wochenplan, um zurueckzukehren.</span></div>';
+  }
+}
+
+function showWeekSession(idx, plan){
+  var w=CURRENT_MACRO.weeks[idx];
+  var title='Woche '+(w.week!=null?w.week:'')+(w.phase?' \u2014 '+w.phase:'');
+  renderPlan(plan, title);
+  document.getElementById('back-to-macro').style.display='inline-block';
 }
 
 function applyGrafikFilter() {
