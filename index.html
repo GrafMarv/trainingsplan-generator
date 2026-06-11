@@ -292,8 +292,12 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 @media print {
   body { background: #fff; }
-  .tabs, .plan-actions, #page-umbenenner { display: none !important; }
-  .plan-wrapper { display: block !important; margin-top: 0; }
+  /* Nur den generierten Plan drucken - alles andere (Header, Eingabeformular,
+     linkes Filter-Panel, Deko, Loading-Overlay, Buttons) ausblenden. */
+  body * { visibility: hidden; }
+  .plan-wrapper, .plan-wrapper * { visibility: visible; }
+  .plan-wrapper { display: block !important; position: absolute; top: 0; left: 0; width: 100%; margin: 0; }
+  .plan-actions, .plan-actions * { visibility: hidden !important; display: none !important; }
   .a4 { border: none; margin: 0; width: 100%; box-shadow: none; }
   @page { size: A4; margin: 0; }
 }
