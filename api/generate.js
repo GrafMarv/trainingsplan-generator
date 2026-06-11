@@ -199,7 +199,7 @@ Regeln FORMAT B:
       },
       body: JSON.stringify({
         model: 'claude-opus-4-5',
-        max_tokens: 2500,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: input }]
       })
