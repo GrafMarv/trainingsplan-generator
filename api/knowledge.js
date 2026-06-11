@@ -21,32 +21,36 @@ export default async function handler(req, res) {
     'Content-Type': 'application/json'
   };
 
-  // Tabelle bei Bedarf anlegen (idempotent, kleine Vorab-Anfrage)
+  // Tabelle bei Bedarf anlegen (idempotent) + PostgREST-Schema-Cache neu laden
   async function ensureTable() {
+    var diag = {};
     try {
-      await fetch(SUPABASE_URL + '/rest/v1/rpc/exec_sql', {
+      const r1 = await fetch(SUPABASE_URL + '/rest/v1/rpc/exec_sql', {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({
-          sql: 'create table if not exists cb_knowledge (id text primary key, data jsonb not null, updated_at timestamptz default now());'
+          sql: "create table if not exists cb_knowledge (id text primary key, data jsonb not null, updated_at timestamptz default now()); notify pgrst, 'reload schema';"
         })
       });
+      diag.execSqlStatus = r1.status;
+      diag.execSqlBody = await r1.text();
     } catch (e) {
-      // Wenn exec_sql nicht existiert oder fehlschlaegt, lassen wir die eigentliche
-      // Anfrage trotzdem laufen - der Fehler wird dann dort sichtbar.
+      diag.execSqlError = e.message;
     }
+    return diag;
   }
 
   try {
     if (req.method === 'GET') {
       let r = await fetch(base + '?select=data&order=updated_at.desc', { headers: headers });
+      let diag = null;
       if (!r.ok) {
-        await ensureTable();
+        diag = await ensureTable();
         r = await fetch(base + '?select=data&order=updated_at.desc', { headers: headers });
       }
       if (!r.ok) {
         const t = await r.text();
-        return res.status(500).json({ error: 'GET failed: ' + t });
+        return res.status(500).json({ error: 'GET failed: ' + t, ensureTable: diag });
       }
       const rows = await r.json();
       const entries = rows.map(function (row) { return row.data; });
