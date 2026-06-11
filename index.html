@@ -1624,27 +1624,29 @@ function kbRemoteDelete(id) {
 function kbInit() {
   var localBackup = wissenDB.slice();
   fetch('/api/knowledge')
-    .then(function(r){ return r.json(); })
+    .then(function(r){ if(!r.ok) throw new Error('GET /api/knowledge ' + r.status); return r.json(); })
     .then(function(d){
       var server = (d && d.entries) ? d.entries : [];
-      if (server.length === 0 && localBackup.length > 0 && localStorage.getItem('wissenDB_migrated') !== '1') {
+      if (server.length === 0 && localBackup.length > 0 && localStorage.getItem('wissenDB_migrated_v2') !== '1') {
         // Erster Lauf mit nur lokalen Daten: in Supabase hochladen
         wissenDB = localBackup;
         fetch('/api/knowledge', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ entries: localBackup })
-        }).then(function(){ localStorage.setItem('wissenDB_migrated','1'); }).catch(function(){});
+        }).then(function(r){ if(r.ok) localStorage.setItem('wissenDB_migrated_v2','1'); }).catch(function(){});
       } else {
         wissenDB = server;
-        localStorage.setItem('wissenDB_migrated','1');
+        localStorage.setItem('wissenDB_migrated_v2','1');
       }
       saveWissenDB();
       renderKonzeptList();
       renderStudieList();
     })
     .catch(function(){
-      // Offline: weiter mit lokalem Stand (Cache) arbeiten
+      // Anfrage fehlgeschlagen (Tabelle fehlt, offline, etc.): lokalen Stand NICHT
+      // ueberschreiben. Beim naechsten Laden wird die Migration erneut versucht,
+      // da 'wissenDB_migrated_v2' in diesem Fall nicht gesetzt wird.
     });
 }
 
