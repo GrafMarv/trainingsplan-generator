@@ -550,7 +550,6 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   </div>
 
   </div>
-</div>
 
 <!-- PROFILE SCREEN -->
 <div id="profile-screen" style="display:none;min-height:100vh;background:#f9f9f9;">
@@ -759,41 +758,6 @@ function goTo(screen) {
   document.getElementById('wissen-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('app-screen').style.display = 'none';
-
-  if (screen === 'generator' || screen === 'umbenenner') {
-    document.getElementById('app-screen').style.display = 'block';
-    document.getElementById('app-tabs').style.display = 'flex';
-    document.getElementById('app-topbar-title').textContent = screen === 'generator' ? 'Trainingsplan Generator' : 'Uebung Umbenenner';
-    // activate correct tab
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const tabIdx = screen === 'generator' ? 0 : 1;
-    document.querySelectorAll('.tab')[tabIdx]?.classList.add('active');
-    document.getElementById('page-' + screen)?.classList.add('active');
-  } else {
-    document.getElementById(screen + '-screen').style.display = 'block';
-    if (screen === 'wissen') {
-      setTimeout(function(){ wissenTab('brain'); }, 80);
-    }
-    if (screen === 'profile') {
-      setTimeout(function(){ if(window.initProfileScreen) initProfileScreen(); }, 80);
-    }
-  }
-}
-
-function goHome() {
-  document.getElementById('home-screen').style.display = 'flex';
-  document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('wissen-screen').style.display = 'none';
-  document.getElementById('profile-screen').style.display = 'none';
-}
-
-
-function goTo(screen) {
-  document.getElementById('home-screen').style.display = 'none';
-  document.getElementById('wissen-screen').style.display = 'none';
-  document.getElementById('profile-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'none';
   document.getElementById('left-panel').style.display = 'none';
   if (screen === 'generator' || screen === 'umbenenner') {
     document.getElementById('app-screen').style.display = 'block';
@@ -868,7 +832,7 @@ async function generateWithAI() {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input, exercises: EXERCISES.join(', '), mode: 'auto' })
+      body: JSON.stringify({ input })
     });
     if (!response.ok) throw new Error('API Fehler');
     const data = await response.json();
@@ -1210,7 +1174,7 @@ async function openWeekSession(idx){
     +'Beruecksichtige die Position im Zyklus (Auf-/Entlastung relativ zu Nachbarwochen) bei Volumen und Intensitaet. '
     +'Gib nur diese eine Einheit aus, keinen Mehrwochenplan.';
   try{
-    var resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input,exercises:EXERCISES.join(', '),mode:'auto'})});
+    var resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:input})});
     if(!resp.ok) throw new Error('API Fehler');
     var data=await resp.json();
     if(data.error) throw new Error(data.error);
@@ -1791,32 +1755,6 @@ async function uploadAll() {
   status.className = success > 0 ? 'status-box' : 'status-box error';
 }
 </script>
-</div><!-- end app-screen -->
-
-<!-- WISSEN SCREEN -->
-<div id="wissen-screen" style="display:none;">
-<div class="app-topbar">
-  <button class="back-btn" onclick="goHome()">← Zurück</button>
-  <span class="app-topbar-title">Wissen</span>
-</div>
-<div class="coming-soon">
-  <h2>Wissensbereich</h2>
-  <p>Fachwissen hochladen und verwalten – kommt bald.</p>
-</div>
-</div>
-
-<!-- PROFILE SCREEN -->
-<div id="profile-screen" style="display:none;">
-<div class="app-topbar">
-  <button class="back-btn" onclick="goHome()">← Zurück</button>
-  <span class="app-topbar-title">Spielerprofile</span>
-</div>
-<div class="coming-soon">
-  <h2>Spielerprofile</h2>
-  <p>Athleten verwalten und Diagnostik – kommt bald.</p>
-</div>
-</div>
-
 </div><!-- end app-screen -->
 
 <script>
