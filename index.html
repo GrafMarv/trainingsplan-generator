@@ -931,8 +931,8 @@ function renderPlan(blocks, titleOverride) {
     a4.className = 'a4';
     const header = document.createElement('div');
     header.className = 'plan-header';
-    const pageLabel = pages.length > 1 ? ` (Seite ${pageIdx+1}/${pages.length})` : '';
-    header.innerHTML = `<span class="plan-header-title">${title}${pageLabel}</span><span class="plan-header-sub">${date}</span>`;
+    const pageLabel = pages.length > 1 ? ` &middot; Seite ${pageIdx+1}/${pages.length}` : '';
+    header.innerHTML = `<span class="plan-header-title">${title}</span><span class="plan-header-sub">${date}${pageLabel}</span>`;
     a4.appendChild(header);
     const exContainer = document.createElement('div');
     exContainer.className = 'exercises-container';
