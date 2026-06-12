@@ -330,6 +330,23 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   .a4 { border: none; margin: 0; width: 100%; box-shadow: none; }
   @page { size: A4; margin: 0; }
 }
+
+/* MOBILE - Einzeleinheit/Plan-Screen lesbar machen (Desktop unberuehrt) */
+@media (max-width: 840px) {
+  .ui { padding: 20px 16px 48px; }
+  .tabs { padding: 32px 16px 0; }
+  .plan-wrapper { max-width: 100%; margin-top: 20px; }
+  .a4 { width: 100%; height: auto; padding: 20px 16px; }
+  .a4.a4-macro { padding: 20px 12px; }
+  #explain-btn {
+    right: auto !important;
+    left: 50% !important;
+    top: auto !important;
+    bottom: 18px !important;
+    transform: translateX(-50%) !important;
+    padding: 12px 22px !important;
+  }
+}
 </style>
 </head>
 <body>
