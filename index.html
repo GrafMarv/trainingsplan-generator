@@ -628,7 +628,10 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#8e8e93;margin-bottom:6px;">KADER</p>
         <h2 style="font-size:28px;font-weight:700;color:#1c1c1e;">Spielerprofile</h2>
       </div>
-      <button id="btn-new-player" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Spieler</button>
+      <div style="display:flex;gap:8px;">
+        <button id="btn-diag-template" style="background:#fff;color:#1c1c1e;border:0.5px solid #e5e5ea;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Vorlage herunterladen</button>
+        <button id="btn-new-player" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Spieler</button>
+      </div>
     </div>
     <div id="pv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;"></div>
     <div id="pv-empty" style="display:none;text-align:center;padding:80px 0;">
@@ -2451,6 +2454,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // New player buttons
   document.getElementById('btn-new-player').addEventListener('click', function() { plShowModal(); });
+  document.getElementById('btn-diag-template').addEventListener('click', function() { downloadDiagTemplate(); });
   document.getElementById('btn-new-player-2').addEventListener('click', function() { plShowModal(); });
 
   // Modal buttons
@@ -2500,6 +2504,46 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   document.getElementById('btn-save-diag').addEventListener('click', function() { plSaveDiag(); });
 });
+
+function loadXlsxJs() {
+  if (window.XLSX) return Promise.resolve();
+  if (window._xlsxLoading) return window._xlsxLoading;
+  window._xlsxLoading = new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = function() { resolve(); };
+    s.onerror = function() { reject(new Error('Excel-Bibliothek konnte nicht geladen werden')); };
+    document.head.appendChild(s);
+  });
+  return window._xlsxLoading;
+}
+
+var DIAG_HEADERS = ['Vorname','Nachname','10m Sprint (s)','30m Sprint (s)','505 rechts (s)','505 links (s)','MB Wurf rechts (m)','MB Wurf links (m)','Standweitsprung (m)','30-15 IFT vIFT (km/h)'];
+
+function downloadDiagTemplate() {
+  if (window.showLoader) showLoader('Vorlage wird erstellt...');
+  loadXlsxJs().then(function() {
+    var rows = [DIAG_HEADERS];
+    var sorted = PL.slice().sort(function(a, b) {
+      var la = (a.ln || '').toLowerCase(), lb = (b.ln || '').toLowerCase();
+      if (la < lb) return -1;
+      if (la > lb) return 1;
+      return (a.fn || '').toLowerCase().localeCompare((b.fn || '').toLowerCase());
+    });
+    sorted.forEach(function(p) {
+      rows.push([p.fn || '', p.ln || '', '', '', '', '', '', '', '', '']);
+    });
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{wch:14},{wch:14},{wch:13},{wch:13},{wch:12},{wch:12},{wch:16},{wch:16},{wch:17},{wch:17}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Diagnostik');
+    XLSX.writeFile(wb, 'Diagnostik_Vorlage.xlsx');
+    if (window.hideLoader) hideLoader();
+  }).catch(function(e) {
+    if (window.hideLoader) hideLoader();
+    alert('Fehler: ' + e.message);
+  });
+}
 
 function plShowModal() {
   PL_POS = 'Feldspieler';
