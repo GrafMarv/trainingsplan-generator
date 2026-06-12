@@ -122,7 +122,26 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f2f2f7; col
 .ui h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 4px; color: #1c1c1e; }
 .ui p.subtitle { font-size: 14px; color: #8e8e93; margin-bottom: 32px; }
 
-#app-screen { background: #08081A; min-height: 100vh; }
+#app-screen { background: #08081A; min-height: 100vh; position: relative; overflow: hidden; }
+#app-screen::before {
+  content: '';
+  position: fixed; inset: -20%;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(216,90,48,0.16), transparent 35%),
+    radial-gradient(circle at 80% 20%, rgba(55,138,221,0.16), transparent 35%),
+    radial-gradient(circle at 50% 85%, rgba(127,119,221,0.14), transparent 40%),
+    radial-gradient(circle at 75% 65%, rgba(29,158,117,0.12), transparent 35%);
+  filter: blur(70px);
+  animation: nebula-drift 70s ease-in-out infinite alternate;
+  z-index: 0; pointer-events: none;
+}
+#app-screen > * { position: relative; z-index: 1; }
+@keyframes nebula-drift {
+  0% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(-3%, 2%) scale(1.06); }
+  100% { transform: translate(2%, -2%) scale(1); }
+}
+.gen-center { max-width: 640px; width: 100%; margin: 9vh auto 60px; }
 #app-screen .ui h1 { color: #fff; }
 #app-screen .ui p.subtitle { color: rgba(255,255,255,0.5); }
 #app-screen .tab { color: rgba(255,255,255,0.45); }
@@ -385,10 +404,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     function tick(){
       var hs=document.getElementById('home-screen');
-      var as=document.getElementById('app-screen');
-      var hsVisible = hs && hs.style.display!=='none';
-      var asVisible = as && as.style.display!=='none';
-      if(hsVisible || asVisible){
+      if(hs&&hs.style.display!=='none'){
         draw();rotY+=0.0015;
       }
       requestAnimationFrame(tick);
@@ -682,15 +698,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <button onclick="goHome()" style="background:none;border:none;font-size:14px;color:#007aff;cursor:pointer;font-family:inherit;font-weight:500;padding:0;">← Zurück</button>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('generator', this)">Trainingsplan</div>
-  <div class="tab" onclick="switchTab('umbenenner', this)">Übung Umbenenner</div>
+<div class="tabs" style="padding:16px 32px 0;gap:2px;justify-content:flex-end;">
+  <div class="tab active" onclick="switchTab('generator', this)" style="padding:5px 14px;font-size:12px;">Trainingsplan</div>
+  <div class="tab" onclick="switchTab('umbenenner', this)" style="padding:5px 14px;font-size:12px;">Übung Umbenenner</div>
 </div>
 
 <div id="page-generator" class="page active">
 <div class="ui">
-  <h1>Trainingsplan Generator</h1>
-  <p class="subtitle">Beschreibe deinen Trainingsplan in einem Satz – die KI erkennt automatisch Warm-up, Hauptblock und Cool-down.</p>
+  <div class="gen-center">
 
   <div class="card">
     <label class="section-label">Trainingsplan beschreiben</label>
@@ -701,12 +716,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <p class="hint">Wenn du Warm-up oder Cool-down erwähnst, werden sie automatisch als eigene Blöcke erkannt. Intensität (RPE, %) und Pausen sind optional.</p>
   </div>
 
-  <div class="card">
-    <div class="row">
-      <div><label>Planname</label><input type="text" id="plan-name" value="Krafttraining A"></div>
-      <div><label>Footer</label><input type="text" id="plan-footer" value="Coach: _______________ &middot; Athlet: _______________"></div>
-    </div>
-  </div>
+  <input type="hidden" id="plan-name" value="Krafttraining A">
+  <input type="hidden" id="plan-footer" value="Coach: _______________ &middot; Athlet: _______________">
 
   <button class="btn-primary" id="generate-btn" onclick="generateWithAI()">Trainingsplan generieren</button>
   <div class="status-box" id="status-box"></div>
@@ -719,6 +730,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <span>Im Druckdialog "Als PDF speichern" wählen</span>
     </div>
     <div id="pages-container"></div>
+  </div>
+
   </div>
 </div>
 </div>
