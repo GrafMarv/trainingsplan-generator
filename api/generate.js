@@ -30,6 +30,7 @@ export default async function handler(req, res) {
 
     // Semantische Suche via Supabase (wenn verfügbar)
     let brainContext = '';
+    let usedChunks = [];
     if (SUPABASE_URL && SUPABASE_KEY && OPENAI_KEY) {
       try {
         // 1. Input embedden
@@ -69,6 +70,12 @@ export default async function handler(req, res) {
               brainContext = matchData.map(c =>
                 `[${c.titel}]\n${c.inhalt}`
               ).join('\n\n---\n\n');
+              usedChunks = matchData.map(c => ({
+                titel: c.titel || '',
+                quelle: c.quelle || '',
+                tags: c.tags || [],
+                inhalt: (c.inhalt || '').slice(0, 400)
+              }));
             }
           }
         }
@@ -98,6 +105,12 @@ export default async function handler(req, res) {
 
         if (scored.length > 0) {
           brainContext = scored.map(c => `[${c.titel}]\n${c.inhalt}`).join('\n\n---\n\n');
+          usedChunks = scored.map(c => ({
+            titel: c.titel || '',
+            quelle: c.quelle || '',
+            tags: c.tags || [],
+            inhalt: (c.inhalt || '').slice(0, 400)
+          }));
         }
       } catch(e) {}
     }
@@ -211,7 +224,7 @@ Regeln FORMAT B:
     }
     const text = data.content[0].text;
     const clean = text.replace(/```json|```/g, '').trim();
-    res.status(200).json({ plan: JSON.parse(clean) });
+    res.status(200).json({ plan: JSON.parse(clean), usedChunks: usedChunks });
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
