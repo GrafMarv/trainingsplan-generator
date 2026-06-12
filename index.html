@@ -741,6 +741,19 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 </div>
 
+<button id="explain-btn" onclick="showExplain()" style="display:none;position:fixed;right:28px;top:50%;transform:translateY(-50%);z-index:50;background:#fff;color:#1c1c1e;border:none;border-radius:30px;padding:14px 20px;font-size:13px;font-weight:600;box-shadow:0 4px 24px rgba(0,0,0,0.4);cursor:pointer;font-family:inherit;align-items:center;gap:8px;">
+  <span style="font-size:16px;">&#128161;</span> Erklaerung anzeigen
+</button>
+
+<div id="explain-modal" style="display:none;position:fixed;inset:0;background:rgba(8,8,26,0.6);z-index:60;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;max-width:640px;width:100%;max-height:82vh;overflow:auto;border-radius:16px;padding:30px 34px;position:relative;box-shadow:0 12px 48px rgba(0,0,0,0.4);">
+    <button onclick="closeExplain()" style="position:absolute;top:14px;right:14px;background:#f2f2f7;border:none;width:30px;height:30px;border-radius:50%;font-size:16px;color:#8e8e93;cursor:pointer;line-height:1;">&times;</button>
+    <h3 style="font-size:18px;font-weight:700;margin:0 0 6px;color:#1c1c1e;">Wie dieser Plan entstanden ist</h3>
+    <p style="font-size:12px;color:#8e8e93;margin:0 0 18px;">Basierend auf den Wissens-Chunks, die fuer diese Generierung herangezogen wurden.</p>
+    <div id="explain-body" style="font-size:14px;line-height:1.7;color:#3a3a3c;white-space:pre-line;"></div>
+  </div>
+</div>
+
 <div id="page-umbenenner" class="page">
 <div class="ui">
   <h1>Übung Umbenenner</h1>
@@ -858,6 +871,12 @@ async function generateWithAI() {
     if (data.error) throw new Error(data.error);
     status.style.display = 'none';
     if(window.hideLoader) hideLoader();
+    if (data.plan && !Array.isArray(data.plan) && data.plan.kind === 'macro') {
+      data.plan._usedChunks = data.usedChunks || [];
+    } else {
+      var sessTitle = document.getElementById('plan-name').value || 'Trainingseinheit';
+      setExplainContext(data.usedChunks || [], { type: 'session', title: sessTitle, intro: '', input: input });
+    }
     renderOutput(data.plan);
   } catch(e) {
     if(window.hideLoader) hideLoader();
@@ -871,6 +890,9 @@ async function generateWithAI() {
 
 function resetPlan() {
   document.getElementById('plan-wrapper').style.display = 'none';
+  var ebtn = document.getElementById('explain-btn');
+  if (ebtn) ebtn.style.display = 'none';
+  window.EXPLAIN_CTX = null;
 }
 
 function buildGroupCounters(exercises) {
@@ -1078,6 +1100,7 @@ function renderMacro(doc){
   }
 
   CURRENT_MACRO = doc; if(!doc._sessions) doc._sessions = {};
+  setExplainContext(doc._usedChunks || [], { type: 'macro', title: title, intro: doc.intro || '' });
   var _bk2=document.getElementById('back-to-macro'); if(_bk2) _bk2.style.display='none';
   const hint=document.createElement('div');
   hint.style.cssText='font-size:12px;color:#8e8e93;margin:0 0 12px;';
@@ -1214,8 +1237,10 @@ async function openWeekSession(idx){
     if(!Array.isArray(plan)) throw new Error('Unerwartetes Format (kein Einzelplan)');
     if(!CURRENT_MACRO._sessions) CURRENT_MACRO._sessions={};
     if(!CURRENT_MACRO._ctx) CURRENT_MACRO._ctx={};
+    if(!CURRENT_MACRO._sessionChunks) CURRENT_MACRO._sessionChunks={};
     CURRENT_MACRO._sessions[idx]=plan;
     CURRENT_MACRO._ctx[idx]=input;
+    CURRENT_MACRO._sessionChunks[idx]=data.usedChunks||[];
     if(window.hideLoader) hideLoader();
     showWeekSession(idx, plan, input);
   }catch(e){
@@ -1229,6 +1254,8 @@ function showWeekSession(idx, plan, ctxInput){
   var title='Woche '+(w.week!=null?w.week:'')+(w.phase?' \u2014 '+w.phase:'');
   renderPlan(plan, title);
   document.getElementById('back-to-macro').style.display='inline-block';
+  var chunks = (CURRENT_MACRO._sessionChunks||{})[idx] || [];
+  setExplainContext(chunks, { type: 'session', title: title, intro: w.details || w.focus || '' });
 }
 
 function applyGrafikFilter() {
@@ -1807,6 +1834,57 @@ function escHtml(s) {
 }
 function escAttr(s) {
   return escHtml(s).replace(/"/g,'&quot;');
+}
+
+// --- Erklaerung anzeigen (Plan-Generierung erklaeren) ---
+window.EXPLAIN_CTX = null;
+
+function setExplainContext(chunks, context) {
+  window.EXPLAIN_CTX = { chunks: Array.isArray(chunks) ? chunks : [], context: context || {} };
+  var btn = document.getElementById('explain-btn');
+  if (btn) btn.style.display = (window.EXPLAIN_CTX.chunks.length > 0) ? 'flex' : 'none';
+}
+
+function showExplain() {
+  var modal = document.getElementById('explain-modal');
+  var body = document.getElementById('explain-body');
+  if (!modal || !body) return;
+  modal.style.display = 'flex';
+  var ctx = window.EXPLAIN_CTX;
+  if (!ctx || !ctx.chunks.length) {
+    body.innerHTML = '<p>Fuer diesen Plan wurden keine Wissens-Chunks erfasst.</p>';
+    return;
+  }
+  body.innerHTML = '<p style="color:#8e8e93;">Claude analysiert die Entscheidungen...</p>';
+  fetch('/api/explain', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ctx)
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error) { body.innerHTML = '<p style="color:#ff3b30;">Fehler: ' + escHtml(d.error) + '</p>'; return; }
+      var seen = {}, sources = [];
+      ctx.chunks.forEach(function(c){
+        var key = (c.titel||'') + '|' + (c.quelle||'');
+        if (!seen[key]) { seen[key] = 1; sources.push(c); }
+      });
+      var html = '<div>' + escHtml(d.explanation) + '</div>';
+      if (sources.length) {
+        html += '<div style="margin-top:22px;padding-top:16px;border-top:1px solid #e5e5ea;">'
+          + '<strong style="display:block;margin-bottom:8px;color:#1c1c1e;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;">Quellen</strong>'
+          + '<div style="font-size:12px;color:#8e8e93;line-height:1.7;">'
+          + sources.map(function(c){ return '&middot; ' + escHtml(c.titel) + (c.quelle ? ' &mdash; ' + escHtml(c.quelle) : ''); }).join('<br>')
+          + '</div></div>';
+      }
+      body.innerHTML = html;
+    })
+    .catch(function(e){ body.innerHTML = '<p style="color:#ff3b30;">Fehler: ' + escHtml(e.message) + '</p>'; });
+}
+
+function closeExplain() {
+  var modal = document.getElementById('explain-modal');
+  if (modal) modal.style.display = 'none';
 }
 
 function renderDistillPanel(id) {
