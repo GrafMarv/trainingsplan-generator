@@ -141,10 +141,13 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f2f2f7; col
   50% { transform: translate(-3%, 2%) scale(1.06); }
   100% { transform: translate(2%, -2%) scale(1); }
 }
-.gen-center { max-width: 640px; width: 100%; margin: 9vh auto 60px; }
+.gen-center { width: 100%; max-width: 640px; margin: 0; }
+#page-generator .ui, #page-umbenenner .ui { display: flex; flex-direction: column; justify-content: safe center; align-items: center; min-height: calc(100vh - 96px); padding-top: 0; padding-bottom: 40px; }
+#app-screen .tab:not(.active) { color: rgba(255,255,255,0.45); }
+@keyframes screenEnter { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.screen-enter { animation: screenEnter 0.4s cubic-bezier(.22,.8,.25,1) both; }
 #app-screen .ui h1 { color: #fff; }
 #app-screen .ui p.subtitle { color: rgba(255,255,255,0.5); }
-#app-screen .tab { color: rgba(255,255,255,0.45); }
 #app-screen > div:first-child a, #app-screen > div:first-child button { color: #5AC8FA !important; }
 
 /* CARDS */
@@ -757,20 +760,31 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 
 <script>
+function playScreenEnter(el) {
+  if (!el) return;
+  el.classList.remove('screen-enter');
+  void el.offsetWidth;
+  el.classList.add('screen-enter');
+}
+
 function goTo(screen) {
   document.getElementById('home-screen').style.display = 'none';
   document.getElementById('wissen-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('app-screen').style.display = 'none';
   if (screen === 'generator' || screen === 'umbenenner') {
-    document.getElementById('app-screen').style.display = 'block';
+    const app = document.getElementById('app-screen');
+    app.style.display = 'block';
+    playScreenEnter(app);
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const idx = screen === 'generator' ? 0 : 1;
     document.querySelectorAll('.tab')[idx]?.classList.add('active');
     document.getElementById('page-' + screen)?.classList.add('active');
   } else {
-    document.getElementById(screen + '-screen').style.display = 'block';
+    const el = document.getElementById(screen + '-screen');
+    el.style.display = 'block';
+    playScreenEnter(el);
     if (screen === 'wissen') {
       setTimeout(function(){ wissenTab('brain'); }, 80);
     }
@@ -780,7 +794,9 @@ function goTo(screen) {
   }
 }
 function goHome() {
-  document.getElementById('home-screen').style.display = 'flex';
+  const hs = document.getElementById('home-screen');
+  hs.style.display = 'flex';
+  playScreenEnter(hs);
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('wissen-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'none';
