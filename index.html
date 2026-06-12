@@ -210,10 +210,11 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 @keyframes pulse-mic { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 
 /* PLAN */
-.plan-wrapper { display: none; margin-top: 32px; }
+.plan-wrapper { display: none; width: 100%; max-width: 900px; margin-top: 32px; }
 .plan-actions { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
 .plan-actions span { font-size: 12px; color: #8e8e93; }
 .a4 { width: 794px; height: 1123px; background: #fff; padding: 28px 32px; border: 0.5px solid #d1d1d6; border-radius: 4px; margin: 0 auto 24px auto; display: flex; flex-direction: column; gap: 8px; page-break-after: always; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.a4.a4-macro { width: 100%; height: auto; min-height: 0; }
 .plan-header { flex-shrink: 0; border: 0.5px solid #d1d1d6; border-radius: 6px; padding: 10px 16px; height: 48px; display: flex; align-items: center; }
 .plan-header-title { font-size: 16px; font-weight: 600; }
 .plan-header-sub { font-size: 12px; color: #8e8e93; margin-left: auto; }
@@ -725,6 +726,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <button class="btn-primary" id="generate-btn" onclick="generateWithAI()">Trainingsplan generieren</button>
   <div class="status-box" id="status-box"></div>
 
+  </div>
+
   <div class="plan-wrapper" id="plan-wrapper">
     <div class="plan-actions">
       <button class="btn-secondary" onclick="window.print()">Drucken / als PDF</button>
@@ -735,7 +738,6 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <div id="pages-container"></div>
   </div>
 
-  </div>
 </div>
 </div>
 
@@ -1057,19 +1059,20 @@ function renderMacro(doc){
   container.innerHTML = '';
 
   const a4 = document.createElement('div');
-  a4.className = 'a4';
+  a4.className = 'a4 a4-macro';
 
   const header = document.createElement('div');
   header.className = 'plan-header';
-  header.innerHTML = '<span class="plan-header-title">'+title+'</span><span class="plan-header-sub">'+date+'</span>';
+  header.style.cssText = 'height:auto;padding:16px 22px;';
+  header.innerHTML = '<span class="plan-header-title" style="font-size:21px;">'+title+'</span><span class="plan-header-sub" style="font-size:13px;">'+date+'</span>';
   a4.appendChild(header);
 
   const body = document.createElement('div');
-  body.style.cssText = 'flex:1;min-height:0;padding:6px 2px;overflow:auto;';
+  body.style.cssText = 'flex:1;min-height:0;padding:10px 4px;overflow:auto;';
 
   if (doc.intro){
     const intro = document.createElement('div');
-    intro.style.cssText = 'font-size:13px;color:#3a3a3c;line-height:1.5;margin:4px 0 16px;padding:11px 14px;background:#f2f2f7;border-radius:8px;';
+    intro.style.cssText = 'font-size:14px;color:#3a3a3c;line-height:1.6;margin:4px 0 20px;padding:14px 18px;background:#f2f2f7;border-radius:10px;';
     intro.textContent = doc.intro;
     body.appendChild(intro);
   }
@@ -1077,20 +1080,27 @@ function renderMacro(doc){
   CURRENT_MACRO = doc; if(!doc._sessions) doc._sessions = {};
   var _bk2=document.getElementById('back-to-macro'); if(_bk2) _bk2.style.display='none';
   const hint=document.createElement('div');
-  hint.style.cssText='font-size:11.5px;color:#8e8e93;margin:0 0 8px;';
+  hint.style.cssText='font-size:12px;color:#8e8e93;margin:0 0 12px;';
   hint.textContent='Tipp: Klick auf eine Woche generiert die konkrete Trainingseinheit.';
   body.appendChild(hint);
 
+  function loadPct(s){
+    var m = String(s||'').match(/(\d+(?:\.\d+)?)/g);
+    if(!m) return 0;
+    var v = Math.max.apply(null, m.map(Number));
+    return Math.max(0, Math.min(100, v));
+  }
+
   const weeks = Array.isArray(doc.weeks) ? doc.weeks : [];
   const table = document.createElement('table');
-  table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px;';
-  const th = 'text-align:left;padding:8px 10px;border-bottom:2px solid #1c1c1e;font-weight:600;color:#1c1c1e;';
+  table.style.cssText = 'width:100%;border-collapse:collapse;font-size:13.5px;';
+  const th = 'text-align:left;padding:10px 14px;border-bottom:2px solid #1c1c1e;font-weight:600;color:#1c1c1e;';
   table.innerHTML = '<thead><tr>'+
-    '<th style="'+th+'width:46px;">Woche</th>'+
+    '<th style="'+th+'width:58px;">Woche</th>'+
     '<th style="'+th+'">Phase</th>'+
     '<th style="'+th+'">Schwerpunkt</th>'+
-    '<th style="'+th+'width:62px;">Last</th>'+
-    '<th style="'+th+'width:78px;">Einheiten</th>'+
+    '<th style="'+th+'width:130px;">Last</th>'+
+    '<th style="'+th+'width:90px;">Einheiten</th>'+
     '<th style="'+th+'width:22px;"></th>'+
     '</tr></thead>';
   const tbody = document.createElement('tbody');
@@ -1099,16 +1109,22 @@ function renderMacro(doc){
     const baseBg = dl?'#fff8ec':'';
     const tr = document.createElement('tr');
     tr.style.cssText = 'border-bottom:1px solid #e5e5ea;cursor:pointer;'+(dl?'background:#fff8ec;':'');
-    const td = 'padding:9px 10px;color:#1c1c1e;vertical-align:top;';
+    const td = 'padding:14px 14px;color:#1c1c1e;vertical-align:top;';
     const wk = (w.week!=null?w.week:'');
-    const badge = dl?' <span style="display:inline-block;font-size:10px;font-weight:600;color:#b06f00;background:#ffe9c2;border-radius:5px;padding:1px 6px;margin-left:4px;">Deload</span>':'';
+    const badge = dl?' <span style="display:inline-block;font-size:10px;font-weight:600;color:#b06f00;background:#ffe9c2;border-radius:5px;padding:2px 7px;margin-left:6px;">Deload</span>':'';
+    const pct = loadPct(w.load);
+    const barColor = dl ? '#e8a23c' : '#378ADD';
+    const bar = '<div style="margin-top:6px;height:5px;border-radius:3px;background:#eef0f3;overflow:hidden;width:100%;">'
+      + '<div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:3px;"></div></div>';
     tr.innerHTML =
-      '<td style="'+td+'font-weight:700;">'+wk+'</td>'+
+      '<td style="'+td+'">'
+        + '<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:'+(dl?'#ffe9c2':'#f2f2f7')+';font-weight:700;font-size:13px;">'+wk+'</span>'
+      + '</td>'+
       '<td style="'+td+'">'+(w.phase||'')+badge+'</td>'+
       '<td style="'+td+'color:#3a3a3c;">'+(w.focus||'')+'</td>'+
-      '<td style="'+td+'font-weight:600;">'+(w.load||'')+'</td>'+
+      '<td style="'+td+'font-weight:600;">'+(w.load||'')+bar+'</td>'+
       '<td style="'+td+'">'+(w.sessions||'')+'</td>'+
-      '<td style="'+td+'color:#c7c7cc;text-align:center;font-size:16px;">&rsaquo;</td>';
+      '<td style="'+td+'color:#c7c7cc;text-align:center;font-size:18px;">&rsaquo;</td>';
     tr.addEventListener('mouseenter',function(){tr.style.background='#eef4ff';});
     tr.addEventListener('mouseleave',function(){tr.style.background=baseBg;});
     tr.addEventListener('click',function(){openWeekSession(idx);});
@@ -1119,7 +1135,7 @@ function renderMacro(doc){
 
   if (doc.note){
     const note = document.createElement('div');
-    note.style.cssText = 'font-size:12px;color:#3a3a3c;line-height:1.5;margin-top:18px;padding:11px 14px;border-left:3px solid #14B8C4;background:#f0fbfc;border-radius:0 8px 8px 0;';
+    note.style.cssText = 'font-size:13px;color:#3a3a3c;line-height:1.6;margin-top:20px;padding:14px 18px;border-left:3px solid #14B8C4;background:#f0fbfc;border-radius:0 10px 10px 0;';
     note.textContent = doc.note;
     body.appendChild(note);
   }
