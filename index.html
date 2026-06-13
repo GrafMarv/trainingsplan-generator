@@ -2518,7 +2518,26 @@ function loadXlsxJs() {
   return window._xlsxLoading;
 }
 
-var DIAG_HEADERS = ['Vorname','Nachname','10m Sprint (s)','30m Sprint (s)','505 rechts (s)','505 links (s)','MB Wurf rechts (m)','MB Wurf links (m)','Standweitsprung (m)','30-15 IFT vIFT (km/h)'];
+var DIAG_FIELDS = [
+  { key: 's10', label: '10m Sprint', unit: 's', attempts: 2, better: 'min' },
+  { key: 's30', label: '30m Sprint', unit: 's', attempts: 2, better: 'min' },
+  { key: 'cr', label: '505 rechts', unit: 's', attempts: 2, better: 'min' },
+  { key: 'cl', label: '505 links', unit: 's', attempts: 2, better: 'min' },
+  { key: 'mr', label: 'MB Wurf rechts', unit: 'm', attempts: 2, better: 'max' },
+  { key: 'ml', label: 'MB Wurf links', unit: 'm', attempts: 2, better: 'max' },
+  { key: 'sw', label: 'Standweitsprung', unit: 'm', attempts: 2, better: 'max' },
+  { key: 'ift', label: '30-15 IFT vIFT', unit: 'km/h', attempts: 1, better: 'max' }
+];
+
+var DIAG_HEADERS = ['Datum', 'Vorname', 'Nachname'];
+DIAG_FIELDS.forEach(function(f) {
+  if (f.attempts === 2) {
+    DIAG_HEADERS.push(f.label + ' V1 (' + f.unit + ')');
+    DIAG_HEADERS.push(f.label + ' V2 (' + f.unit + ')');
+  } else {
+    DIAG_HEADERS.push(f.label + ' (' + f.unit + ')');
+  }
+});
 
 function downloadDiagTemplate() {
   if (window.showLoader) showLoader('Vorlage wird erstellt...');
@@ -2530,11 +2549,17 @@ function downloadDiagTemplate() {
       if (la > lb) return 1;
       return (a.fn || '').toLowerCase().localeCompare((b.fn || '').toLowerCase());
     });
+    var today = new Date().toISOString().slice(0,10);
+    var blanks = [];
+    DIAG_FIELDS.forEach(function(f) { for (var i=0;i<f.attempts;i++) blanks.push(''); });
     sorted.forEach(function(p) {
-      rows.push([p.fn || '', p.ln || '', '', '', '', '', '', '', '', '']);
+      rows.push([today, p.fn || '', p.ln || ''].concat(blanks));
     });
     var ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{wch:14},{wch:14},{wch:13},{wch:13},{wch:12},{wch:12},{wch:16},{wch:16},{wch:17},{wch:17}];
+    var colWidths = [{wch:11},{wch:14},{wch:14}];
+    DIAG_FIELDS.forEach(function() { colWidths.push({wch:13}); colWidths.push({wch:13}); });
+    colWidths[colWidths.length-1] = {wch:15}; // letzte Spalte (IFT) hat nur 1 Versuch, aber Array ist eh nur Breiten
+    ws['!cols'] = colWidths.slice(0, DIAG_HEADERS.length);
     var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Diagnostik');
     XLSX.writeFile(wb, 'Diagnostik_Vorlage.xlsx');
