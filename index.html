@@ -739,9 +739,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button id="btn-diag-import" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Diagnostik importieren</button>
       <input type="file" id="diag-import-file" accept=".xlsx,.xls" style="display:none;">
     </div>
-    <div id="diag-overview" style="text-align:center;padding:60px 0;color:#8e8e93;font-size:13px;">
-      Noch keine Team-Uebersicht. Importiere zuerst Diagnostikdaten ueber den Button oben.
-    </div>
+    <div id="diag-team-overview" style="margin-bottom:20px;"></div>
+    <div id="diag-overview"></div>
   </div>
 </div>
 
@@ -2580,15 +2579,77 @@ DIAG_FIELDS.forEach(function(f) {
 var DIAG_IMPORT_ROWS = [];
 
 function diagInitScreen() {
+  diagRenderTeamOverview();
   fetch('/api/players')
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d && Array.isArray(d.players)) {
         PL = d.players;
         plSave();
+        diagRenderTeamOverview();
       }
     })
     .catch(function(){});
+}
+
+var DIAG_SHORT = { s10:'10m', s30:'30m', cr:'505 R', cl:'505 L', mr:'MB R', ml:'MB L', sw:'SW', ift:'IFT' };
+
+function diagOpenPlayer(id) {
+  goTo('profile');
+  setTimeout(function(){ if (window.plOpen) plOpen(id); }, 160);
+}
+
+function diagRenderTeamOverview() {
+  var el = document.getElementById('diag-team-overview');
+  var withData = PL.filter(function(p) { return p.diag && p.diag.length > 0; });
+  if (withData.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:60px 0;color:#8e8e93;font-size:13px;">Noch keine Diagnostikdaten vorhanden. Importiere oben eine ausgefuellte Vorlage.</div>';
+    return;
+  }
+  withData = withData.slice().sort(function(a, b) {
+    var la = (a.ln || '').toLowerCase(), lb = (b.ln || '').toLowerCase();
+    if (la < lb) return -1;
+    if (la > lb) return 1;
+    return (a.fn || '').toLowerCase().localeCompare((b.fn || '').toLowerCase());
+  });
+  var html = '<div style="background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;padding:20px;">';
+  html += '<h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">Team-Uebersicht</h3>';
+  html += '<p style="font-size:12px;color:#8e8e93;margin-bottom:14px;">Letzter Wert pro Test &middot; gruen/rot = Veraenderung zur vorherigen Messung &middot; Klick auf Spieler oeffnet Profil</p>';
+  html += '<div style="overflow-x:auto;">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+  html += '<tr style="text-align:left;color:#8e8e93;border-bottom:0.5px solid #e5e5ea;"><th style="padding:8px;">Spieler</th><th style="padding:8px;">Letzter Test</th>';
+  DIAG_FIELDS.forEach(function(f) {
+    html += '<th style="padding:8px;text-align:right;" title="' + f.label + ' (' + f.unit + ')">' + DIAG_SHORT[f.key] + '</th>';
+  });
+  html += '</tr>';
+  withData.forEach(function(p) {
+    html += '<tr style="border-bottom:0.5px solid #f2f2f7;cursor:pointer;" onclick="diagOpenPlayer(\'' + p.id + '\')">';
+    html += '<td style="padding:8px;color:#1c1c1e;font-weight:500;white-space:nowrap;">' + p.fn + ' ' + p.ln + '</td>';
+    html += '<td style="padding:8px;color:#8e8e93;white-space:nowrap;">' + (p.diag[0].date || '-') + '</td>';
+    DIAG_FIELDS.forEach(function(f) {
+      var vals = [];
+      p.diag.forEach(function(d) { if (d[f.key] !== undefined) vals.push(d[f.key]); });
+      if (vals.length === 0) {
+        html += '<td style="padding:8px;text-align:right;color:#c7c7cc;">-</td>';
+        return;
+      }
+      var latest = vals[0], prev = vals[1];
+      var deltaHtml = '';
+      if (prev !== undefined) {
+        var diff = Math.round((latest - prev) * 100) / 100;
+        if (diff !== 0) {
+          var good = f.better === 'min' ? diff < 0 : diff > 0;
+          var color = good ? '#34c759' : '#ff3b30';
+          var sign = diff > 0 ? '+' : '';
+          deltaHtml = '<div style="font-size:10px;color:' + color + ';">' + sign + diff + '</div>';
+        }
+      }
+      html += '<td style="padding:8px;text-align:right;color:#1c1c1e;white-space:nowrap;">' + latest + deltaHtml + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</table></div></div>';
+  el.innerHTML = html;
 }
 
 function diagFmtDate(v) {
@@ -2721,7 +2782,7 @@ function diagRenderPreview() {
 
 function diagCancelImport() {
   DIAG_IMPORT_ROWS = [];
-  document.getElementById('diag-overview').innerHTML = '<div style="text-align:center;padding:60px 0;color:#8e8e93;font-size:13px;">Noch keine Team-Uebersicht. Importiere zuerst Diagnostikdaten ueber den Button oben.</div>';
+  document.getElementById('diag-overview').innerHTML = '';
 }
 
 function diagConfirmImport() {
@@ -2746,7 +2807,8 @@ function diagConfirmImport() {
     if (window.hideLoader) hideLoader();
     var n = DIAG_IMPORT_ROWS.length;
     DIAG_IMPORT_ROWS = [];
-    document.getElementById('diag-overview').innerHTML = '<div style="text-align:center;padding:60px 0;color:#1c1c1e;font-size:14px;font-weight:600;">Import erfolgreich: ' + affected.length + ' Spieler aktualisiert (' + n + ' Eintraege).</div>';
+    document.getElementById('diag-overview').innerHTML = '<div style="text-align:center;padding:24px 0;color:#1c1c1e;font-size:14px;font-weight:600;">Import erfolgreich: ' + affected.length + ' Spieler aktualisiert (' + n + ' Eintraege).</div>';
+    diagRenderTeamOverview();
   }).catch(function(e) {
     if (window.hideLoader) hideLoader();
     alert('Fehler beim Speichern: ' + e.message);
