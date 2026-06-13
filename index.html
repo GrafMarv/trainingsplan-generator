@@ -857,6 +857,9 @@ function goTo(screen) {
     if (screen === 'profile') {
       setTimeout(function(){ if(window.initProfileScreen) initProfileScreen(); }, 80);
     }
+    if (screen === 'diagnostik') {
+      setTimeout(function(){ if(window.diagInitScreen) diagInitScreen(); }, 80);
+    }
   }
 }
 function goHome() {
@@ -2483,7 +2486,12 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btn-diag-template').addEventListener('click', function() { downloadDiagTemplate(); });
   document.getElementById('btn-back-diagnostik').addEventListener('click', function() { goTo('home'); });
   document.getElementById('btn-diag-import').addEventListener('click', function() {
-    alert('Import folgt im naechsten Schritt.');
+    document.getElementById('diag-import-file').click();
+  });
+  document.getElementById('diag-import-file').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    e.target.value = '';
+    if (file) diagImportFile(file);
   });
   document.getElementById('btn-new-player-2').addEventListener('click', function() { plShowModal(); });
 
@@ -2568,6 +2576,182 @@ DIAG_FIELDS.forEach(function(f) {
     DIAG_HEADERS.push(f.label + ' (' + f.unit + ')');
   }
 });
+
+var DIAG_IMPORT_ROWS = [];
+
+function diagInitScreen() {
+  fetch('/api/players')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && Array.isArray(d.players)) {
+        PL = d.players;
+        plSave();
+      }
+    })
+    .catch(function(){});
+}
+
+function diagFmtDate(v) {
+  if (v instanceof Date && !isNaN(v.getTime())) {
+    var y = v.getFullYear(), m = ('0' + (v.getMonth() + 1)).slice(-2), d = ('0' + v.getDate()).slice(-2);
+    return y + '-' + m + '-' + d;
+  }
+  if (typeof v === 'string' && v.trim()) return v.trim();
+  return new Date().toISOString().slice(0, 10);
+}
+
+function diagBestValue(v1, v2, better) {
+  var vals = [];
+  [v1, v2].forEach(function(v) {
+    if (v === '' || v === null || v === undefined) return;
+    var n = typeof v === 'number' ? v : parseFloat(v);
+    if (!isNaN(n)) vals.push(n);
+  });
+  if (vals.length === 0) return null;
+  var best = better === 'min' ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
+  return Math.round(best * 100) / 100;
+}
+
+function diagImportFile(file) {
+  if (window.showLoader) showLoader('Lese Excel-Datei...');
+  loadXlsxJs().then(function() {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var data = new Uint8Array(e.target.result);
+        var wb = XLSX.read(data, { type: 'array', cellDates: true });
+        var ws = wb.Sheets[wb.SheetNames[0]];
+        var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
+        diagParseRows(rows);
+      } catch (err) {
+        if (window.hideLoader) hideLoader();
+        alert('Fehler beim Lesen der Excel-Datei: ' + err.message);
+      }
+    };
+    reader.onerror = function() {
+      if (window.hideLoader) hideLoader();
+      alert('Datei konnte nicht gelesen werden.');
+    };
+    reader.readAsArrayBuffer(file);
+  }).catch(function(e) {
+    if (window.hideLoader) hideLoader();
+    alert('Fehler: ' + e.message);
+  });
+}
+
+function diagParseRows(rows) {
+  if (window.hideLoader) hideLoader();
+  var out = [];
+  for (var i = 1; i < rows.length; i++) {
+    var row = rows[i];
+    if (!row) continue;
+    var fn = (row[1] || '').toString().trim();
+    var ln = (row[2] || '').toString().trim();
+    if (!fn && !ln) continue;
+    var date = diagFmtDate(row[0]);
+    var entry = { date: date };
+    var idx = 3;
+    for (var j = 0; j < DIAG_FIELDS.length; j++) {
+      var f = DIAG_FIELDS[j];
+      var best;
+      if (f.attempts === 2) {
+        best = diagBestValue(row[idx], row[idx + 1], f.better);
+        idx += 2;
+      } else {
+        best = diagBestValue(row[idx], undefined, f.better);
+        idx += 1;
+      }
+      if (best !== null) entry[f.key] = best;
+    }
+    var match = PL.find(function(p) {
+      return (p.fn || '').trim().toLowerCase() === fn.toLowerCase() && (p.ln || '').trim().toLowerCase() === ln.toLowerCase();
+    });
+    out.push({ fn: fn, ln: ln, date: date, entry: entry, player: match || null, isNew: !match });
+  }
+  DIAG_IMPORT_ROWS = out;
+  diagRenderPreview();
+}
+
+function diagFieldLabel(key) {
+  for (var i = 0; i < DIAG_FIELDS.length; i++) {
+    if (DIAG_FIELDS[i].key === key) return DIAG_FIELDS[i].label;
+  }
+  return key;
+}
+
+function diagRenderPreview() {
+  var el = document.getElementById('diag-overview');
+  if (DIAG_IMPORT_ROWS.length === 0) {
+    el.innerHTML = '<p style="text-align:center;padding:40px 0;color:#8e8e93;font-size:13px;">Keine gueltigen Zeilen in der Datei gefunden. Bitte Vorlage verwenden.</p>';
+    return;
+  }
+  var newPlayers = DIAG_IMPORT_ROWS.filter(function(r) { return r.isNew; });
+  var html = '<div style="background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;padding:20px;">';
+  html += '<h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">Vorschau: ' + DIAG_IMPORT_ROWS.length + ' Zeilen erkannt</h3>';
+  if (newPlayers.length > 0) {
+    html += '<p style="font-size:13px;color:#8e8e93;margin-bottom:12px;">' + newPlayers.length + ' neue Spieler werden automatisch angelegt: ' + newPlayers.map(function(r) { return r.fn + ' ' + r.ln; }).join(', ') + '</p>';
+  } else {
+    html += '<p style="font-size:13px;color:#8e8e93;margin-bottom:12px;">Alle Spieler sind bereits angelegt.</p>';
+  }
+  html += '<div style="overflow-x:auto;">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+  html += '<tr style="text-align:left;color:#8e8e93;border-bottom:0.5px solid #e5e5ea;"><th style="padding:6px 8px;">Datum</th><th style="padding:6px 8px;">Name</th><th style="padding:6px 8px;">Status</th><th style="padding:6px 8px;">Werte</th></tr>';
+  DIAG_IMPORT_ROWS.forEach(function(r) {
+    var parts = [];
+    Object.keys(r.entry).forEach(function(k) {
+      if (k === 'date') return;
+      parts.push(diagFieldLabel(k) + ': ' + r.entry[k]);
+    });
+    html += '<tr style="border-bottom:0.5px solid #f2f2f7;">';
+    html += '<td style="padding:6px 8px;color:#1c1c1e;white-space:nowrap;">' + r.date + '</td>';
+    html += '<td style="padding:6px 8px;color:#1c1c1e;font-weight:500;white-space:nowrap;">' + r.fn + ' ' + r.ln + '</td>';
+    html += '<td style="padding:6px 8px;white-space:nowrap;">' + (r.isNew ? '<span style="color:#ff9500;font-weight:600;">Neu</span>' : '<span style="color:#34c759;">Bekannt</span>') + '</td>';
+    html += '<td style="padding:6px 8px;color:#8e8e93;">' + (parts.length ? parts.join(', ') : '-') + '</td>';
+    html += '</tr>';
+  });
+  html += '</table></div>';
+  html += '<div style="display:flex;gap:10px;margin-top:16px;">';
+  html += '<button id="btn-diag-cancel-import" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>';
+  html += '<button id="btn-diag-confirm-import" style="flex:2;padding:12px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Import bestaetigen (' + DIAG_IMPORT_ROWS.length + ' Spieler)</button>';
+  html += '</div></div>';
+  el.innerHTML = html;
+  document.getElementById('btn-diag-cancel-import').addEventListener('click', diagCancelImport);
+  document.getElementById('btn-diag-confirm-import').addEventListener('click', diagConfirmImport);
+}
+
+function diagCancelImport() {
+  DIAG_IMPORT_ROWS = [];
+  document.getElementById('diag-overview').innerHTML = '<div style="text-align:center;padding:60px 0;color:#8e8e93;font-size:13px;">Noch keine Team-Uebersicht. Importiere zuerst Diagnostikdaten ueber den Button oben.</div>';
+}
+
+function diagConfirmImport() {
+  if (window.showLoader) showLoader('Importiere Diagnostikdaten...');
+  var affected = [];
+  DIAG_IMPORT_ROWS.forEach(function(r) {
+    var p = r.player;
+    if (!p) {
+      p = { id: Date.now().toString() + '_' + Math.random().toString(36).slice(2, 7), fn: r.fn, ln: r.ln, dob: '', pos: 'Feldspieler', club: '', diag: [], notes: '' };
+      PL.push(p);
+    }
+    if (!p.diag) p.diag = [];
+    p.diag.unshift(r.entry);
+    affected.push(p);
+  });
+  plSave();
+  fetch('/api/players', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ players: affected })
+  }).then(function(r) { return r.json(); }).then(function() {
+    if (window.hideLoader) hideLoader();
+    var n = DIAG_IMPORT_ROWS.length;
+    DIAG_IMPORT_ROWS = [];
+    document.getElementById('diag-overview').innerHTML = '<div style="text-align:center;padding:60px 0;color:#1c1c1e;font-size:14px;font-weight:600;">Import erfolgreich: ' + affected.length + ' Spieler aktualisiert (' + n + ' Eintraege).</div>';
+  }).catch(function(e) {
+    if (window.hideLoader) hideLoader();
+    alert('Fehler beim Speichern: ' + e.message);
+  });
+}
 
 function downloadDiagTemplate() {
   if (window.showLoader) showLoader('Vorlage wird erstellt...');
