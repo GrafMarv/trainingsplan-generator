@@ -123,8 +123,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f2f2f7; col
 .ui h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 4px; color: #1c1c1e; }
 .ui p.subtitle { font-size: 14px; color: #8e8e93; margin-bottom: 32px; }
 
-#app-screen { background: #08081A; min-height: 100vh; position: relative; overflow: hidden; }
-#app-screen::before {
+#app-screen, .cb-dark { background: #08081A; min-height: 100vh; position: relative; overflow: hidden; }
+#app-screen::before, .cb-dark::before {
   content: '';
   position: fixed; inset: -20%;
   background:
@@ -136,7 +136,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f2f2f7; col
   animation: nebula-drift 70s ease-in-out infinite alternate;
   z-index: 0; pointer-events: none;
 }
-#app-screen > * { position: relative; z-index: 1; }
+#app-screen > *, .cb-dark > * { position: relative; z-index: 1; }
 @keyframes nebula-drift {
   0% { transform: translate(0,0) scale(1); }
   50% { transform: translate(-3%, 2%) scale(1.06); }
@@ -476,9 +476,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 
 <!-- WISSEN SCREEN -->
-<div id="wissen-screen" style="display:none;">
+<div id="wissen-screen" class="cb-dark" style="display:none;">
   <div style="max-width:960px;margin:0 auto;padding:20px 32px 0;display:flex;align-items:center;justify-content:space-between;">
-    <button onclick="goHome()" style="display:flex;align-items:center;gap:6px;background:none;border:0.5px solid #e5e5ea;border-radius:20px;font-size:13px;color:#1c1c1e;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurück</button>
+    <button onclick="goHome()" style="display:flex;align-items:center;gap:6px;background:none;border:0.5px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px;color:rgba(255,255,255,0.85);cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurück</button>
     <div style="width:60px;"></div>
   </div>
 
@@ -621,39 +621,39 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   </div>
 
 <!-- PROFILE SCREEN -->
-<div id="profile-screen" style="display:none;min-height:100vh;background:#f9f9f9;">
+<div id="profile-screen" class="cb-dark" style="display:none;">
   <div style="max-width:960px;margin:0 auto;padding:20px 24px 0;">
-    <button id="btn-back-profile" style="background:none;border:0.5px solid #e5e5ea;border-radius:20px;font-size:13px;color:#1c1c1e;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurueck</button>
+    <button id="btn-back-profile" style="background:none;border:0.5px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px;color:rgba(255,255,255,0.85);cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurueck</button>
   </div>
 
   <!-- Listen-Ansicht -->
   <div id="pv-list" style="max-width:960px;margin:0 auto;padding:24px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
       <div>
-        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#8e8e93;margin-bottom:6px;">KADER</p>
-        <h2 style="font-size:28px;font-weight:700;color:#1c1c1e;">Spielerprofile</h2>
+        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);margin-bottom:6px;">KADER</p>
+        <h2 style="font-size:28px;font-weight:700;color:#fff;">Spielerprofile</h2>
       </div>
-      <button id="btn-new-player" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Spieler</button>
+      <button id="btn-new-player" style="background:#fff;color:#1c1c1e;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Spieler</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
-      <select id="pl-filter-club" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
+      <select id="pl-filter-club" style="padding:8px 12px;border:0.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
         <option value="">Alle Vereine/Verbaende</option>
       </select>
-      <select id="pl-filter-team" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
+      <select id="pl-filter-team" style="padding:8px 12px;border:0.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
         <option value="">Alle Mannschaften</option>
       </select>
     </div>
     <div id="pv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;"></div>
     <div id="pv-empty" style="display:none;text-align:center;padding:80px 0;">
-      <p style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">Noch keine Spieler</p>
-      <p style="font-size:14px;color:#8e8e93;margin-bottom:24px;">Fuege deinen ersten Athleten hinzu</p>
-      <button id="btn-new-player-2" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">+ Ersten Spieler hinzufuegen</button>
+      <p style="font-size:16px;font-weight:600;color:#fff;margin-bottom:8px;">Noch keine Spieler</p>
+      <p style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:24px;">Fuege deinen ersten Athleten hinzu</p>
+      <button id="btn-new-player-2" style="background:#fff;color:#1c1c1e;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">+ Ersten Spieler hinzufuegen</button>
     </div>
   </div>
 
   <!-- Detail-Ansicht -->
   <div id="pv-detail" style="display:none;max-width:960px;margin:0 auto;padding:24px;">
-    <button id="btn-back-list" style="background:none;border:none;font-size:13px;color:#8e8e93;cursor:pointer;font-family:inherit;padding:0;margin-bottom:20px;">&#8592; Alle Spieler</button>
+    <button id="btn-back-list" style="background:none;border:none;font-size:13px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:inherit;padding:0;margin-bottom:20px;">&#8592; Alle Spieler</button>
     <div style="display:flex;align-items:center;gap:20px;padding:20px;background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;margin-bottom:20px;">
       <div id="pv-photo" style="width:60px;height:60px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#1c1c1e;flex-shrink:0;"></div>
       <div style="flex:1;">
@@ -670,17 +670,17 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
     <div id="ptc-diagnostik">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;">Diagnostikwerte</h3>
-        <button id="btn-add-diag" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Test</button>
+        <h3 style="font-size:16px;font-weight:600;color:#fff;">Diagnostikwerte</h3>
+        <button id="btn-add-diag" style="background:#fff;color:#1c1c1e;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Test</button>
       </div>
       <div id="pv-diag-list"></div>
     </div>
     <div id="ptc-verletzungen" style="display:none;">
-      <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:16px;">Verletzungshistorie</h3>
+      <h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:16px;">Verletzungshistorie</h3>
       <p style="color:#8e8e93;font-size:14px;">Kommt bald.</p>
     </div>
     <div id="ptc-notizen" style="display:none;">
-      <h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:16px;">Notizen</h3>
+      <h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:16px;">Notizen</h3>
       <textarea id="pv-notes" style="width:100%;min-height:180px;padding:12px;border:0.5px solid #e5e5ea;border-radius:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
     </div>
   </div>
@@ -734,26 +734,26 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 
 <!-- DIAGNOSTIK SCREEN -->
-<div id="diagnostik-screen" style="display:none;min-height:100vh;background:#f9f9f9;">
+<div id="diagnostik-screen" class="cb-dark" style="display:none;">
   <div style="max-width:960px;margin:0 auto;padding:20px 24px 0;">
-    <button id="btn-back-diagnostik" style="background:none;border:0.5px solid #e5e5ea;border-radius:20px;font-size:13px;color:#1c1c1e;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurueck</button>
+    <button id="btn-back-diagnostik" style="background:none;border:0.5px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px;color:rgba(255,255,255,0.85);cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurueck</button>
   </div>
   <div style="max-width:960px;margin:0 auto;padding:24px;">
     <div style="margin-bottom:28px;">
-      <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#8e8e93;margin-bottom:6px;">TEAM</p>
-      <h2 style="font-size:28px;font-weight:700;color:#1c1c1e;">Diagnostik</h2>
-      <p style="font-size:13px;color:#8e8e93;margin-top:6px;">Testdaten aus Excel importieren, Team-Uebersicht und Vergleiche</p>
+      <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);margin-bottom:6px;">TEAM</p>
+      <h2 style="font-size:28px;font-weight:700;color:#fff;">Diagnostik</h2>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px;">Testdaten aus Excel importieren, Team-Uebersicht und Vergleiche</p>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
-      <button id="btn-diag-template" style="background:#fff;color:#1c1c1e;border:0.5px solid #e5e5ea;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Vorlage herunterladen</button>
-      <button id="btn-diag-import" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Diagnostik importieren</button>
+      <button id="btn-diag-template" style="background:rgba(255,255,255,0.08);color:#fff;border:0.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Vorlage herunterladen</button>
+      <button id="btn-diag-import" style="background:#fff;color:#1c1c1e;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Diagnostik importieren</button>
       <input type="file" id="diag-import-file" accept=".xlsx,.xls" style="display:none;">
     </div>
     <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
-      <select id="dg-filter-club" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
+      <select id="dg-filter-club" style="padding:8px 12px;border:0.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
         <option value="">Alle Vereine/Verbaende</option>
       </select>
-      <select id="dg-filter-team" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
+      <select id="dg-filter-team" style="padding:8px 12px;border:0.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
         <option value="">Alle Mannschaften</option>
       </select>
     </div>
@@ -2701,7 +2701,7 @@ function diagRenderTeamOverview() {
   plPopulateFilters();
   var withData = plFilteredList().filter(function(p) { return p.diag && p.diag.length > 0; });
   if (withData.length === 0) {
-    el.innerHTML = '<div style="text-align:center;padding:60px 0;color:#8e8e93;font-size:13px;">Noch keine Diagnostikdaten in dieser Auswahl. Importiere oben eine ausgefuellte Vorlage oder waehle einen anderen Filter.</div>';
+    el.innerHTML = '<div style="text-align:center;padding:60px 0;color:rgba(255,255,255,0.5);font-size:13px;">Noch keine Diagnostikdaten in dieser Auswahl. Importiere oben eine ausgefuellte Vorlage oder waehle einen anderen Filter.</div>';
     return;
   }
   withData = withData.slice().sort(function(a, b) {
@@ -2841,7 +2841,7 @@ function diagFieldLabel(key) {
 function diagRenderPreview() {
   var el = document.getElementById('diag-overview');
   if (DIAG_IMPORT_ROWS.length === 0) {
-    el.innerHTML = '<p style="text-align:center;padding:40px 0;color:#8e8e93;font-size:13px;">Keine gueltigen Zeilen in der Datei gefunden. Bitte Vorlage verwenden.</p>';
+    el.innerHTML = '<p style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.5);font-size:13px;">Keine gueltigen Zeilen in der Datei gefunden. Bitte Vorlage verwenden.</p>';
     return;
   }
   var newPlayers = DIAG_IMPORT_ROWS.filter(function(r) { return r.isNew; });
@@ -2905,7 +2905,7 @@ function diagConfirmImport() {
     if (window.hideLoader) hideLoader();
     var n = DIAG_IMPORT_ROWS.length;
     DIAG_IMPORT_ROWS = [];
-    document.getElementById('diag-overview').innerHTML = '<div style="text-align:center;padding:24px 0;color:#1c1c1e;font-size:14px;font-weight:600;">Import erfolgreich: ' + affected.length + ' Spieler aktualisiert (' + n + ' Eintraege).</div>';
+    document.getElementById('diag-overview').innerHTML = '<div style="text-align:center;padding:24px 0;color:#fff;font-size:14px;font-weight:600;">Import erfolgreich: ' + affected.length + ' Spieler aktualisiert (' + n + ' Eintraege).</div>';
     diagRenderTeamOverview();
   }).catch(function(e) {
     if (window.hideLoader) hideLoader();
