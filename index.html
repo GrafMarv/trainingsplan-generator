@@ -635,6 +635,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       </div>
       <button id="btn-new-player" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Neuer Spieler</button>
     </div>
+    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+      <select id="pl-filter-club" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
+        <option value="">Alle Vereine/Verbaende</option>
+      </select>
+      <select id="pl-filter-team" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
+        <option value="">Alle Mannschaften</option>
+      </select>
+    </div>
     <div id="pv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;"></div>
     <div id="pv-empty" style="display:none;text-align:center;padding:80px 0;">
       <p style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">Noch keine Spieler</p>
@@ -652,6 +660,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <h2 id="pv-name" style="font-size:22px;font-weight:700;color:#1c1c1e;margin-bottom:4px;"></h2>
         <p id="pv-meta" style="font-size:13px;color:#8e8e93;"></p>
       </div>
+      <button id="btn-edit-player" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#1c1c1e;cursor:pointer;font-family:inherit;">Bearbeiten</button>
       <button id="btn-delete-player" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#ff3b30;cursor:pointer;font-family:inherit;">Loeschen</button>
     </div>
     <div style="display:flex;gap:4px;background:#f2f2f7;padding:4px;border-radius:12px;margin-bottom:20px;width:fit-content;">
@@ -679,7 +688,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <!-- Modal: Neuer Spieler -->
   <div id="pv-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:500;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:20px;padding:28px;width:440px;max-width:92vw;">
-      <h3 style="font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:20px;">Neuer Spieler</h3>
+      <h3 id="pv-modal-title" style="font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:20px;">Neuer Spieler</h3>
       <div style="display:flex;flex-direction:column;gap:12px;">
         <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VORNAME</label><input id="np-fn" type="text" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
         <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">NACHNAME</label><input id="np-ln" type="text" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
@@ -691,7 +700,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
             <button id="pos-tor" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">Torwart</button>
           </div>
         </div>
-        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VEREIN</label><input id="np-club" type="text" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VEREIN / VERBAND</label><input id="np-club" type="text" list="np-club-list" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"><datalist id="np-club-list"><option value="Rot-Weiss Koeln"><option value="WHV"></datalist></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">MANNSCHAFT</label><input id="np-team" type="text" list="np-team-list" placeholder="z.B. M14, W16" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"><datalist id="np-team-list"></datalist></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button id="btn-cancel-player" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>
@@ -738,6 +748,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button id="btn-diag-template" style="background:#fff;color:#1c1c1e;border:0.5px solid #e5e5ea;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Vorlage herunterladen</button>
       <button id="btn-diag-import" style="background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Diagnostik importieren</button>
       <input type="file" id="diag-import-file" accept=".xlsx,.xls" style="display:none;">
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+      <select id="dg-filter-club" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
+        <option value="">Alle Vereine/Verbaende</option>
+      </select>
+      <select id="dg-filter-team" style="padding:8px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
+        <option value="">Alle Mannschaften</option>
+      </select>
     </div>
     <div id="diag-team-overview" style="margin-bottom:20px;"></div>
     <div id="diag-overview"></div>
@@ -2331,6 +2349,14 @@ async function uploadAll() {
 
 <script>
 var PL = JSON.parse(localStorage.getItem('cb_pl') || '[]');
+var PL_EDIT_ID = null;
+var PL_FILTER_CLUB = '';
+var PL_FILTER_TEAM = '';
+var TEAM_OPTIONS = {
+  'Rot-Weiss Koeln': ['M12','M14','M16','M18','W12','W14','W18'],
+  'WHV': ['M13','M14','M16','W13','W14','W16']
+};
+var ALL_TEAM_CODES = ['M12','M13','M14','M16','M18','W12','W13','W14','W16','W18'];
 var PL_CUR = null;
 var PL_POS = 'Feldspieler';
 
@@ -2384,11 +2410,62 @@ function initProfileScreen() {
     });
 }
 
+function plFilteredList() {
+  return PL.filter(function(p) {
+    if (PL_FILTER_CLUB && (p.club || '') !== PL_FILTER_CLUB) return false;
+    if (PL_FILTER_TEAM && (p.team || '') !== PL_FILTER_TEAM) return false;
+    return true;
+  });
+}
+
+function plPopulateFilters() {
+  var clubs = {};
+  Object.keys(TEAM_OPTIONS).forEach(function(c) { clubs[c] = true; });
+  PL.forEach(function(p) { if (p.club) clubs[p.club] = true; });
+  var clubList = Object.keys(clubs).sort();
+
+  var teams = {};
+  ALL_TEAM_CODES.forEach(function(t) { teams[t] = true; });
+  PL.forEach(function(p) { if (p.team) teams[p.team] = true; });
+  var teamList = Object.keys(teams).sort();
+
+  ['pl-filter-club', 'dg-filter-club'].forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">Alle Vereine/Verbaende</option>' + clubList.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
+    sel.value = cur;
+  });
+  ['pl-filter-team', 'dg-filter-team'].forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">Alle Mannschaften</option>' + teamList.map(function(t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+    sel.value = cur;
+  });
+}
+
+function plFilterChanged(kind, value) {
+  if (kind === 'club') PL_FILTER_CLUB = value; else PL_FILTER_TEAM = value;
+  ['pl-filter-club', 'dg-filter-club'].forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (sel) sel.value = PL_FILTER_CLUB;
+  });
+  ['pl-filter-team', 'dg-filter-team'].forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (sel) sel.value = PL_FILTER_TEAM;
+  });
+  if (document.getElementById('pv-list').style.display !== 'none') plRenderList();
+  if (document.getElementById('diagnostik-screen').style.display !== 'none') diagRenderTeamOverview();
+}
+
 function plRenderList() {
   document.getElementById('pv-list').style.display = 'block';
   document.getElementById('pv-detail').style.display = 'none';
   var grid = document.getElementById('pv-grid');
   var empty = document.getElementById('pv-empty');
+  plPopulateFilters();
+  var list = plFilteredList();
   if (PL.length === 0) {
     grid.innerHTML = '';
     grid.style.display = 'none';
@@ -2396,20 +2473,26 @@ function plRenderList() {
     return;
   }
   empty.style.display = 'none';
+  if (list.length === 0) {
+    grid.innerHTML = '<p style="color:#8e8e93;font-size:13px;grid-column:1/-1;">Keine Spieler in dieser Auswahl.</p>';
+    grid.style.display = 'grid';
+    return;
+  }
   grid.style.display = 'grid';
   var h = '';
-  PL.forEach(function(p) {
+  list.forEach(function(p) {
     var age = plAge(p.dob);
     var init = (p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '');
+    var sub = [p.club, p.team].filter(function(x){ return x; }).join(' &middot; ');
     h += '<div id="plc' + p.id + '" style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;cursor:pointer;transition:box-shadow 0.15s;">';
     h += '<div style="width:48px;height:48px;border-radius:50%;background:#e8e8f0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:12px;">' + init + '</div>';
     h += '<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">' + p.fn + ' ' + p.ln + '</p>';
     h += '<p style="font-size:12px;color:#8e8e93;">' + p.pos + (age ? ' &middot; ' + age + ' J.' : '') + '</p>';
-    h += '<p style="font-size:12px;color:#8e8e93;">' + (p.club || '') + '</p>';
+    h += '<p style="font-size:12px;color:#8e8e93;">' + (sub || '') + '</p>';
     h += '</div>';
   });
   grid.innerHTML = h;
-  PL.forEach(function(p) {
+  list.forEach(function(p) {
     var el = document.getElementById('plc' + p.id);
     if (el) {
       el.addEventListener('click', function() { plOpen(p.id); });
@@ -2429,7 +2512,7 @@ function plOpen(id) {
   var init = (p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '');
   document.getElementById('pv-photo').textContent = init;
   document.getElementById('pv-name').textContent = p.fn + ' ' + p.ln;
-  document.getElementById('pv-meta').textContent = p.pos + (age ? ' | ' + age + ' Jahre' : '') + (p.club ? ' | ' + p.club : '');
+  document.getElementById('pv-meta').textContent = p.pos + (age ? ' | ' + age + ' Jahre' : '') + (p.club ? ' | ' + p.club : '') + (p.team ? ' | ' + p.team : '');
   document.getElementById('pv-notes').value = p.notes || '';
   plTabShow('diagnostik');
   plRenderDiag(p);
@@ -2482,6 +2565,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // New player buttons
   document.getElementById('btn-new-player').addEventListener('click', function() { plShowModal(); });
+  document.getElementById('btn-edit-player').addEventListener('click', function() {
+    var p = PL.find(function(x) { return x.id === PL_CUR; });
+    if (p) plShowModal(p);
+  });
+  document.getElementById('np-club').addEventListener('input', npUpdateTeamList);
+  document.getElementById('pl-filter-club').addEventListener('change', function() { plFilterChanged('club', this.value); });
+  document.getElementById('pl-filter-team').addEventListener('change', function() { plFilterChanged('team', this.value); });
+  document.getElementById('dg-filter-club').addEventListener('change', function() { plFilterChanged('club', this.value); });
+  document.getElementById('dg-filter-team').addEventListener('change', function() { plFilterChanged('team', this.value); });
   document.getElementById('btn-diag-template').addEventListener('click', function() { downloadDiagTemplate(); });
   document.getElementById('btn-back-diagnostik').addEventListener('click', function() { goTo('home'); });
   document.getElementById('btn-diag-import').addEventListener('click', function() {
@@ -2601,9 +2693,10 @@ function diagOpenPlayer(id) {
 
 function diagRenderTeamOverview() {
   var el = document.getElementById('diag-team-overview');
-  var withData = PL.filter(function(p) { return p.diag && p.diag.length > 0; });
+  plPopulateFilters();
+  var withData = plFilteredList().filter(function(p) { return p.diag && p.diag.length > 0; });
   if (withData.length === 0) {
-    el.innerHTML = '<div style="text-align:center;padding:60px 0;color:#8e8e93;font-size:13px;">Noch keine Diagnostikdaten vorhanden. Importiere oben eine ausgefuellte Vorlage.</div>';
+    el.innerHTML = '<div style="text-align:center;padding:60px 0;color:#8e8e93;font-size:13px;">Noch keine Diagnostikdaten in dieser Auswahl. Importiere oben eine ausgefuellte Vorlage oder waehle einen anderen Filter.</div>';
     return;
   }
   withData = withData.slice().sort(function(a, b) {
@@ -2791,7 +2884,7 @@ function diagConfirmImport() {
   DIAG_IMPORT_ROWS.forEach(function(r) {
     var p = r.player;
     if (!p) {
-      p = { id: Date.now().toString() + '_' + Math.random().toString(36).slice(2, 7), fn: r.fn, ln: r.ln, dob: '', pos: 'Feldspieler', club: '', diag: [], notes: '' };
+      p = { id: Date.now().toString() + '_' + Math.random().toString(36).slice(2, 7), fn: r.fn, ln: r.ln, dob: '', pos: 'Feldspieler', club: PL_FILTER_CLUB || '', team: PL_FILTER_TEAM || '', diag: [], notes: '' };
       PL.push(p);
     }
     if (!p.diag) p.diag = [];
@@ -2819,7 +2912,7 @@ function downloadDiagTemplate() {
   if (window.showLoader) showLoader('Vorlage wird erstellt...');
   loadXlsxJs().then(function() {
     var rows = [DIAG_HEADERS];
-    var sorted = PL.slice().sort(function(a, b) {
+    var sorted = plFilteredList().slice().sort(function(a, b) {
       var la = (a.ln || '').toLowerCase(), lb = (b.ln || '').toLowerCase();
       if (la < lb) return -1;
       if (la > lb) return 1;
@@ -2846,14 +2939,24 @@ function downloadDiagTemplate() {
   });
 }
 
-function plShowModal() {
-  PL_POS = 'Feldspieler';
-  document.getElementById('np-fn').value = '';
-  document.getElementById('np-ln').value = '';
-  document.getElementById('np-dob').value = '';
-  document.getElementById('np-club').value = '';
-  plSetPos('Feldspieler');
+function plShowModal(p) {
+  PL_EDIT_ID = p ? p.id : null;
+  document.getElementById('pv-modal-title').textContent = p ? 'Spieler bearbeiten' : 'Neuer Spieler';
+  PL_POS = p ? (p.pos || 'Feldspieler') : 'Feldspieler';
+  document.getElementById('np-fn').value = p ? (p.fn || '') : '';
+  document.getElementById('np-ln').value = p ? (p.ln || '') : '';
+  document.getElementById('np-dob').value = p ? (p.dob || '') : '';
+  document.getElementById('np-club').value = p ? (p.club || '') : '';
+  document.getElementById('np-team').value = p ? (p.team || '') : '';
+  npUpdateTeamList();
+  plSetPos(PL_POS);
   document.getElementById('pv-modal').style.display = 'flex';
+}
+
+function npUpdateTeamList() {
+  var club = document.getElementById('np-club').value.trim();
+  var opts = TEAM_OPTIONS[club] || ALL_TEAM_CODES;
+  document.getElementById('np-team-list').innerHTML = opts.map(function(t) { return '<option value="' + t + '">'; }).join('');
 }
 
 function plHideModal() {
@@ -2874,12 +2977,26 @@ function plSaveNew() {
   var fn = document.getElementById('np-fn').value.trim();
   var ln = document.getElementById('np-ln').value.trim();
   if (!fn || !ln) { alert('Bitte Vor- und Nachname eingeben'); return; }
+  var dob = document.getElementById('np-dob').value;
+  var club = document.getElementById('np-club').value.trim();
+  var team = document.getElementById('np-team').value.trim();
+  if (PL_EDIT_ID) {
+    var ex = PL.find(function(x) { return x.id === PL_EDIT_ID; });
+    if (!ex) { plHideModal(); return; }
+    ex.fn = fn; ex.ln = ln; ex.dob = dob; ex.pos = PL_POS; ex.club = club; ex.team = team;
+    plSave();
+    plUpsert(ex);
+    plHideModal();
+    plOpen(ex.id);
+    return;
+  }
   var np = {
     id: Date.now().toString(),
     fn: fn, ln: ln,
-    dob: document.getElementById('np-dob').value,
+    dob: dob,
     pos: PL_POS,
-    club: document.getElementById('np-club').value.trim(),
+    club: club,
+    team: team,
     diag: [], notes: ''
   };
   PL.push(np);
