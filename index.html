@@ -2353,7 +2353,7 @@ var PL_EDIT_ID = null;
 var PL_FILTER_CLUB = '';
 var PL_FILTER_TEAM = '';
 var TEAM_OPTIONS = {
-  'Rot-Weiss Koeln': ['M12','M14','M16','M18','W12','W14','W18'],
+  'Rot-Weiss Koeln': ['M12','M14','M16','M18','W12','W14','W16','W18'],
   'WHV': ['M13','M14','M16','W13','W14','W16']
 };
 var ALL_TEAM_CODES = ['M12','M13','M14','M16','M18','W12','W13','W14','W16','W18'];
@@ -2424,37 +2424,42 @@ function plPopulateFilters() {
   PL.forEach(function(p) { if (p.club) clubs[p.club] = true; });
   var clubList = Object.keys(clubs).sort();
 
-  var teams = {};
-  ALL_TEAM_CODES.forEach(function(t) { teams[t] = true; });
-  PL.forEach(function(p) { if (p.team) teams[p.team] = true; });
-  var teamList = Object.keys(teams).sort();
-
   ['pl-filter-club', 'dg-filter-club'].forEach(function(id) {
     var sel = document.getElementById(id);
     if (!sel) return;
-    var cur = sel.value;
     sel.innerHTML = '<option value="">Alle Vereine/Verbaende</option>' + clubList.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
-    sel.value = cur;
+    sel.value = PL_FILTER_CLUB;
   });
+
+  var teams = {};
+  if (PL_FILTER_CLUB) {
+    (TEAM_OPTIONS[PL_FILTER_CLUB] || []).forEach(function(t) { teams[t] = true; });
+    PL.forEach(function(p) { if (p.club === PL_FILTER_CLUB && p.team) teams[p.team] = true; });
+  }
+  var teamList = Object.keys(teams).sort();
+
   ['pl-filter-team', 'dg-filter-team'].forEach(function(id) {
     var sel = document.getElementById(id);
     if (!sel) return;
-    var cur = sel.value;
-    sel.innerHTML = '<option value="">Alle Mannschaften</option>' + teamList.map(function(t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
-    sel.value = cur;
+    if (!PL_FILTER_CLUB) {
+      sel.innerHTML = '<option value="">Erst Verein/Verband waehlen</option>';
+      sel.value = '';
+      sel.disabled = true;
+      return;
+    }
+    sel.disabled = false;
+    sel.innerHTML = '<option value="">Alle Mannschaften (' + PL_FILTER_CLUB + ')</option>' + teamList.map(function(t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+    sel.value = PL_FILTER_TEAM;
   });
 }
 
 function plFilterChanged(kind, value) {
-  if (kind === 'club') PL_FILTER_CLUB = value; else PL_FILTER_TEAM = value;
-  ['pl-filter-club', 'dg-filter-club'].forEach(function(id) {
-    var sel = document.getElementById(id);
-    if (sel) sel.value = PL_FILTER_CLUB;
-  });
-  ['pl-filter-team', 'dg-filter-team'].forEach(function(id) {
-    var sel = document.getElementById(id);
-    if (sel) sel.value = PL_FILTER_TEAM;
-  });
+  if (kind === 'club') {
+    PL_FILTER_CLUB = value;
+    PL_FILTER_TEAM = '';
+  } else {
+    PL_FILTER_TEAM = value;
+  }
   if (document.getElementById('pv-list').style.display !== 'none') plRenderList();
   if (document.getElementById('diagnostik-screen').style.display !== 'none') diagRenderTeamOverview();
 }
