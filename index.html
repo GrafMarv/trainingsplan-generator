@@ -1393,7 +1393,7 @@ function buildFilename(p) {
     if (p.sub1) parts.push(p.sub1);
     if (p.sub2) parts.push(p.sub2);
   }
-  return parts.filter(Boolean).join('_');
+  return sanitizeExerciseName(parts.filter(Boolean).join('_'));
 }
 
 function renderRenameCard({ id, file, status, name }) {
@@ -1575,7 +1575,9 @@ async function analyzeAll() {
 
 async function downloadAll() {
   for (const f of renameFiles) {
-    const name = renameResults[f.id];
+    const rawName = renameResults[f.id];
+    if (!rawName) continue;
+    const name = sanitizeExerciseName(rawName);
     if (!name) continue;
     const a = document.createElement('a');
     a.href = f.url; a.download = name + '.png';
@@ -2147,6 +2149,15 @@ FAZIT: RST ist ein wirksames Werkzeug zur Sprintverbesserung im Mannschaftssport
 updateWissenCount();
 kbInit();
 
+function sanitizeExerciseName(name) {
+  return name
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9._-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
 function toBase64(file) {
   return new Promise((res, rej) => {
     const reader = new FileReader();
@@ -2167,9 +2178,11 @@ async function uploadAll() {
   let success = 0, errors = 0;
   
   for (const f of renameFiles) {
-    const name = renameResults[f.id];
-    if (!name) continue;
-    
+    const rawName = renameResults[f.id];
+    if (!rawName) continue;
+    const name = sanitizeExerciseName(rawName);
+    if (!name) { errors++; continue; }
+
     status.textContent = `Lade hoch: ${name}.png...`;
     
     try {
