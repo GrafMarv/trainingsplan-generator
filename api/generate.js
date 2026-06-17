@@ -192,7 +192,7 @@ FORMAT A — Intervall-Ausdauer-Einheit (type "interval", KEIN exercises-Array):
     "structure": "3 Serien x 12 Intervalle x 15 s Arbeit / 15 s aktiv",
     "pause": "3 Min aktive Serienpause (lockeres Traben)",
     "duration": "ca. 22 Min",
-    "note": "Abbruchkriterium: Zieldistanz nicht mehr konstant haltbar → Serie beenden"
+    "note": "Kurzer praxisnaher Hinweis fuer den Athleten, max. 1 Satz, keine Fachbegriffe. Z.B.: 'Tempo halten bis zur letzten Serie.' oder 'Distanz nicht mehr schaffbar = Serie beenden.'"
   }
 ]
 
@@ -215,6 +215,7 @@ Supersets: gleiche Gruppe A, B, C. Einzelübungen = "-".
 intensity: "RPE 8" oder "80%" — nur wenn angegeben, sonst null.
 rest: "90 Sek." — nur wenn angegeben, sonst null.
 Bei Ausdauer-Blöcken: berechne die Distanz aus vIFT wenn angegeben (Distanz = vIFT km/h x 15/3600 x 1000 = vIFT x 4.167 Meter). Nutze DOSB-Methoden-Terminologie.
+Schreibe alle Felder des Ausdauer-Blocks kurz und direkt fuer den Athleten: keine Fachbegriffe, keine Erklaerungen, keine Klammern mit wissenschaftlichen Abkuerzungen. note: max. 1 kurzer Satz, praktischer Hinweis (z.B. "Tempo konstant halten." oder "Serie abbrechen wenn Distanz nicht mehr schaffbar.").
 
 === FORMAT B — MAKROZYKLUS (JSON-Objekt) ===
 {
