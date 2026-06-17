@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coaching Brain – Systemübersicht</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #08081A;
+    --surface: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.15);
+    --text: #ffffff;
+    --text-muted: rgba(255,255,255,0.45);
+    --text-sub: rgba(255,255,255,0.65);
+    --accent-blue: #4A9EFF;
+    --accent-green: #34C759;
+    --accent-orange: #FF9500;
+    --accent-red: #FF3B30;
+    --accent-purple: #BF5AF2;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: -20%;
+    background:
+      radial-gradient(circle at 15% 25%, rgba(74,158,255,0.12), transparent 35%),
+      radial-gradient(circle at 85% 15%, rgba(191,90,242,0.10), transparent 35%),
+      radial-gradient(circle at 50% 90%, rgba(52,199,89,0.08), transparent 40%),
+      radial-gradient(circle at 80% 60%, rgba(255,149,0,0.08), transparent 35%);
+    filter: blur(80px);
+    z-index: 0; pointer-events: none;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 60px 32px 80px; }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 72px; }
+  .header-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 16px; }
+  .header-title { font-size: 52px; font-weight: 700; letter-spacing: -2px; line-height: 1.05; margin-bottom: 16px; }
+  .header-title span { color: var(--accent-blue); }
+  .header-sub { font-size: 17px; color: var(--text-sub); max-width: 480px; margin: 0 auto 32px; }
+  .header-meta { display: inline-flex; gap: 24px; font-size: 12px; color: var(--text-muted); font-family: var(--mono); }
+  .header-meta span::before { content: '▸ '; color: var(--accent-blue); }
+
+  /* SECTION */
+  .section { margin-bottom: 64px; }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+
+  /* MODULE GRID */
+  .modules { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+  .module { background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; padding: 24px; }
+  .module-icon { font-size: 24px; margin-bottom: 12px; }
+  .module-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .module-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
+  .module-tag { display: inline-block; margin-top: 10px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; }
+  .tag-live { background: rgba(52,199,89,0.15); color: var(--accent-green); }
+  .tag-next { background: rgba(255,149,0,0.15); color: var(--accent-orange); }
+
+  /* ARCHITEKTUR */
+  .arch { display: grid; grid-template-columns: 1fr 48px 1fr 48px 1fr; align-items: center; gap: 0; background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; padding: 28px 24px; }
+  .arch-node { text-align: center; }
+  .arch-node-icon { font-size: 28px; margin-bottom: 8px; }
+  .arch-node-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .arch-node-sub { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+  .arch-node-badge { display: inline-block; margin-top: 6px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
+  .badge-eu { background: rgba(52,199,89,0.15); color: var(--accent-green); }
+  .badge-us { background: rgba(255,149,0,0.15); color: var(--accent-orange); }
+  .badge-local { background: rgba(74,158,255,0.15); color: var(--accent-blue); }
+  .arch-arrow { text-align: center; font-size: 18px; color: var(--text-muted); }
+
+  /* DATENSCHUTZ */
+  .privacy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .privacy-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; padding: 22px; }
+  .privacy-card.green { border-color: rgba(52,199,89,0.3); }
+  .privacy-card.orange { border-color: rgba(255,149,0,0.3); }
+  .privacy-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .privacy-title .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--accent-green); }
+  .dot-orange { background: var(--accent-orange); }
+  .privacy-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .privacy-list li { font-size: 12px; color: var(--text-sub); padding-left: 14px; position: relative; }
+  .privacy-list li::before { content: '—'; position: absolute; left: 0; color: var(--text-muted); }
+
+  /* PSEUDONYMISIERUNG FLOW */
+  .pseudo-flow { background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; padding: 28px; }
+  .pseudo-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+  .pseudo-steps::before { content: ''; position: absolute; top: 28px; left: 12.5%; right: 12.5%; height: 0.5px; background: var(--border-strong); z-index: 0; }
+  .pseudo-step { text-align: center; position: relative; z-index: 1; }
+  .pseudo-step-num { width: 40px; height: 40px; border-radius: 50%; border: 0.5px solid var(--border-strong); background: var(--bg); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 12px; font-weight: 700; font-family: var(--mono); }
+  .pseudo-step-num.highlight { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+  .pseudo-step-title { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+  .pseudo-step-sub { font-size: 10px; color: var(--text-muted); line-height: 1.4; padding: 0 4px; }
+  .pseudo-code { margin-top: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 14px 18px; font-family: var(--mono); font-size: 11px; color: var(--text-sub); border: 0.5px solid var(--border); }
+  .pseudo-code .key { color: var(--accent-blue); }
+  .pseudo-code .val { color: var(--accent-green); }
+  .pseudo-code .comment { color: var(--text-muted); }
+
+  /* ROADMAP */
+  .roadmap { display: flex; flex-direction: column; gap: 12px; }
+  .roadmap-item { display: grid; grid-template-columns: 80px 1fr; gap: 16px; align-items: start; background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+  .roadmap-phase { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding-top: 2px; }
+  .roadmap-content-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .roadmap-content-sub { font-size: 12px; color: var(--text-sub); }
+  .roadmap-item.active { border-color: rgba(74,158,255,0.35); background: rgba(74,158,255,0.04); }
+  .roadmap-item.active .roadmap-phase { color: var(--accent-blue); }
+
+  /* WISSEN */
+  .wissen-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .stat-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 14px; padding: 20px; text-align: center; }
+  .stat-num { font-size: 36px; font-weight: 700; letter-spacing: -1px; font-family: var(--mono); color: var(--accent-blue); }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* FOOTER */
+  .footer { margin-top: 80px; padding-top: 24px; border-top: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .footer-left { font-size: 12px; color: var(--text-muted); }
+  .footer-right { font-size: 11px; font-family: var(--mono); color: var(--text-muted); }
+
+  @media (max-width: 700px) {
+    .header-title { font-size: 32px; }
+    .modules { grid-template-columns: 1fr; }
+    .arch { grid-template-columns: 1fr; }
+    .arch-arrow { transform: rotate(90deg); }
+    .privacy-grid { grid-template-columns: 1fr; }
+    .pseudo-steps { grid-template-columns: repeat(2, 1fr); }
+    .pseudo-steps::before { display: none; }
+    .wissen-stats { grid-template-columns: repeat(2, 1fr); }
+    .footer { flex-direction: column; gap: 8px; text-align: center; }
+  }
+
+  @media print {
+    body::before { display: none; }
+    body { background: #08081A !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-eyebrow">Systempräsentation · Rot-Weiss Köln / WHV</div>
+    <h1 class="header-title">Coaching <span>Brain</span></h1>
+    <p class="header-sub">KI-gestütztes Coaching-System für Athletiktraining, Diagnostik und Wissensverwaltung im Feldhockey</p>
+    <div class="header-meta">
+      <span>trainingsplan-generator.vercel.app</span>
+      <span>Marvin Graf · Athletiktrainer</span>
+      <span>Juni 2026</span>
+    </div>
+  </header>
+
+  <!-- MODULE -->
+  <section class="section">
+    <div class="section-label">Die vier Module</div>
+    <div class="modules">
+      <div class="module">
+        <div class="module-icon">📚</div>
+        <div class="module-title">Wissen</div>
+        <div class="module-desc">Wissenschaftliche Quellen (NSCA, Buchheit & Laursen, INSCYD) werden als Wissens-Chunks destilliert, semantisch eingebettet und durchsuchbar gespeichert. Ergänzt durch eigene Coaching-Expertise.</div>
+        <span class="module-tag tag-live">Live · 166 Chunks</span>
+      </div>
+      <div class="module">
+        <div class="module-icon">📋</div>
+        <div class="module-title">Trainingsplan-Generator</div>
+        <div class="module-desc">KI-gestützte Erstellung von Einzeleinheiten und Mesozyklen (bis 12 Wochen). Nutzt semantische Suche in der Wissensbasis für fundierte, methodisch begründete Planung.</div>
+        <span class="module-tag tag-live">Live · Einzel + Meso</span>
+      </div>
+      <div class="module">
+        <div class="module-icon">👥</div>
+        <div class="module-title">Spielerprofile</div>
+        <div class="module-desc">Athletenverwaltung mit Vereins- und Mannschaftszuordnung (RWK: M/W12–18, WHV: M/W13–16). Individueller Diagnostik-Verlauf pro Spieler, filterbar nach Team.</div>
+        <span class="module-tag tag-live">Live · Multi-Team</span>
+      </div>
+      <div class="module">
+        <div class="module-icon">📊</div>
+        <div class="module-title">Diagnostik</div>
+        <div class="module-desc">Excel-Import (Vorlage mit V1/V2 je Test), automatische Spielerzuordnung, Team-Übersicht mit Entwicklungsvergleich. KI-Analyse der Testergebnisse in Planung.</div>
+        <span class="module-tag tag-next">In Entwicklung · KI-Analyse</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITEKTUR -->
+  <section class="section">
+    <div class="section-label">Technische Architektur</div>
+    <div class="arch">
+      <div class="arch-node">
+        <div class="arch-node-icon">🖥️</div>
+        <div class="arch-node-title">Browser</div>
+        <div class="arch-node-sub">Vanilla JS<br>Keine App-Installation<br>iOS / Android / Desktop</div>
+        <span class="arch-node-badge badge-local">Lokal</span>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-node-icon">⚡</div>
+        <div class="arch-node-title">Vercel (API)</div>
+        <div class="arch-node-sub">Serverless Functions<br>Kein persistenter Server<br>Auto-Deploy via GitHub</div>
+        <span class="arch-node-badge badge-eu">EU-nahe CDN</span>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-node-icon">🗄️</div>
+        <div class="arch-node-title">Supabase</div>
+        <div class="arch-node-sub">Postgres + pgvector<br>Semantische Suche<br>Datenspeicherung</div>
+        <span class="arch-node-badge badge-eu">EU · Paris</span>
+      </div>
+    </div>
+    <div style="margin-top:12px; background:var(--surface); border:0.5px solid var(--border); border-radius:12px; padding:16px 20px; font-size:12px; color:var(--text-sub); display:flex; gap:24px; flex-wrap:wrap;">
+      <span>🤖 <strong style="color:var(--text);">Claude (Anthropic)</strong> — Trainingsplan-Generierung · Wissens-Destillation</span>
+      <span>🔢 <strong style="color:var(--text);">OpenAI</strong> — Embeddings für semantische Suche</span>
+      <span style="color:var(--accent-orange);">⚠ KI-Calls: US-Transfer → Pseudonymisierung geplant</span>
+    </div>
+  </section>
+
+  <!-- DATENSCHUTZ -->
+  <section class="section">
+    <div class="section-label">Datenschutz-Architektur</div>
+    <div class="privacy-grid">
+      <div class="privacy-card green">
+        <div class="privacy-title"><span class="dot dot-green"></span>Bereits umgesetzt</div>
+        <ul class="privacy-list">
+          <li>Spielerdaten ausschließlich in Supabase EU (Paris) — kein Drittlandtransfer für Speicherung</li>
+          <li>PDF-Extraktion client-seitig im Browser — Buchinhalte landen nie auf einem Server</li>
+          <li>Wissen nur als destillierte Chunks, nicht als Volltext gespeichert</li>
+          <li>Keine Spielernamen in Trainingsplan-Generierung (KI arbeitet nur mit Methodik)</li>
+          <li>Verein + Mannschaft als Organisationsstruktur, kein Vereins-Login nötig</li>
+        </ul>
+      </div>
+      <div class="privacy-card orange">
+        <div class="privacy-title"><span class="dot dot-orange"></span>Nächste Schritte</div>
+        <ul class="privacy-list">
+          <li>Pseudonymisierung für KI-Diagnostik-Analyse (Spieler-IDs statt Namen zu Claude)</li>
+          <li>Geburtsdatum → Jahrgang + Quartal (Q1–Q4) statt Vollgeburtsdatum</li>
+          <li>AVV mit Anthropic und OpenAI abschließen</li>
+          <li>Datenschutzerklärung + Einwilligungsformular für Eltern/Spieler</li>
+          <li>Optional: lokales Hosting (Synology NAS) für vollständige Datensouveränität</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PSEUDONYMISIERUNG -->
+  <section class="section">
+    <div class="section-label">Pseudonymisierung — Wie es funktioniert</div>
+    <div class="pseudo-flow">
+      <div class="pseudo-steps">
+        <div class="pseudo-step">
+          <div class="pseudo-step-num">01</div>
+          <div class="pseudo-step-title">Echtdaten</div>
+          <div class="pseudo-step-sub">Name, Jahrgang, Quartal in Supabase EU — verlassen nie den Server</div>
+        </div>
+        <div class="pseudo-step">
+          <div class="pseudo-step-num highlight">02</div>
+          <div class="pseudo-step-title">Mapping</div>
+          <div class="pseudo-step-sub">Server generiert Pseudonym-Code aus Spieler-ID (z.B. P-7F3A)</div>
+        </div>
+        <div class="pseudo-step">
+          <div class="pseudo-step-num">03</div>
+          <div class="pseudo-step-title">KI-Call</div>
+          <div class="pseudo-step-sub">Nur Pseudonym + Messwerte gehen an Claude/OpenAI — keine Identität</div>
+        </div>
+        <div class="pseudo-step">
+          <div class="pseudo-step-num">04</div>
+          <div class="pseudo-step-title">Rückmapping</div>
+          <div class="pseudo-step-sub">Server tauscht Pseudonyme zurück, Browser sieht echte Namen</div>
+        </div>
+      </div>
+      <div class="pseudo-code">
+        <span class="comment">// Was Claude sieht:</span><br>
+        { <span class="key">"id"</span>: <span class="val">"P-7F3A"</span>, <span class="key">"s10"</span>: <span class="val">1.79</span>, <span class="key">"s30"</span>: <span class="val">4.02</span>, <span class="key">"vmax_est"</span>: <span class="val">24.1</span> }<br><br>
+        <span class="comment">// Was in Supabase EU bleibt:</span><br>
+        { <span class="key">"id"</span>: <span class="val">"P-7F3A"</span> → <span class="val">"Lukas Meier"</span>, <span class="key">"jahrgang"</span>: <span class="val">2009</span>, <span class="key">"quartal"</span>: <span class="val">"Q2"</span> }
+      </div>
+    </div>
+  </section>
+
+  <!-- WISSEN STATS -->
+  <section class="section">
+    <div class="section-label">Wissensbasis</div>
+    <div class="wissen-stats">
+      <div class="stat-card">
+        <div class="stat-num">166</div>
+        <div class="stat-label">Wissens-Chunks<br>semantisch vernetzt</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">8</div>
+        <div class="stat-label">Themen-Cluster<br>automatisch gruppiert</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">5+</div>
+        <div class="stat-label">Quellen<br>NSCA · Buchheit · INSCYD · DOSB · eigene Expertise</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section class="section">
+    <div class="section-label">Roadmap</div>
+    <div class="roadmap">
+      <div class="roadmap-item active">
+        <div class="roadmap-phase">Jetzt</div>
+        <div>
+          <div class="roadmap-content-title">Diagnostik-KI-Analyse</div>
+          <div class="roadmap-content-sub">Pseudonymisierte Analyse der Testdaten durch Claude — Vmax-Schätzung aus Sprint-Splits, Schwächen-/Stärkenprofil pro Spieler und Team, freie Abfrage per Texteingabe</div>
+        </div>
+      </div>
+      <div class="roadmap-item active">
+        <div class="roadmap-phase">Q3 2026</div>
+        <div>
+          <div class="roadmap-content-title">Datenschutz-Vollausbau</div>
+          <div class="roadmap-content-sub">Pseudonymisierung live, Jahrgang+Quartal statt Geburtsdatum, AVVs abgeschlossen, Einwilligungsformular für Eltern</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-phase">Q4 2026</div>
+        <div>
+          <div class="roadmap-content-title">Load Monitoring + ACWR</div>
+          <div class="roadmap-content-sub">Wöchentliche Belastungssteuerung, Verletzungsrisiko-Flagging aus Asymmetrie-Daten, automatische Athleten-Entwicklungsberichte</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-phase">Option</div>
+        <div>
+          <div class="roadmap-content-title">Lokales Hosting (Synology NAS)</div>
+          <div class="roadmap-content-sub">Vollständige Datensouveränität — Supabase self-hosted im Vereinsnetz, Spielerdaten verlassen nie das Gebäude. KI-Calls bleiben extern (oder lokale Modelle als Zukunftsoption)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">Coaching Brain · Marvin Graf · Rot-Weiss Köln / Westdeutscher Hockeyverband</div>
+    <div class="footer-right">trainingsplan-generator.vercel.app</div>
+  </footer>
+
+</div>
+</body>
+</html>
