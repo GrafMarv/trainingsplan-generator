@@ -985,20 +985,19 @@ function renderPlan(blocks, titleOverride) {
   const container = document.getElementById('pages-container');
   container.innerHTML = '';
 
-  const a4 = document.createElement('div');
-  a4.className = 'a4';
-  const header = document.createElement('div');
-  header.className = 'plan-header';
-  header.innerHTML = `<span class="plan-header-title">${title}</span><span class="plan-header-sub">${date}</span>`;
-  a4.appendChild(header);
-  const exContainer = document.createElement('div');
-  exContainer.className = 'exercises-container';
-
-  // Ausdauer-Bloecke (interval/continuous) direkt als Info-Box, Kraft-Bloecke normal
   const enduranceTypes = ['interval','continuous','endurance'];
-  let hasOnlyEndurance = blocks.every(function(b){ return enduranceTypes.indexOf(b.type) !== -1 || b.type === 'warmup' || b.type === 'cooldown'; });
 
   blocks.forEach(function(block) {
+    // Jeder Block bekommt eine eigene A4-Seite
+    const a4 = document.createElement('div');
+    a4.className = 'a4';
+    const header = document.createElement('div');
+    header.className = 'plan-header';
+    header.innerHTML = '<span class="plan-header-title">'+title+'</span><span class="plan-header-sub">'+date+'</span>';
+    a4.appendChild(header);
+    const exContainer = document.createElement('div');
+    exContainer.className = 'exercises-container';
+
     // Block-Header
     const bh = document.createElement('div');
     const bhType = enduranceTypes.indexOf(block.type) !== -1 ? 'main' : (block.type || 'main');
@@ -1007,36 +1006,42 @@ function renderPlan(blocks, titleOverride) {
     exContainer.appendChild(bh);
 
     if (enduranceTypes.indexOf(block.type) !== -1) {
-      // Ausdauer-Block: kompakte Info-Box
+      // Ausdauer-Block: Info-Box
       const box = document.createElement('div');
-      box.style.cssText = 'background:#f9f9fb;border:0.5px solid #e5e5ea;border-radius:12px;padding:16px 18px;margin:6px 0 10px;';
+      box.style.cssText = 'background:#f9f9fb;border:0.5px solid #e5e5ea;border-radius:12px;padding:20px 22px;margin:8px 0 12px;';
       var rows = '';
-      if (block.method)    rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">METHODE</span><span style="font-size:13px;color:#1c1c1e;font-weight:600;">' + block.method + '</span></div>';
-      if (block.intensity) rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">INTENSITAT</span><span style="font-size:13px;color:#1c1c1e;">' + block.intensity + '</span></div>';
-      if (block.structure) rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">STRUKTUR</span><span style="font-size:13px;color:#1c1c1e;">' + block.structure + '</span></div>';
-      if (block.pause)     rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">PAUSE</span><span style="font-size:13px;color:#1c1c1e;">' + block.pause + '</span></div>';
-      if (block.duration)  rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">DAUER</span><span style="font-size:13px;color:#1c1c1e;">' + block.duration + '</span></div>';
-      if (block.note)      rows += '<div style="display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:0.5px solid #e5e5ea;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">HINWEIS</span><span style="font-size:12px;color:#636366;font-style:italic;">' + block.note + '</span></div>';
+      if (block.method)    rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">METHODE</span><span style="font-size:14px;color:#1c1c1e;font-weight:600;">'+block.method+'</span></div>';
+      if (block.intensity) rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">INTENSITAT</span><span style="font-size:13px;color:#1c1c1e;">'+block.intensity+'</span></div>';
+      if (block.structure) rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">STRUKTUR</span><span style="font-size:13px;color:#1c1c1e;">'+block.structure+'</span></div>';
+      if (block.pause)     rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">PAUSE</span><span style="font-size:13px;color:#1c1c1e;">'+block.pause+'</span></div>';
+      if (block.duration)  rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">DAUER</span><span style="font-size:13px;color:#1c1c1e;">'+block.duration+'</span></div>';
+      if (block.note)      rows += '<div style="display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:0.5px solid #e5e5ea;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">HINWEIS</span><span style="font-size:12px;color:#636366;font-style:italic;">'+block.note+'</span></div>';
       box.innerHTML = rows;
       exContainer.appendChild(box);
-      return;
-    }
-
-    // Normaler Kraft/Übungs-Block
-    if (!block.exercises || block.exercises.length === 0) return;
-    const allExercises = block.exercises.map(function(ex){ return Object.assign({}, ex, {blockType: block.type, blockLabel: block.label}); });
-    const groupPositions = buildGroupCounters(allExercises);
-    allExercises.forEach(function(ex, localIdx) {
-      const group = ex.group || '-';
-      const color = GROUP_COLORS[group] || '#d0d0d0';
-      const hasGroup = group !== '-';
-      const pos = groupPositions[localIdx];
-      const badgeLabel = hasGroup ? group + pos : '';
-      const metricLabel = ex.type === 'time' ? 'Sek.' : 'Wdh.';
-      const PLACEHOLDER_SRC = GITHUB_RAW + 'placeholder.png';
-      const imgSrc = ex.imageKey ? GITHUB_RAW + ex.imageKey + '.png' : null;
-      const hasImage = !!ex.imageKey;
-      const isCompact = ex.blockType !== 'main';
+    } else {
+      // Kraft/Mobility-Block: Uebungskarten
+      if (!block.exercises || block.exercises.length === 0) {
+        a4.appendChild(exContainer);
+        const footerEl = document.createElement('div');
+        footerEl.className = 'plan-footer';
+        footerEl.textContent = footer;
+        a4.appendChild(footerEl);
+        container.appendChild(a4);
+        return;
+      }
+      const allExercises = block.exercises.map(function(ex){ return Object.assign({}, ex, {blockType: block.type, blockLabel: block.label}); });
+      const groupPositions = buildGroupCounters(allExercises);
+      allExercises.forEach(function(ex, localIdx) {
+        const group = ex.group || '-';
+        const color = GROUP_COLORS[group] || '#d0d0d0';
+        const hasGroup = group !== '-';
+        const pos = groupPositions[localIdx];
+        const badgeLabel = hasGroup ? group + pos : '';
+        const metricLabel = ex.type === 'time' ? 'Sek.' : 'Wdh.';
+        const PLACEHOLDER_SRC = GITHUB_RAW + 'placeholder.png';
+        const imgSrc = ex.imageKey ? GITHUB_RAW + ex.imageKey + '.png' : null;
+        const hasImage = !!ex.imageKey;
+        const isCompact = ex.blockType !== 'main';
 
       const row = document.createElement('div');
       row.className = 'exercise-row' + (isCompact ? ' compact' : '');
@@ -1094,15 +1099,16 @@ function renderPlan(blocks, titleOverride) {
       `;
       row.appendChild(sidebar); row.appendChild(imgBox); row.appendChild(infoBox);
       exContainer.appendChild(row);
-    });
-  }); // end blocks.forEach
+    }); // end allExercises.forEach
+    } // end else Kraft-Block
 
-  a4.appendChild(exContainer);
-  const footerEl = document.createElement('div');
-  footerEl.className = 'plan-footer';
-  footerEl.textContent = footer;
-  a4.appendChild(footerEl);
-  container.appendChild(a4);
+    a4.appendChild(exContainer);
+    const footerEl = document.createElement('div');
+    footerEl.className = 'plan-footer';
+    footerEl.textContent = footer;
+    a4.appendChild(footerEl);
+    container.appendChild(a4);
+  }); // end blocks.forEach
 
   document.getElementById('plan-wrapper').style.display = 'block';
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
