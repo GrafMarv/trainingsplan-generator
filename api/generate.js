@@ -150,8 +150,13 @@ Analysiere die Eingabe und erkenne automatisch ob Warm-up, Hauptblock und/oder C
 - Alles andere → Hauptblock
 - Nichts erwähnt → alles Hauptblock
 
-Antworte NUR mit dem JSON (Array bei Format A, Objekt bei Format B). Kein Text davor oder danach.
-Format:
+WICHTIG — Erkenne den Einheitstyp automatisch:
+- Ausdauer/Intervall-Einheit (Keywords: Intervall, HIIT, 15/15, vIFT, GA1, Schwelle, Dauerlauf, Laufen, Sprint-Methode, Cardiac Output, Ausdauer) → Hauptblock als "interval" oder "continuous" Block (KEIN exercises-Array!)
+- Kraft/Beweglichkeit/Technik → Hauptblock als "main" Block mit exercises-Array
+
+Antworte NUR mit dem JSON. Kein Text davor oder danach.
+
+FORMAT A — Kraft-Einheit (exercises-Array):
 [
   {
     "type": "main",
@@ -159,7 +164,7 @@ Format:
     "exercises": [
       {
         "exercise": "lesbarer Name",
-        "imageKey": "exakter_id_aus_übungsdatenbank",
+        "imageKey": "exakter_id_aus_uebungsdatenbank",
         "group": "-",
         "type": "reps",
         "sets": 3,
@@ -172,10 +177,44 @@ Format:
   }
 ]
 
-imageKey MUSS exakt einem ID aus der Übungsdatenbank entsprechen.
+FORMAT A — Intervall-Ausdauer-Einheit (type "interval", KEIN exercises-Array):
+[
+  {
+    "type": "warmup",
+    "label": "Warm-up",
+    "exercises": [{"exercise": "Einlaufen", "imageKey": "", "group": "-", "type": "time", "sets": 1, "reps": "10", "intensity": null, "rest": null, "note": null}]
+  },
+  {
+    "type": "interval",
+    "label": "Hauptblock – HIIT 15/15",
+    "method": "HIIT / 15-15 Intervalle (DOSB: Kurze HIT)",
+    "intensity": "vIFT 22.5 km/h → 94 m pro Intervall | RPE 9-10 | 95% HRmax",
+    "structure": "3 Serien x 12 Intervalle x 15 s Arbeit / 15 s aktiv",
+    "pause": "3 Min aktive Serienpause (lockeres Traben)",
+    "duration": "ca. 22 Min",
+    "note": "Abbruchkriterium: Zieldistanz nicht mehr konstant haltbar → Serie beenden"
+  }
+]
+
+FORMAT A — Dauermethode (type "continuous", KEIN exercises-Array):
+[
+  {
+    "type": "continuous",
+    "label": "Hauptblock – Grundlagenausdauer",
+    "method": "Cardiac Output / GA1 (Dauermethode)",
+    "intensity": "RPE 4-7 | HR 100-150 | 60-70% VO2max | 70% Vanae",
+    "structure": "1 Satz kontinuierlich",
+    "pause": "keine Pause",
+    "duration": "45 Min",
+    "note": "Gleichmaessiges Tempo, zyklische Bewegung, Parasympathikus-Aktivierung"
+  }
+]
+
+imageKey MUSS exakt einem ID aus der Übungsdatenbank entsprechen (nur bei exercises-Blöcken).
 Supersets: gleiche Gruppe A, B, C. Einzelübungen = "-".
 intensity: "RPE 8" oder "80%" — nur wenn angegeben, sonst null.
 rest: "90 Sek." — nur wenn angegeben, sonst null.
+Bei Ausdauer-Blöcken: berechne die Distanz aus vIFT wenn angegeben (Distanz = vIFT km/h x 15/3600 x 1000 = vIFT x 4.167 Meter). Nutze DOSB-Methoden-Terminologie.
 
 === FORMAT B — MAKROZYKLUS (JSON-Objekt) ===
 {
