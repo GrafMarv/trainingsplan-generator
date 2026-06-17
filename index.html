@@ -748,6 +748,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button id="btn-diag-template" style="background:rgba(255,255,255,0.08);color:#fff;border:0.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Vorlage herunterladen</button>
       <button id="btn-diag-import" style="background:#fff;color:#1c1c1e;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Diagnostik importieren</button>
       <input type="file" id="diag-import-file" accept=".xlsx,.xls" style="display:none;">
+      <button id="btn-prio-chunk" style="background:rgba(255,149,0,0.2);color:#FF9500;border:0.5px solid rgba(255,149,0,0.4);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Prio-Chunk laden</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
       <select id="dg-filter-club" style="padding:8px 12px;border:0.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
@@ -2569,6 +2570,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('dg-filter-club').addEventListener('change', function() { plFilterChanged('club', this.value); });
   document.getElementById('dg-filter-team').addEventListener('change', function() { plFilterChanged('team', this.value); });
   document.getElementById('btn-diag-template').addEventListener('click', function() { downloadDiagTemplate(); });
+  document.getElementById('btn-prio-chunk').addEventListener('click', function() { loadPrioChunk(); });
   document.getElementById('btn-back-diagnostik').addEventListener('click', function() { goTo('home'); });
   document.getElementById('btn-diag-import').addEventListener('click', function() {
     document.getElementById('diag-import-file').click();
@@ -2899,6 +2901,36 @@ function diagConfirmImport() {
   }).catch(function(e) {
     if (window.hideLoader) hideLoader();
     alert('Fehler beim Speichern: ' + e.message);
+  });
+}
+
+function loadPrioChunk() {
+  var btn = document.getElementById('btn-prio-chunk');
+  btn.disabled = true;
+  btn.textContent = 'Laedt...';
+  var chunks = [{
+    titel: "15/15 Intervall Progression und Startvolumen nach Altersgruppe",
+    inhalt: "Startvolumen 15/15-Intervalle nach Altersgruppe und Erfahrung: U13/U14 oder HIIT-Einsteiger: 2 Serien x 4 Intervalle (2 Min Netto-Belastung). U16 oder mittleres Niveau: 3 Serien x 4 Intervalle (3 Min Netto). U18 oder erfahren: 3 Serien x 8-10 Intervalle (6-7.5 Min Netto). Auch 2x4 ist bei U14 ein vollwertiger Trainingsreiz - die relative Intensitat (% vIFT) entscheidet, nicht das absolute Volumen. Progression: erst Serien erhoehen (2 auf 3), dann Intervalle pro Serie steigern (4-6-8-10-12-15). Wochenprogression maximal 10-20% der Netto-Laufzeit. Distanz bleibt immer konstant bei individuellem vIFT (Formel: vIFT km/h x 4.167 = Meter pro Intervall). Abbruchkriterium: Zieldistanz einer Serie nicht mehr haltbar - Serie sofort beenden, unabhaengig von geplanter Wiederholungszahl. Kein vorheriges 4x4 (Cardiac Power) noetig als Voraussetzung - 15/15 ist eigenstaendige Methode.",
+    tags: ["15/15","hiit","intervall","progression","vift","u14","u16","altersgruppe","volumen","nettolaufzeit","startpunkt"],
+    quelle: "Marvin Graf - Coaching-Praxis RWK/WHV, Stefan Adler DOSB"
+  }, {
+    titel: "10-20 Prozent Wochenprogression Ausdauer Nettolaufzeit",
+    inhalt: "Grundregel fuer die Wochenprogression im Ausdauer- und Intervalltraining: Die Netto-Belastungszeit (reine Arbeitszeit ohne Pausen) darf von Woche zu Woche maximal um 10-20% erhoehen werden. Beispiel 15/15: Woche 1 = 2x4 Intervalle = 2 Min Netto. Woche 2 = 2x5 Intervalle = 2.5 Min Netto (+25%, zu viel) oder besser 2x4 halten und Qualitat sichern. Woche 3 = 3x4 = 3 Min (+20%, OK). Diese Regel gilt ueber alle Ausdauermethoden: GA1, Schwellenmethode, HIIT, Cardiac Power. Hoehere Steigerungen erhoehen das Verletzungs- und Ueberlastungsrisiko deutlich.",
+    tags: ["progression","wochenprogression","10-20-prozent","nettolaufzeit","ausdauer","intervall","belastungssteuerung","periodisierung"],
+    quelle: "Marvin Graf - Coaching-Praxis RWK/WHV"
+  }];
+  fetch('/api/brain-add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({chunks: chunks})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    btn.textContent = 'Fertig: ' + (d.count || d.ok && chunks.length || '?') + ' Chunks';
+    btn.style.background = 'rgba(52,199,89,0.2)';
+    btn.style.color = '#34C759';
+    btn.style.borderColor = 'rgba(52,199,89,0.4)';
+  }).catch(function(e) {
+    btn.textContent = 'Fehler';
+    btn.disabled = false;
   });
 }
 
