@@ -2910,21 +2910,26 @@ function loadPrioChunk() {
   btn.textContent = 'Laedt...';
   var chunks = [{
     titel: "15/15 Intervall Progression und Startvolumen nach Altersgruppe",
-    inhalt: "Startvolumen 15/15-Intervalle nach Altersgruppe und Erfahrung: U13/U14 oder HIIT-Einsteiger: 2 Serien x 4 Intervalle (2 Min Netto-Belastung). U16 oder mittleres Niveau: 3 Serien x 4 Intervalle (3 Min Netto). U18 oder erfahren: 3 Serien x 8-10 Intervalle (6-7.5 Min Netto). Auch 2x4 ist bei U14 ein vollwertiger Trainingsreiz - die relative Intensitat (% vIFT) entscheidet, nicht das absolute Volumen. Progression: erst Serien erhoehen (2 auf 3), dann Intervalle pro Serie steigern (4-6-8-10-12-15). Wochenprogression maximal 10-20% der Netto-Laufzeit. Distanz bleibt immer konstant bei individuellem vIFT (Formel: vIFT km/h x 4.167 = Meter pro Intervall). Abbruchkriterium: Zieldistanz einer Serie nicht mehr haltbar - Serie sofort beenden, unabhaengig von geplanter Wiederholungszahl. Kein vorheriges 4x4 (Cardiac Power) noetig als Voraussetzung - 15/15 ist eigenstaendige Methode.",
-    tags: ["15/15","hiit","intervall","progression","vift","u14","u16","altersgruppe","volumen","nettolaufzeit","startpunkt"],
+    inhalt: "Startvolumen 15/15-Intervalle nach Altersgruppe und Erfahrung: U13/U14 oder HIIT-Einsteiger: 2 Serien x 4 Intervalle (2 Min Netto-Belastung). U16 oder mittleres Niveau: 3 Serien x 4 Intervalle (3 Min Netto). U18 oder erfahren: 3 Serien x 8-10 Intervalle (6-7.5 Min Netto). Auch 2x4 ist bei U14 ein vollwertiger Trainingsreiz - die relative Intensitat (% vIFT) entscheidet, nicht das absolute Volumen. Progression: erst Serien erhoehen (2 auf 3), dann Intervalle pro Serie steigern (4-6-8-10-12-15). Wochenprogression maximal 10-20% der Netto-Laufzeit. Distanz bleibt immer konstant bei individuellem vIFT (Formel: vIFT km/h x 4.167 = Meter pro Intervall). Abbruchkriterium: Zieldistanz einer Serie nicht mehr haltbar - Serie sofort beenden.",
+    tags: ["15/15","hiit","intervall","progression","vift","u14","u16","altersgruppe","volumen","nettolaufzeit"],
     quelle: "Marvin Graf - Coaching-Praxis RWK/WHV, Stefan Adler DOSB"
   }, {
     titel: "10-20 Prozent Wochenprogression Ausdauer Nettolaufzeit",
-    inhalt: "Grundregel fuer die Wochenprogression im Ausdauer- und Intervalltraining: Die Netto-Belastungszeit (reine Arbeitszeit ohne Pausen) darf von Woche zu Woche maximal um 10-20% erhoehen werden. Beispiel 15/15: Woche 1 = 2x4 Intervalle = 2 Min Netto. Woche 2 = 2x5 Intervalle = 2.5 Min Netto (+25%, zu viel) oder besser 2x4 halten und Qualitat sichern. Woche 3 = 3x4 = 3 Min (+20%, OK). Diese Regel gilt ueber alle Ausdauermethoden: GA1, Schwellenmethode, HIIT, Cardiac Power. Hoehere Steigerungen erhoehen das Verletzungs- und Ueberlastungsrisiko deutlich.",
-    tags: ["progression","wochenprogression","10-20-prozent","nettolaufzeit","ausdauer","intervall","belastungssteuerung","periodisierung"],
+    inhalt: "Grundregel fuer die Wochenprogression im Ausdauer- und Intervalltraining: Die Netto-Belastungszeit (reine Arbeitszeit ohne Pausen) darf von Woche zu Woche maximal um 10-20% erhoehen werden. Beispiel 15/15: Woche 1 = 2x4 Intervalle = 2 Min Netto. Woche 3 = 3x4 = 3 Min (+20%, OK). Diese Regel gilt ueber alle Ausdauermethoden: GA1, Schwellenmethode, HIIT, Cardiac Power. Hoehere Steigerungen erhoehen das Verletzungs- und Ueberlastungsrisiko deutlich.",
+    tags: ["progression","wochenprogression","10-20-prozent","nettolaufzeit","ausdauer","intervall","belastungssteuerung"],
     quelle: "Marvin Graf - Coaching-Praxis RWK/WHV"
+  }, {
+    titel: "Ausdauermethod Zuweisung nach vIFT-Niveau (30-15 IFT)",
+    inhalt: "Methodenzuweisung anhand des vIFT-Wertes aus dem 30-15 Intermittent Fitness Test: Unter 16 km/h: aerobe Basis fehlt, nur Cardiac Output (GA1) und Schwellenmethode - kein HIIT. 16-18 km/h: HRIT (kurze aerobe Intervalle 10-12s) oder Schwellen-Intervalle als Einstieg, noch kein 15/15 HIIT. 18-20 km/h: 15/15 HIIT geeignet (Einstiegsvolumen), Cardiac Output als Basis weiter. 20-22 km/h: 15/15 HIIT mit mittlerem Volumen, Schwellenmethode fuer Schwellenentwicklung. 22-24 km/h: 15/15 HIIT mit hohem Volumen, Cardiac Power (4x4) moeglich. Ueber 24 km/h: alle Methoden moeglich, Sprint-Intervalle und Repeated Sprints sinnvoll. Diese Grenzen sind Richtwerte - Alter, Trainingsjahre und Saisonphase koennen Abweichungen begruenden. Bei jungen Athleten (U14/U16) immer eine Stufe konservativer ansetzen.",
+    tags: ["vift","methodenzuweisung","ausdauer","hiit","15/15","cardiac-power","schwellenmethode","ga1","assessment","30-15-ift"],
+    quelle: "Marvin Graf - Coaching-Praxis RWK/WHV, DOSB Trainingsmethoden Stefan Adler"
   }];
   fetch('/api/brain-add', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({chunks: chunks})
   }).then(function(r){ return r.json(); }).then(function(d) {
-    btn.textContent = 'Fertig: ' + (d.count || d.ok && chunks.length || '?') + ' Chunks';
+    btn.textContent = 'Fertig: ' + (d.count || chunks.length) + ' Chunks';
     btn.style.background = 'rgba(52,199,89,0.2)';
     btn.style.color = '#34C759';
     btn.style.borderColor = 'rgba(52,199,89,0.4)';
