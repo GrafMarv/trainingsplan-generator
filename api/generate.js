@@ -232,27 +232,40 @@ Wenn kein vIFT angegeben: structure ohne Distanzangabe, nur Serien x Intervalle 
 {
   "kind": "macro",
   "title": "kurzer Titel des Plans",
-  "intro": "1-2 Saetze: Ziel, Methode (z.B. Step Loading 3:1), Peak-Zeitpunkt",
+  "intro": "1-2 Saetze: Ziel, Einheiten pro Woche und Typen, Methode, Peak-Zeitpunkt",
   "geruest_strikt": true,
   "uebungsgeruest": [
     { "exercise": "Back Squat", "imageKey": "back-squat_strength_lower_squat_dyn_bi", "group": "Unterkoerper", "supersatz": "", "schema": "4x5" }
   ],
+  "ausdauer_geruest": "15/15 @ vIFT 21 km/h, U16",
   "weeks": [
-    { "week": 1, "phase": "Allg. Vorbereitung", "focus": "Aerobe Basis, Anatomische Anpassung", "load": "60%", "sessions": "3x", "deload": false, "details": "konkrete Belastungsvorgaben, Schluesseluebungen, metabolische Ziele dieser Woche (1-2 Saetze)" }
+    {
+      "week": 1,
+      "phase": "Allg. Vorbereitung",
+      "deload": false,
+      "sessions": [
+        { "type": "kraft", "label": "Kraft", "load": "60%", "details": "3x10 Squat/RDL/Push @ RPE 6, Fokus Technik" },
+        { "type": "ausdauer", "label": "Ausdauer", "load": "60%", "details": "15/15 2x4 @ vIFT 21 km/h = 87m, 3 Min Serienpause" }
+      ]
+    }
   ],
-  "note": "kurzer Hinweis, z.B. Taper-Logik vor dem Wettkampf"
+  "note": "kurzer Hinweis z.B. Taper-Logik"
 }
+
 Regeln FORMAT B:
-- Eine Zeile pro Woche, fortlaufend nummeriert (week: 1,2,3,...).
-- phase: Periodisierungsphase (Allg./Spez. Vorbereitung, Vorwettkampf, Wettkampf, Taper, Uebergang).
-- focus: konkrete Schwerpunkte der Woche (Biomotorik, metabolisch).
-- load: relative Last in % (Orientierung am Step-Loading-Muster, z.B. 60/70/80/Entlastung).
-- sessions: geplante Einheiten pro Woche (z.B. "3x").
-- deload: true bei Entlastungs-/Regenerationswochen (typisch jede 3.-4. Woche) und in der Taper-Woche.
-- details: pro Woche 1-2 Saetze mit konkreten Belastungsvorgaben, Schluesseluebungen und metabolischen Zielen. Dieses Feld wird in der Tabelle NICHT angezeigt, dient aber als Kontext fuer die spaetere Generierung der Einzeleinheit. Immer ausfuellen.
-- uebungsgeruest: gemeinsames Kernuebungs-Skelett fuer den GANZEN Zyklus (4-8 Hauptuebungen). Jede Uebung als Objekt { "exercise": Name, "imageKey": Dateiname aus der Uebungsliste ohne .png falls vorhanden sonst leerer String "", "group": grobe Kategorie wie Unterkoerper/Oberkoerper-Druck/Oberkoerper-Zug/Rumpf/Schnelligkeit, "supersatz": Supersatz-Gruppe als Buchstabe A-F oder "" fuer Einzeluebung, "schema": Basis-Satz-/Wiederholungsschema z.B. "4x5" }. Diese Uebungen UND ihre Struktur (Supersatz-Gruppierung, Reihenfolge, Grundschema) bilden das progressive Geruest: ueber die Wochen werden DIESELBEN Uebungen in DERSELBEN Struktur verwendet, nur Last/Wiederholungen/Saetze aendern sich (Step Loading). Lege die Supersatz-Gruppierung bewusst fest (z.B. A=Hauptuebung Unterkoerper als Einzelsatz, B/B=zwei Uebungen als Supersatz). Waehle imageKey nur aus der bereitgestellten Uebungsliste; wenn keine passende Grafik existiert, "".
-- geruest_strikt: true bei Kraft-/Maximalkraft-/Power-Plaenen (Grunduebungen UND Struktur muessen konstant bleiben, Tausch oder Strukturwechsel nur bewusst an Phasenuebergaengen mit Begruendung). false bei Kondition/Ausdauer/Feldtechnik-Plaenen (mehr Variation der konkreten Uebungen ist normal und erwuenscht). Setze den Wert passend zum Plantyp.
-- Nutze das Periodisierungs-Wissen aus der Wissensbasis (Step Loading 3:1/4:1, Peaking 40-60%, Mikrozyklus-Frequenzen, Jahresplan-Typen).`;
+- weeks: eine Woche pro Objekt, fortlaufend nummeriert (week: 1,2,3,...).
+- sessions: Array mit einer Zeile pro Einheit dieser Woche. Typen: "kraft", "ausdauer", "mobility", "technik", "regeneration". Jede Session hat type, label, load (%), details.
+- type bestimmt spaeter welches Format generiert wird: "kraft" → Format A mit exercises, "ausdauer" → Format A mit interval/continuous Block.
+- details: 1-2 Saetze mit konkreten Belastungsvorgaben fuer diese Einheit dieser Woche. Progressiv ueber Wochen steigern. Immer ausfuellen.
+- load: relative Last dieser Einheit in % als Orientierung (60/70/80/Entlastung).
+- deload: true bei Entlastungswochen (typisch jede 3.-4. Woche).
+- phase: Periodisierungsphase der Woche (Allg./Spez. Vorbereitung, Vorwettkampf, Wettkampf, Taper, Uebergang).
+- uebungsgeruest: Kern-Uebungen fuer Kraft-Einheiten (4-8 Uebungen), konstant ueber alle Wochen. Nur wenn Plan Kraft-Einheiten enthaelt.
+- ausdauer_geruest: kurze Beschreibung der Ausdauer-Methode und Parameter (vIFT, Altersgruppe), konstant ueber Plan. Nur wenn Plan Ausdauer-Einheiten enthaelt.
+- geruest_strikt: true wenn Kraft-Grundstruktur konstant bleiben soll.
+- Nutze Periodisierungs-Wissen aus der Wissensbasis (Step Loading 3:1/4:1, Peaking, Mikrozyklus-Frequenzen).
+- Bei Ausdauer: Wochenprogression maximal 10-20% der Netto-Laufzeit. Startvolumen nach Altersgruppe (U14: 2x4, U16: 3x4, U18: 3x8).
+- Bei kombinierten Plaenen (Kraft + Ausdauer): beide Modalitaeten progressiv und aufeinander abgestimmt planen.`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
