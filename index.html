@@ -985,82 +985,52 @@ function renderPlan(blocks, titleOverride) {
   const container = document.getElementById('pages-container');
   container.innerHTML = '';
 
-  const allExercises = [];
-  blocks.forEach(block => block.exercises.forEach(ex => allExercises.push({ ...ex, blockType: block.type, blockLabel: block.label })));
+  const a4 = document.createElement('div');
+  a4.className = 'a4';
+  const header = document.createElement('div');
+  header.className = 'plan-header';
+  header.innerHTML = `<span class="plan-header-title">${title}</span><span class="plan-header-sub">${date}</span>`;
+  a4.appendChild(header);
+  const exContainer = document.createElement('div');
+  exContainer.className = 'exercises-container';
 
-  // Seiten aufteilen - Supersets nie trennen, Bloecke moeglichst nicht mischen
-  const pages = [];
-  let currentPage = [];
-  let currentPageBlock = null;
+  // Ausdauer-Bloecke (interval/continuous) direkt als Info-Box, Kraft-Bloecke normal
+  const enduranceTypes = ['interval','continuous','endurance'];
+  let hasOnlyEndurance = blocks.every(function(b){ return enduranceTypes.indexOf(b.type) !== -1 || b.type === 'warmup' || b.type === 'cooldown'; });
 
-  for (let i = 0; i < allExercises.length; i++) {
-    const ex = allExercises[i];
-    const group = ex.group || '-';
-    const blockType = ex.blockType;
+  blocks.forEach(function(block) {
+    // Block-Header
+    const bh = document.createElement('div');
+    const bhType = enduranceTypes.indexOf(block.type) !== -1 ? 'main' : (block.type || 'main');
+    bh.className = 'block-header ' + bhType;
+    bh.innerHTML = '<span class="block-header-label">' + (block.label || block.type) + '</span>';
+    exContainer.appendChild(bh);
 
-    // Pruefen wie viele Uebungen diese Gruppe noch hat
-    let groupSize = 1;
-    if (group !== '-') {
-      for (let j = i + 1; j < allExercises.length; j++) {
-        if ((allExercises[j].group || '-') === group) groupSize++;
-        else break;
-      }
+    if (enduranceTypes.indexOf(block.type) !== -1) {
+      // Ausdauer-Block: kompakte Info-Box
+      const box = document.createElement('div');
+      box.style.cssText = 'background:#f9f9fb;border:0.5px solid #e5e5ea;border-radius:12px;padding:16px 18px;margin:6px 0 10px;';
+      var rows = '';
+      if (block.method)    rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">METHODE</span><span style="font-size:13px;color:#1c1c1e;font-weight:600;">' + block.method + '</span></div>';
+      if (block.intensity) rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">INTENSITAT</span><span style="font-size:13px;color:#1c1c1e;">' + block.intensity + '</span></div>';
+      if (block.structure) rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">STRUKTUR</span><span style="font-size:13px;color:#1c1c1e;">' + block.structure + '</span></div>';
+      if (block.pause)     rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">PAUSE</span><span style="font-size:13px;color:#1c1c1e;">' + block.pause + '</span></div>';
+      if (block.duration)  rows += '<div style="display:flex;gap:8px;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">DAUER</span><span style="font-size:13px;color:#1c1c1e;">' + block.duration + '</span></div>';
+      if (block.note)      rows += '<div style="display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:0.5px solid #e5e5ea;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;">HINWEIS</span><span style="font-size:12px;color:#636366;font-style:italic;">' + block.note + '</span></div>';
+      box.innerHTML = rows;
+      exContainer.appendChild(box);
+      return;
     }
 
-    // Blockwechsel: neue Seite wenn mehr als 2 Uebungen bereits auf der Seite sind
-    const isBlockChange = currentPageBlock !== null && currentPageBlock !== blockType;
-    if (isBlockChange && currentPage.length >= 2) {
-      pages.push(currentPage);
-      currentPage = [];
-      currentPageBlock = null;
-    }
-
-    // Superset passt nicht mehr auf Seite  neue Seite
-    if (currentPage.length > 0 && currentPage.length + groupSize > MAX_PER_PAGE) {
-      pages.push(currentPage);
-      currentPage = [];
-      currentPageBlock = null;
-    }
-
-    if (currentPageBlock === null) currentPageBlock = blockType;
-    currentPage.push(ex);
-
-    if (currentPage.length >= MAX_PER_PAGE) {
-      pages.push(currentPage);
-      currentPage = [];
-      currentPageBlock = null;
-    }
-  }
-  if (currentPage.length > 0) pages.push(currentPage);
-  const groupPositions = buildGroupCounters(allExercises);
-
-  pages.forEach((pageExercises, pageIdx) => {
-    const a4 = document.createElement('div');
-    a4.className = 'a4';
-    const header = document.createElement('div');
-    header.className = 'plan-header';
-    const pageLabel = pages.length > 1 ? ` &middot; Seite ${pageIdx+1}/${pages.length}` : '';
-    header.innerHTML = `<span class="plan-header-title">${title}</span><span class="plan-header-sub">${date}${pageLabel}</span>`;
-    a4.appendChild(header);
-    const exContainer = document.createElement('div');
-    exContainer.className = 'exercises-container';
-    let lastBlock = null;
-
-    pageExercises.forEach((ex, localIdx) => {
-      const globalIdx = pageIdx * MAX_PER_PAGE + localIdx;
-      if (ex.blockType !== lastBlock) {
-        const bh = document.createElement('div');
-        bh.className = `block-header ${ex.blockType}`;
-        const emoji = '';
-        bh.innerHTML = `<span class="block-header-label">${ex.blockLabel}</span>`;
-        exContainer.appendChild(bh);
-        lastBlock = ex.blockType;
-      }
-
+    // Normaler Kraft/Übungs-Block
+    if (!block.exercises || block.exercises.length === 0) return;
+    const allExercises = block.exercises.map(function(ex){ return Object.assign({}, ex, {blockType: block.type, blockLabel: block.label}); });
+    const groupPositions = buildGroupCounters(allExercises);
+    allExercises.forEach(function(ex, localIdx) {
       const group = ex.group || '-';
       const color = GROUP_COLORS[group] || '#d0d0d0';
       const hasGroup = group !== '-';
-      const pos = groupPositions[globalIdx];
+      const pos = groupPositions[localIdx];
       const badgeLabel = hasGroup ? group + pos : '';
       const metricLabel = ex.type === 'time' ? 'Sek.' : 'Wdh.';
       const PLACEHOLDER_SRC = GITHUB_RAW + 'placeholder.png';
@@ -1125,14 +1095,14 @@ function renderPlan(blocks, titleOverride) {
       row.appendChild(sidebar); row.appendChild(imgBox); row.appendChild(infoBox);
       exContainer.appendChild(row);
     });
+  }); // end blocks.forEach
 
-    a4.appendChild(exContainer);
-    const footerEl = document.createElement('div');
-    footerEl.className = 'plan-footer';
-    footerEl.textContent = footer;
-    a4.appendChild(footerEl);
-    container.appendChild(a4);
-  });
+  a4.appendChild(exContainer);
+  const footerEl = document.createElement('div');
+  footerEl.className = 'plan-footer';
+  footerEl.textContent = footer;
+  a4.appendChild(footerEl);
+  container.appendChild(a4);
 
   document.getElementById('plan-wrapper').style.display = 'block';
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
