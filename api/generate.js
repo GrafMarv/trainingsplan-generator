@@ -217,6 +217,17 @@ rest: "90 Sek." — nur wenn angegeben, sonst null.
 Bei Ausdauer-Blöcken: berechne die Distanz aus vIFT wenn angegeben (Distanz = vIFT km/h x 15/3600 x 1000 = vIFT x 4.167 Meter). Nutze DOSB-Methoden-Terminologie.
 Schreibe alle Felder des Ausdauer-Blocks kurz und direkt fuer den Athleten: keine Fachbegriffe, keine Erklaerungen, keine Klammern mit wissenschaftlichen Abkuerzungen. note: max. 1 kurzer Satz, praktischer Hinweis (z.B. "Tempo konstant halten." oder "Serie abbrechen wenn Distanz nicht mehr schaffbar.").
 
+15/15-INTERVALL STARTVOLUMEN UND PROGRESSION:
+Startpunkt nach Altersgruppe/Erfahrung (wenn nicht angegeben: konservativ ansetzen):
+- U13/U14 oder Einsteiger HIIT: 2 Serien x 4 Intervalle (= 2 Min Netto)
+- U16 oder mittleres Niveau: 3 Serien x 4 Intervalle (= 3 Min Netto)
+- U18/Erwachsene oder erfahren: 3 Serien x 8-10 Intervalle (= 6-7.5 Min Netto)
+Progression: erst Serien erhoehen (2→3), dann Intervalle pro Serie steigern (4→6→8→10→12→15).
+Wochenprogression: Netto-Laufzeit pro Woche maximal 10-20% erhoehen.
+Distanz bleibt immer konstant bei individuellem vIFT-Wert — NIE die Distanz erhoehen.
+Abbruchkriterium fuer eine Serie: Zieldistanz nicht mehr haltbar → Serie sofort beenden.
+Wenn kein vIFT angegeben: structure ohne Distanzangabe, nur Serien x Intervalle x Zeitstruktur.
+
 === FORMAT B — MAKROZYKLUS (JSON-Objekt) ===
 {
   "kind": "macro",
