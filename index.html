@@ -748,6 +748,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button id="btn-diag-template" style="background:rgba(255,255,255,0.08);color:#fff;border:0.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Vorlage herunterladen</button>
       <button id="btn-diag-import" style="background:#fff;color:#1c1c1e;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Diagnostik importieren</button>
       <input type="file" id="diag-import-file" accept=".xlsx,.xls" style="display:none;">
+      <button id="btn-dosb-import" style="background:rgba(255,149,0,0.2);color:#FF9500;border:0.5px solid rgba(255,149,0,0.4);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">DOSB Methoden laden</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
       <select id="dg-filter-club" style="padding:8px 12px;border:0.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
@@ -2593,6 +2594,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('dg-filter-club').addEventListener('change', function() { plFilterChanged('club', this.value); });
   document.getElementById('dg-filter-team').addEventListener('change', function() { plFilterChanged('team', this.value); });
   document.getElementById('btn-diag-template').addEventListener('click', function() { downloadDiagTemplate(); });
+  document.getElementById('btn-dosb-import').addEventListener('click', function() { dosbImport(); });
   document.getElementById('btn-back-diagnostik').addEventListener('click', function() { goTo('home'); });
   document.getElementById('btn-diag-import').addEventListener('click', function() {
     document.getElementById('diag-import-file').click();
@@ -2923,6 +2925,46 @@ function diagConfirmImport() {
   }).catch(function(e) {
     if (window.hideLoader) hideLoader();
     alert('Fehler beim Speichern: ' + e.message);
+  });
+}
+
+function dosbImport() {
+  var btn = document.getElementById('btn-dosb-import');
+  btn.disabled = true;
+  btn.textContent = 'Laedt...';
+  var chunks = [
+    {titel:"DOSB Belastungsstruktur: Volumen und Lastfaktoren",inhalt:"Belastung = Volumen x 3 Lastfaktoren. Periodisierungsindikator = Volumen x Gewicht x Einheit. Lastfaktor 1: % maximale Intensitat. Lastfaktor 2: % maximale Geschwindigkeit (Tempo/Intention). Volumen = Satze x Wiederholungen x Serien. Relevant: zeitlicher Umfang, Einheiten pro Woche, Regenerationszeit bis gleicher Reiz.",tags:["belastung","volumen","periodisierung","methodik"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Cardiac Output Methode (GA1 Grundlagenausdauer)",inhalt:"Ziel: Grundlagenausdauer. Anpassungen: Herzhypertrophie links, Kapillarisierung, AVDO2, Mitochondriendichte, aerobe Enzyme, Parasympathikus-Stimulation, autonome Recovery. RPE 4-7, HR 100-150, 60-70% VO2max, 70% Vanae. Keine Pause. 1 Satz x 30-90 Min. Taeglich. Regeneration 24h. Restorative Methode. Varianten: kontinuierlich oder Kreistraining.",tags:["ga1","grundlagenausdauer","cardiac-output","aerob","dauermethode","regeneration"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"STO Methode (Slow-Twitch Hypertrophie Tempo-Methode)",inhalt:"Ziel: Slow-Twitch Fasern durch konstante Spannung und langsames Tempo, lokale ischaemische Anpassung, CSA-Steigerung. RPE 7-8, 40-70% 1RM, Tempo 4-6s (2-3 exz./konz.). Pause 30-40s. 3-5 Satze x 8-10 Wdh. 12-34 Min. 2x/Woche. Regeneration 24-48h.",tags:["sto","slow-twitch","hypertrophie","tempo-methode","oxidativ","muskelquerschnitt"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"HICT Methode (Hoch-Intensives-Kontinuierliches-Training)",inhalt:"Ziel: Schnellzuckende Fasern, Typ IIa Entwicklung, O2-Nutzung steigern. Gute Regenerationsmethode fuer FT-Athleten. RPE 7-8, 20-30 RPM, unter anaerober Schwelle. Pause 5-10 Min aktiv. 1-3 Satze x 5-20 Min. 15-80 Min. 1-2x/Woche. Regeneration 2-3 Tage.",tags:["hict","schnellzuckend","typ-iia","ft-athleten","kontinuierlich"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Oxidativer Sprint Hill Sprint Methode",inhalt:"Ziel: Schnellzuckende Fasern, Typ IIa, Herzfrequenzerholung stimulieren. Bei defizitaerer Erholungszeit individueller als strikt vorgegebene Intervalle. RPE 5-6, ueber 90% Vmax, unter anaerober Schwelle. Pause HR 100-120, individuelle aerobe Schwelle. 1 Satz x 5-7 Sek Sprints, 20-60 Min. 2x/Woche. Regeneration 2-3 Tage.",tags:["hill-sprint","oxidativer-sprint","vmax","schnelligkeit","herzfrequenzerholung"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Aerobic Balistic Methode (Leichte Plyometrische Zirkel)",inhalt:"Ziel: Schnellzuckende Fasern, Typ IIa, Herzfrequenzerholung. RPE 5-6, unter anaerob, moderate Intensitat. Pause 10-30s, 5-10 Min aktiv. 8-30 Satze x 8-10 Wdh x 1-3 Serien, 5-10 Min Blockzeit. 5-50 Min. 2-3x/Woche. Regeneration 2-3 Tage.",tags:["aerobic-balistic","plyometrie","schnellzuckend","zirkeltraining","herzfrequenzerholung"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"FTO Methode (Explosive Repeat)",inhalt:"Ziel: Schnellzuckende Fasern, Typ IIa, FT-Faser-Erholung, Laktatoxidation durch ST-Fasern (LDH-Aktivitat). RPE 5-8, ueber 90% Pmax, unter anaerob. Pause 25-52s, 8-10 Min aktiv. 8-10 Satze x 5-14 Sek x 2-6 Serien. 24-110 Min. 2x/Woche. Regeneration 2-3 Tage.",tags:["fto","explosive-repeat","ldh","laktatoxidation","ft-fasern","power"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Schwellen-Methode (Extensive Intervalle)",inhalt:"Ziel: Anaerobe Schwelle anheben, MCT-1 Laktataufnahme-Transporter entwickeln. Klassisch: 95-105% Schwellengeschwindigkeit (Zone 2), Pause 3+ Min bei 60-70%. Modern: 10 Schlaege unter anaerober Schwelle. RPE 5-7, 80-85% vVO2max. Pause 2-3 Min aktiv. 2-5 Satze x 3-10 Min. 14-50 Min. 3-4x/Woche. Variante 1: kontinuierlich (5x8, 4x10, 3x12, 3x15, 2x20). Variante 2: extensive Intervalle. Variante 3: aerobe Intervalle.",tags:["schwellenmethode","anaerobe-schwelle","mct-1","zone2","extensive-intervalle","laktat"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Aerobe Intervalle (Schwellenmethode Variante 3 kurze extensive Intervalle)",inhalt:"Dritte Variante der Schwellenmethode. Ziel: Laktat als Energiequelle, MCT-1 entwickeln, anaerobe Schwelle anheben. 10 Schlaege unter anaerober Schwelle. 85-90% V anaerobe Schwelle. Pause 1:1 bis 2:1. 1-3 Serien x 20-60s. 10-80 Min. 1-2x/Woche. Regeneration 1-2 Tage.",tags:["aerobe-intervalle","mct-1","schwellenmethode","laktat","kurze-intervalle"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Schwellen-Intervalle (Aerobe Power extensive Intervalle)",inhalt:"Ziel: SDH-Enzym shuttelt H+ in Elektronentransportkette, Pufferkapazitat steigern, anaerobe Schwelle anheben. 80-90% VO2max, ca. anaerobe Schwelle. Pause 1 Min. 5-8 Satze x 2 Min. 15-24 Min. 2-3x/Woche. Regeneration 1-2 Tage.",tags:["schwellen-intervalle","sdh","pufferkapazitat","aerobe-power","vo2max"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"HRIT Methode (Aerobe Power kurze HIT)",inhalt:"Ziel: Schnellzuckende Fasern, Leistungskapazitat steigern, Herzfrequenzerholung. Bei defizitaerer Erholungszeit individueller als strikt vorgegebene Intervalle. RPE 7-8, unter anaerob. Pause HR 130-140 oder aerobe Schwelle. 15-20 Satze x 10-12 Sek. 2x/Woche. Regeneration 2-3 Tage.",tags:["hrit","aerobe-power","schnellzuckend","herzfrequenzerholung","kurze-hit"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Cardiac Power Methode (4x4 lange HIT Wiederholungsmethode)",inhalt:"Ziel: Myocard-Ausdauer, Herzkon traktilitaet, Mitochondriendichte, VO2max steigern. Achtung: cardiale Voraussetzungen beachten. RPE 9-10, 95% HRmax, 90-100% vVO2max. Pause 3-4 Min. 4-6 Satze x 4-8 Min. 25-70 Min. 2x/Woche. Entspricht norwegischem 4x4-Protokoll (Helgerud). Regeneration 2-3 Tage.",tags:["cardiac-power","4x4","vo2max","lange-hit","helgerud","myocard"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"HIIT Methode (kurze HIT 15/15 Intervalle)",inhalt:"Ziel: VO2max verbessern mit reduzierten laktaziden Reizen. Achtung: cardiale Voraussetzungen beachten. RPE 9-10, 95% HRmax, 100-120% vVO2max. Pause 10-30s (1:2 bis 1:1) bei 70% VO2max. 3 Satze x 10-12 Min. 20-30 Min. 2x/Woche. Entspricht 15/15-Intervall-Format mit vIFT-Steuerung. Regeneration 2-3 Tage.",tags:["hiit","15/15","vift","vo2max","kurze-hit","laktazid"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Repeated Sprint Methode (Short Shuttle)",inhalt:"Ziel: Laktattransporter MCT-1 steigern, Schnelligkeit verbessern. Achtung: cardiale Voraussetzungen beachten. RPE 9-10, 120-160% vVO2max. Pause unter 20s, Serienpause 6 Min. 2-3 Satze x 4-10 Sek x 2-3 Serien. 8-13 Min. 2x/Woche. Regeneration 2-3 Tage.",tags:["repeated-sprint","short-shuttle","mct-1","schnelligkeit","rsa"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Sprint Interval Methode (Set Sprint Endurance)",inhalt:"Ziel: Laktattransporter MCT-4, hoch-laktazide Belastung. Achtung: cardiale Voraussetzungen beachten. RPE 9-10, ueber 160% vVO2max. Pause 2 Min. 6-10 Satze x ueber 20s. 8-22 Min. 2x/Woche. Regeneration 2-3 Tage.",tags:["sprint-interval","mct-4","laktazid","sprint-endurance","supramaximal"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Lactic Power Methode",inhalt:"Ziel: Glykolytische Enzyme PFK steigern. RPE 7-9, unter 90% Pmax. Pause 1-3 Min, 8-15 Min aktiv. 3 Satze x 20-40 Sek x 2-4 Serien. 15-55 Min. 2x/Woche. Regeneration 2-3 Tage.",tags:["lactic-power","pfk","glykolytisch","intensiv","anaerob"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Lactic Capacity Methode",inhalt:"Ziel: Pufferkapazitat des Muskels steigern, lokale Glykogenspeicher vergroessern. RPE 9-10, mindestens 100% vVO2max. Pause ueber 2 Min, 3-5 Min. 3-6 Satze x 45-120 Sek x 1-3 Serien. 15-100 Min. 2x/Woche. Regeneration 2-3 Tage.",tags:["lactic-capacity","pufferkapazitat","glykogen","intensiv","anaerob"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"},
+    {titel:"Lactic Explosiv Methode",inhalt:"Ziel: Explosivkraft im sauren Milieu aufrechterhalten, Pufferkapazitat steigern, PFK-Enzyme. RPE 7-9, Pmax jede Wdh. Pause 10-30s, 6-8 Min aktiv. 3-6 Satze x 12-40 Sek x 1-3 Serien. 5-41 Min. 2x/Woche. Regeneration 2-3 Tage.",tags:["lactic-explosiv","explosivkraft","saures-milieu","pufferkapazitat","pfk"],quelle:"DOSB Trainingsmethoden 2016, Stefan Adler, Trainerakademie Koeln"}
+  ];
+  fetch('/api/brain-add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({chunks: chunks})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    btn.textContent = 'Fertig: ' + (d.count || d.inserted || '?') + ' Chunks geladen';
+    btn.style.background = 'rgba(52,199,89,0.2)';
+    btn.style.color = '#34C759';
+    btn.style.borderColor = 'rgba(52,199,89,0.4)';
+    console.log('DOSB Import:', d);
+  }).catch(function(e) {
+    btn.textContent = 'Fehler: ' + e.message;
+    btn.disabled = false;
   });
 }
 
