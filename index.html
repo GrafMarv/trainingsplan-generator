@@ -1169,38 +1169,63 @@ function renderMacro(doc){
   const th = 'text-align:left;padding:10px 14px;border-bottom:2px solid #1c1c1e;font-weight:600;color:#1c1c1e;';
   table.innerHTML = '<thead><tr>'+
     '<th style="'+th+'width:58px;">Woche</th>'+
-    '<th style="'+th+'">Phase</th>'+
+    '<th style="'+th+'width:100px;">Einheit</th>'+
     '<th style="'+th+'">Schwerpunkt</th>'+
     '<th style="'+th+'width:130px;">Last</th>'+
-    '<th style="'+th+'width:90px;">Einheiten</th>'+
     '<th style="'+th+'width:22px;"></th>'+
     '</tr></thead>';
   const tbody = document.createElement('tbody');
-  weeks.forEach(function(w,idx){
-    const dl = (w.deload === true || w.deload === 'true' || w.deload === 'ja');
-    const baseBg = dl?'#fff8ec':'';
-    const tr = document.createElement('tr');
-    tr.style.cssText = 'border-bottom:1px solid #e5e5ea;cursor:pointer;'+(dl?'background:#fff8ec;':'');
-    const td = 'padding:14px 14px;color:#1c1c1e;vertical-align:top;';
-    const wk = (w.week!=null?w.week:'');
-    const badge = dl?' <span style="display:inline-block;font-size:10px;font-weight:600;color:#b06f00;background:#ffe9c2;border-radius:5px;padding:2px 7px;margin-left:6px;">Deload</span>':'';
-    const pct = loadPct(w.load);
-    const barColor = dl ? '#e8a23c' : '#378ADD';
-    const bar = '<div style="margin-top:6px;height:5px;border-radius:3px;background:#eef0f3;overflow:hidden;width:100%;">'
-      + '<div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:3px;"></div></div>';
-    tr.innerHTML =
-      '<td style="'+td+'">'
-        + '<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:'+(dl?'#ffe9c2':'#f2f2f7')+';font-weight:700;font-size:13px;">'+wk+'</span>'
-      + '</td>'+
-      '<td style="'+td+'">'+(w.phase||'')+badge+'</td>'+
-      '<td style="'+td+'color:#3a3a3c;">'+(w.focus||'')+'</td>'+
-      '<td style="'+td+'font-weight:600;">'+(w.load||'')+bar+'</td>'+
-      '<td style="'+td+'">'+(w.sessions||'')+'</td>'+
-      '<td style="'+td+'color:#c7c7cc;text-align:center;font-size:18px;">&rsaquo;</td>';
-    tr.addEventListener('mouseenter',function(){tr.style.background='#eef4ff';});
-    tr.addEventListener('mouseleave',function(){tr.style.background=baseBg;});
-    tr.addEventListener('click',function(){openWeekSession(idx);});
-    tbody.appendChild(tr);
+  var SESSION_COLORS = {
+    kraft:       {bg:'#f2f2f7',color:'#1c1c1e',label:'Kraft'},
+    ausdauer:    {bg:'#eaf4ff',color:'#0062cc',label:'Ausdauer'},
+    mobility:    {bg:'#f0fdf4',color:'#16a34a',label:'Mobility'},
+    technik:     {bg:'#fdf4ff',color:'#9333ea',label:'Technik'},
+    regeneration:{bg:'#fff7ed',color:'#c2410c',label:'Regen'}
+  };
+  var sessionIndex = 0;
+  weeks.forEach(function(w, wIdx){
+    var dl = (w.deload === true || w.deload === 'true' || w.deload === 'ja');
+    var sessions = Array.isArray(w.sessions) ? w.sessions : [];
+    if (sessions.length === 0) {
+      sessions = [{type:'kraft',label:w.sessions||'Einheit',load:w.load,details:w.details,focus:w.focus}];
+    }
+    sessions.forEach(function(sess, sIdx){
+      var isFirst = sIdx === 0;
+      var isLast = sIdx === sessions.length - 1;
+      var sessIdx = sessionIndex++;
+      var sc = SESSION_COLORS[sess.type] || SESSION_COLORS.kraft;
+      var pct = loadPct(sess.load || w.load);
+      var barColor = dl ? '#e8a23c' : (sess.type === 'ausdauer' ? '#378ADD' : '#1c1c1e');
+      var bar = '<div style="margin-top:5px;height:4px;border-radius:3px;background:#eef0f3;overflow:hidden;width:100%;">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:3px;"></div></div>';
+      var tr = document.createElement('tr');
+      var borderBottom = isLast ? '2px solid #d1d5db' : '0.5px solid #f0f0f0';
+      var bgBase = dl ? '#fff8ec' : '';
+      tr.style.cssText = 'border-bottom:'+borderBottom+';cursor:pointer;'+(bgBase?'background:'+bgBase+';':'');
+      var td = 'padding:11px 14px;color:#1c1c1e;vertical-align:middle;';
+      var wkCell = '';
+      if (isFirst) {
+        var deloadBadge = dl ? '<div><span style="display:inline-block;font-size:10px;font-weight:600;color:#b06f00;background:#ffe9c2;border-radius:5px;padding:2px 6px;margin-top:4px;">Deload</span></div>' : '';
+        wkCell = '<td style="'+td+'" rowspan="'+sessions.length+'">'+
+          '<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:'+(dl?'#ffe9c2':'#f2f2f7')+';font-weight:700;font-size:13px;">'+(w.week!=null?w.week:'')+'</span>'+
+          deloadBadge+'</td>';
+      }
+      var typeLabel = sess.label || sc.label;
+      var typeBadge = '<span style="display:inline-block;font-size:11px;font-weight:600;color:'+sc.color+';background:'+sc.bg+';border-radius:6px;padding:3px 9px;">'+typeLabel+'</span>';
+      var focusText = sess.details || sess.focus || w.focus || '';
+      var focusShort = focusText.split('.')[0] + (focusText.indexOf('.') !== -1 ? '.' : '');
+      tr.innerHTML = wkCell+
+        '<td style="'+td+'">'+typeBadge+'</td>'+
+        '<td style="'+td+'color:#3a3a3c;font-size:13px;">'+focusShort+'</td>'+
+        '<td style="'+td+'font-weight:600;">'+(sess.load||w.load||'')+bar+'</td>'+
+        '<td style="'+td+'color:#c7c7cc;text-align:center;font-size:18px;">&rsaquo;</td>';
+      (function(cW, cSess, cIdx){
+        tr.addEventListener('mouseenter',function(){tr.style.background='#eef4ff';});
+        tr.addEventListener('mouseleave',function(){tr.style.background=bgBase;});
+        tr.addEventListener('click',function(){openWeekSession(cIdx, cW, cSess);});
+      })(w, sess, sessIdx);
+      tbody.appendChild(tr);
+    });
   });
   table.appendChild(tbody);
   body.appendChild(table);
@@ -1225,51 +1250,43 @@ function renderMacro(doc){
 
 function backToMacro(){ if(CURRENT_MACRO) renderMacro(CURRENT_MACRO); }
 
-async function openWeekSession(idx){
-  if(!CURRENT_MACRO || !CURRENT_MACRO.weeks || !CURRENT_MACRO.weeks[idx]) return;
-  var w = CURRENT_MACRO.weeks[idx];
-  if(CURRENT_MACRO._sessions && CURRENT_MACRO._sessions[idx]){ showWeekSession(idx, CURRENT_MACRO._sessions[idx], (CURRENT_MACRO._ctx||{})[idx]); return; }
+async function openWeekSession(sessIdx, w, sess){
+  if(!CURRENT_MACRO) return;
+  if(!w) return;
+  if(!sess) sess = {type:'kraft', label:'Einheit', details: w.details, focus: w.focus, load: w.load};
+  if(CURRENT_MACRO._sessions && CURRENT_MACRO._sessions[sessIdx]){ showWeekSession(sessIdx, CURRENT_MACRO._sessions[sessIdx], (CURRENT_MACRO._ctx||{})[sessIdx]); return; }
   var container=document.getElementById('pages-container');
   document.getElementById('plan-wrapper').style.display='block';
   document.getElementById('back-to-macro').style.display='inline-block';
-  if(window.showLoader) showLoader('Generiere Einheit fuer Woche '+(w.week!=null?w.week:'')+'...');
+  var sessLabel = (sess.label || sess.type || 'Einheit') + ' Woche '+(w.week!=null?w.week:'');
+  if(window.showLoader) showLoader('Generiere '+sessLabel+'...');
   var allWeeks = CURRENT_MACRO.weeks || [];
-  function weekLine(x){
-    if(!x) return '';
-    return 'W'+(x.week!=null?x.week:'?')+' ['+(x.phase||'')+'] '+(x.focus||'')+', Last '+(x.load||'')+(x.deload===true||x.deload==='true'||x.deload==='ja'?' (Deload)':'');
-  }
-  var prev = idx>0 ? allWeeks[idx-1] : null;
-  var next = idx<allWeeks.length-1 ? allWeeks[idx+1] : null;
+  function weekLine(x){ if(!x) return ''; return 'W'+(x.week!=null?x.week:'?')+' ['+(x.phase||'')+'], Last '+(x.load||'')+(x.deload===true||x.deload==='true'||x.deload==='ja'?' (Deload)':''); }
+  var wIdx = allWeeks.indexOf(w);
+  var prev = wIdx>0 ? allWeeks[wIdx-1] : null;
+  var next = wIdx<allWeeks.length-1 ? allWeeks[wIdx+1] : null;
   var ctx='';
-  if(CURRENT_MACRO.intro) ctx+='Gesamtplan-Ziel/Methode: '+CURRENT_MACRO.intro+' ';
-  ctx+='Position im Zyklus: Woche '+(idx+1)+' von '+allWeeks.length+'. ';
+  if(CURRENT_MACRO.intro) ctx+='Gesamtplan-Ziel: '+CURRENT_MACRO.intro+' ';
+  ctx+='Woche '+(w.week!=null?w.week:wIdx+1)+' von '+allWeeks.length+'. Phase: '+(w.phase||'')+'. ';
   if(prev) ctx+='Vorherige Woche: '+weekLine(prev)+'. ';
   if(next) ctx+='Naechste Woche: '+weekLine(next)+'. ';
-  if(w.details) ctx+='Detailvorgaben dieser Woche: '+w.details+' ';
+  if(sess.details) ctx+='Detailvorgaben: '+sess.details+' ';
+  if(CURRENT_MACRO.ausdauer_geruest && sess.type==='ausdauer') ctx+='Ausdauer-Parameter: '+CURRENT_MACRO.ausdauer_geruest+' ';
   var geruest = Array.isArray(CURRENT_MACRO.uebungsgeruest) ? CURRENT_MACRO.uebungsgeruest : [];
   var strikt = (CURRENT_MACRO.geruest_strikt === true || CURRENT_MACRO.geruest_strikt === 'true');
-  if(geruest.length){
+  if(geruest.length && sess.type !== 'ausdauer'){
     var gList = geruest.map(function(g){
-      var nm = (g && g.exercise) ? g.exercise : '';
-      var ik = (g && g.imageKey) ? g.imageKey : '';
-      var gr = (g && g.group) ? g.group : '';
-      var ss = (g && g.supersatz) ? g.supersatz : '';
-      var sc = (g && g.schema) ? g.schema : '';
-      return '- '+nm+(gr?' ('+gr+')':'')+(ss?' [Supersatz '+ss+']':' [Einzeluebung]')+(sc?' [Basisschema '+sc+']':'')+(ik?' [imageKey: '+ik+']':'');
+      return '- '+(g.exercise||'')+(g.group?' ('+g.group+')':'')+(g.supersatz?' [Supersatz '+g.supersatz+']':' [Einzeluebung]')+(g.schema?' ['+g.schema+']':'')+(g.imageKey?' [imageKey: '+g.imageKey+']':'');
     }).join(' ');
-    ctx+='Gemeinsames Uebungsgeruest des Zyklus: '+gList+'. ';
-    if(strikt){
-      ctx+='STRIKT: Verwende fuer den Hauptblock GENAU diese Kernuebungen in DERSELBEN Struktur. '
-        +'Behalte ueber alle Wochen die Supersatz-Gruppierung (gleiche Buchstaben = gemeinsamer Supersatz, Einzeluebung bleibt Einzeluebung), '
-        +'die Reihenfolge und die Anzahl der Uebungen identisch. Erfinde keine neuen Grunduebungen und aendere die Block-Struktur nicht. '
-        +'Variiere ueber die Wochen NUR Last, Wiederholungen und Saetze progressiv (Step Loading, ausgehend vom Basisschema) passend zur Belastung dieser Woche. '
-        +'Ein Uebungstausch ODER Strukturwechsel ist ausschliesslich an einem Phasenuebergang erlaubt und muss kurz begruendet werden. '
-        +'Nutze die angegebenen imageKeys als Dateinamen fuer die Grafiken. ';
-    } else {
-      ctx+='Das Geruest dient als Orientierung. Variation der konkreten Uebungen ist hier erlaubt, '
-        +'aber bleibe thematisch beim Schwerpunkt und nutze wo passend die genannten Uebungen und imageKeys. ';
-    }
+    ctx+='Uebungsgeruest: '+gList+'. ';
+    if(strikt) ctx+='STRIKT: Exakt diese Uebungen, gleiche Struktur, nur Last/Wdh/Saetze variieren. ';
+    else ctx+='Geruest als Orientierung, Variation erlaubt. ';
   }
+  var input='Erstelle EINE EINZELNE konkrete Trainingseinheit ('+sess.label+', mit Warm-up und Cool-down). '
+    +'Einheitstyp: '+(sess.type||'kraft')+'. Woche '+(w.week!=null?w.week:'')+', Phase: '+(w.phase||'')+'. '
+    +'Relative Belastung: '+(sess.load||w.load||'')+'. '
+    +(CURRENT_MACRO.title?'Gesamtplan: '+CURRENT_MACRO.title+'. ':'')
+    +ctx
   var input='Erstelle EINE EINZELNE konkrete Trainingseinheit (Warm-up, Hauptblock, Cool-down). '
     +'Es ist Trainingswoche '+(w.week!=null?w.week:'')+' mit Schwerpunkt: '+(w.focus||'')+'. '
     +'Trainingsphase: '+(w.phase||'')+'. Relative Belastung: '+(w.load||'')+' (RPE entsprechend waehlen). '
@@ -1287,24 +1304,25 @@ async function openWeekSession(idx){
     if(!CURRENT_MACRO._sessions) CURRENT_MACRO._sessions={};
     if(!CURRENT_MACRO._ctx) CURRENT_MACRO._ctx={};
     if(!CURRENT_MACRO._sessionChunks) CURRENT_MACRO._sessionChunks={};
-    CURRENT_MACRO._sessions[idx]=plan;
-    CURRENT_MACRO._ctx[idx]=input;
-    CURRENT_MACRO._sessionChunks[idx]=data.usedChunks||[];
+    CURRENT_MACRO._sessions[sessIdx]=plan;
+    CURRENT_MACRO._ctx[sessIdx]=input;
+    CURRENT_MACRO._sessionChunks[sessIdx]=data.usedChunks||[];
     if(window.hideLoader) hideLoader();
-    showWeekSession(idx, plan, input);
+    showWeekSession(sessIdx, plan, input, w, sess);
   }catch(e){
     if(window.hideLoader) hideLoader();
     container.innerHTML='<div style="padding:40px;text-align:center;color:#c0392b;font-size:14px;">Fehler: '+e.message+'<br><br><span style="color:#8e8e93;font-size:13px;">Tippe oben auf &larr; Wochenplan, um zurueckzukehren.</span></div>';
   }
 }
 
-function showWeekSession(idx, plan, ctxInput){
-  var w=CURRENT_MACRO.weeks[idx];
-  var title='Woche '+(w.week!=null?w.week:'')+(w.phase?' \u2014 '+w.phase:'');
+function showWeekSession(sessIdx, plan, ctxInput, w, sess){
+  if(!w && CURRENT_MACRO.weeks) w = CURRENT_MACRO.weeks[0];
+  var sessLabel = (sess && sess.label) ? sess.label : 'Einheit';
+  var title = sessLabel + ' \u2014 Woche '+((w&&w.week!=null)?w.week:'')+(w&&w.phase?' ('+w.phase+')':'');
   renderPlan(plan, title);
   document.getElementById('back-to-macro').style.display='inline-block';
-  var chunks = (CURRENT_MACRO._sessionChunks||{})[idx] || [];
-  setExplainContext(chunks, { type: 'session', title: title, intro: w.details || w.focus || '' });
+  var chunks = (CURRENT_MACRO._sessionChunks||{})[sessIdx] || [];
+  setExplainContext(chunks, { type: 'session', title: title, intro: (sess&&sess.details)||(w&&(w.details||w.focus))||'' });
 }
 
 function applyGrafikFilter() {
