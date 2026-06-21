@@ -352,6 +352,32 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   #home-wrap { padding: 32px 14px; }
   .gen-center { max-width: 100%; }
 }
+
+/* ===== PLAN-BUILDER ===== */
+.builder-name { width:100%; box-sizing:border-box; font-size:15px; font-weight:600; padding:10px 12px; border:1px solid #e5e5ea; border-radius:10px; margin-bottom:14px; font-family:inherit; color:#1c1c1e; }
+.builder-block { background:#f7f7fa; border:1px solid #ececf1; border-radius:12px; padding:12px 12px 10px; margin-bottom:12px; }
+.builder-block-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.builder-block-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+.builder-block-title.warmup { color:#0891B2; }
+.builder-block-title.main { color:#2563EB; }
+.builder-block-title.cooldown { color:#16A34A; }
+.builder-slot { display:flex; gap:6px; align-items:flex-start; background:#fff; border:1px solid #ececf1; border-radius:10px; padding:8px; margin-bottom:6px; }
+.builder-slot-main { display:flex; flex-wrap:wrap; gap:6px; align-items:center; flex:1; }
+.builder-slot select, .builder-slot input { font-family:inherit; font-size:12px; padding:6px 8px; border:1px solid #e5e5ea; border-radius:8px; color:#1c1c1e; background:#fff; box-sizing:border-box; }
+.builder-slot select.ex-select { flex:1 1 100%; min-width:160px; font-weight:600; }
+.builder-slot input.p-num { width:54px; text-align:center; }
+.builder-slot input.p-txt { width:84px; }
+.builder-slot select.p-metric, .builder-slot select.p-grp { padding:6px 4px; }
+.builder-slot-x { border:none; background:#fff0f0; color:#c00; width:28px; height:28px; border-radius:7px; cursor:pointer; font-size:16px; line-height:1; flex-shrink:0; }
+.builder-slot-x:hover { background:#ffd9d9; }
+.builder-add-slot { margin-top:2px; background:none; border:1px dashed #c8c8d0; color:#636366; border-radius:8px; padding:7px 10px; font-size:12px; font-family:inherit; cursor:pointer; width:100%; }
+.builder-add-slot:hover { background:#fff; border-color:#2563EB; color:#2563EB; }
+.builder-block-x { border:none; background:none; color:#aeaeb2; cursor:pointer; font-size:18px; line-height:1; padding:0 2px; }
+.builder-block-x:hover { color:#c00; }
+.ki-details summary { cursor:pointer; font-size:12px; font-weight:600; color:#8e8e93; padding:6px 0; list-style:none; }
+.ki-details summary::-webkit-details-marker { display:none; }
+.ki-details summary:before { content:"\25B8  "; }
+.ki-details[open] summary:before { content:"\25BE  "; }
 </style>
 </head>
 <body>
@@ -780,19 +806,29 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <div class="gen-center">
 
   <div class="card">
-    <label class="section-label">Trainingsplan beschreiben</label>
-    <div class="input-row">
-      <textarea id="plan-input" placeholder="z.B. Warm-up: World Greatest Stretch, Cat-Cow. Hauptblock: Pull-up Superset mit Tripod Row 4x8 RPE 8 Pause 90 Sek., Split Squat 3x10 80% Pause 120 Sek. Cool-down: Couch Stretch, Pigeon Pose."></textarea>
-      <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Spracheingabe">🎤</button>
-    </div>
-    <p class="hint">Wenn du Warm-up oder Cool-down erwähnst, werden sie automatisch als eigene Blöcke erkannt. Intensität (RPE, %) und Pausen sind optional.</p>
+    <label class="section-label">Plan-Builder</label>
+    <input type="text" id="plan-name" class="builder-name" value="Krafttraining A" placeholder="Planname">
+    <div id="builder-blocks"></div>
+    <button class="btn-secondary" type="button" id="add-block-btn" onclick="builderAddBlock()" style="margin-top:6px;">+ Block</button>
   </div>
 
-  <input type="hidden" id="plan-name" value="Krafttraining A">
   <input type="hidden" id="plan-footer" value="Coach: _______________ &middot; Athlet: _______________">
 
-  <button class="btn-primary" id="generate-btn" onclick="generateWithAI()">Trainingsplan generieren</button>
-  <div class="status-box" id="status-box"></div>
+  <button class="btn-primary" id="build-btn" onclick="buildAndRenderPlan()">Plan erstellen</button>
+
+  <details class="ki-details" style="margin-top:14px;">
+    <summary>KI-Generator (Sonderf&auml;lle)</summary>
+    <div class="card" style="margin-top:10px;">
+      <label class="section-label">Trainingsplan beschreiben</label>
+      <div class="input-row">
+        <textarea id="plan-input" placeholder="z.B. Warm-up: World Greatest Stretch. Hauptblock: Pull-up 4x8 RPE 8 Pause 90 Sek. Cool-down: Couch Stretch."></textarea>
+        <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Spracheingabe">&#127908;</button>
+      </div>
+      <p class="hint">Erkennt Warm-up/Cool-down automatisch. Intensit&auml;t (RPE, %) und Pausen optional.</p>
+    </div>
+    <button class="btn-primary" id="generate-btn" onclick="generateWithAI()">Mit KI generieren</button>
+    <div class="status-box" id="status-box"></div>
+  </details>
 
   </div>
 
@@ -865,6 +901,7 @@ function goTo(screen) {
     const idx = screen === 'generator' ? 0 : 1;
     document.querySelectorAll('.tab')[idx]?.classList.add('active');
     document.getElementById('page-' + screen)?.classList.add('active');
+    if (screen === 'generator') setTimeout(function(){ if(window.renderBuilder) window.renderBuilder(); }, 60);
   } else {
     const el = document.getElementById(screen + '-screen');
     el.style.display = 'block';
@@ -3195,6 +3232,123 @@ function plSaveDiag() {
     };
   })();
   </script>
+<script>
+/* ===== PLAN-BUILDER (Schritt 1) ===== */
+(function(){
+  var DEFAULT_BLOCKS = [
+    { type:'warmup',   label:'Warm-up' },
+    { type:'main',     label:'Hauptblock' },
+    { type:'cooldown', label:'Cool-down' }
+  ];
+  function exList(){ return (typeof EXERCISES!=='undefined' && EXERCISES.length) ? EXERCISES : (typeof _FALLBACK!=='undefined'?_FALLBACK:[]); }
+  function prettify(slug){
+    if(!slug) return '';
+    var name = String(slug).split('_')[0] || '';
+    name = name.replace(/-/g,' ').trim();
+    return name.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+  }
+  window.builderPrettify = prettify;
+  function catOf(slug){ return String(slug||'').split('_')[1] || 'sonstige'; }
+  var CAT_LABEL = { strength:'Kraft', jump:'Sprung', sprint:'Sprint', mobility:'Mobility', sonstige:'Sonstige' };
+  var CAT_ORDER = ['strength','jump','sprint','mobility','sonstige'];
+  function optionsHtml(selected){
+    var list = exList().slice().sort();
+    var groups = {};
+    list.forEach(function(slug){ var c=catOf(slug); (groups[c]=groups[c]||[]).push(slug); });
+    var html = '<option value="">&mdash; &Uuml;bung w&auml;hlen &mdash;</option>';
+    CAT_ORDER.forEach(function(cat){
+      if(!groups[cat]) return;
+      html += '<optgroup label="'+(CAT_LABEL[cat]||cat)+'">';
+      groups[cat].forEach(function(slug){
+        var sel = slug===selected ? ' selected' : '';
+        html += '<option value="'+slug+'"'+sel+'>'+prettify(slug)+'</option>';
+      });
+      html += '</optgroup>';
+    });
+    return html;
+  }
+  function newSlot(){ return { imageKey:'', sets:3, reps:10, metric:'reps', intensity:'', rest:'', group:'-', note:'' }; }
+  function ensureInit(){
+    if(window.BUILDER) return;
+    window.BUILDER = { blocks: DEFAULT_BLOCKS.map(function(b){ return { type:b.type, label:b.label, slots:[ newSlot() ] }; }) };
+  }
+  function grpOptions(sel){
+    var grps = ['-','A','B','C','D','E','F'];
+    return grps.map(function(g){ var s=g===sel?' selected':''; var lbl=g==='-'?'Einzeln':('Superset '+g); return '<option value="'+g+'"'+s+'>'+lbl+'</option>'; }).join('');
+  }
+  function slotHtml(bi, si, slot){
+    var metricSel = slot.metric==='time' ? 'time':'reps';
+    return ''+
+    '<div class="builder-slot">'+
+      '<div class="builder-slot-main">'+
+        '<select class="ex-select" onchange="builderSet('+bi+','+si+',\'imageKey\',this.value)">'+optionsHtml(slot.imageKey)+'</select>'+
+        '<input class="p-num" type="number" min="1" value="'+slot.sets+'" title="Saetze" onchange="builderSet('+bi+','+si+',\'sets\',this.value)">'+
+        '<span style="font-size:11px;color:#8e8e93;">x</span>'+
+        '<input class="p-num" type="number" min="1" value="'+slot.reps+'" title="Wdh./Sek." onchange="builderSet('+bi+','+si+',\'reps\',this.value)">'+
+        '<select class="p-metric" title="Einheit" onchange="builderSet('+bi+','+si+',\'metric\',this.value)"><option value="reps"'+(metricSel==='reps'?' selected':'')+'>Wdh.</option><option value="time"'+(metricSel==='time'?' selected':'')+'>Sek.</option></select>'+
+        '<input class="p-txt" type="text" value="'+(slot.intensity||'')+'" placeholder="RPE/%" title="Intensitaet" onchange="builderSet('+bi+','+si+',\'intensity\',this.value)">'+
+        '<input class="p-txt" type="text" value="'+(slot.rest||'')+'" placeholder="Pause" title="Pause" onchange="builderSet('+bi+','+si+',\'rest\',this.value)">'+
+        '<select class="p-grp" title="Superset" onchange="builderSet('+bi+','+si+',\'group\',this.value)">'+grpOptions(slot.group)+'</select>'+
+        '<input class="p-txt" type="text" value="'+(slot.note||'')+'" placeholder="Notiz" title="Notiz" style="flex:1 1 120px;" onchange="builderSet('+bi+','+si+',\'note\',this.value)">'+
+      '</div>'+
+      '<button class="builder-slot-x" title="Entfernen" onclick="builderRemoveSlot('+bi+','+si+')">&times;</button>'+
+    '</div>';
+  }
+  function blockHtml(bi, block){
+    var slots = block.slots.map(function(s,si){ return slotHtml(bi,si,s); }).join('');
+    return ''+
+    '<div class="builder-block">'+
+      '<div class="builder-block-head">'+
+        '<span class="builder-block-title '+block.type+'">'+block.label+'</span>'+
+        '<button class="builder-block-x" title="Block entfernen" onclick="builderRemoveBlock('+bi+')">&times;</button>'+
+      '</div>'+
+      slots+
+      '<button class="builder-add-slot" onclick="builderAddSlot('+bi+')">+ &Uuml;bung</button>'+
+    '</div>';
+  }
+  window.renderBuilder = function(){
+    ensureInit();
+    var host = document.getElementById('builder-blocks');
+    if(!host) return;
+    host.innerHTML = window.BUILDER.blocks.map(function(b,bi){ return blockHtml(bi,b); }).join('');
+  };
+  window.builderSet = function(bi,si,field,val){
+    var s = window.BUILDER.blocks[bi].slots[si];
+    if(field==='sets'||field==='reps'){ val = parseInt(val,10)||0; }
+    s[field] = val;
+  };
+  window.builderAddSlot = function(bi){ window.BUILDER.blocks[bi].slots.push(newSlot()); window.renderBuilder(); };
+  window.builderRemoveSlot = function(bi,si){ window.BUILDER.blocks[bi].slots.splice(si,1); window.renderBuilder(); };
+  window.builderRemoveBlock = function(bi){ window.BUILDER.blocks.splice(bi,1); window.renderBuilder(); };
+  window.builderAddBlock = function(){
+    window.BUILDER.blocks.push({ type:'main', label:'Block '+(window.BUILDER.blocks.length+1), slots:[ newSlot() ] });
+    window.renderBuilder();
+  };
+  window.buildAndRenderPlan = function(){
+    ensureInit();
+    var blocks = window.BUILDER.blocks.map(function(b){
+      var exercises = b.slots.filter(function(s){ return s.imageKey; }).map(function(s){
+        return {
+          exercise: prettify(s.imageKey),
+          imageKey: s.imageKey,
+          group: s.group||'-',
+          sets: parseInt(s.sets,10)||0,
+          reps: s.reps,
+          type: s.metric==='time'?'time':'reps',
+          intensity: s.intensity||'',
+          rest: s.rest||'',
+          note: s.note||''
+        };
+      });
+      return { type:b.type, label:b.label, exercises:exercises };
+    }).filter(function(b){ return b.exercises.length>0; });
+    if(blocks.length===0){ alert('Bitte mindestens eine \u00dcbung waehlen.'); return; }
+    var nameEl = document.getElementById('plan-name');
+    var title = nameEl ? nameEl.value : 'Trainingsplan';
+    renderPlan(blocks, title);
+  };
+})();
+</script>
 </body>
 </html>
 
