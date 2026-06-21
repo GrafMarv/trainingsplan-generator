@@ -404,6 +404,44 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .pk-item-name { font-size:12px; font-weight:600; color:#1c1c1e; line-height:1.2; }
 .pk-item-dims { font-size:10px; color:#aeaeb2; margin-top:2px; }
 .pk-empty { grid-column:1/-1; text-align:center; color:#aeaeb2; font-size:13px; padding:24px; }
+
+/* ===== BUILDER/PICKER UX v2 ===== */
+.picker-chips { display:flex; flex-direction:column; align-items:stretch; gap:10px; padding:14px 16px; }
+.pk-catrow { display:flex; flex-wrap:wrap; gap:8px; }
+.pk-dimrow { display:flex; align-items:center; gap:10px; }
+.pk-dimrow-label { flex:0 0 84px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#aeaeb2; }
+.pk-dimrow-chips { display:flex; flex-wrap:wrap; gap:8px; flex:1; }
+.pk-chip { font-size:14px; font-weight:600; padding:9px 16px; border-radius:12px; border:1px solid #e0e0e6; background:#fff; color:#3a3a3c; cursor:pointer; font-family:inherit; line-height:1; min-height:40px; }
+.pk-chip:hover { border-color:#2563EB; color:#2563EB; }
+.pk-chip.active { background:#2563EB; border-color:#2563EB; color:#fff; }
+.pk-chip.cat { font-size:15px; padding:10px 18px; background:#f2f2f7; }
+.pk-chip.cat.active { background:#1c1c1e; border-color:#1c1c1e; color:#fff; }
+@media (max-width:560px){ .pk-dimrow { flex-direction:column; align-items:flex-start; gap:5px; } .pk-dimrow-label{ flex:none; } }
+
+.builder-slot { display:flex; flex-direction:column; gap:8px; align-items:stretch; }
+.builder-slot-top { display:flex; align-items:center; gap:8px; }
+.builder-slot-top .ex-pick-btn { flex:1 1 auto; }
+.builder-slot-params { display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px; }
+.builder-slot-extra { display:flex; flex-wrap:wrap; gap:8px; }
+.p-group { display:flex; flex-direction:column; gap:3px; }
+.p-cap { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#aeaeb2; padding-left:2px; }
+.p-step { display:flex; align-items:center; border:1px solid #e5e5ea; border-radius:10px; overflow:hidden; background:#fff; }
+.p-step-btn { width:40px; height:40px; border:none; background:#f7f7fa; color:#1c1c1e; font-size:22px; line-height:1; cursor:pointer; font-family:inherit; flex-shrink:0; }
+.p-step-btn:hover { background:#e9e9ef; color:#2563EB; }
+.p-step-btn:active { background:#dcdce4; }
+.p-step .p-num { width:48px; text-align:center; border:none; border-left:1px solid #ececf1; border-right:1px solid #ececf1; border-radius:0; font-size:16px; font-weight:700; padding:9px 2px; -moz-appearance:textfield; appearance:textfield; }
+.p-step .p-num::-webkit-outer-spin-button, .p-step .p-num::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.p-x { font-size:15px; color:#c7c7cc; font-weight:600; padding-bottom:11px; }
+.p-metric-seg { display:inline-flex; border:1px solid #e5e5ea; border-radius:10px; overflow:hidden; background:#f7f7fa; }
+.p-metric-seg .seg { border:none; background:transparent; font-family:inherit; font-size:13px; font-weight:600; color:#636366; padding:10px 14px; cursor:pointer; min-height:40px; border-right:1px solid #ececf1; }
+.p-metric-seg .seg:last-child { border-right:none; }
+.p-metric-seg .seg:hover { color:#2563EB; }
+.p-metric-seg .seg.active { background:#2563EB; color:#fff; }
+.builder-slot-extra .p-txt { width:96px; font-size:13px; padding:9px 10px; min-height:40px; }
+.builder-slot-extra .p-txt.note { flex:1 1 140px; width:auto; }
+.builder-slot-extra .p-grp { font-size:13px; padding:9px 8px; min-height:40px; }
+.builder-slot-x { width:40px; height:40px; font-size:20px; flex-shrink:0; }
+@media (max-width:560px){ .builder-slot-params { gap:8px; } .p-metric-seg .seg { padding:10px 10px; font-size:12px; } }
 </style>
 </head>
 <body>
@@ -1101,7 +1139,7 @@ function renderPlan(blocks, titleOverride) {
         const hasGroup = group !== '-';
         const pos = groupPositions[localIdx];
         const badgeLabel = hasGroup ? group + pos : '';
-        const metricLabel = ex.type === 'time' ? 'Sek.' : 'Wdh.';
+        const metricLabel = ex.type === 'time' ? 'Sek.' : (ex.type === 'distance' ? 'm' : 'Wdh.');
         const PLACEHOLDER_SRC = GITHUB_RAW + 'placeholder.png';
         const imgSrc = ex.imageKey ? GITHUB_RAW + ex.imageKey + '.png' : null;
         const hasImage = !!ex.imageKey;
@@ -3302,24 +3340,43 @@ function plSaveDiag() {
     var grps = ['-','A','B','C','D','E','F'];
     return grps.map(function(g){ var s=g===sel?' selected':''; var lbl=g==='-'?'Einzeln':('Superset '+g); return '<option value="'+g+'"'+s+'>'+lbl+'</option>'; }).join('');
   }
+  function stepper(bi,si,field,val,cap){
+    return '<div class="p-group"><span class="p-cap">'+cap+'</span>'+
+      '<div class="p-step">'+
+        '<button type="button" class="p-step-btn" onclick="builderStep('+bi+','+si+',\''+field+'\',-1)">&minus;</button>'+
+        '<input id="num-'+field+'-'+bi+'-'+si+'" class="p-num" type="number" min="1" inputmode="numeric" value="'+val+'" onchange="builderSet('+bi+','+si+',\''+field+'\',this.value)">'+
+        '<button type="button" class="p-step-btn" onclick="builderStep('+bi+','+si+',\''+field+'\',1)">+</button>'+
+      '</div></div>';
+  }
+  function metricSeg(bi,si,metric){
+    var opts = [ ['reps','Wdh.'], ['time','Zeit (s)'], ['distance','Distanz (m)'] ];
+    return '<div class="p-metric-seg">'+ opts.map(function(o){
+      var a = metric===o[0] ? ' active' : '';
+      return '<button type="button" class="seg'+a+'" onclick="builderMetric('+bi+','+si+',\''+o[0]+'\')">'+o[1]+'</button>';
+    }).join('') +'</div>';
+  }
   function slotHtml(bi, si, slot){
-    var metricSel = slot.metric==='time' ? 'time':'reps';
+    var metric = slot.metric || 'reps';
+    var pick = slot.imageKey
+      ? '<button type="button" class="ex-pick-btn filled" onclick="openPicker('+bi+','+si+')"><img class="ex-pick-thumb" src="'+GITHUB_RAW+slot.imageKey+'.png" onerror="this.style.visibility=\'hidden\'"><span>'+prettify(slot.imageKey)+'</span></button>'
+      : '<button type="button" class="ex-pick-btn" onclick="openPicker('+bi+','+si+')"><span class="ex-pick-ph">&mdash; &Uuml;bung w&auml;hlen &mdash;</span></button>';
     return ''+
     '<div class="builder-slot">'+
-      '<div class="builder-slot-main">'+
-        (slot.imageKey
-          ? '<button type="button" class="ex-pick-btn filled" onclick="openPicker('+bi+','+si+')"><img class="ex-pick-thumb" src="'+GITHUB_RAW+slot.imageKey+'.png" onerror="this.style.visibility=\'hidden\'"><span>'+prettify(slot.imageKey)+'</span></button>'
-          : '<button type="button" class="ex-pick-btn" onclick="openPicker('+bi+','+si+')"><span class="ex-pick-ph">&mdash; &Uuml;bung w&auml;hlen &mdash;</span></button>')+
-        '<input class="p-num" type="number" min="1" value="'+slot.sets+'" title="Saetze" onchange="builderSet('+bi+','+si+',\'sets\',this.value)">'+
-        '<span style="font-size:11px;color:#8e8e93;">x</span>'+
-        '<input class="p-num" type="number" min="1" value="'+slot.reps+'" title="Wdh./Sek." onchange="builderSet('+bi+','+si+',\'reps\',this.value)">'+
-        '<select class="p-metric" title="Einheit" onchange="builderSet('+bi+','+si+',\'metric\',this.value)"><option value="reps"'+(metricSel==='reps'?' selected':'')+'>Wdh.</option><option value="time"'+(metricSel==='time'?' selected':'')+'>Sek.</option></select>'+
-        '<input class="p-txt" type="text" value="'+(slot.intensity||'')+'" placeholder="RPE/%" title="Intensitaet" onchange="builderSet('+bi+','+si+',\'intensity\',this.value)">'+
-        '<input class="p-txt" type="text" value="'+(slot.rest||'')+'" placeholder="Pause" title="Pause" onchange="builderSet('+bi+','+si+',\'rest\',this.value)">'+
-        '<select class="p-grp" title="Superset" onchange="builderSet('+bi+','+si+',\'group\',this.value)">'+grpOptions(slot.group)+'</select>'+
-        '<input class="p-txt" type="text" value="'+(slot.note||'')+'" placeholder="Notiz" title="Notiz" style="flex:1 1 120px;" onchange="builderSet('+bi+','+si+',\'note\',this.value)">'+
+      '<div class="builder-slot-top">'+ pick +
+        '<button class="builder-slot-x" title="Entfernen" onclick="builderRemoveSlot('+bi+','+si+')">&times;</button>'+
       '</div>'+
-      '<button class="builder-slot-x" title="Entfernen" onclick="builderRemoveSlot('+bi+','+si+')">&times;</button>'+
+      '<div class="builder-slot-params">'+
+        stepper(bi,si,'sets',slot.sets,'S&auml;tze')+
+        '<span class="p-x">&times;</span>'+
+        stepper(bi,si,'reps',slot.reps,'Menge')+
+        metricSeg(bi,si,metric)+
+      '</div>'+
+      '<div class="builder-slot-extra">'+
+        '<input class="p-txt" type="text" value="'+(slot.intensity||'')+'" placeholder="RPE/%" onchange="builderSet('+bi+','+si+',\'intensity\',this.value)">'+
+        '<input class="p-txt" type="text" value="'+(slot.rest||'')+'" placeholder="Pause" onchange="builderSet('+bi+','+si+',\'rest\',this.value)">'+
+        '<select class="p-grp" title="Superset" onchange="builderSet('+bi+','+si+',\'group\',this.value)">'+grpOptions(slot.group)+'</select>'+
+        '<input class="p-txt note" type="text" value="'+(slot.note||'')+'" placeholder="Notiz" onchange="builderSet('+bi+','+si+',\'note\',this.value)">'+
+      '</div>'+
     '</div>';
   }
   function blockHtml(bi, block){
@@ -3345,6 +3402,17 @@ function plSaveDiag() {
     if(field==='sets'||field==='reps'){ val = parseInt(val,10)||0; }
     s[field] = val;
   };
+  window.builderStep = function(bi,si,field,delta){
+    var s = window.BUILDER.blocks[bi].slots[si];
+    var v = parseInt(s[field],10); if(isNaN(v)) v=0;
+    v += delta; if(v<1) v=1;
+    s[field]=v;
+    var el=document.getElementById('num-'+field+'-'+bi+'-'+si); if(el) el.value=v;
+  };
+  window.builderMetric = function(bi,si,m){
+    window.BUILDER.blocks[bi].slots[si].metric = m;
+    window.renderBuilder();
+  };
   window.builderAddSlot = function(bi){ window.BUILDER.blocks[bi].slots.push(newSlot()); window.renderBuilder(); };
   window.builderRemoveSlot = function(bi,si){ window.BUILDER.blocks[bi].slots.splice(si,1); window.renderBuilder(); };
   window.builderRemoveBlock = function(bi){ window.BUILDER.blocks.splice(bi,1); window.renderBuilder(); };
@@ -3362,7 +3430,7 @@ function plSaveDiag() {
           group: s.group||'-',
           sets: parseInt(s.sets,10)||0,
           reps: s.reps,
-          type: s.metric==='time'?'time':'reps',
+          type: s.metric || 'reps',
           intensity: s.intensity||'',
           rest: s.rest||'',
           note: s.note||''
@@ -3419,17 +3487,20 @@ function plSaveDiag() {
   }
   function renderChips(){
     var host = document.getElementById('picker-chips'); if(!host) return;
-    var html = '';
-    CAT_CHIPS.forEach(function(c){
+    var cats = CAT_CHIPS.map(function(c){
       var a = PICKER.cat===c.c ? ' active' : '';
-      html += '<span class="pk-chip cat'+a+'" onclick="pickerCat(\''+c.c+'\')">'+c.l+'</span>';
-    });
+      return '<button type="button" class="pk-chip cat'+a+'" onclick="pickerCat(\''+c.c+'\')">'+c.l+'</button>';
+    }).join('');
+    var html = '<div class="pk-catrow">'+cats+'</div>';
     var defs = CHIP_DEFS[PICKER.cat] || [];
-    var lastG = null;
-    defs.forEach(function(d){
-      if(d.g!==lastG){ html += '<span class="pk-grouplabel">'+(GROUP_LABEL[d.g]||'')+'</span>'; lastG=d.g; }
-      var on = (PICKER.tokens[d.g] && PICKER.tokens[d.g][d.t]) ? ' active' : '';
-      html += '<span class="pk-chip'+on+'" onclick="pickerChip(\''+d.g+'\',\''+d.t+'\')">'+d.l+'</span>';
+    var order=[]; var byG={};
+    defs.forEach(function(d){ if(!byG[d.g]){ byG[d.g]=[]; order.push(d.g); } byG[d.g].push(d); });
+    order.forEach(function(g){
+      var chips = byG[g].map(function(d){
+        var on = (PICKER.tokens[d.g] && PICKER.tokens[d.g][d.t]) ? ' active' : '';
+        return '<button type="button" class="pk-chip'+on+'" onclick="pickerChip(\''+d.g+'\',\''+d.t+'\')">'+d.l+'</button>';
+      }).join('');
+      html += '<div class="pk-dimrow"><span class="pk-dimrow-label">'+(GROUP_LABEL[g]||'')+'</span><div class="pk-dimrow-chips">'+chips+'</div></div>';
     });
     host.innerHTML = html;
   }
