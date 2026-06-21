@@ -378,6 +378,32 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .ki-details summary::-webkit-details-marker { display:none; }
 .ki-details summary:before { content:"\25B8  "; }
 .ki-details[open] summary:before { content:"\25BE  "; }
+
+/* ===== PICKER ===== */
+.ex-pick-btn { flex:1 1 100%; display:flex; align-items:center; gap:8px; text-align:left; background:#fff; border:1px solid #e5e5ea; border-radius:8px; padding:6px 10px; font-family:inherit; font-size:13px; font-weight:600; color:#1c1c1e; cursor:pointer; min-height:36px; }
+.ex-pick-btn:hover { border-color:#2563EB; }
+.ex-pick-btn.filled { border-color:#cdd9f5; background:#f5f8ff; }
+.ex-pick-ph { color:#aeaeb2; font-weight:500; }
+.ex-pick-thumb { width:26px; height:26px; object-fit:contain; border-radius:5px; background:#f2f2f7; flex-shrink:0; }
+#picker-modal { display:none; position:fixed; inset:0; background:rgba(8,8,26,0.6); z-index:80; align-items:flex-start; justify-content:center; padding:5vh 16px; }
+.picker-card { background:#fff; width:100%; max-width:680px; max-height:88vh; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; box-shadow:0 12px 48px rgba(0,0,0,0.4); }
+.picker-head { display:flex; gap:10px; align-items:center; padding:14px 16px; border-bottom:1px solid #f0f0f3; }
+#picker-search { flex:1; font-family:inherit; font-size:15px; padding:10px 12px; border:1px solid #e5e5ea; border-radius:10px; color:#1c1c1e; }
+.picker-x { border:none; background:#f2f2f7; width:34px; height:34px; border-radius:50%; font-size:18px; color:#8e8e93; cursor:pointer; flex-shrink:0; line-height:1; }
+.picker-chips { display:flex; flex-wrap:wrap; gap:6px; padding:12px 16px; border-bottom:1px solid #f0f0f3; align-items:center; }
+.pk-chip { font-size:12px; font-weight:600; padding:5px 11px; border-radius:16px; border:1px solid #e0e0e6; background:#fff; color:#48484a; cursor:pointer; font-family:inherit; }
+.pk-chip:hover { border-color:#2563EB; color:#2563EB; }
+.pk-chip.active { background:#2563EB; border-color:#2563EB; color:#fff; }
+.pk-chip.cat { background:#f2f2f7; }
+.pk-chip.cat.active { background:#1c1c1e; border-color:#1c1c1e; color:#fff; }
+.pk-grouplabel { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#c7c7cc; margin:0 2px 0 8px; }
+.picker-list { overflow-y:auto; padding:12px 16px 16px; display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }
+.pk-item { display:flex; align-items:center; gap:8px; padding:7px 9px; border:1px solid #ececf1; border-radius:10px; cursor:pointer; background:#fff; }
+.pk-item:hover { border-color:#2563EB; background:#f5f8ff; }
+.pk-item img { width:38px; height:38px; object-fit:contain; background:#f7f7fa; border-radius:6px; flex-shrink:0; }
+.pk-item-name { font-size:12px; font-weight:600; color:#1c1c1e; line-height:1.2; }
+.pk-item-dims { font-size:10px; color:#aeaeb2; margin-top:2px; }
+.pk-empty { grid-column:1/-1; text-align:center; color:#aeaeb2; font-size:13px; padding:24px; }
 </style>
 </head>
 <body>
@@ -3281,7 +3307,9 @@ function plSaveDiag() {
     return ''+
     '<div class="builder-slot">'+
       '<div class="builder-slot-main">'+
-        '<select class="ex-select" onchange="builderSet('+bi+','+si+',\'imageKey\',this.value)">'+optionsHtml(slot.imageKey)+'</select>'+
+        (slot.imageKey
+          ? '<button type="button" class="ex-pick-btn filled" onclick="openPicker('+bi+','+si+')"><img class="ex-pick-thumb" src="'+GITHUB_RAW+slot.imageKey+'.png" onerror="this.style.visibility=\'hidden\'"><span>'+prettify(slot.imageKey)+'</span></button>'
+          : '<button type="button" class="ex-pick-btn" onclick="openPicker('+bi+','+si+')"><span class="ex-pick-ph">&mdash; &Uuml;bung w&auml;hlen &mdash;</span></button>')+
         '<input class="p-num" type="number" min="1" value="'+slot.sets+'" title="Saetze" onchange="builderSet('+bi+','+si+',\'sets\',this.value)">'+
         '<span style="font-size:11px;color:#8e8e93;">x</span>'+
         '<input class="p-num" type="number" min="1" value="'+slot.reps+'" title="Wdh./Sek." onchange="builderSet('+bi+','+si+',\'reps\',this.value)">'+
@@ -3347,8 +3375,112 @@ function plSaveDiag() {
     var title = nameEl ? nameEl.value : 'Trainingsplan';
     renderPlan(blocks, title);
   };
+
+  /* ===== PICKER ===== */
+  var PICKER = { bi:-1, si:-1, cat:'all', q:'', tokens:{} };
+  function defaultCat(type){ if(type==='warmup'||type==='cooldown') return 'mobility'; if(type==='main') return 'strength'; return 'all'; }
+  var CAT_CHIPS = [ {c:'all',l:'Alle'}, {c:'strength',l:'Kraft'}, {c:'jump',l:'Sprung'}, {c:'sprint',l:'Sprint'}, {c:'mobility',l:'Mobility'} ];
+  var CHIP_DEFS = {
+    strength: [
+      {g:'region',l:'Ober',t:'upper'}, {g:'region',l:'Unter',t:'lower'},
+      {g:'move',l:'Push',t:'push'}, {g:'move',l:'Pull',t:'pull'}, {g:'move',l:'Core',t:'core'}, {g:'move',l:'Adduktion',t:'adduction'},
+      {g:'dyn',l:'Dynamisch',t:'dyn'}, {g:'dyn',l:'Statisch',t:'sta'},
+      {g:'lat',l:'Beidseitig',t:'bi'}, {g:'lat',l:'Einseitig',t:'uni'}
+    ],
+    mobility: [
+      {g:'region',l:'Unter',t:'lower'}, {g:'region',l:'Ober',t:'upper'}, {g:'region',l:'Ganzk&ouml;rper',t:'full'},
+      {g:'dyn',l:'Dynamisch',t:'dyn'}, {g:'dyn',l:'Statisch',t:'sta'}
+    ],
+    jump: [ {g:'dir',l:'Vertikal',t:'vertical'}, {g:'dir',l:'Horizontal',t:'horizontal'} ],
+    sprint: [],
+    all: []
+  };
+  var GROUP_LABEL = { region:'Region', move:'Bewegung', dyn:'Dynamik', lat:'Seite', dir:'Richtung' };
+  function slugTokens(slug){ return String(slug||'').split('_').slice(1); }
+  function dimsLabel(slug){
+    var t = slugTokens(slug);
+    var map = { upper:'Ober', lower:'Unter', full:'Ganzk.', push:'Push', pull:'Pull', core:'Core', adduction:'Add.', dyn:'Dyn', sta:'Sta', bi:'Bi', uni:'Uni', vertical:'Vert.', horizontal:'Horiz.', acceleration:'Accel.' };
+    return t.map(function(x){ return map[x]; }).filter(Boolean).join(' &middot; ');
+  }
+  function matchSlug(slug){
+    if(PICKER.cat!=='all' && catOf(slug)!==PICKER.cat) return false;
+    var toks = slugTokens(slug);
+    for(var g in PICKER.tokens){
+      var active = Object.keys(PICKER.tokens[g]);
+      if(active.length===0) continue;
+      var hit = active.some(function(t){ return toks.indexOf(t)!==-1; });
+      if(!hit) return false;
+    }
+    if(PICKER.q){
+      var q = PICKER.q.toLowerCase();
+      if(prettify(slug).toLowerCase().indexOf(q)===-1 && String(slug).toLowerCase().indexOf(q)===-1) return false;
+    }
+    return true;
+  }
+  function renderChips(){
+    var host = document.getElementById('picker-chips'); if(!host) return;
+    var html = '';
+    CAT_CHIPS.forEach(function(c){
+      var a = PICKER.cat===c.c ? ' active' : '';
+      html += '<span class="pk-chip cat'+a+'" onclick="pickerCat(\''+c.c+'\')">'+c.l+'</span>';
+    });
+    var defs = CHIP_DEFS[PICKER.cat] || [];
+    var lastG = null;
+    defs.forEach(function(d){
+      if(d.g!==lastG){ html += '<span class="pk-grouplabel">'+(GROUP_LABEL[d.g]||'')+'</span>'; lastG=d.g; }
+      var on = (PICKER.tokens[d.g] && PICKER.tokens[d.g][d.t]) ? ' active' : '';
+      html += '<span class="pk-chip'+on+'" onclick="pickerChip(\''+d.g+'\',\''+d.t+'\')">'+d.l+'</span>';
+    });
+    host.innerHTML = html;
+  }
+  function renderList(){
+    var host = document.getElementById('picker-list'); if(!host) return;
+    var list = exList().slice().filter(matchSlug).sort();
+    if(list.length===0){ host.innerHTML = '<div class="pk-empty">Keine &Uuml;bung gefunden.</div>'; return; }
+    host.innerHTML = list.map(function(slug){
+      return '<div class="pk-item" onclick="pickExercise(\''+slug+'\')">'+
+        '<img loading="lazy" src="'+GITHUB_RAW+slug+'.png" onerror="this.style.visibility=\'hidden\'">'+
+        '<div><div class="pk-item-name">'+prettify(slug)+'</div><div class="pk-item-dims">'+dimsLabel(slug)+'</div></div>'+
+      '</div>';
+    }).join('');
+  }
+  window.openPicker = function(bi,si){
+    ensureInit();
+    PICKER.bi=bi; PICKER.si=si; PICKER.q='';
+    var blk = window.BUILDER.blocks[bi];
+    PICKER.cat = defaultCat(blk ? blk.type : 'all');
+    PICKER.tokens = {};
+    renderChips(); renderList();
+    document.getElementById('picker-modal').style.display='flex';
+    var s = document.getElementById('picker-search'); if(s){ s.value=''; setTimeout(function(){ s.focus(); }, 30); }
+  };
+  window.closePicker = function(){ var m=document.getElementById('picker-modal'); if(m) m.style.display='none'; };
+  window.pickerCat = function(c){ PICKER.cat=c; PICKER.tokens={}; renderChips(); renderList(); };
+  window.pickerChip = function(g,t){
+    if(!PICKER.tokens[g]) PICKER.tokens[g]={};
+    if(PICKER.tokens[g][t]) delete PICKER.tokens[g][t]; else PICKER.tokens[g][t]=true;
+    renderChips(); renderList();
+  };
+  window.pickerSearch = function(v){ PICKER.q=v||''; renderList(); };
+  window.pickerKey = function(e){ if(e.key==='Enter'){ var f=document.querySelector('#picker-list .pk-item'); if(f) f.click(); } if(e.key==='Escape'){ window.closePicker(); } };
+  window.pickExercise = function(slug){
+    var s = window.BUILDER.blocks[PICKER.bi].slots[PICKER.si];
+    if(s){ s.imageKey = slug; }
+    window.closePicker();
+    window.renderBuilder();
+  };
 })();
 </script>
+<div id="picker-modal" onclick="if(event.target===this)closePicker()">
+  <div class="picker-card">
+    <div class="picker-head">
+      <input id="picker-search" type="text" placeholder="&Uuml;bung suchen..." oninput="pickerSearch(this.value)" onkeydown="pickerKey(event)">
+      <button class="picker-x" onclick="closePicker()">&times;</button>
+    </div>
+    <div id="picker-chips" class="picker-chips"></div>
+    <div id="picker-list" class="picker-list"></div>
+  </div>
+</div>
 </body>
 </html>
 
