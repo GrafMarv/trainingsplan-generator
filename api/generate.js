@@ -5,7 +5,21 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
   try {
-    const { input } = req.body;
+    const { input, voice_sort } = req.body;
+
+    // Voice sort mode: classify spoken training text into blocks
+    if (voice_sort) {
+      const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+      const system = 'Du bist ein Assistent fuer Athletiktraining. Teile den folgenden gesprochenen Trainingsinhalt in die passenden Bloecke auf: Warm-up, Sprunge, Sprints, Schnellkraft, Kraft, Ausdauer, Cooldown. Antworte NUR mit einem JSON-Objekt ohne Markdown. Schuessel exakt: Warm-up, Sprunge, Sprints, Schnellkraft, Kraft, Ausdauer, Cooldown. Wert ist praegnanter Text (1-3 Saetze) oder leerer String.';
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 600, system, messages: [{ role: 'user', content: String(input) }] })
+      });
+      const d = await resp.json();
+      const plan = (d.content || []).map(c => c.text || '').join('');
+      return res.status(200).json({ plan });
+    }
 
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
