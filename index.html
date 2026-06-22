@@ -2181,7 +2181,7 @@ function runBrainCluster() {
   if (btn) { btn.disabled = true; btn.textContent = 'Berechne Cluster...'; }
   if (out) out.innerHTML = '';
   if (window.showLoader) showLoader('Berechne semantische Cluster (k-Means + Claude)...');
-  fetch('/api/brain-cluster?k=8', { method: 'POST' })
+  fetch('/api/brain?k=8', { method: 'POST' })
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (window.hideLoader) hideLoader();
@@ -2391,7 +2391,7 @@ async function uploadAll() {
   var nodes=[],chunks=[],cv,ctx,W,H,DPR=1,rotX=0.2,rotY=0.6,drag=false,lx,ly,aRot=true,zoom=1,rotTimer=null,af='all',running=false;
 
   window.loadBrain=function(force){
-    fetch('/api/brain-list?t='+Date.now())
+    fetch('/api/brain?t='+Date.now())
       .then(function(r){return r.json();})
       .then(function(d){
         if(d.error || !d.chunks){
