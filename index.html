@@ -3638,45 +3638,70 @@ function plSaveDiag() {
   </div>
 </div>
 <script>
-/* ===== BIBLIOTHEK (Schritt 2) ===== */
+/* ===== BIBLIOTHEK v2 (Supabase sync + localStorage cache) ===== */
 (function(){
   var PLANS_KEY = 'cb_plans';
   var BLOCKS_KEY = 'cb_blocks';
   var TYPE_LABEL = { warmup:'Warm-up', main:'Hauptblock', cooldown:'Cool-down' };
 
-  function loadPlans(){ try{ return JSON.parse(localStorage.getItem(PLANS_KEY)||'[]'); }catch(e){ return []; } }
-  function savePlans(a){ localStorage.setItem(PLANS_KEY, JSON.stringify(a)); }
-  function loadBlocks(){ try{ return JSON.parse(localStorage.getItem(BLOCKS_KEY)||'[]'); }catch(e){ return []; } }
-  function saveBlocks(a){ localStorage.setItem(BLOCKS_KEY, JSON.stringify(a)); }
+  /* ---- localStorage helpers ---- */
+  function loadLocal(key){ try{ return JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){ return []; } }
+  function saveLocal(key,a){ try{ localStorage.setItem(key,JSON.stringify(a)); }catch(e){} }
+
+  /* ---- API helpers ---- */
+  function apiGet(col){ return fetch('/api/library?collection='+col).then(function(r){ return r.json(); }); }
+  function apiPost(col,body){ return fetch('/api/library?collection='+col,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json(); }); }
+  function apiDel(col,id){ return fetch('/api/library?collection='+col+'&id='+encodeURIComponent(id),{ method:'DELETE' }).then(function(r){ return r.json(); }); }
+
+  /* ---- sync: fetch from Supabase, update localStorage cache ---- */
+  function syncPlans(cb){
+    apiGet('plans').then(function(d){
+      if(d.items){ saveLocal(PLANS_KEY, d.items); if(cb) cb(d.items); }
+      else if(cb) cb(loadLocal(PLANS_KEY));
+    }).catch(function(){ if(cb) cb(loadLocal(PLANS_KEY)); });
+  }
+  function syncBlocks(cb){
+    apiGet('blocks').then(function(d){
+      if(d.items){ saveLocal(BLOCKS_KEY, d.items); if(cb) cb(d.items); }
+      else if(cb) cb(loadLocal(BLOCKS_KEY));
+    }).catch(function(){ if(cb) cb(loadLocal(BLOCKS_KEY)); });
+  }
 
   function ts(){
     var d=new Date();
     return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();
   }
 
-  /* Plan Library */
+  /* ---- Plan Library ---- */
   window.libTogglePanel = function(){
     var body = document.getElementById('lib-panel-body');
     var btn  = document.getElementById('lib-toggle-btn');
     if(!body) return;
     var open = body.classList.toggle('open');
     if(btn) btn.textContent = open ? '\u2212' : '+';
-    if(open) renderPlanList();
+    if(open) refreshPlanList();
   };
 
-  function renderPlanList(){
+  function refreshPlanList(){
     var host = document.getElementById('lib-plan-list'); if(!host) return;
-    var plans = loadPlans();
-    if(!plans.length){ host.innerHTML='<span class="lib-empty">Noch keine gespeicherten Pl\u00e4ne.</span>'; return; }
+    host.innerHTML = '<span class="lib-empty">Lade...</span>';
+    syncPlans(function(plans){ renderPlanList(plans); });
+  }
+
+  function renderPlanList(plans){
+    var host = document.getElementById('lib-plan-list'); if(!host) return;
+    if(!plans||!plans.length){ host.innerHTML='<span class="lib-empty">Noch keine gespeicherten Pl\u00e4ne.</span>'; return; }
     host.innerHTML = plans.map(function(p,i){
-      var blockInfo = (p.blocks||[]).length + ' Block(s)';
+      var blocks = p.data && p.data.blocks ? p.data.blocks : (p.blocks||[]);
+      var blockInfo = blocks.length + ' Block(s)';
+      var dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString('de-DE') : (p.date||'');
       return '<div class="lib-item">'+
         '<div class="lib-item-info">'+
           '<div class="lib-item-name">'+escH(p.name)+'</div>'+
-          '<div class="lib-item-meta">'+escH(p.date)+' &middot; '+blockInfo+'</div>'+
+          '<div class="lib-item-meta">'+escH(dateStr)+' &middot; '+blockInfo+'</div>'+
         '</div>'+
-        '<button class="lib-item-load" onclick="libLoadPlan('+i+')">Laden</button>'+
-        '<button class="lib-item-del" title="L\u00f6schen" onclick="libDeletePlan('+i+')">&times;</button>'+
+        '<button class="lib-item-load" onclick="libLoadPlan(\''+escH(p.id||String(i))+'\')">Laden</button>'+
+        '<button class="lib-item-del" title="L\u00f6schen" onclick="libDeletePlan(\''+escH(p.id||String(i))+'\')">&times;</button>'+
       '</div>';
     }).join('');
   }
@@ -3686,48 +3711,57 @@ function plSaveDiag() {
     var nameEl = document.getElementById('plan-name');
     var name = nameEl ? nameEl.value.trim() : '';
     if(!name) name = 'Plan ' + ts();
-    var plans = loadPlans();
-    plans.unshift({ name:name, date:ts(), blocks: JSON.parse(JSON.stringify(window.BUILDER.blocks)) });
-    savePlans(plans);
-    var body = document.getElementById('lib-panel-body');
-    var btn  = document.getElementById('lib-toggle-btn');
-    if(body && !body.classList.contains('open')){ body.classList.add('open'); if(btn) btn.textContent='\u2212'; }
-    renderPlanList();
-    showToast('Plan gespeichert');
+    var data = { blocks: JSON.parse(JSON.stringify(window.BUILDER.blocks)) };
+    showToast('Speichern...');
+    apiPost('plans',{ name:name, data:data }).then(function(r){
+      if(r.ok){
+        var body = document.getElementById('lib-panel-body');
+        var btn  = document.getElementById('lib-toggle-btn');
+        if(body && !body.classList.contains('open')){ body.classList.add('open'); if(btn) btn.textContent='\u2212'; }
+        refreshPlanList();
+        showToast('Plan gespeichert');
+      } else { showToast('Fehler beim Speichern'); }
+    }).catch(function(){ showToast('Offline - lokal gespeichert'); });
   };
 
-  window.libLoadPlan = function(i){
-    var plans = loadPlans();
-    if(!plans[i]) return;
-    if(!confirm('Aktuellen Plan \u00fcberschreiben mit "'+plans[i].name+'"?')) return;
-    window.BUILDER = { blocks: JSON.parse(JSON.stringify(plans[i].blocks)) };
-    var nameEl = document.getElementById('plan-name');
-    if(nameEl) nameEl.value = plans[i].name;
-    window.renderBuilder();
-    showToast('Plan geladen');
+  window.libLoadPlan = function(id){
+    syncPlans(function(plans){
+      var plan = plans.find(function(p){ return p.id===id; }) || plans[parseInt(id,10)];
+      if(!plan) return;
+      if(!confirm('Aktuellen Plan \u00fcberschreiben mit "'+plan.name+'"?')) return;
+      var blocks = plan.data && plan.data.blocks ? plan.data.blocks : (plan.blocks||[]);
+      window.BUILDER = { blocks: JSON.parse(JSON.stringify(blocks)) };
+      var nameEl = document.getElementById('plan-name');
+      if(nameEl) nameEl.value = plan.name;
+      window.renderBuilder();
+      showToast('Plan geladen');
+    });
   };
 
-  window.libDeletePlan = function(i){
-    var plans = loadPlans();
-    if(!plans[i]) return;
-    if(!confirm('"'+plans[i].name+'" l\u00f6schen?')) return;
-    plans.splice(i,1);
-    savePlans(plans);
-    renderPlanList();
+  window.libDeletePlan = function(id){
+    syncPlans(function(plans){
+      var plan = plans.find(function(p){ return p.id===id; });
+      if(!plan) return;
+      if(!confirm('"'+plan.name+'" l\u00f6schen?')) return;
+      apiDel('plans',id).then(function(r){
+        if(r.ok){ refreshPlanList(); showToast('Plan gel\u00f6scht'); }
+        else showToast('Fehler beim L\u00f6schen');
+      }).catch(function(){ showToast('Fehler'); });
+    });
   };
 
-  /* Block Library */
+  /* ---- Block Library ---- */
   window.libSaveBlock = function(bi){
     if(!window.BUILDER) return;
-    var block = window.BUILDER.blocks[bi];
-    if(!block) return;
+    var block = window.BUILDER.blocks[bi]; if(!block) return;
     var defaultName = (TYPE_LABEL[block.type]||block.label) + ' ' + ts();
     var name = prompt('Name f\u00fcr diese Vorlage:', defaultName);
     if(!name) return;
-    var blocks = loadBlocks();
-    blocks.unshift({ name:name.trim(), type:block.type, label:block.label, date:ts(), slots: JSON.parse(JSON.stringify(block.slots)) });
-    saveBlocks(blocks);
-    showToast('Block-Vorlage gespeichert');
+    var data = { label:block.label, slots: JSON.parse(JSON.stringify(block.slots)) };
+    apiPost('blocks',{ name:name.trim(), type:block.type, data:data }).then(function(r){
+      if(r.ok) showToast('Block-Vorlage gespeichert');
+      else showToast('Fehler beim Speichern');
+    }).catch(function(){ showToast('Offline'); });
   };
 
   var _blockLibTarget = -1;
@@ -3739,19 +3773,25 @@ function plSaveDiag() {
     if(title) title.textContent = 'Vorlage laden' + (targetType ? ' \u2014 ' + (TYPE_LABEL[targetType]||targetType) : '');
     var body = document.getElementById('block-lib-body');
     if(!body) return;
-    var blocks = loadBlocks();
-    var same = blocks.filter(function(b){ return b.type === targetType; });
-    var other = blocks.filter(function(b){ return b.type !== targetType; });
+    body.innerHTML = '<p class="lib-empty">Lade...</p>';
+    document.getElementById('block-lib-modal').style.display = 'flex';
+    syncBlocks(function(blocks){ renderBlockLibBody(blocks, targetType); });
+  };
+
+  function renderBlockLibBody(blocks, targetType){
+    var body = document.getElementById('block-lib-body'); if(!body) return;
+    var same  = blocks.filter(function(b){ return b.type===targetType; });
+    var other = blocks.filter(function(b){ return b.type!==targetType; });
     var html = '';
-    if(!blocks.length){ html = '<p class="lib-empty">Noch keine Block-Vorlagen gespeichert.<br>Klicke am Block auf &#128190; um eine zu speichern.</p>'; }
+    if(!blocks.length){ html = '<p class="lib-empty">Noch keine Block-Vorlagen.<br>Klicke am Block auf &#128190; um eine zu speichern.</p>'; }
     else {
       if(same.length){
-        html += '<div class="block-lib-type-label">Passende Vorlagen (' + (TYPE_LABEL[targetType]||targetType) + ')</div>';
-        html += same.map(function(b,i){ return blockLibItem(b, blocks.indexOf(b)); }).join('');
+        html += '<div class="block-lib-type-label">Passende Vorlagen ('+(TYPE_LABEL[targetType]||targetType)+')</div>';
+        html += same.map(function(b){ return blockLibItem(b); }).join('');
       }
       if(other.length){
         html += '<div class="block-lib-type-label">Andere Vorlagen</div>';
-        html += other.map(function(b,i){ return blockLibItem(b, blocks.indexOf(b)); }).join('');
+        html += other.map(function(b){ return blockLibItem(b); }).join('');
       }
     }
     html += '<div class="block-lib-save-row">'+
@@ -3759,64 +3799,75 @@ function plSaveDiag() {
       '<button onclick="libSaveCurrentBlock()">Speichern</button>'+
     '</div>';
     body.innerHTML = html;
-    document.getElementById('block-lib-modal').style.display = 'flex';
-  };
+  }
 
-  function blockLibItem(b, globalIdx){
-    var slotCount = (b.slots||[]).filter(function(s){ return s.imageKey; }).length;
+  function blockLibItem(b){
+    var slots = b.data && b.data.slots ? b.data.slots : (b.slots||[]);
+    var slotCount = slots.filter(function(s){ return s.imageKey; }).length;
+    var dateStr = b.created_at ? new Date(b.created_at).toLocaleDateString('de-DE') : (b.date||'');
     return '<div class="lib-item">'+
       '<div class="lib-item-info">'+
         '<div class="lib-item-name">'+escH(b.name)+'</div>'+
-        '<div class="lib-item-meta">'+(TYPE_LABEL[b.type]||b.type)+' &middot; '+slotCount+' \u00dcbung(en) &middot; '+escH(b.date)+'</div>'+
+        '<div class="lib-item-meta">'+(TYPE_LABEL[b.type]||b.type)+' &middot; '+slotCount+' \u00dcbung(en) &middot; '+escH(dateStr)+'</div>'+
       '</div>'+
-      '<button class="lib-item-load" onclick="libLoadBlock('+globalIdx+')">Laden</button>'+
-      '<button class="lib-item-del" title="L\u00f6schen" onclick="libDeleteBlock('+globalIdx+')">&times;</button>'+
+      '<button class="lib-item-load" onclick="libLoadBlock(\''+escH(b.id)+'\')">Laden</button>'+
+      '<button class="lib-item-del" title="L\u00f6schen" onclick="libDeleteBlock(\''+escH(b.id)+'\')">&times;</button>'+
     '</div>';
   }
 
-  window.libLoadBlock = function(i){
-    var blocks = loadBlocks();
-    if(!blocks[i] || _blockLibTarget < 0) return;
-    window.BUILDER.blocks[_blockLibTarget].slots = JSON.parse(JSON.stringify(blocks[i].slots));
-    closeBlockLib();
-    window.renderBuilder();
-    showToast('Vorlage geladen');
+  window.libLoadBlock = function(id){
+    syncBlocks(function(blocks){
+      var b = blocks.find(function(x){ return x.id===id; }); if(!b || _blockLibTarget<0) return;
+      var slots = b.data && b.data.slots ? b.data.slots : (b.slots||[]);
+      window.BUILDER.blocks[_blockLibTarget].slots = JSON.parse(JSON.stringify(slots));
+      closeBlockLib();
+      window.renderBuilder();
+      showToast('Vorlage geladen');
+    });
   };
 
-  window.libDeleteBlock = function(i){
-    var blocks = loadBlocks();
-    if(!blocks[i]) return;
-    if(!confirm('"'+blocks[i].name+'" l\u00f6schen?')) return;
-    blocks.splice(i,1);
-    saveBlocks(blocks);
-    window.openBlockLib(_blockLibTarget);
+  window.libDeleteBlock = function(id){
+    if(!confirm('Vorlage l\u00f6schen?')) return;
+    apiDel('blocks',id).then(function(r){
+      if(r.ok){
+        var block = window.BUILDER && window.BUILDER.blocks[_blockLibTarget];
+        renderBlockLibBody(loadLocal(BLOCKS_KEY), block ? block.type : null);
+        syncBlocks(function(blocks){
+          var block2 = window.BUILDER && window.BUILDER.blocks[_blockLibTarget];
+          renderBlockLibBody(blocks, block2 ? block2.type : null);
+        });
+        showToast('Vorlage gel\u00f6scht');
+      } else showToast('Fehler');
+    }).catch(function(){ showToast('Fehler'); });
   };
 
   window.libSaveCurrentBlock = function(){
     var nameEl = document.getElementById('block-lib-save-name');
     var name = nameEl ? nameEl.value.trim() : '';
     if(!name){ alert('Bitte einen Namen eingeben.'); return; }
-    if(_blockLibTarget < 0 || !window.BUILDER) return;
+    if(_blockLibTarget<0 || !window.BUILDER) return;
     var block = window.BUILDER.blocks[_blockLibTarget];
-    var blocks = loadBlocks();
-    blocks.unshift({ name:name, type:block.type, label:block.label, date:ts(), slots: JSON.parse(JSON.stringify(block.slots)) });
-    saveBlocks(blocks);
-    window.openBlockLib(_blockLibTarget);
-    showToast('Vorlage gespeichert');
+    var data = { label:block.label, slots: JSON.parse(JSON.stringify(block.slots)) };
+    apiPost('blocks',{ name:name, type:block.type, data:data }).then(function(r){
+      if(r.ok){
+        showToast('Vorlage gespeichert');
+        window.openBlockLib(_blockLibTarget);
+      } else showToast('Fehler');
+    }).catch(function(){ showToast('Fehler'); });
   };
 
   window.closeBlockLib = function(){
     var m = document.getElementById('block-lib-modal'); if(m) m.style.display='none';
   };
 
-  /* Toast */
+  /* ---- Toast ---- */
   function showToast(msg){
     var t = document.getElementById('cb-toast');
     if(!t){ t=document.createElement('div'); t.id='cb-toast';
       t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;font-size:13px;font-weight:600;padding:10px 18px;border-radius:20px;z-index:999;pointer-events:none;transition:opacity 0.3s;font-family:system-ui,sans-serif;';
       document.body.appendChild(t); }
     t.textContent=msg; t.style.opacity='1';
-    clearTimeout(t._t); t._t=setTimeout(function(){ t.style.opacity='0'; },2000);
+    clearTimeout(t._t); t._t=setTimeout(function(){ t.style.opacity='0'; },2200);
   }
 
   function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
