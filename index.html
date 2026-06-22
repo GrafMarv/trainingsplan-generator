@@ -3334,8 +3334,8 @@ function plSaveDiag() {
   }
   window.builderPrettify = prettify;
   function catOf(slug){ var p=String(slug||'').split('_'); return p[1]||'sonstige'; }
-  var CAT_LABEL = { strength:'Kraft', core:'Core', jump:'Sprung', sprint:'Sprint', mobility:'Mobility', sonstige:'Sonstige' };
-  var CAT_ORDER = ['strength','core','jump','sprint','mobility','sonstige'];
+  var CAT_LABEL = { strength:'Kraft', jump:'Sprung', sprint:'Sprint', mobility:'Mobility', sonstige:'Sonstige' };
+  var CAT_ORDER = ['strength','jump','sprint','mobility','sonstige'];
   function optionsHtml(selected){
     var list = exList().slice().sort();
     var groups = {};
@@ -3468,20 +3468,13 @@ function plSaveDiag() {
   /* ===== PICKER ===== */
   var PICKER = { bi:-1, si:-1, cat:'all', q:'', tokens:{} };
   function defaultCat(type){ if(type==='warmup'||type==='cooldown') return 'mobility'; if(type==='main') return 'strength'; return 'all'; }
-  var CAT_CHIPS = [ {c:'all',l:'Alle'}, {c:'strength',l:'Kraft'}, {c:'core',l:'Core'}, {c:'jump',l:'Sprung'}, {c:'sprint',l:'Sprint'}, {c:'mobility',l:'Mobility'} ];
+  var CAT_CHIPS = [ {c:'all',l:'Alle'}, {c:'strength',l:'Kraft'}, {c:'jump',l:'Sprung'}, {c:'sprint',l:'Sprint'}, {c:'mobility',l:'Mobility'} ];
   var CHIP_DEFS = {
     strength: [
-      {g:'region',l:'Ober',t:'upper'}, {g:'region',l:'Unter',t:'lower'},
+      {g:'region',l:'Ober',t:'upper'}, {g:'region',l:'Unter',t:'lower'}, {g:'region',l:'Core',t:'core'},
       {g:'move',l:'Push',t:'push'}, {g:'move',l:'Pull',t:'pull'},
-      {g:'dyn',l:'Dynamisch',t:'dyn'}, {g:'dyn',l:'Statisch',t:'sta'},
-      {g:'lat',l:'Beidseitig',t:'bi'}, {g:'lat',l:'Einseitig',t:'uni'}
-    ],
-    core: [
-      {g:'pattern',l:'Anti-Extension',t:'antiextension'},
-      {g:'pattern',l:'Anti-Rotation',t:'antirotation'},
-      {g:'pattern',l:'Anti-Lateralflexion',t:'antilateralflexion'},
-      {g:'pattern',l:'Flexion',t:'flexion'},
-      {g:'pattern',l:'Extension',t:'extension'},
+      {g:'pattern',l:'Anti-Extension',t:'antiextension'}, {g:'pattern',l:'Anti-Rotation',t:'antirotation'},
+      {g:'pattern',l:'Anti-Lateralflexion',t:'antilateralflexion'}, {g:'pattern',l:'Flexion',t:'flexion'}, {g:'pattern',l:'Extension',t:'extension'},
       {g:'dyn',l:'Dynamisch',t:'dyn'}, {g:'dyn',l:'Statisch',t:'sta'},
       {g:'lat',l:'Beidseitig',t:'bi'}, {g:'lat',l:'Einseitig',t:'uni'}
     ],
