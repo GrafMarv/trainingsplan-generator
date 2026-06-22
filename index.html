@@ -476,6 +476,17 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .block-lib-save-row input { flex:1; font-family:inherit; font-size:13px; padding:8px 10px; border:1px solid #e5e5ea; border-radius:9px; }
 .block-lib-save-row button { font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:9px; border:none; background:#1c1c1e; color:#fff; cursor:pointer; }
 .block-lib-save-row button:hover { background:#2563EB; }
+
+/* ===== BUILDER v3: drag, type-select, dup slot ===== */
+.builder-block.drag-over { border:1.5px dashed #2563EB; background:#f0f5ff; }
+.builder-block.dragging { opacity:0.4; }
+.block-type-sel { font-family:inherit; font-size:12px; font-weight:700; border:none; background:transparent; cursor:pointer; padding:0 4px 0 0; text-transform:uppercase; letter-spacing:0.05em; }
+.block-type-sel.warmup { color:#0891B2; }
+.block-type-sel.main { color:#2563EB; }
+.block-type-sel.cooldown { color:#16A34A; }
+.block-drag-handle { cursor:grab; color:#c7c7cc; font-size:18px; padding:0 4px; user-select:none; }
+.dup-slot-btn { border:none; background:#f2f2f7; color:#48484a; font-size:11px; font-weight:600; border-radius:7px; padding:4px 9px; cursor:pointer; font-family:inherit; }
+.dup-slot-btn:hover { background:#dce8ff; color:#2563EB; }
 </style>
 </head>
 <body>
@@ -905,7 +916,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
   <div class="card">
     <label class="section-label">Plan-Builder</label>
-    <input type="text" id="plan-name" class="builder-name" value="Krafttraining A" placeholder="Planname">
+    <input type="text" id="plan-name" class="builder-name" value="" placeholder="z.B. Krafttraining A">
     <div id="builder-blocks"></div>
     <button class="btn-secondary" type="button" id="add-block-btn" onclick="builderAddBlock()" style="margin-top:6px;">+ Block</button>
   </div>
@@ -2867,7 +2878,7 @@ function diagInitScreen() {
     .catch(function(){});
 }
 
-var DIAG_SHORT = { s10:'10m', s30:'30m', cr:'505 R', cl:'505 L', mr:'MB R', ml:'MB L', sw:'SW', ift:'IFT' };
+var DIAG_SHORT = { s10:'10m', s30:'30m', cr:'505 R', cl:'505 L', mr:'MB R', ml:'MB L', sw:'SW', ift:'IFT', vmax:'Vmax' };
 
 function diagOpenPlayer(id) {
   goTo('profile');
@@ -2897,6 +2908,7 @@ function diagRenderTeamOverview() {
   DIAG_FIELDS.forEach(function(f) {
     html += '<th style="padding:8px;text-align:right;" title="' + f.label + ' (' + f.unit + ')">' + DIAG_SHORT[f.key] + '</th>';
   });
+  html += '<th style="padding:8px;text-align:right;color:#8e8e93;" title="Vmax Schaetzung: 20m/(t30-t10)*3.6">Vmax</th>';
   html += '</tr>';
   withData.forEach(function(p) {
     html += '<tr style="border-bottom:0.5px solid #f2f2f7;cursor:pointer;" onclick="diagOpenPlayer(\'' + p.id + '\')">';
@@ -2922,6 +2934,9 @@ function diagRenderTeamOverview() {
       }
       html += '<td style="padding:8px;text-align:right;color:#1c1c1e;white-space:nowrap;">' + latest + deltaHtml + '</td>';
     });
+    var lastD=p.diag&&p.diag[0]; var vmx='-';
+    if(lastD&&lastD.s10&&lastD.s30){ var dt=parseFloat(lastD.s30)-parseFloat(lastD.s10); if(dt>0){ var vm=Math.round((20/dt)*3.6*10)/10; vmx='<span style="font-weight:600;color:#2563EB;">'+vm+'</span><div style="font-size:10px;color:#8e8e93;">km/h</div>'; }}
+    html += '<td style="padding:8px;text-align:right;white-space:nowrap;">'+vmx+'</td>';
     html += '</tr>';
   });
   html += '</table></div></div>';
@@ -3447,21 +3462,12 @@ function plSaveDiag() {
       '</div>'+
     '</div>';
   }
+  var BLOCK_TYPES = [{v:'warmup',l:'Warm-up'},{v:'main',l:'Hauptblock'},{v:'cooldown',l:'Cool-down'}];
+  function typeOpts(cur){ return BLOCK_TYPES.map(function(t){ return '<option value="'+t.v+'"'+(t.v===cur?' selected':'')+'>'+t.l+'</option>'; }).join(''); }
   function blockHtml(bi, block){
     var slots = block.slots.map(function(s,si){ return slotHtml(bi,si,s); }).join('');
     return ''+
-    '<div class="builder-block">'+
-      '<div class="builder-block-head">'+
-        '<span class="builder-block-title '+block.type+'">'+block.label+'</span>'+
-        '<div style="display:flex;align-items:center;gap:4px;">'+
-          '<button class="block-lib-btn" title="Vorlage laden" onclick="openBlockLib('+bi+')">&#128206; Vorlage</button>'+
-          '<button class="block-lib-btn" title="Block speichern" onclick="libSaveBlock('+bi+')">&#128190;</button>'+
-          '<button class="builder-block-x" title="Block entfernen" onclick="builderRemoveBlock('+bi+')">&times;</button>'+
-        '</div>'+
-      '</div>'+
-      slots+
-      '<button class="builder-add-slot" onclick="builderAddSlot('+bi+')">+ &Uuml;bung</button>'+
-    '</div>';
+    '<div class="builder-block" draggable="true" id="blk-'+bi+'"'+ ' ondragstart="blkDragStart('+bi+')" ondragover="blkDragOver(event,'+bi+')" ondrop="blkDrop(event,'+bi+')" ondragleave="blkDragLeave('+bi+')">'+ '<div class="builder-block-head">'+ '<span class="block-drag-handle" title="Verschieben">&#8801;</span>'+ '<select class="block-type-sel '+block.type+'" onchange="builderSetBlockType('+bi+',this.value)">'+typeOpts(block.type)+'</select>'+ '<div style="display:flex;align-items:center;gap:4px;">'+ '<button class="block-lib-btn" title="Vorlage laden" onclick="openBlockLib('+bi+')">&#128206; Vorlage</button>'+ '<button class="block-lib-btn" title="Block speichern" onclick="libSaveBlock('+bi+')">&#128190;</button>'+ '<button class="builder-block-x" title="Block entfernen" onclick="builderRemoveBlock('+bi+')">&times;</button>'+ '</div>'+ '</div>'+ slots+ '<div style="display:flex;gap:6px;margin-top:4px;">'+ '<button class="builder-add-slot" style="flex:1;" onclick="builderAddSlot('+bi+')">+ &Uuml;bung</button>'+ '<button class="dup-slot-btn" onclick="builderDupSlot('+bi+')">&#128257; Slot kopieren</button>'+ '</div>'+ '</div>';
   }
   window.renderBuilder = function(){
     ensureInit();
@@ -3492,6 +3498,13 @@ function plSaveDiag() {
     window.BUILDER.blocks.push({ type:'main', label:'Block '+(window.BUILDER.blocks.length+1), slots:[ newSlot() ] });
     window.renderBuilder();
   };
+  window.builderSetBlockType = function(bi,t){ var b=window.BUILDER.blocks[bi]; if(!b) return; b.type=t; var L={warmup:'Warm-up',main:'Hauptblock',cooldown:'Cool-down'}; b.label=L[t]||t; window.renderBuilder(); };
+  window.builderDupSlot = function(bi){ var blk=window.BUILDER.blocks[bi]; if(!blk||!blk.slots.length) return; blk.slots.push(JSON.parse(JSON.stringify(blk.slots[blk.slots.length-1]))); window.renderBuilder(); };
+  var _dragSrc=-1;
+  window.blkDragStart=function(bi){ _dragSrc=bi; setTimeout(function(){ var el=document.getElementById('blk-'+bi); if(el) el.classList.add('dragging'); },0); };
+  window.blkDragOver=function(e,bi){ e.preventDefault(); if(bi===_dragSrc) return; var el=document.getElementById('blk-'+bi); if(el) el.classList.add('drag-over'); };
+  window.blkDragLeave=function(bi){ var el=document.getElementById('blk-'+bi); if(el) el.classList.remove('drag-over'); };
+  window.blkDrop=function(e,bi){ e.preventDefault(); var el=document.getElementById('blk-'+bi); if(el) el.classList.remove('drag-over'); var src=document.getElementById('blk-'+_dragSrc); if(src) src.classList.remove('dragging'); if(_dragSrc<0||_dragSrc===bi) return; var b=window.BUILDER.blocks; var moved=b.splice(_dragSrc,1)[0]; b.splice(bi>_dragSrc?bi-1:bi,0,moved); _dragSrc=-1; window.renderBuilder(); };
   window.buildAndRenderPlan = function(){
     ensureInit();
     var blocks = window.BUILDER.blocks.map(function(b){
