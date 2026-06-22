@@ -30,41 +30,31 @@ export default async function handler(req, res) {
   }
   const table = collection === 'plans' ? 'cb_saved_plans' : 'cb_saved_blocks';
 
-  // Auto-create tables if they don't exist
-  async function ensureTables() {
-    const sql = `
-      CREATE TABLE IF NOT EXISTS cb_saved_plans (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        name text NOT NULL,
-        data jsonb NOT NULL,
-        created_at timestamptz NOT NULL DEFAULT now()
-      );
-      CREATE TABLE IF NOT EXISTS cb_saved_blocks (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        name text NOT NULL,
-        type text NOT NULL DEFAULT 'main',
-        data jsonb NOT NULL,
-        created_at timestamptz NOT NULL DEFAULT now()
-      );
-    `;
+  // Auto-create tables - single statement with schema reload
+  try {
     await fetch(SUPABASE_URL + '/rest/v1/rpc/exec_sql', {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify({ sql })
+      body: JSON.stringify({ sql:
+        "create table if not exists cb_saved_plans (id uuid primary key default gen_random_uuid(), name text not null, data jsonb not null, created_at timestamptz not null default now()); " +
+        "create table if not exists cb_saved_blocks (id uuid primary key default gen_random_uuid(), name text not null, type text not null default \'main\', data jsonb not null, created_at timestamptz not null default now()); " +
+        "notify pgrst, \'reload schema\';"
+      })
     });
-  }
+  } catch(e) { /* tables may already exist */ }
+
+  const base = SUPABASE_URL + '/rest/v1/' + table;
 
   try {
-    await ensureTables();
-
-    const base = SUPABASE_URL + '/rest/v1/' + table;
-
     if (req.method === 'GET') {
       const url = collection === 'blocks'
         ? base + '?select=id,name,type,data,created_at&order=created_at.desc'
         : base + '?select=id,name,data,created_at&order=created_at.desc';
       const r = await fetch(url, { headers });
-      if (!r.ok) return res.status(500).json({ error: await r.text() });
+      if (!r.ok) {
+        const txt = await r.text();
+        return res.status(500).json({ error: 'GET failed: ' + txt });
+      }
       const rows = await r.json();
       return res.status(200).json({ items: rows });
     }
@@ -77,24 +67,23 @@ export default async function handler(req, res) {
       const row = collection === 'blocks'
         ? { name, type: type || 'main', data }
         : { name, data };
-      const r = await fetch(base, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(row)
-      });
-      if (!r.ok) return res.status(500).json({ error: await r.text() });
+      const r = await fetch(base, { method: 'POST', headers, body: JSON.stringify(row) });
+      if (!r.ok) {
+        const txt = await r.text();
+        return res.status(500).json({ error: 'POST failed: ' + txt });
+      }
       const created = await r.json();
-      return res.status(200).json({ id: created[0]?.id, ok: true });
+      return res.status(200).json({ id: created[0] && created[0].id, ok: true });
     }
 
     if (req.method === 'DELETE') {
       const id = req.query.id;
       if (!id) return res.status(400).json({ error: 'id required' });
-      const r = await fetch(base + '?id=eq.' + encodeURIComponent(id), {
-        method: 'DELETE',
-        headers
-      });
-      if (!r.ok) return res.status(500).json({ error: await r.text() });
+      const r = await fetch(base + '?id=eq.' + encodeURIComponent(id), { method: 'DELETE', headers });
+      if (!r.ok) {
+        const txt = await r.text();
+        return res.status(500).json({ error: 'DELETE failed: ' + txt });
+      }
       return res.status(200).json({ ok: true });
     }
 
