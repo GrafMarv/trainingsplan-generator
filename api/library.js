@@ -25,10 +25,10 @@ export default async function handler(req, res) {
   };
 
   const collection = (req.query.collection || '').toLowerCase();
-  if (collection !== 'plans' && collection !== 'blocks') {
-    return res.status(400).json({ error: 'collection must be plans or blocks' });
+  if (collection !== 'plans' && collection !== 'blocks' && collection !== 'trainingdocs') {
+    return res.status(400).json({ error: 'collection must be plans, blocks, or trainingdocs' });
   }
-  const table = collection === 'plans' ? 'cb_saved_plans' : 'cb_saved_blocks';
+  const table = collection === 'plans' ? 'cb_saved_plans' : collection === 'blocks' ? 'cb_saved_blocks' : 'cb_training_docs';
 
   // Auto-create tables - single statement with schema reload
   try {
@@ -38,6 +38,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({ sql:
         "create table if not exists cb_saved_plans (id uuid primary key default gen_random_uuid(), name text not null, data jsonb not null, created_at timestamptz not null default now()); " +
         "create table if not exists cb_saved_blocks (id uuid primary key default gen_random_uuid(), name text not null, type text not null default \'main\', data jsonb not null, created_at timestamptz not null default now()); " +
+        "create table if not exists cb_training_docs (id uuid primary key default gen_random_uuid(), name text not null, data jsonb not null, created_at timestamptz not null default now()); " +
         "notify pgrst, \'reload schema\';"
       })
     });
