@@ -3518,7 +3518,9 @@ function plSaveDiag() {
     var defs = CHIP_DEFS[PICKER.cat] || [];
     var order=[]; var byG={};
     defs.forEach(function(d){ if(!byG[d.g]){ byG[d.g]=[]; order.push(d.g); } byG[d.g].push(d); });
+    var coreActive = !!(PICKER.tokens['region'] && PICKER.tokens['region']['core']);
     order.forEach(function(g){
+      if(g==='pattern' && !coreActive) return;
       var chips = byG[g].map(function(d){
         var on = (PICKER.tokens[d.g] && PICKER.tokens[d.g][d.t]) ? ' active' : '';
         return '<button type="button" class="pk-chip'+on+'" onclick="pickerChip(\''+d.g+'\',\''+d.t+'\')">'+d.l+'</button>';
