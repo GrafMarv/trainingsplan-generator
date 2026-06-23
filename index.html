@@ -4548,6 +4548,98 @@ function plSaveDiag() {
   </div>
 </div>
 
+
+  <!-- SEED BUTTON - einmalig benutzen dann entfernen -->
+  <div id="seed-overlay" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9999;">
+    <button onclick="runSeed()" style="background:#e74c3c;color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
+      Bibliothek seeden (einmalig)
+    </button>
+    <div id="seed-status" style="margin-top:8px;font-size:12px;color:#fff;text-align:right;"></div>
+  </div>
+  <script>
+  // Show seed button only on plan screen
+  document.addEventListener('DOMContentLoaded', function(){
+    document.getElementById('seed-overlay').style.display = 'block';
+  });
+
+  var WHV_PLANS = [
+    {name:"WHV | Warm Up: Sprint",data:{kategorie:"Sprint",dauer:25,beschreibung:"Spezifisches Aufwaermen vor Sprint-Einheiten.",blocks:[{titel:"Locker Laufen",inhalt:"Mindestens 7 min lockeres Einlaufen",dauer_min:7},{titel:"Dynamisches Stretching",inhalt:"3 Wdh. pro Seite: Huefte, Spider-Man, Skorpion, Beinschwingen, Inchworm",dauer_min:5},{titel:"Schnelle Fuesse",inhalt:"30sek Pause: 2x5sek vorwaerts, 2x5sek seitlich, 2x5sek rueckwaerts, 1x5sek/Seite",dauer_min:4},{titel:"Lauf ABC",inhalt:"Je 10m, 2x (90% dann 100%): Skippings, Kniehebelauf, Anfersen, Scheerenlauf, Prellsprunge, Sprunglauf 6x/Bein",dauer_min:6},{titel:"Antritte & Steigerung",inhalt:"4x 10m Sprint 100% + 2x 40m fliegend (20m Anlauf). 60sek Erholung zum Start.",dauer_min:8}]}},
+    {name:"WHV | Sprint: Antritt (10m)",data:{kategorie:"Sprint",dauer:35,beschreibung:"Antrittsschnelligkeit aus dem Stand.",blocks:[{titel:"Sprint Warm Up",inhalt:"Sprint Warm Up Einheit durchfuehren (ca. 20-25 min)",dauer_min:20},{titel:"10m Antritte",inhalt:"8x 10m Sprint 100% (rechter Fuss vorne), 60sek Erholung.
+3-5 min Pause.
+8x 10m Sprint 100% (linker Fuss vorne), 60sek Erholung.",dauer_min:20}]}},
+    {name:"WHV | Sprint: Fliegend (20m)",data:{kategorie:"Sprint",dauer:35,beschreibung:"Maximale Sprintgeschwindigkeit, 20m Anlauf + 20m Messbereich.",blocks:[{titel:"Sprint Warm Up",inhalt:"Sprint Warm Up Einheit durchfuehren (ca. 20-25 min)",dauer_min:20},{titel:"20m Fliegend",inhalt:"5x 20m fliegend 100% (20m Anlauf), 60sek Erholung.
+3-5 min Pause.
+5x 20m fliegend 100% (20m Anlauf), 60sek Erholung.",dauer_min:20}]}},
+    {name:"WHV | Sprint: 30 Meter",data:{kategorie:"Sprint",dauer:35,beschreibung:"30m Sprint aus dem Stand.",blocks:[{titel:"Sprint Warm Up",inhalt:"Sprint Warm Up Einheit durchfuehren (ca. 20-25 min)",dauer_min:20},{titel:"30m Sprint",inhalt:"5x 30m Sprint 100% (rechter Fuss vorne), 60sek Erholung.
+3-5 min Pause.
+5x 30m Sprint 100% (linker Fuss vorne), 60sek Erholung.",dauer_min:20}]}},
+    {name:"WHV | Stabi: Ganzkoerper",data:{kategorie:"Kraft",dauer:30,beschreibung:"4 Runden, 15sek Pause nach Uebung, 2min Rundenpause.",blocks:[{titel:"Stabi Ganzkoerper",inhalt:"4 Runden, 15sek Pause, 2min Rundenpause:
+1. Ausfallschritte - 45sek
+2. Standwaage l&r - 45sek
+3. Liegestuetz - maximal
+4. Glute Bridge r&l - 45sek
+5. Schwimmer langsam - 45sek",dauer_min:30}]}},
+    {name:"WHV | Bunki Training",data:{kategorie:"Kraft",dauer:25,beschreibung:"Faszien-Stabilisation mit Bunki-Box. 2 Runden, 20sek/Seite.",blocks:[{titel:"Bunki Training",inhalt:"2 Runden, 20sek rechts + 20sek links:
+1. Anterior Power Line
+2. Posterior Power Line
+3. Posterior Stabilizing Line
+4. Lateral Stabilizing Line
+5. Medial Stabilizing Line",dauer_min:25}]}},
+    {name:"WHV | Grundlagenlauf",data:{kategorie:"Ausdauer",dauer:50,beschreibung:"45min Dauerlauf im IFT-Grundlagentempo.",blocks:[{titel:"Grundlagenlauf",inhalt:"45min Dauerlauf gemaess IFT:
+IFT 16=6:30/km | 17=6:10 | 18=5:50 | 19=5:30 | 20=5:15 | 21=5:00 | 22=4:50 | 22.5=4:45",dauer_min:45}]}},
+    {name:"WHV | Ausdauer: Intervalle 15/15",data:{kategorie:"Ausdauer",dauer:40,beschreibung:"3x (5x 15sek/15sek) mit 2min Satzpause. Distanz nach IFT.",blocks:[{titel:"Warm Up",inhalt:"1km locker + 5min Mobilisation",dauer_min:10},{titel:"Intervalle 15/15",inhalt:"3 Saetze: 5x 15sek Lauf / 15sek Pause, 2min Satzpause.
+Distanz nach IFT:
+IFT 16=63m | 17=67m | 18=71m | 19=75m | 20=79m | 21=83m | 22=87m | 22.5=89m",dauer_min:30}]}},
+    {name:"WHV | Mobi: Unterkoerper",data:{kategorie:"Warm-up",dauer:15,beschreibung:"Unterkoerper Mobilisation. 4+ x/Woche.",blocks:[{titel:"Mobi Unterkoerper",inhalt:"2-3 Runden, 6 Wdh. pro Seite:
+1. Oberschenkel Rueckseite
+2. Huefte oeffnen & schliessen
+3. Knien & Huefte strecken
+4. 90 Grad Sitz & Vorlage
+5. Wirbel abrollen",dauer_min:15}]}},
+    {name:"WHV | Mobi: Sprunggelenk",data:{kategorie:"Warm-up",dauer:10,beschreibung:"Sprunggelenk Mobilisation. 4+ x/Woche.",blocks:[{titel:"Mobi Sprunggelenk",inhalt:"2-4 Runden, 6 Wdh. pro Seite:
+1. Kniesitz
+2. Halbkniesitz
+3. Ausfallschritt seitlich",dauer_min:10}]}},
+    {name:"WHV | Stretch Routine",data:{kategorie:"Warm-up",dauer:15,beschreibung:"WHV Stretch Routine. 2-3 Runden, 3-5 Wdh. Dynamisch.",blocks:[{titel:"WHV Stretch Routine",inhalt:"2-3 Runden, 3-5 Wdh.:
+1. Vorderseite
+2. Huefte
+3. Huefte seitlich
+4. Adduktoren
+5. Rotation
+6. Taube
+7. Hund
+8. Rueckseite",dauer_min:15}]}},
+    {name:"WHV | Mobi: Schulter & BWS",data:{kategorie:"Warm-up",dauer:15,beschreibung:"Schulter & BWS Mobilisation. 3 Runden.",blocks:[{titel:"Mobi Schulter & BWS",inhalt:"3 Runden, Ausatmung in Endposition:
+1. Buchoeffner - 8x/Seite (Block zwischen Knie & Wand)
+2. Prayer Stretch - 6x
+3. Aussen & Innen Rotation - 8x/Seite
+4. Wall Slides - 8x (Ruecken, Schulter, Arme an Wand)",dauer_min:15}]}}
+  ];
+
+  window.runSeed = async function() {
+    var btn = document.querySelector('#seed-overlay button');
+    var status = document.getElementById('seed-status');
+    btn.disabled = true;
+    btn.textContent = 'Seeding...';
+    var ok = 0;
+    for (var i = 0; i < WHV_PLANS.length; i++) {
+      var plan = WHV_PLANS[i];
+      status.textContent = (i+1) + '/12: ' + plan.name;
+      try {
+        var r = await fetch('/api/library?collection=plans', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({name: plan.name, data: plan.data})
+        });
+        if (r.ok) ok++;
+        else { var e = await r.json(); console.error(plan.name, e); }
+      } catch(e) { console.error(plan.name, e); }
+    }
+    btn.textContent = ok + '/12 gespeichert!';
+    status.textContent = ok === 12 ? 'Fertig! Button kann entfernt werden.' : 'Einige fehlgeschlagen - Console checken.';
+    if (ok === 12) setTimeout(function(){ document.getElementById('seed-overlay').style.display='none'; }, 3000);
+  };
+  </script>
 </body>
 </html>
 
