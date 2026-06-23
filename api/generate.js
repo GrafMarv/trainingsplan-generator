@@ -5,16 +5,28 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
   try {
-    const { input, voice_sort } = req.body;
+    const { input, voice_sort, image_base64, image_media_type } = req.body;
 
-    // Voice sort mode: classify spoken training text into blocks
+    // Voice sort OR image analysis mode
     if (voice_sort) {
       const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-      const system = 'Du bist ein Assistent fuer Athletiktraining. Teile den folgenden gesprochenen Trainingsinhalt in die passenden Bloecke auf: Warm-up, Sprunge, Sprints, Schnellkraft, Kraft, Ausdauer, Cooldown. Antworte NUR mit einem JSON-Objekt ohne Markdown. Schuessel exakt: Warm-up, Sprunge, Sprints, Schnellkraft, Kraft, Ausdauer, Cooldown. Wert ist praegnanter Text (1-3 Saetze) oder leerer String.';
+      const system = 'Du bist ein Assistent fuer Athletiktraining. Teile den folgenden Trainingsinhalt in die passenden Bloecke auf: Warm-up, Sprunge, Sprints, Schnellkraft, Kraft, Ausdauer, Cooldown. Antworte NUR mit einem JSON-Objekt ohne Markdown. Schuessel exakt: Warm-up, Sprunge, Sprints, Schnellkraft, Kraft, Ausdauer, Cooldown. Wert ist praegnanter Text oder leerer String.';
+      
+      // Build message content - text or image+text
+      let userContent;
+      if (image_base64) {
+        userContent = [
+          { type: 'image', source: { type: 'base64', media_type: image_media_type || 'image/jpeg', data: image_base64 } },
+          { type: 'text', text: String(input) }
+        ];
+      } else {
+        userContent = String(input);
+      }
+
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 600, system, messages: [{ role: 'user', content: String(input) }] })
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 800, system, messages: [{ role: 'user', content: userContent }] })
       });
       const d = await resp.json();
       const plan = (d.content || []).map(c => c.text || '').join('');
