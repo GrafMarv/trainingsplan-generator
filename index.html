@@ -678,7 +678,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     <!-- BIBLIOTHEK -->
     <div id="wissen-bibliothek" style="display:none;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px;">
         <div style="background:#fff;border-radius:16px;padding:20px;border:0.5px solid #e5e5ea;">
           <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:10px;">Dokument hochladen</p>
           <div onclick="document.getElementById('wissen-file').click()" style="border:1.5px dashed #d1d1d6;border-radius:10px;padding:24px;text-align:center;cursor:pointer;color:#8e8e93;font-size:13px;transition:all 0.2s;" onmouseover="this.style.borderColor='#007aff';this.style.color='#007aff'" onmouseout="this.style.borderColor='#d1d1d6';this.style.color='#8e8e93'">
@@ -1058,6 +1058,7 @@ function playScreenEnter(el) {
 }
 
 function goTo(screen) {
+  window.location.hash = screen;
   document.getElementById('home-screen').style.display = 'none';
   document.getElementById('wissen-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'none';
@@ -1093,6 +1094,7 @@ function goTo(screen) {
   }
 }
 function goHome() {
+  window.location.hash = '';
   const hs = document.getElementById('home-screen');
   hs.style.display = 'flex';
   playScreenEnter(hs);
@@ -1102,6 +1104,19 @@ function goHome() {
   document.getElementById('diagnostik-screen').style.display = 'none';
   document.getElementById('trainingsdoku-screen').style.display = 'none';
 }
+
+// Hash router - on load and on hash change
+function handleHash() {
+  var hash = window.location.hash.replace('#','');
+  var valid = ['wissen','generator','profile','diagnostik','trainingsdoku'];
+  if(hash && valid.indexOf(hash) > -1) {
+    goTo(hash);
+  } else {
+    goHome();
+  }
+}
+window.addEventListener('hashchange', handleHash);
+window.addEventListener('load', function(){ setTimeout(handleHash, 200); });
 
 function switchTab(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
