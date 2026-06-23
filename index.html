@@ -1920,7 +1920,10 @@ function wissenTab(tab) {
   if (tab === 'konzepte') renderKonzeptList();
   if (tab === 'studien') renderStudieList();
   if (tab === 'brain') {
-    if (!window._brainInit) { window._brainInit = true; setTimeout(initBrain, 80); }
+    setTimeout(function(){
+      if (!window._brainInit) { window._brainInit = true; initBrain(); }
+      else { loadBrain(false); }
+    }, 80);
   }
 }
 
@@ -2570,6 +2573,7 @@ async function uploadAll() {
     if(!cv)return;
     ctx=cv.getContext('2d');
     resize();
+    running=false;
     window.addEventListener('resize',resize);
     cv.addEventListener('mousedown',function(e){drag=true;aRot=false;lx=e.clientX;ly=e.clientY;cv.style.cursor='grabbing';if(rotTimer)clearTimeout(rotTimer);});
     cv.addEventListener('mouseup',function(){drag=false;cv.style.cursor='grab';if(rotTimer)clearTimeout(rotTimer);rotTimer=setTimeout(function(){aRot=true;},3000);});
