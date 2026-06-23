@@ -4027,22 +4027,38 @@ function plSaveDiag() {
     }
     list.innerHTML = items.map(function(item) {
       var rec = item.data;
+      var id = item.name || '';
       var parts = (rec.date||'').split('-');
       var niceDate = parts.length===3 ? parts[2]+'.'+parts[1]+'.'+parts[0] : (rec.date||'');
-      var blockSummary = Object.keys(rec.blocks||{}).filter(function(k){ return (rec.blocks[k]||'').length > 0; }).join(', ');
-      return '<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 16px;margin-bottom:10px;">'
-        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">'
-        + '<div>'
-        + '<span style="font-size:15px;font-weight:700;color:#fff;">' + escH(rec.team) + '</span>'
-        + ' <span style="font-size:13px;color:#e74c3c;font-weight:600;">' + escH(rec.trainer) + '</span>'
-        + '</div>'
-        + '<span style="font-size:12px;color:rgba(255,255,255,0.45);">' + niceDate + '</span>'
-        + '</div>'
-        + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">' + (rec.duration||0) + ' min</div>'
-        + (blockSummary ? '<div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.5;">' + escH(blockSummary) + '</div>' : '')
-        + '</div>';
+      var filledBlocks = Object.keys(rec.blocks||{}).filter(function(k){ return (rec.blocks[k]||'').trim().length > 0; });
+      var blockSummary = filledBlocks.join(', ');
+      var detailId = 'td-detail-' + id.replace(/[^a-zA-Z0-9]/g,'_');
+      var blockDetails = filledBlocks.map(function(k){
+        return '<div style="margin-bottom:10px;">'          + '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">' + escH(k) + '</div>'          + '<div style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;">' + escH(rec.blocks[k]) + '</div>'          + '</div>';
+      }).join('');
+      return '<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 16px;margin-bottom:10px;">'        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">'        + '<div>'        + '<span style="font-size:15px;font-weight:700;color:#fff;">' + escH(rec.team) + '</span>'        + ' <span style="font-size:13px;color:#e74c3c;font-weight:600;">' + escH(rec.trainer) + '</span>'        + '</div>'        + '<div style="display:flex;align-items:center;gap:8px;">'        + '<span style="font-size:12px;color:rgba(255,255,255,0.45);">' + niceDate + '</span>'        + '<button onclick="tdToggleDetail(\'' + detailId + '\')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.6);font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit;">Details</button>'        + '<button onclick="tdDeleteEntry(\'' + id + '\', this)" style="background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.3);border-radius:8px;color:#e74c3c;font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit;">&#x1F5D1;</button>'        + '</div>'        + '</div>'        + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">' + (rec.duration||0) + ' min</div>'        + (blockSummary ? '<div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.5;margin-bottom:4px;">' + escH(blockSummary) + '</div>' : '')        + '<div id="' + detailId + '" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">'        + (blockDetails || '<div style="font-size:13px;color:rgba(255,255,255,0.3);">Keine Inhalte.</div>')        + '</div>'        + '</div>';
     }).join('');
   }
+
+  window.tdToggleDetail = function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  };
+
+  window.tdDeleteEntry = function(id, btn) {
+    if (!confirm('Eintrag loeschen?')) return;
+    btn.disabled = true;
+    btn.textContent = '...';
+    fetch('/api/library?collection=trainingdocs&name=' + encodeURIComponent(id), { method: 'DELETE' })
+      .then(function(r){ return r.json(); })
+      .then(function(){
+        tdAllItems = tdAllItems.filter(function(i){ return (i.name||i.id||'') !== id; });
+        var filter = document.querySelector('.td-filter-btn[style*="#e74c3c"]');
+        tdRenderVerlauf(filter ? filter.getAttribute('data-filter') : 'all');
+      })
+      .catch(function(){ btn.disabled=false; btn.textContent='\u1F5D1'; });
+  };
 
   window.tdFilterHistory = function(btn, filter) {
     document.querySelectorAll('.td-filter-btn').forEach(function(b){
@@ -4516,7 +4532,7 @@ function plSaveDiag() {
       </div>
       <!-- Filter -->
       <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;">
-        <button class="td-filter-btn active" data-filter="all" onclick="tdFilterHistory(this,'all')" style="padding:6px 14px;background:#e74c3c;color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">Alle</button>
+        <button class="td-filter-btn active" data-filter="all" onclick="tdFilterHistory(this,'all')" data-filter="all" style="padding:6px 14px;background:#e74c3c;color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">Alle</button>
         <button class="td-filter-btn" data-filter="RWK M U12" onclick="tdFilterHistory(this,'RWK M U12')" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">M U12</button>
         <button class="td-filter-btn" data-filter="RWK M U14" onclick="tdFilterHistory(this,'RWK M U14')" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">M U14</button>
         <button class="td-filter-btn" data-filter="RWK M U16" onclick="tdFilterHistory(this,'RWK M U16')" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">M U16</button>
