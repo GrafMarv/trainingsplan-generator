@@ -4142,6 +4142,76 @@ function plSaveDiag() {
     tdSortVoiceToBlocks(transcript);
   };
 
+
+  // --- Photo / Image Upload ---
+  window.tdHandlePhoto = function(input) {
+    var file = input.files[0];
+    if(!file) return;
+    var areaEl = document.getElementById('td-photo-area');
+    var preview = document.getElementById('td-photo-preview');
+    var status = document.getElementById('td-photo-status');
+    areaEl.style.display = 'block';
+    status.textContent = 'Bild wird geladen...';
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var dataUrl = e.target.result;
+      preview.src = dataUrl;
+      status.textContent = 'KI analysiert den Trainingsplan...';
+      var base64 = dataUrl.split(',')[1];
+      var mediaType = file.type || 'image/jpeg';
+      tdAnalyzePhoto(base64, mediaType, status, areaEl);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  function tdAnalyzePhoto(base64, mediaType, status, areaEl) {
+    var prompt = 'Analysiere dieses Bild eines Trainingsplans. Extrahiere alle Inhalte und ordne sie den passenden Kategorien zu: Warm-up, Sprunge, Sprints, Schnellkraft, Kraft, Ausdauer, Cooldown. Antworte NUR mit einem JSON-Objekt ohne Markdown. Schuessel exakt: Warm-up, Sprunge, Sprints, Schnellkraft, Kraft, Ausdauer, Cooldown. Wert ist ein praegnanter Text mit allen relevanten Inhalten (Uebungen, Sets, Wiederholungen, Distanzen) oder leerer String "". Fasse Inhalte zusammen die nicht eindeutig zuzuordnen sind unter dem passendsten Block.';
+
+    fetch('/api/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({input: prompt, voice_sort: true, image_base64: base64, image_media_type: mediaType})
+    }).then(function(r){ return r.json(); }).then(function(data) {
+      try {
+        var text = data.plan || data.result || '';
+        text = text.replace(/```json|```/g,'').trim();
+        var match = text.match(/\{[\s\S]*\}/);
+        if(match) text = match[0];
+        var parsed = JSON.parse(text);
+        var filled = 0;
+        Object.keys(parsed).forEach(function(key) {
+          var ta = document.getElementById('td-ta-' + key);
+          if(ta && parsed[key]) {
+            ta.value = parsed[key];
+            filled++;
+            var body = document.getElementById('td-body-' + key);
+            var chev = document.getElementById('td-chev-' + key);
+            if(body && !body.classList.contains('open')) {
+              body.classList.add('open');
+              if(chev) chev.style.transform = 'rotate(180deg)';
+            }
+          }
+        });
+        status.textContent = filled + ' Bloecke automatisch befuellt. Bitte pruefen und anpassen.';
+        status.style.color = '#2ecc71';
+      } catch(e) {
+        status.textContent = 'Fehler beim Analysieren. Bitte manuell eingeben.';
+        status.style.color = '#e74c3c';
+      }
+    }).catch(function() {
+      status.textContent = 'Netzwerkfehler. Bitte erneut versuchen.';
+      status.style.color = '#e74c3c';
+    });
+  }
+
+  window.tdCancelPhoto = function() {
+    var areaEl = document.getElementById('td-photo-area');
+    var input = document.getElementById('td-photo-input');
+    if(areaEl) areaEl.style.display = 'none';
+    if(input) input.value = '';
+  };
+
   function tdVoiceReset() {
     tdIsRecording = false;
     tdFinalText = '';
@@ -4328,10 +4398,23 @@ function plSaveDiag() {
     <div id="td-step-blocks" style="display:none;">
       <p style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:4px;"><span id="td-display-team3" style="color:#fff;font-weight:600;"></span> &middot; <span id="td-display-trainer2" style="color:#e74c3c;font-weight:600;"></span> &middot; <span id="td-display-date" style="color:rgba(255,255,255,0.7);"></span> &middot; <span id="td-display-dur" style="color:rgba(255,255,255,0.7);"></span></p>
       <h2 style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;">Trainingsinhalt</h2>
-      <!-- Voice button -->
-      <button id="td-voice-btn" onclick="tdStartVoice()" style="margin-bottom:12px;padding:10px 18px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:20px;color:#e74c3c;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;">
-        <span id="td-voice-icon">&#x1F3A4;</span> <span id="td-voice-label">Alles per Sprache eingeben</span>
-      </button>
+      <!-- Input buttons -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <button id="td-voice-btn" onclick="tdStartVoice()" style="flex:1;min-width:140px;padding:10px 18px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:20px;color:#e74c3c;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span id="td-voice-icon">&#x1F3A4;</span> <span id="td-voice-label">Sprache</span>
+        </button>
+        <button onclick="document.getElementById('td-photo-input').click()" style="flex:1;min-width:140px;padding:10px 18px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:20px;color:#e74c3c;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">
+          &#x1F4F7; Foto / Excel
+        </button>
+        <input type="file" id="td-photo-input" accept="image/*" style="display:none;" onchange="tdHandlePhoto(this)">
+      </div>
+      <!-- Photo preview area -->
+      <div id="td-photo-area" style="display:none;margin-bottom:16px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Foto wird analysiert...</div>
+        <img id="td-photo-preview" style="width:100%;border-radius:10px;opacity:0.7;max-height:200px;object-fit:contain;background:rgba(255,255,255,0.05);" />
+        <div id="td-photo-status" style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.6);"></div>
+        <button onclick="tdCancelPhoto()" style="margin-top:8px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;">Verwerfen</button>
+      </div>
       <div id="td-transcript-area" style="display:none;margin-bottom:16px;">
         <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Transkript</div>
         <textarea id="td-transcript-text" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#fff;font-size:15px;font-family:inherit;padding:14px;min-height:90px;resize:vertical;line-height:1.6;outline:none;" placeholder="Sprich jetzt..."></textarea>
