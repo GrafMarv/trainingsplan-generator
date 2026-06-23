@@ -4050,7 +4050,7 @@ function plSaveDiag() {
     if (!confirm('Eintrag loeschen?')) return;
     btn.disabled = true;
     btn.textContent = '...';
-    fetch('/api/library?collection=trainingdocs&name=' + encodeURIComponent(id), { method: 'DELETE' })
+    fetch('/api/library?collection=trainingdocs&id=' + encodeURIComponent(id), { method: 'DELETE' })
       .then(function(r){ return r.json(); })
       .then(function(){
         tdAllItems = tdAllItems.filter(function(i){ return (i.name||i.id||'') !== id; });
