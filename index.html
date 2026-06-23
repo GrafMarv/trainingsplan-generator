@@ -3615,15 +3615,50 @@ function plSaveDiag() {
       {g:'lat',l:'Beidseitig',t:'bi'}, {g:'lat',l:'Einseitig',t:'uni'}
     ],
     mobility: [
-      {g:'region',l:'Unter',t:'lower'}, {g:'region',l:'Ober',t:'upper'}, {g:'region',l:'Ganzk&ouml;rper',t:'full'},
-      {g:'dyn',l:'Dynamisch',t:'dyn'}, {g:'dyn',l:'Statisch',t:'sta'}
+      {g:'region',l:'Unter',t:'lower'}, {g:'region',l:'Ober',t:'upper'}, {g:'region',l:'Ganzkörper',t:'full'},
+      {g:'dyn',l:'Dynamisch',t:'dyn'}, {g:'dyn',l:'Statisch',t:'sta'},
+      {g:'area',l:'Sprunggelenk',t:'ankle'}, {g:'area',l:'Hamstrings',t:'hamstring'}, {g:'area',l:'Quadrizeps',t:'quad'}, {g:'area',l:'Wade',t:'calf'},
+      {g:'area',l:'Hüftbeuger',t:'hipflexor'}, {g:'area',l:'Hüftrotation',t:'hiprotation'}, {g:'area',l:'Adduktoren',t:'adductor'}, {g:'area',l:'Gluteus',t:'glute'},
+      {g:'area',l:'BWS Rotation',t:'thoracicrot'}, {g:'area',l:'BWS Flex/Ext',t:'thoracicflex'}, {g:'area',l:'Schulter',t:'shoulder'}, {g:'area',l:'Lat/Pec',t:'latpec'}
     ],
     jump: [ {g:'dir',l:'Vertikal',t:'vertical'}, {g:'dir',l:'Horizontal',t:'horizontal'} ],
     sprint: [],
     all: []
   };
-  var GROUP_LABEL = { region:'Region', move:'Bewegung', pattern:'Muster', dyn:'Dynamik', lat:'Seite', dir:'Richtung' };
+  var GROUP_LABEL = { region:'Region', move:'Bewegung', pattern:'Muster', dyn:'Dynamik', lat:'Seite', dir:'Richtung', area:'Bereich' };
   function slugTokens(slug){ return String(slug||'').split('_').slice(1); }
+
+  // Mobility area mapping - sportwissenschaftlich
+  var MOB_AREA_MAP = {
+    'ankle-dorsiflexion-drill': ['ankle'],
+    '90-90-hip-switch': ['hiprotation','adductor'],
+    'hip-90-90-flow': ['hiprotation','adductor'],
+    'ninety-ninety-stretch': ['hiprotation','adductor'],
+    'band-hamstring-stretch': ['hamstring'],
+    'hamstring-stretch-mit-band': ['hamstring'],
+    'supine-hamstring-stretch': ['hamstring'],
+    'standing-forward-fold': ['hamstring'],
+    'couch-stretch': ['hipflexor','quad'],
+    'hip-flexor-stretch': ['hipflexor'],
+    'kneeling-hip-flexor-stretch': ['hipflexor'],
+    'lizard-stretch': ['hipflexor','adductor'],
+    'frog-stretch': ['adductor','hiprotation'],
+    'pigeon-pose': ['hiprotation','glute'],
+    'sleeping-pigeon': ['hiprotation','glute'],
+    'deep-squat-hold': ['ankle','adductor','hipflexor'],
+    'world-greatest-stretch': ['hipflexor','thoracicrot','adductor'],
+    'hand-walk': ['hamstring','thoracicflex'],
+    'downward-dog-to-cobra': ['hamstring','thoracicflex','shoulder'],
+    'downward-dog-upward-dog': ['hamstring','thoracicflex','shoulder'],
+    'cat-cow': ['thoracicflex'],
+    'supine-spinal-twist': ['thoracicrot'],
+    't-spine-extension-foam-roll': ['thoracicflex'],
+    't-spine-rotation': ['thoracicrot'],
+    'thoracic-rotation-stretch': ['thoracicrot'],
+    'thread-the-needle': ['thoracicrot'],
+    'shoulder-cars': ['shoulder'],
+    'lat-stretch': ['latpec']
+  };
   function dimsLabel(slug){
     var t = slugTokens(slug);
     var map = { upper:'Ober', lower:'Unter', full:'Ganzk.', push:'Push', pull:'Pull', core:'Core', adduction:'Add.', antiextension:'Anti-Ext.', antirotation:'Anti-Rot.', antilateralflexion:'Anti-Lat.', flexion:'Flex.', extension:'Ext.', dyn:'Dyn', sta:'Sta', bi:'Bi', uni:'Uni', vertical:'Vert.', horizontal:'Horiz.', acceleration:'Accel.' };
@@ -3632,11 +3667,18 @@ function plSaveDiag() {
   function matchSlug(slug){
     if(PICKER.cat!=='all' && catOf(slug)!==PICKER.cat) return false;
     var toks = slugTokens(slug);
+    var baseName = String(slug||'').split('_')[0];
     for(var g in PICKER.tokens){
       var active = Object.keys(PICKER.tokens[g]);
       if(active.length===0) continue;
-      var hit = active.some(function(t){ return toks.indexOf(t)!==-1; });
-      if(!hit) return false;
+      if(g==='area'){
+        var areaTags = MOB_AREA_MAP[baseName] || [];
+        var hit = active.some(function(t){ return areaTags.indexOf(t)!==-1; });
+        if(!hit) return false;
+      } else {
+        var hit = active.some(function(t){ return toks.indexOf(t)!==-1; });
+        if(!hit) return false;
+      }
     }
     if(PICKER.q){
       var q = PICKER.q.toLowerCase();
