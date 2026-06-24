@@ -37,6 +37,16 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1D9
 .pw-err{color:#E24B4A;font-size:13px;margin-top:8px;display:none}
 .back-link{text-align:center;margin-top:1rem;font-size:12px;color:#999}
 .back-link span{cursor:pointer;text-decoration:underline}
+.del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:16px;padding:2px 6px;border-radius:4px;line-height:1;transition:color 0.15s}
+.del-btn:hover{color:#E24B4A}
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:999}
+.confirm-box{background:#fff;border-radius:14px;padding:1.5rem;max-width:300px;width:90%;text-align:center}
+.confirm-box h3{font-size:16px;font-weight:600;margin-bottom:0.5rem}
+.confirm-box p{font-size:14px;color:#666;margin-bottom:1.25rem}
+.confirm-btns{display:flex;gap:8px}
+.confirm-btns button{flex:1;padding:11px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer}
+.btn-cancel{background:#f0f0ee;color:#666}
+.btn-delete{background:#E24B4A;color:#fff}
 .trainer-link{text-align:center;margin-top:1rem;font-size:12px;color:#ccc}
 .trainer-link span{cursor:pointer;text-decoration:underline}
 
@@ -304,6 +314,25 @@ function dot(val,isGoodWhenNein){
   return '<span class="dot '+(good?'dot-green':'dot-red')+'">'+(good?'&#10003;':'!'+'</span>');
 }
 
+function deleteEntry(id, name){
+  var overlay=document.createElement('div');
+  overlay.className='confirm-overlay';
+  overlay.innerHTML='<div class="confirm-box"><h3>Eintrag loeschen?</h3><p>'+name+'</p><div class="confirm-btns"><button class="btn-cancel" onclick="this.closest('.confirm-overlay').remove()">Abbrechen</button><button class="btn-delete" onclick="confirmDelete('+id+',this)">Loeschen</button></div></div>';
+  document.body.appendChild(overlay);
+}
+function confirmDelete(id, btn){
+  btn.textContent='...';
+  btn.disabled=true;
+  fetch(SB_URL+'/rest/v1/cb_survey_responses?id=eq.'+id,{
+    method:'DELETE',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  }).then(function(){
+    document.querySelector('.confirm-overlay').remove();
+    loadResults();
+  }).catch(function(){
+    btn.textContent='Fehler';
+  });
+}
 function loadResults(){
   var wrap=document.getElementById('overview-table-wrap');
   var ib=document.getElementById('issues-block');
@@ -336,7 +365,7 @@ function loadResults(){
     } else {
       var html='<div class="issues-section"><div class="section-title">&#9888; Einschraenkungen ('+issues.length+')</div>';
       issues.forEach(function(r){
-        html+='<div class="issue-card"><div class="issue-name">'+r.name+'</div>';
+        html+='<div class="issue-card"><div class="issue-name" style="display:flex;justify-content:space-between;align-items:center">'+r.name+'<button class="del-btn" onclick="deleteEntry('+r.id+',\''+r.name+'\')" title="Loeschen">&#10005;</button></div>';
         if(r.verletzung==='Ja')html+='<div class="issue-row"><span class="issue-label">Verletzt:</span><span class="issue-val"><span class="badge badge-red">Ja</span></span></div>'+(r.verletzung_detail?'<div class="issue-detail" style="padding-left:98px">'+r.verletzung_detail+'</div>':'');
         if(r.krank==='Ja')html+='<div class="issue-row"><span class="issue-label">Krank:</span><span class="issue-val"><span class="badge badge-red">Ja</span></span></div>'+(r.krank_detail?'<div class="issue-detail" style="padding-left:98px">'+r.krank_detail+'</div>':'');
         if(r.fit==='Nein')html+='<div class="issue-row"><span class="issue-label">Nicht 100% fit:</span><span class="issue-val"><span class="badge badge-red">Nein</span></span></div>'+(r.fit_detail?'<div class="issue-detail" style="padding-left:98px">'+r.fit_detail+'</div>':'');
@@ -354,7 +383,7 @@ function loadResults(){
     tbl+='<th title="Krank">Krank</th>';
     tbl+='<th title="Ligaspiel">Liga</th>';
     tbl+='<th title="100% fit">Fit</th>';
-    tbl+='<th style="font-size:10px;color:#bbb">Uhrzeit</th>';
+    tbl+='<th style="font-size:10px;color:#bbb">Uhrzeit</th><th></th>';
     tbl+='</tr></thead><tbody>';
     all.forEach(function(r){
       var prob=r.verletzung==='Ja'||r.krank==='Ja'||r.fit==='Nein';
@@ -368,6 +397,7 @@ function loadResults(){
         '<td><span class="dot '+(r.ligaspiel==='Ja'?'dot-red':'dot-green')+'">'+(r.ligaspiel==='Ja'?'!':'&#10003;')+'</span></td>'+
         '<td><span class="dot '+(r.fit==='Nein'?'dot-red':'dot-green')+'">'+(r.fit==='Nein'?'!':'&#10003;')+'</span></td>'+
         '<td style="font-size:11px;color:#bbb">'+dateStr+' '+time+'</td>'+
+        '<td><button class="del-btn" onclick="deleteEntry('+r.id+',\''+r.name+'\')" title="Loeschen">&#10005;</button></td>'+
         '</tr>';
     });
     tbl+='</tbody></table>';
