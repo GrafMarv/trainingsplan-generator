@@ -227,7 +227,6 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1D9
 var SB_URL='https://upfeswxpeemjkidaamym.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwZmVzd3hwZWVtamtpZGFhbXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDY1NjIsImV4cCI6MjA5NDg4MjU2Mn0.ys3BVPw8WZ0kyDcMsPTFTAHLhULWLCOOztIjl1idY64';
 var answers={};
-if(window.location.hash==='#trainer'){switchView('pw');}
 
 function pick(btn,q,v){
   document.querySelectorAll('[data-q="'+q+'"]').forEach(function(b){b.classList.remove('btn-green','btn-red');});
@@ -407,6 +406,7 @@ function loadResults(){
     wrap.innerHTML='<div class="empty">Fehler beim Laden.</div>';
   });
 }
+window.addEventListener('load',function(){if(window.location.hash==='#trainer'){switchView('pw');}});
 </script>
 </body>
 </html>
