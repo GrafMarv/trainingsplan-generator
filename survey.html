@@ -3,25 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lehrgang-Check - DHB Feldhockey</title><!-- ok -->
+<title>Tagescheck - DHB Feldhockey</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
 .screen{display:none}.screen.active{display:block}
 .container{max-width:560px;margin:0 auto;padding:1.5rem 1rem 3rem}
-.logo{font-size:12px;color:#888;margin-bottom:2rem;letter-spacing:0.06em;text-transform:uppercase}
+.logo-text{font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2rem}
 h1{font-size:22px;font-weight:600;margin-bottom:0.4rem}
 .subtitle{font-size:14px;color:#666;margin-bottom:2rem}
 .question{background:#fff;border:1px solid #e8e8e6;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
 .q-label{font-size:12px;color:#999;margin-bottom:0.4rem}
-.q-text{font-size:15px;font-weight:500;margin-bottom:1rem;line-height:1.4}
+.q-text{font-size:15px;font-weight:500;margin-bottom:1.25rem;line-height:1.4}
+
+/* Slider */
+.slider-wrap{padding:0 0.25rem}
+.slider-labels{display:flex;justify-content:space-between;margin-bottom:0.6rem;font-size:13px;color:#666}
+.slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#e0e0e0;outline:none;cursor:pointer}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;background:#1D9E75;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
+.slider::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:#1D9E75;cursor:pointer;border:none;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
+.slider-value{text-align:center;margin-top:0.6rem;font-size:22px;font-weight:700;color:#1D9E75;min-height:32px}
+
+/* Radio buttons */
 .radio-group{display:flex;gap:8px}
 .radio-btn{flex:1;border:2px solid #ddd;border-radius:8px;padding:11px 0;font-size:15px;font-weight:600;cursor:pointer;background:#f5f5f3;color:#999;transition:all 0.12s;text-align:center}
 .radio-btn:active{transform:scale(0.97)}
 .btn-green{background:#1D9E75;border-color:#0F6E56;color:#fff;box-shadow:0 0 0 3px #9FE1CB}
 .btn-red{background:#E24B4A;border-color:#A32D2D;color:#fff;box-shadow:0 0 0 3px #F7C1C1}
+
 .detail-field{margin-top:0.75rem}
-textarea{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;resize:vertical;min-height:80px;background:#fafafa;color:#1a1a1a}
+textarea{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;resize:vertical;min-height:75px;background:#fafafa;color:#1a1a1a}
 textarea:focus{outline:none;border-color:#1D9E75}
 input[type=text],input[type=password]{width:100%;border:1px solid #ddd;border-radius:8px;padding:11px 12px;font-size:15px;font-family:inherit;background:#fafafa;color:#1a1a1a}
 input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1D9E75}
@@ -33,34 +44,67 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1D9
 .pw-wrap{max-width:300px;margin:4rem auto;text-align:center}
 .pw-wrap h2{font-size:18px;font-weight:600;margin-bottom:1.5rem}
 .pw-err{color:#E24B4A;font-size:13px;margin-top:8px;display:none}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem}
-.stat-card{background:#fff;border:1px solid #e8e8e6;border-radius:10px;padding:0.85rem;text-align:center}
-.stat-num{font-size:24px;font-weight:600}
-.stat-lbl{font-size:11px;color:#999;margin-top:2px}
-.result-card{background:#fff;border:1px solid #e8e8e6;border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem}
-.result-name{font-size:15px;font-weight:600;margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid #f0f0ee}
-.result-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;font-size:13px;gap:12px}
-.result-row-label{color:#888;flex-shrink:0}
-.result-row-val{text-align:right}
-.badge{display:inline-block;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:500}
-.badge-green{background:#E1F5EE;color:#0F6E56}
-.badge-red{background:#FCEBEB;color:#A32D2D}
-.refresh-btn{font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#666;cursor:pointer}
-.empty{text-align:center;padding:2.5rem;color:#999;font-size:14px}
-.loading-msg{text-align:center;padding:2rem;color:#999;font-size:14px}
 .back-link{text-align:center;margin-top:1rem;font-size:12px;color:#999}
 .back-link span{cursor:pointer;text-decoration:underline}
-.trainer-link{text-align:center;margin-top:1rem;font-size:12px;color:#ccc}
-.trainer-link span{cursor:pointer;text-decoration:underline}
+
+/* Auswertung */
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.refresh-btn{font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#666;cursor:pointer}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem}
+.stat-card{background:#fff;border:1px solid #e8e8e6;border-radius:10px;padding:0.85rem;text-align:center}
+.stat-num{font-size:22px;font-weight:700}
+.stat-lbl{font-size:10px;color:#999;margin-top:2px;line-height:1.3}
+.overview-section{background:#fff;border:1px solid #e8e8e6;border-radius:12px;margin-bottom:1.25rem;overflow:hidden}
+.overview-title{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;padding:0.75rem 1rem;border-bottom:1px solid #f0f0ee;background:#fafafa}
+.overview-table{width:100%;border-collapse:collapse}
+.overview-table th{font-size:11px;color:#999;font-weight:500;padding:6px 8px;text-align:center;border-bottom:1px solid #f0f0ee}
+.overview-table th.name-col{text-align:left;padding-left:1rem}
+.overview-table td{padding:8px;text-align:center;border-bottom:1px solid #f8f8f6;vertical-align:middle;font-size:13px}
+.overview-table td.name-col{text-align:left;padding-left:1rem;font-size:14px;font-weight:500}
+.overview-table tr:last-child td{border-bottom:none}
+.overview-table tr.has-issue{background:#fffafa}
+.dot{display:inline-block;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;line-height:22px;text-align:center}
+.dot-green{background:#E1F5EE;color:#0F6E56}
+.dot-red{background:#FCEBEB;color:#A32D2D}
+.dot-amber{background:#FEF3C7;color:#92400E}
+.issues-section{margin-bottom:1.25rem}
+.section-title{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.6rem}
+.issue-card{background:#fff;border:1px solid #e8e8e6;border-left:3px solid #E24B4A;border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.6rem}
+.issue-name{font-size:15px;font-weight:600;margin-bottom:0.6rem;display:flex;justify-content:space-between;align-items:center}
+.issue-row{display:flex;align-items:flex-start;gap:8px;padding:3px 0;font-size:13px}
+.issue-label{color:#888;min-width:110px;flex-shrink:0}
+.issue-detail{font-size:12px;color:#888;margin-top:2px;padding-left:118px}
+.badge{display:inline-block;padding:1px 9px;border-radius:6px;font-size:12px;font-weight:500}
+.badge-green{background:#E1F5EE;color:#0F6E56}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:16px;padding:2px 6px;border-radius:4px;transition:color 0.15s}
+.del-btn:hover{color:#E24B4A}
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:999}
+.confirm-box{background:#fff;border-radius:14px;padding:1.5rem;max-width:300px;width:90%;text-align:center}
+.confirm-box h3{font-size:16px;font-weight:600;margin-bottom:0.5rem}
+.confirm-box p{font-size:14px;color:#666;margin-bottom:1.25rem}
+.confirm-btns{display:flex;gap:8px}
+.confirm-btns button{flex:1;padding:11px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer}
+.btn-cancel{background:#f0f0ee;color:#666}
+.btn-delete{background:#E24B4A;color:#fff}
+.empty{text-align:center;padding:2.5rem;color:#999;font-size:14px}
+.loading-msg{text-align:center;padding:2rem;color:#999;font-size:14px}
+.no-issues{background:#f0faf5;border:1px solid #c8ead9;border-radius:10px;padding:0.85rem 1rem;font-size:14px;color:#0F6E56;margin-bottom:1.25rem;text-align:center}
+.sleep-bar{display:flex;gap:3px;align-items:center;justify-content:center}
+.sleep-dot{width:10px;height:10px;border-radius:50%;background:#e0e0e0}
+.sleep-dot.on{background:#1D9E75}
+.sleep-dot.amber{background:#F59E0B}
+.sleep-dot.red{background:#E24B4A}
 </style>
 </head>
 <body>
 
+<!-- UMFRAGE -->
 <div id="screen-survey" class="screen active">
   <div class="container">
-    <div class="logo">Coaching Brain &middot; DHB Feldhockey</div>
-    <h1>Lehrgang-Check</h1>
-    <p class="subtitle">Beantworte bitte alle Fragen. Dauert unter 2 Minuten.</p>
+    <div class="logo-text">Coaching Brain &middot; DHB Feldhockey</div>
+    <h1>Tagescheck</h1>
+    <p class="subtitle">Beantworte bitte alle Fragen ehrlich.</p>
 
     <div class="question">
       <div class="q-label">Frage 1</div>
@@ -71,62 +115,68 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1D9
 
     <div class="question">
       <div class="q-label">Frage 2</div>
-      <div class="q-text">Warst du in den letzten 2 Wochen verletzt, sodass du ein Training aussetzen oder nicht voll beenden konntest?</div>
-      <div class="radio-group">
-        <button class="radio-btn" data-q="verletzung" data-v="Ja" onclick="pick(this,'verletzung','Ja')">Ja</button>
-        <button class="radio-btn" data-q="verletzung" data-v="Nein" onclick="pick(this,'verletzung','Nein')">Nein</button>
+      <div class="q-text">Wie hast du geschlafen?</div>
+      <div class="slider-wrap">
+        <div class="slider-labels"><span>Schlecht</span><span>Sehr gut</span></div>
+        <input type="range" class="slider" id="q-schlaf" min="1" max="5" value="3" oninput="updateSlider('schlaf',this.value)" />
+        <div class="slider-value" id="val-schlaf"></div>
       </div>
-      <div class="detail-field" id="detail-verletzung" style="display:none">
-        <textarea id="text-verletzung" placeholder="Beschreibung..."></textarea>
-        <div class="error" id="err-verletzung-text">Bitte kurz beschreiben.</div>
-      </div>
-      <div class="error" id="err-verletzung">Bitte auswaehlen.</div>
     </div>
 
     <div class="question">
       <div class="q-label">Frage 3</div>
-      <div class="q-text">Warst du in den letzten 2 Wochen krank, sodass du ein oder mehrere Trainings aussetzen musstest?</div>
-      <div class="radio-group">
-        <button class="radio-btn" data-q="krank" data-v="Ja" onclick="pick(this,'krank','Ja')">Ja</button>
-        <button class="radio-btn" data-q="krank" data-v="Nein" onclick="pick(this,'krank','Nein')">Nein</button>
+      <div class="q-text">Wie viel Muskelkater hast du?</div>
+      <div class="slider-wrap">
+        <div class="slider-labels"><span>Gar keinen</span><span>Sehr viel</span></div>
+        <input type="range" class="slider" id="q-muskelkater" min="1" max="5" value="1" oninput="updateSlider('muskelkater',this.value)" />
+        <div class="slider-value" id="val-muskelkater"></div>
       </div>
-      <div class="detail-field" id="detail-krank" style="display:none">
-        <textarea id="text-krank" placeholder="Beschreibung..."></textarea>
-        <div class="error" id="err-krank-text">Bitte kurz beschreiben.</div>
-      </div>
-      <div class="error" id="err-krank">Bitte auswaehlen.</div>
     </div>
 
     <div class="question">
       <div class="q-label">Frage 4</div>
-      <div class="q-text">Hast du am Sonntag vor dem Lehrgang ein Ligaspiel, an dem du teilnimmst?</div>
+      <div class="q-text">Hast du Schmerzen?</div>
       <div class="radio-group">
-        <button class="radio-btn" data-q="ligaspiel" data-v="Ja" onclick="pick(this,'ligaspiel','Ja')">Ja</button>
-        <button class="radio-btn" data-q="ligaspiel" data-v="Nein" onclick="pick(this,'ligaspiel','Nein')">Nein</button>
+        <button class="radio-btn" data-q="schmerzen" data-v="Ja" onclick="pick(this,'schmerzen','Ja')">Ja</button>
+        <button class="radio-btn" data-q="schmerzen" data-v="Nein" onclick="pick(this,'schmerzen','Nein')">Nein</button>
       </div>
-      <div class="error" id="err-ligaspiel">Bitte auswaehlen.</div>
+      <div class="detail-field" id="detail-schmerzen" style="display:none">
+        <textarea id="text-schmerzen" placeholder="Wo?"></textarea>
+        <div class="error" id="err-schmerzen-text">Bitte beschreiben wo.</div>
+      </div>
+      <div class="error" id="err-schmerzen">Bitte auswaehlen.</div>
     </div>
 
     <div class="question">
       <div class="q-label">Frage 5</div>
-      <div class="q-text">Bist du 100% fit fuer den Lehrgang?</div>
+      <div class="q-text">Hast du Krankheitssymptome?</div>
       <div class="radio-group">
-        <button class="radio-btn" data-q="fit" data-v="Ja" onclick="pick(this,'fit','Ja')">Ja</button>
-        <button class="radio-btn" data-q="fit" data-v="Nein" onclick="pick(this,'fit','Nein')">Nein</button>
+        <button class="radio-btn" data-q="krankheit" data-v="Ja" onclick="pick(this,'krankheit','Ja')">Ja</button>
+        <button class="radio-btn" data-q="krankheit" data-v="Nein" onclick="pick(this,'krankheit','Nein')">Nein</button>
       </div>
-      <div class="detail-field" id="detail-fit" style="display:none">
-        <textarea id="text-fit" placeholder="Was schraenkt dich ein?"></textarea>
-        <div class="error" id="err-fit-text">Bitte kurz beschreiben.</div>
+      <div class="detail-field" id="detail-krankheit" style="display:none">
+        <textarea id="text-krankheit" placeholder="Welche?"></textarea>
+        <div class="error" id="err-krankheit-text">Bitte beschreiben welche.</div>
       </div>
-      <div class="error" id="err-fit">Bitte auswaehlen.</div>
+      <div class="error" id="err-krankheit">Bitte auswaehlen.</div>
+    </div>
+
+    <div class="question">
+      <div class="q-label">Frage 6</div>
+      <div class="q-text">Bist du heute 100% einsatzfaehig?</div>
+      <div class="radio-group">
+        <button class="radio-btn" data-q="einsatzfaehig" data-v="Ja" onclick="pick(this,'einsatzfaehig','Ja')">Ja</button>
+        <button class="radio-btn" data-q="einsatzfaehig" data-v="Nein" onclick="pick(this,'einsatzfaehig','Nein')">Nein</button>
+      </div>
+      <div class="error" id="err-einsatzfaehig">Bitte auswaehlen.</div>
     </div>
 
     <div class="error" id="err-global" style="margin-bottom:0.5rem;font-size:14px;"></div>
     <button class="submit-btn" id="submit-btn" onclick="submitForm()">Absenden</button>
-    <div class="trainer-link"><span onclick="switchView('pw')">Auswertung (Trainer)</span></div>
   </div>
 </div>
 
+<!-- ERFOLG -->
 <div id="screen-success" class="screen">
   <div class="container">
     <div class="success-screen">
@@ -137,6 +187,7 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1D9
   </div>
 </div>
 
+<!-- PASSWORT -->
 <div id="screen-pw" class="screen">
   <div class="container">
     <div class="pw-wrap">
@@ -149,21 +200,30 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1D9
   </div>
 </div>
 
+<!-- AUSWERTUNG -->
 <div id="screen-results" class="screen">
   <div class="container">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+    <div class="results-header">
       <div>
-        <div class="logo">Coaching Brain &middot; Auswertung</div>
-        <h1>Lehrgang-Check</h1>
+        <div class="logo-text" style="margin-bottom:0.2rem">Auswertung &middot; DHB Feldhockey</div>
+        <h1 style="font-size:18px">Tagescheck</h1>
       </div>
       <button class="refresh-btn" onclick="loadResults()">&#8635; Aktualisieren</button>
     </div>
+
     <div class="stat-grid">
       <div class="stat-card"><div class="stat-num" id="stat-total">-</div><div class="stat-lbl">Antworten</div></div>
-      <div class="stat-card"><div class="stat-num" id="stat-fit" style="color:#1D9E75">-</div><div class="stat-lbl">100% fit</div></div>
-      <div class="stat-card"><div class="stat-num" id="stat-issues" style="color:#E24B4A">-</div><div class="stat-lbl">Einschraenkungen</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-bereit" style="color:#1D9E75">-</div><div class="stat-lbl">100% bereit</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-issues" style="color:#E24B4A">-</div><div class="stat-lbl">Einschraenkung</div></div>
     </div>
-    <div id="results-list"></div>
+
+    <div id="issues-block"></div>
+
+    <div class="overview-section">
+      <div class="overview-title">Alle Antworten</div>
+      <div id="overview-table-wrap"><div class="loading-msg">Wird geladen...</div></div>
+    </div>
+
     <div class="back-link"><span onclick="switchView('survey')">Zurueck zur Umfrage</span></div>
   </div>
 </div>
@@ -172,16 +232,31 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1D9
 var SB_URL='https://upfeswxpeemjkidaamym.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwZmVzd3hwZWVtamtpZGFhbXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDY1NjIsImV4cCI6MjA5NDg4MjU2Mn0.ys3BVPw8WZ0kyDcMsPTFTAHLhULWLCOOztIjl1idY64';
 var answers={};
+var pendingDeleteId=null;
+var pendingDeleteName='';
+
+var sliderEmoji={1:'😴',2:'😑',3:'😐',4:'🙂',5:'😄'};
+var muskelEmoji={1:'💪',2:'🟡',3:'🟠',4:'🔴',5:'🔥'};
+
+function updateSlider(type, val){
+  val=parseInt(val);
+  if(type==='schlaf'){
+    document.getElementById('val-schlaf').textContent=sliderEmoji[val];
+    answers.schlaf=val;
+  } else {
+    document.getElementById('val-muskelkater').textContent=muskelEmoji[val];
+    answers.muskelkater=val;
+  }
+}
 
 function pick(btn,q,v){
   document.querySelectorAll('[data-q="'+q+'"]').forEach(function(b){b.classList.remove('btn-green','btn-red');});
-  var positive=(q==='fit')?(v==='Ja'):(v==='Nein');
+  var positive=(q==='einsatzfaehig')?(v==='Ja'):(v==='Nein');
   btn.classList.add(positive?'btn-green':'btn-red');
   answers[q]=v;
   var det=document.getElementById('detail-'+q);
   if(det){
-    var show=(v==='Ja'&&(q==='verletzung'||q==='krank'))||(v==='Nein'&&q==='fit');
-    det.style.display=show?'block':'none';
+    det.style.display=(v==='Ja')?'block':'none';
   }
   document.getElementById('err-'+q).style.display='none';
 }
@@ -207,39 +282,41 @@ function submitForm(){
   var name=document.getElementById('q-name').value.trim();
   if(!name){document.getElementById('err-name').style.display='block';valid=false;}
   else document.getElementById('err-name').style.display='none';
-  ['verletzung','krank','ligaspiel','fit'].forEach(function(q){
+
+  if(!answers.schlaf){answers.schlaf=parseInt(document.getElementById('q-schlaf').value);}
+  if(!answers.muskelkater){answers.muskelkater=parseInt(document.getElementById('q-muskelkater').value);}
+
+  ['schmerzen','krankheit','einsatzfaehig'].forEach(function(q){
     if(!answers[q]){document.getElementById('err-'+q).style.display='block';valid=false;}
     else document.getElementById('err-'+q).style.display='none';
   });
-  if(answers.verletzung==='Ja'){
-    var t=document.getElementById('text-verletzung').value.trim();
-    if(!t){document.getElementById('err-verletzung-text').style.display='block';valid=false;}
-    else document.getElementById('err-verletzung-text').style.display='none';
+
+  if(answers.schmerzen==='Ja'){
+    var t=document.getElementById('text-schmerzen').value.trim();
+    if(!t){document.getElementById('err-schmerzen-text').style.display='block';valid=false;}
+    else document.getElementById('err-schmerzen-text').style.display='none';
   }
-  if(answers.krank==='Ja'){
-    var t2=document.getElementById('text-krank').value.trim();
-    if(!t2){document.getElementById('err-krank-text').style.display='block';valid=false;}
-    else document.getElementById('err-krank-text').style.display='none';
+  if(answers.krankheit==='Ja'){
+    var t2=document.getElementById('text-krankheit').value.trim();
+    if(!t2){document.getElementById('err-krankheit-text').style.display='block';valid=false;}
+    else document.getElementById('err-krankheit-text').style.display='none';
   }
-  if(answers.fit==='Nein'){
-    var t3=document.getElementById('text-fit').value.trim();
-    if(!t3){document.getElementById('err-fit-text').style.display='block';valid=false;}
-    else document.getElementById('err-fit-text').style.display='none';
-  }
+
   if(!valid)return;
   var btn=document.getElementById('submit-btn');
-  btn.disabled=true;
-  btn.textContent='Wird gespeichert...';
+  btn.disabled=true;btn.textContent='Wird gespeichert...';
+
   var payload={
     name:name,
-    verletzung:answers.verletzung,
-    verletzung_detail:answers.verletzung==='Ja'?document.getElementById('text-verletzung').value.trim():null,
-    krank:answers.krank,
-    krank_detail:answers.krank==='Ja'?document.getElementById('text-krank').value.trim():null,
-    ligaspiel:answers.ligaspiel,
-    fit:answers.fit,
-    fit_detail:answers.fit==='Nein'?document.getElementById('text-fit').value.trim():null
+    schlaf:answers.schlaf,
+    muskelkater:answers.muskelkater,
+    schmerzen:answers.schmerzen,
+    schmerzen_detail:answers.schmerzen==='Ja'?document.getElementById('text-schmerzen').value.trim():null,
+    krankheit:answers.krankheit,
+    krankheit_detail:answers.krankheit==='Ja'?document.getElementById('text-krankheit').value.trim():null,
+    einsatzfaehig:answers.einsatzfaehig
   };
+
   fetch(SB_URL+'/rest/v1/cb_survey_responses',{
     method:'POST',
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
@@ -251,37 +328,100 @@ function submitForm(){
     var g=document.getElementById('err-global');
     g.textContent='Fehler beim Speichern. Bitte nochmal versuchen.';
     g.style.display='block';
-    btn.disabled=false;
-    btn.textContent='Absenden';
+    btn.disabled=false;btn.textContent='Absenden';
   });
 }
 
+function schlafColor(v){return v<=2?'dot-red':v===3?'dot-amber':'dot-green';}
+function muskelColor(v){return v>=4?'dot-red':v===3?'dot-amber':'dot-green';}
+
+function showDeleteConfirm(id,name){
+  pendingDeleteId=id;pendingDeleteName=name;
+  var overlay=document.createElement('div');
+  overlay.className='confirm-overlay';overlay.id='del-overlay';
+  overlay.innerHTML='<div class="confirm-box"><h3>Eintrag loeschen?</h3><p>'+name+'</p><div class="confirm-btns"><button class="btn-cancel" onclick="document.getElementById(\'del-overlay\').remove()">Abbrechen</button><button class="btn-delete" id="del-confirm-btn" onclick="doDelete()">Loeschen</button></div></div>';
+  document.body.appendChild(overlay);
+}
+
+function doDelete(){
+  var btn=document.getElementById('del-confirm-btn');
+  btn.textContent='...';btn.disabled=true;
+  fetch(SB_URL+'/rest/v1/cb_survey_responses?id=eq.'+pendingDeleteId,{
+    method:'DELETE',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  }).then(function(){
+    var ov=document.getElementById('del-overlay');
+    if(ov)ov.remove();
+    loadResults();
+  }).catch(function(){btn.textContent='Fehler';});
+}
+
 function loadResults(){
-  var list=document.getElementById('results-list');
-  list.innerHTML='<div class="loading-msg">Wird geladen...</div>';
+  var wrap=document.getElementById('overview-table-wrap');
+  var ib=document.getElementById('issues-block');
+  wrap.innerHTML='<div class="loading-msg">Wird geladen...</div>';
+  ib.innerHTML='';
   fetch(SB_URL+'/rest/v1/cb_survey_responses?select=*&order=created_at.desc',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
   }).then(function(res){return res.json();}).then(function(all){
+    if(!Array.isArray(all)||!all.length){
+      document.getElementById('stat-total').textContent='0';
+      document.getElementById('stat-bereit').textContent='0';
+      document.getElementById('stat-issues').textContent='0';
+      wrap.innerHTML='<div class="empty">Noch keine Antworten.</div>';
+      return;
+    }
     document.getElementById('stat-total').textContent=all.length;
-    document.getElementById('stat-fit').textContent=all.filter(function(r){return r.fit==='Ja';}).length;
-    document.getElementById('stat-issues').textContent=all.filter(function(r){return r.verletzung==='Ja'||r.krank==='Ja'||r.fit==='Nein';}).length;
-    if(!all.length){list.innerHTML='<div class="empty">Noch keine Antworten.</div>';return;}
-    list.innerHTML=all.map(function(r){
-      var prob=r.verletzung==='Ja'||r.krank==='Ja'||r.fit==='Nein';
-      var dt=new Date(r.created_at).toLocaleString('de-DE');
-      return '<div class="result-card" style="border-left:3px solid '+(prob?'#E24B4A':'#1D9E75')+';">'+
-        '<div class="result-name">'+r.name+' <span style="font-size:11px;color:#999;font-weight:400;">'+dt+'</span></div>'+
-        '<div class="result-row"><span class="result-row-label">Verletzt</span><div class="result-row-val"><span class="badge '+(r.verletzung==='Ja'?'badge-red':'badge-green')+'">'+r.verletzung+'</span>'+(r.verletzung_detail?'<br><span style="font-size:12px;color:#888;">'+r.verletzung_detail+'</span>':'')+'</div></div>'+
-        '<div class="result-row"><span class="result-row-label">Krank</span><div class="result-row-val"><span class="badge '+(r.krank==='Ja'?'badge-red':'badge-green')+'">'+r.krank+'</span>'+(r.krank_detail?'<br><span style="font-size:12px;color:#888;">'+r.krank_detail+'</span>':'')+'</div></div>'+
-        '<div class="result-row"><span class="result-row-label">Ligaspiel Sonntag</span><div class="result-row-val"><span class="badge '+(r.ligaspiel==='Ja'?'badge-red':'badge-green')+'">'+r.ligaspiel+'</span></div></div>'+
-        '<div class="result-row"><span class="result-row-label">100% fit</span><div class="result-row-val"><span class="badge '+(r.fit==='Ja'?'badge-green':'badge-red')+'">'+r.fit+'</span>'+(r.fit_detail?'<br><span style="font-size:12px;color:#888;">'+r.fit_detail+'</span>':'')+'</div></div>'+
-        '</div>';
-    }).join('');
-  }).catch(function(){
-    list.innerHTML='<div class="empty">Fehler beim Laden.</div>';
-  });
+    document.getElementById('stat-bereit').textContent=all.filter(function(r){return r.einsatzfaehig==='Ja'&&r.schmerzen==='Nein'&&r.krankheit==='Nein';}).length;
+    document.getElementById('stat-issues').textContent=all.filter(function(r){return r.einsatzfaehig==='Nein'||r.schmerzen==='Ja'||r.krankheit==='Ja';}).length;
+
+    var issues=all.filter(function(r){return r.einsatzfaehig==='Nein'||r.schmerzen==='Ja'||r.krankheit==='Ja';});
+    if(issues.length===0){
+      ib.innerHTML='<div class="no-issues">&#10003; Alle Spieler ohne Einschraenkungen</div>';
+    } else {
+      var h='<div class="issues-section"><div class="section-title">&#9888; Einschraenkungen ('+issues.length+')</div>';
+      issues.forEach(function(r){
+        h+='<div class="issue-card"><div class="issue-name"><span>'+r.name+'</span><button class="del-btn" data-id="'+r.id+'" data-name="'+r.name.replace(/"/g,'')+'">&#10005;</button></div>';
+        if(r.schmerzen==='Ja'){h+='<div class="issue-row"><span class="issue-label">Schmerzen:</span><span class="badge badge-red">Ja</span></div>';if(r.schmerzen_detail)h+='<div class="issue-detail">'+r.schmerzen_detail+'</div>';}
+        if(r.krankheit==='Ja'){h+='<div class="issue-row"><span class="issue-label">Krankheit:</span><span class="badge badge-red">Ja</span></div>';if(r.krankheit_detail)h+='<div class="issue-detail">'+r.krankheit_detail+'</div>';}
+        if(r.einsatzfaehig==='Nein'){h+='<div class="issue-row"><span class="issue-label">Nicht bereit:</span><span class="badge badge-red">Nein</span></div>';}
+        h+='<div class="issue-row"><span class="issue-label">Schlaf:</span><span>'+['','😴','😑','😐','🙂','😄'][r.schlaf]+'</span></div>';
+        h+='<div class="issue-row"><span class="issue-label">Muskelkater:</span><span>'+['','💪','🟡','🟠','🔴','🔥'][r.muskelkater]+'</span></div>';
+        h+='</div>';
+      });
+      h+='</div>';
+      ib.innerHTML=h;
+    }
+
+    var tbl='<table class="overview-table"><thead><tr><th class="name-col">Name</th><th>Schlaf</th><th>Kater</th><th>Schmerz</th><th>Krank</th><th>Bereit</th><th></th></tr></thead><tbody>';
+    all.forEach(function(r){
+      var prob=r.einsatzfaehig==='Nein'||r.schmerzen==='Ja'||r.krankheit==='Ja';
+      tbl+='<tr'+(prob?' class="has-issue"':'')+'>'+
+        '<td class="name-col">'+r.name+'</td>'+
+        '<td><span class="dot '+schlafColor(r.schlaf)+'">'+r.schlaf+'</span></td>'+
+        '<td><span class="dot '+muskelColor(r.muskelkater)+'">'+r.muskelkater+'</span></td>'+
+        '<td><span class="dot '+(r.schmerzen==='Ja'?'dot-red':'dot-green')+'">'+(r.schmerzen==='Ja'?'!':'&#10003;')+'</span></td>'+
+        '<td><span class="dot '+(r.krankheit==='Ja'?'dot-red':'dot-green')+'">'+(r.krankheit==='Ja'?'!':'&#10003;')+'</span></td>'+
+        '<td><span class="dot '+(r.einsatzfaehig==='Nein'?'dot-red':'dot-green')+'">'+(r.einsatzfaehig==='Nein'?'!':'&#10003;')+'</span></td>'+
+        '<td><button class="del-btn" data-id="'+r.id+'" data-name="'+r.name.replace(/"/g,'')+'">&#10005;</button></td>'+
+        '</tr>';
+    });
+    tbl+='</tbody></table>';
+    wrap.innerHTML=tbl;
+
+    document.querySelectorAll('.del-btn').forEach(function(b){
+      b.addEventListener('click',function(){showDeleteConfirm(this.getAttribute('data-id'),this.getAttribute('data-name'));});
+    });
+  }).catch(function(){wrap.innerHTML='<div class="empty">Fehler beim Laden.</div>';});
 }
-window.addEventListener('load',function(){if(window.location.hash==='#trainer'){switchView('pw');}});
+
+// Init sliders
+updateSlider('schlaf',3);
+updateSlider('muskelkater',1);
+
+window.addEventListener('load',function(){
+  if(window.location.hash==='#trainer'){switchView('pw');}
+});
 </script>
 </body>
 </html>
