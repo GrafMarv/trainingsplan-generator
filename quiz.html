@@ -364,7 +364,8 @@ function checkPw(){
   if(document.getElementById('mpw').value==='2804'){
     document.getElementById('mpw-err').style.display='none';
     go('master');
-    renderBonusGrid();renderScore();
+    renderBonusGrid();
+    loadScores(function(){renderScore();});
     masterPoll();
   } else {
     document.getElementById('mpw-err').style.display='block';
@@ -374,7 +375,7 @@ function checkPw(){
 function masterPoll(){
   setInterval(function(){
     if(G.q>=0)loadAns(G.q);
-    renderScore();
+    loadScores(function(){renderScore();});
   },3000);
 }
 
@@ -476,6 +477,7 @@ function loadAns(qi){
             G.scores[a.team_id]=(G.scores[a.team_id]||0)+q.pts;
           }
         });
+        saveScores();
       }
     }).catch(function(){});
 }
@@ -544,6 +546,7 @@ function giveBonus(){
   G.bonusSel.forEach(function(tid){G.scores[tid]=(G.scores[tid]||0)+5;});
   G.bonusSel=[];
   document.querySelectorAll('.bonus-btn').forEach(function(b){b.classList.remove('sel');});
+  saveScores();
   renderScore();
   alert('Bonus vergeben!');
 }
@@ -560,6 +563,29 @@ function pushState(qi){
       body:JSON.stringify({id:1,current_q:qi,started:true})
     }).catch(function(){});
   });
+}
+
+function saveScores(){
+  var payload=Object.keys(G.scores).map(function(tid){
+    return {team_id:tid,points:G.scores[tid]||0};
+  });
+  // Upsert all scores
+  sbh('/rest/v1/cb_quiz_scores',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+    body:JSON.stringify(payload)
+  }).catch(function(){});
+}
+
+function loadScores(cb){
+  sbh('/rest/v1/cb_quiz_scores?select=*')
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if(rows&&rows.length){
+        rows.forEach(function(r){G.scores[r.team_id]=r.points;});
+      }
+      if(cb)cb();
+    }).catch(function(){if(cb)cb();});
 }
 
 function resetAll(){
