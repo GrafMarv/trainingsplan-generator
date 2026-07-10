@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHB Quiz-Nacht</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;color:#fff;min-height:100vh}
+.screen{display:none}.screen.active{display:block}
+.login-wrap{max-width:420px;margin:0 auto;padding:3rem 1rem;text-align:center}
+.logo-text{font-size:12px;color:#666;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2.5rem}
+.login-title{font-size:32px;font-weight:800;margin-bottom:0.4rem}
+.login-sub{font-size:15px;color:#888;margin-bottom:2rem}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.team-btn{background:#1a1a2e;border:2px solid #2a2a3e;border-radius:12px;padding:1rem;cursor:pointer;transition:all 0.15s;text-align:center}
+.team-btn:hover{border-color:#1D9E75}
+.team-btn.selected{border-color:#1D9E75;background:#0f2a1e;box-shadow:0 0 0 3px rgba(29,158,117,0.25)}
+.team-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+.team-members{font-size:11px;color:#666}
+.big-btn{width:100%;padding:15px;border-radius:10px;border:none;background:#1D9E75;color:#fff;font-size:16px;font-weight:700;cursor:pointer}
+.big-btn:disabled{background:#222;color:#555;cursor:not-allowed}
+.waiting-wrap{text-align:center;padding:5rem 1rem}
+.team-badge{display:inline-block;background:#1D9E75;color:#fff;padding:8px 24px;border-radius:20px;font-size:16px;font-weight:700;margin:1rem 0}
+.pulse{display:inline-block;width:10px;height:10px;border-radius:50%;background:#1D9E75;animation:pulse 1.5s infinite;margin-left:8px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.question-wrap{max-width:540px;margin:0 auto;padding:1.5rem 1rem}
+.stage-pill{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:1rem}
+.s1{background:#1a3a5c;color:#60a5fa}
+.s2{background:#2d1b4e;color:#c084fc}
+.s3{background:#1a2e1a;color:#4ade80}
+.q-meta{font-size:12px;color:#555;margin-bottom:0.5rem}
+.q-text{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:1.25rem}
+.tbar-wrap{background:#1a1a2e;border-radius:4px;height:6px;margin-bottom:1.5rem;overflow:hidden}
+.tbar{height:6px;border-radius:4px;background:#1D9E75;transition:width 1s linear}
+.tbar.warn{background:#F59E0B}.tbar.danger{background:#E24B4A}
+.options{display:grid;gap:10px}
+.opt-btn{background:#1a1a2e;border:2px solid #2a2a3e;border-radius:12px;padding:1rem 1.25rem;font-size:15px;font-weight:500;color:#fff;cursor:pointer;transition:all 0.15s;text-align:left}
+.opt-btn:hover:not(:disabled){border-color:#1D9E75;background:#0f2a1e}
+.opt-btn.picked{border-color:#1D9E75;background:#0f2a1e}
+.opt-btn:disabled{opacity:0.6;cursor:not-allowed}
+.est-input{width:100%;background:#1a1a2e;border:2px solid #2a2a3e;border-radius:12px;padding:1rem;font-size:24px;font-weight:700;color:#fff;text-align:center;margin-bottom:1rem}
+.est-input:focus{outline:none;border-color:#1D9E75}
+.ans-saved{text-align:center;padding:1.25rem;background:#0f2a1e;border:2px solid #1D9E75;border-radius:12px;font-size:15px;font-weight:600;color:#1D9E75;margin-top:0.5rem}
+.pw-wrap{max-width:300px;margin:5rem auto;text-align:center}
+.pw-wrap h2{font-size:22px;font-weight:700;margin-bottom:1.5rem}
+.pw-input{width:100%;background:#1a1a2e;border:2px solid #2a2a3e;border-radius:10px;padding:12px;font-size:18px;color:#fff;text-align:center;margin-bottom:0.75rem}
+.pw-input:focus{outline:none;border-color:#1D9E75}
+.pw-err{color:#E24B4A;font-size:13px;margin-bottom:0.75rem;display:none}
+.master-wrap{max-width:960px;margin:0 auto;padding:1.25rem}
+.master-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid #1a1a2e}
+.master-logo{font-size:18px;font-weight:800}
+.master-btns{display:flex;gap:8px}
+.mbtn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer}
+.mbtn-green{background:#1D9E75;color:#fff}
+.mbtn-gray{background:#1a1a2e;color:#888;border:1px solid #2a2a3e}
+.mbtn-red{background:#E24B4A;color:#fff}
+.mbtn-amber{background:#F59E0B;color:#000}
+.master-grid{display:grid;grid-template-columns:1fr 340px;gap:1.25rem}
+.mcard{background:#1a1a2e;border-radius:16px;padding:1.25rem;margin-bottom:1.25rem}
+.mcard-title{font-size:11px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.75rem}
+.mq-stage{font-size:12px;color:#666;margin-bottom:0.25rem}
+.mq-num{font-size:13px;color:#555;margin-bottom:0.5rem}
+.mq-text{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:1rem}
+.mq-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.mq-opt{background:#0f0f1a;border:1px solid #2a2a3e;border-radius:8px;padding:0.75rem;font-size:13px;color:#888}
+.mq-opt.correct{border-color:#1D9E75;background:#0f2a1e;color:#1D9E75;font-weight:700}
+.mq-answer{background:#0f2a1e;border:1px solid #1D9E75;border-radius:8px;padding:0.75rem;font-size:16px;font-weight:700;color:#1D9E75;text-align:center;margin-bottom:1rem}
+.mtimer{font-size:56px;font-weight:900;text-align:center;color:#1D9E75;line-height:1}
+.mtimer.warn{color:#F59E0B}.mtimer.danger{color:#E24B4A}
+.mtbar-wrap{background:#2a2a3e;border-radius:4px;height:8px;margin:0.75rem 0 1rem;overflow:hidden}
+.mtbar{height:8px;border-radius:4px;background:#1D9E75;transition:width 1s linear}
+.mtbar.warn{background:#F59E0B}.mtbar.danger{background:#E24B4A}
+.mctrl{display:flex;gap:8px;margin-top:0.75rem}
+.ans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ans-cell{background:#0f0f1a;border-radius:8px;padding:7px 8px;border-left:3px solid #2a2a3e}
+.ans-cell.ok{border-left-color:#1D9E75}
+.ans-cell.bad{border-left-color:#E24B4A}
+.ans-cell.pending{border-left-color:#333}
+.ans-cell-name{font-size:10px;color:#555;margin-bottom:2px}
+.ans-cell-val{font-size:12px;font-weight:700;color:#fff}
+.score-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #0f0f1a}
+.score-row:last-child{border-bottom:none}
+.rank{font-size:16px;font-weight:900;width:24px;color:#555}
+.rank.g{color:#F59E0B}.rank.s{color:#9CA3AF}.rank.b{color:#92400E}
+.sname{flex:1;font-size:14px;font-weight:600}
+.smembers{font-size:10px;color:#555}
+.spts{font-size:20px;font-weight:900;color:#1D9E75}
+.bonus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.bonus-btn{background:#0f0f1a;border:2px solid #2a2a3e;border-radius:8px;padding:0.75rem;font-size:12px;font-weight:600;cursor:pointer;color:#fff;transition:all 0.15s}
+.bonus-btn.sel{border-color:#F59E0B;background:#2a1f00;color:#F59E0B}
+.stage-end{text-align:center;padding:2rem}
+.stage-end h2{font-size:26px;font-weight:800;margin-bottom:0.5rem}
+.stage-end p{color:#888;margin-bottom:1.5rem}
+</style>
+</head>
+<body>
+
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="logo-text">Coaching Brain &middot; DHB U16 Boys</div>
+    <div class="login-title">Quiz-Nacht &#127881;</div>
+    <div class="login-sub">Waehlt euer Zimmer</div>
+    <div class="team-grid" id="team-grid"></div>
+    <button class="big-btn" id="join-btn" disabled onclick="joinTeam()">Einloggen</button>
+  </div>
+</div>
+
+<div id="screen-waiting" class="screen">
+  <div class="waiting-wrap">
+    <div class="logo-text">Coaching Brain &middot; DHB U16 Boys</div>
+    <div style="font-size:26px;font-weight:700;margin-bottom:0.5rem">Bereit!</div>
+    <div style="font-size:14px;color:#888;margin-bottom:0.75rem">Ihr spielt als</div>
+    <div class="team-badge" id="waiting-name"></div>
+    <div style="font-size:14px;color:#555;margin-top:1rem">Warten auf den Trainer<span class="pulse"></span></div>
+  </div>
+</div>
+
+<div id="screen-question" class="screen">
+  <div class="question-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+      <span class="stage-pill s1" id="q-pill">Stage 1</span>
+      <span class="q-meta" id="q-meta">Frage 1 / 8</span>
+    </div>
+    <div class="tbar-wrap"><div class="tbar" id="ptbar" style="width:100%"></div></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+    <div id="q-est" style="display:none">
+      <input type="number" class="est-input" id="est-val" placeholder="Deine Schaetzung..." />
+      <button class="big-btn" id="est-btn" onclick="submitEst()">Abschicken</button>
+    </div>
+    <div class="ans-saved" id="ans-saved" style="display:none">&#10003; Gespeichert! Naechste Frage kommt...</div>
+  </div>
+</div>
+
+<div id="screen-pw" class="screen">
+  <div class="pw-wrap">
+    <h2>Master Login</h2>
+    <input type="password" class="pw-input" id="mpw" placeholder="Passwort" onkeydown="if(event.key==='Enter')checkPw()" />
+    <div class="pw-err" id="mpw-err">Falsches Passwort.</div>
+    <button class="big-btn" onclick="checkPw()">Weiter</button>
+  </div>
+</div>
+
+<div id="screen-master" class="screen">
+  <div class="master-wrap">
+    <div class="master-top">
+      <div class="master-logo">&#127381; Quiz-Master</div>
+      <div class="master-btns">
+        <button class="mbtn mbtn-amber" onclick="toggleBonus()">&#127942; Bonus</button>
+        <button class="mbtn mbtn-gray" onclick="toggleScore()">&#128202; Score</button>
+        <button class="mbtn mbtn-green" id="next-btn" onclick="nextQ()">Weiter &#8594;</button>
+      </div>
+    </div>
+
+    <div class="master-grid">
+      <div>
+        <div class="mcard" id="mq-card">
+          <div class="mq-stage" id="mq-stage">Stage 1 &middot; 1 Punkt</div>
+          <div class="mq-num" id="mq-num">Frage 1 von 8</div>
+          <div class="mq-text" id="mq-text">Bereit zum Starten?</div>
+          <div class="mq-opts" id="mq-opts"></div>
+          <div class="mtimer" id="mtimer">-</div>
+          <div class="mtbar-wrap"><div class="mtbar" id="mtbar" style="width:100%"></div></div>
+          <div class="mctrl">
+            <button class="mbtn mbtn-green" id="start-btn" onclick="startQuiz()" style="flex:1;padding:12px">Quiz Starten &#9654;</button>
+            <button class="mbtn mbtn-red" onclick="resetAll()" style="padding:12px">Reset</button>
+          </div>
+        </div>
+
+        <div class="mcard" id="bonus-card" style="display:none">
+          <div class="mcard-title" style="color:#F59E0B">&#127942; Bonus-Aufgabe +5 Punkte</div>
+          <p style="font-size:13px;color:#888;margin-bottom:1rem">Welche Zimmer gewinnen?</p>
+          <div class="bonus-grid" id="bonus-grid"></div>
+          <button class="mbtn mbtn-amber" onclick="giveBonus()" style="width:100%;padding:12px">Punkte vergeben</button>
+        </div>
+
+        <div class="mcard">
+          <div class="mcard-title">Antworten</div>
+          <div class="ans-grid" id="ans-grid"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="mcard" id="score-card">
+          <div class="mcard-title">Scoreboard</div>
+          <div id="score-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SB='https://upfeswxpeemjkidaamym.supabase.co';
+var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwZmVzd3hwZWVtamtpZGFhbXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDY1NjIsImV4cCI6MjA5NDg4MjU2Mn0.ys3BVPw8WZ0kyDcMsPTFTAHLhULWLCOOztIjl1idY64';
+
+var TEAMS=[
+  {id:'z1',name:'Zimmer 1',m:'Fuernthaler & Welge'},
+  {id:'z2',name:'Zimmer 2',m:'Mehling & Zeuzem'},
+  {id:'z3',name:'Zimmer 3',m:'Albrecht & Tietz'},
+  {id:'z4',name:'Zimmer 4',m:'Bunzel & Dahm'},
+  {id:'z5',name:'Zimmer 5',m:'Hauck & Polonius'},
+  {id:'z6',name:'Zimmer 6',m:'Schaarschmidt & Jagdt'},
+  {id:'z7',name:'Zimmer 7',m:'Streckel & v. Schwabe'},
+  {id:'z8',name:'Zimmer 8',m:'Huber & Kleppe'},
+  {id:'z9',name:'Zimmer 9',m:'Schymik & Brunner'}
+];
+
+var QS=[
+  {stage:1,pts:1,time:90,type:'mc',text:'In welchem Jahr fand die erste Feldhockey-WM statt?',opts:['1971','1965','1983','1978'],correct:0},
+  {stage:1,pts:1,time:90,type:'mc',text:'Wie viele Spieler stehen bei Feldhockey auf dem Feld pro Mannschaft?',opts:['9','10','11','12'],correct:2},
+  {stage:1,pts:1,time:90,type:'mc',text:'Was ist die Hauptstadt von Polen?',opts:['Krakau','Warschau','Danzig','Lodz'],correct:1},
+  {stage:1,pts:1,time:90,type:'mc',text:'Welcher Fluss fliesst durch London?',opts:['Themse','Severn','Tyne','Avon'],correct:0},
+  {stage:1,pts:1,time:90,type:'mc',text:'Wie viele Knochen hat der menschliche Koerper?',opts:['186','206','226','246'],correct:1},
+  {stage:1,pts:1,time:90,type:'mc',text:'In welchem Land wurde Feldhockey als moderner Sport erfunden?',opts:['Indien','Niederlande','England','Pakistan'],correct:2},
+  {stage:1,pts:1,time:90,type:'mc',text:'Wie viele Kontinente gibt es?',opts:['5','6','7','8'],correct:2},
+  {stage:1,pts:1,time:90,type:'mc',text:'Welche Farben hat die polnische Flagge?',opts:['Rot-Weiss','Blau-Weiss','Rot-Gelb','Weiss-Rot'],correct:3},
+  {stage:2,pts:2,time:180,type:'est',text:'Wie viele Einwohner hat Polen? (in Millionen)',answer:38,unit:'Mio'},
+  {stage:2,pts:2,time:180,type:'est',text:'Wie schnell ist der schnellste je gemessene Hockeyschuss? (in km/h)',answer:210,unit:'km/h'},
+  {stage:2,pts:2,time:180,type:'est',text:'In welchem Jahr wurde der DHB gegruendet?',answer:1909,unit:''},
+  {stage:2,pts:2,time:180,type:'est',text:'Wie lang ist ein Hockeyschlaeger maximal? (in cm)',answer:105,unit:'cm'},
+  {stage:2,pts:2,time:180,type:'est',text:'Wie schwer ist ein Hockeyball? (in Gramm)',answer:156,unit:'g'},
+  {stage:2,pts:2,time:180,type:'est',text:'Wie viele km laeuft ein Feldhockeyspieler durchschnittlich pro Spiel?',answer:9,unit:'km'},
+  {stage:2,pts:2,time:180,type:'est',text:'In welchem Jahr gewann Deutschland zuletzt Olympiagold im Feldhockey Herren?',answer:2012,unit:''},
+  {stage:2,pts:2,time:180,type:'est',text:'Wie gross ist ein Hockeyfeld in Metern (Laenge)?',answer:91,unit:'m'}
+];
+
+var G={q:-1,scores:{},scored:{},myTeam:null,bonusSel:[],showScore:true,showBonus:false,tiInt:null,pollInt:null,lastQ:-1};
+TEAMS.forEach(function(t){G.scores[t.id]=0;});
+
+// ===== ROUTING =====
+window.addEventListener('load',function(){
+  if(window.location.hash==='#master'){go('pw');}
+  else{renderGrid();go('login');playerPoll();}
+});
+
+function go(s){
+  document.querySelectorAll('.screen').forEach(function(e){e.classList.remove('active');});
+  document.getElementById('screen-'+s).classList.add('active');
+}
+
+function sbh(url,opts){
+  opts=opts||{};
+  opts.headers=opts.headers||{};
+  opts.headers['apikey']=KEY;
+  opts.headers['Authorization']='Bearer '+KEY;
+  return fetch(SB+url,opts);
+}
+
+// ===== LOGIN =====
+var selTeam=null;
+function renderGrid(){
+  var g=document.getElementById('team-grid');g.innerHTML='';
+  TEAMS.forEach(function(t){
+    var b=document.createElement('button');
+    b.className='team-btn';
+    b.innerHTML='<div class="team-name">'+t.name+'</div><div class="team-members">'+t.m+'</div>';
+    b.onclick=function(){
+      document.querySelectorAll('.team-btn').forEach(function(x){x.classList.remove('selected');});
+      b.classList.add('selected');selTeam=t;
+      document.getElementById('join-btn').disabled=false;
+    };
+    g.appendChild(b);
+  });
+}
+
+function joinTeam(){
+  if(!selTeam)return;
+  G.myTeam=selTeam;
+  document.getElementById('waiting-name').textContent=selTeam.name+' — '+selTeam.m;
+  go('waiting');
+}
+
+// ===== PLAYER POLL =====
+function playerPoll(){
+  G.pollInt=setInterval(function(){
+    if(!G.myTeam)return;
+    sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d||!d[0])return;
+        var qs=d[0];
+        if(qs.started && qs.current_q>=0 && qs.current_q!==G.lastQ){
+          G.lastQ=qs.current_q;G.q=qs.current_q;
+          showPlayerQ(qs.current_q);
+        }
+      }).catch(function(){});
+  },2500);
+}
+
+function showPlayerQ(qi){
+  var q=QS[qi];if(!q)return;
+  go('question');
+  var stageClass='s'+q.stage;
+  document.getElementById('q-pill').textContent='Stage '+q.stage;
+  document.getElementById('q-pill').className='stage-pill '+stageClass;
+  var sqi=qi<8?qi+1:qi-7;
+  document.getElementById('q-meta').textContent='Frage '+sqi+' / 8';
+  document.getElementById('q-text').textContent=q.text;
+  document.getElementById('ans-saved').style.display='none';
+
+  startPBar(q.time);
+
+  if(q.type==='mc'){
+    document.getElementById('q-options').style.display='grid';
+    document.getElementById('q-est').style.display='none';
+    var opts=document.getElementById('q-options');opts.innerHTML='';
+    q.opts.forEach(function(o,i){
+      var b=document.createElement('button');
+      b.className='opt-btn';b.textContent=o;
+      b.onclick=function(){
+        if(b.disabled)return;
+        document.querySelectorAll('.opt-btn').forEach(function(x){x.disabled=true;});
+        b.classList.add('picked');
+        document.getElementById('ans-saved').style.display='block';
+        saveAns(qi,i);
+      };
+      opts.appendChild(b);
+    });
+  } else {
+    document.getElementById('q-options').style.display='none';
+    document.getElementById('q-est').style.display='block';
+    document.getElementById('est-val').value='';
+    document.getElementById('est-val').disabled=false;
+    document.getElementById('est-btn').disabled=false;
+  }
+}
+
+function startPBar(total){
+  if(G.tiInt)clearInterval(G.tiInt);
+  var bar=document.getElementById('ptbar');
+  bar.style.width='100%';bar.className='tbar';
+  var el=0;
+  G.tiInt=setInterval(function(){
+    el++;var p=Math.max(0,(total-el)/total*100);
+    bar.style.width=p+'%';
+    if(p<30)bar.className='tbar danger';
+    else if(p<60)bar.className='tbar warn';
+    if(el>=total)clearInterval(G.tiInt);
+  },1000);
+}
+
+function submitEst(){
+  var v=document.getElementById('est-val').value.trim();
+  if(!v)return;
+  document.getElementById('est-btn').disabled=true;
+  document.getElementById('est-val').disabled=true;
+  document.getElementById('ans-saved').style.display='block';
+  saveAns(G.q,parseFloat(v));
+}
+
+function saveAns(qi,val){
+  if(!G.myTeam)return;
+  sbh('/rest/v1/cb_quiz_answers',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({team_id:G.myTeam.id,question_idx:qi,answer:String(val)})
+  }).catch(function(){});
+}
+
+// ===== MASTER =====
+function checkPw(){
+  if(document.getElementById('mpw').value==='2804'){
+    document.getElementById('mpw-err').style.display='none';
+    go('master');
+    renderBonusGrid();renderScore();
+    masterPoll();
+  } else {
+    document.getElementById('mpw-err').style.display='block';
+  }
+}
+
+function masterPoll(){
+  setInterval(function(){
+    if(G.q>=0)loadAns(G.q);
+    renderScore();
+  },3000);
+}
+
+function startQuiz(){
+  G.q=0;
+  document.getElementById('start-btn').style.display='none';
+  showMasterQ(0);
+  pushState(0);
+}
+
+function nextQ(){
+  if(G.q<0)return;
+  // Stage 1 end
+  if(G.q===7){
+    showStageEnd(1);return;
+  }
+  // Stage 2 end
+  if(G.q===15){
+    showStageEnd(2);return;
+  }
+  G.q++;
+  showMasterQ(G.q);
+  pushState(G.q);
+}
+
+function showStageEnd(stage){
+  var card=document.getElementById('mq-card');
+  card.innerHTML='<div class="stage-end"><h2>Stage '+stage+' abgeschlossen!</h2><p>Bonus-Aufgabe durchfuehren, dann weiter.</p><button class="mbtn mbtn-green" onclick="continueAfterBonus('+stage+')" style="padding:12px 24px">Weiter zu Stage '+(stage+1)+'</button></div>';
+  document.getElementById('bonus-card').style.display='block';
+}
+
+function continueAfterBonus(stage){
+  document.getElementById('bonus-card').style.display='none';
+  G.q=stage*8;
+  var card=document.getElementById('mq-card');
+  card.innerHTML=''; // rebuild
+  rebuildMasterCard();
+  showMasterQ(G.q);
+  pushState(G.q);
+}
+
+function rebuildMasterCard(){
+  var card=document.getElementById('mq-card');
+  card.innerHTML='<div class="mq-stage" id="mq-stage"></div><div class="mq-num" id="mq-num"></div><div class="mq-text" id="mq-text"></div><div class="mq-opts" id="mq-opts"></div><div class="mtimer" id="mtimer">-</div><div class="mtbar-wrap"><div class="mtbar" id="mtbar" style="width:100%"></div></div>';
+}
+
+var mti=null;
+function showMasterQ(qi){
+  var q=QS[qi];if(!q)return;
+  var stageLabel=q.stage===1?'Stage 1 &middot; 1 Punkt':q.stage===2?'Stage 2 &middot; 2 Punkte':'Stage 3 &middot; 3 Punkte';
+  document.getElementById('mq-stage').innerHTML=stageLabel;
+  var sqi=qi<8?qi+1:qi<16?qi-7:qi-15;
+  document.getElementById('mq-num').textContent='Frage '+sqi+' von 8';
+  document.getElementById('mq-text').textContent=q.text;
+
+  var opts=document.getElementById('mq-opts');opts.innerHTML='';
+  if(q.type==='mc'){
+    q.opts.forEach(function(o,i){
+      var d=document.createElement('div');
+      d.className='mq-opt'+(i===q.correct?' correct':'');
+      d.textContent=o;opts.appendChild(d);
+    });
+  } else {
+    opts.style.gridTemplateColumns='1fr';
+    var d=document.createElement('div');
+    d.className='mq-opt correct';d.style.gridColumn='1/-1';
+    d.textContent='Antwort: '+q.answer+' '+q.unit;
+    opts.appendChild(d);
+  }
+
+  if(mti)clearInterval(mti);
+  var total=q.time,left=total;
+  var tel=document.getElementById('mtimer');
+  var tbar=document.getElementById('mtbar');
+  tel.textContent=left;tel.className='mtimer';
+  tbar.style.width='100%';tbar.className='mtbar';
+  mti=setInterval(function(){
+    left--;tel.textContent=left;
+    var p=Math.max(0,left/total*100);
+    tbar.style.width=p+'%';
+    if(p<30){tel.className='mtimer danger';tbar.className='mtbar danger';}
+    else if(p<60){tel.className='mtimer warn';tbar.className='mtbar warn';}
+    if(left<=0)clearInterval(mti);
+  },1000);
+
+  loadAns(qi);
+}
+
+function loadAns(qi){
+  var q=QS[qi];if(!q)return;
+  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+qi+'&select=*')
+    .then(function(r){return r.json();})
+    .then(function(ans){
+      renderAns(qi,ans,q);
+      if(q.type==='mc'&&!G.scored[qi]){
+        G.scored[qi]=true;
+        ans.forEach(function(a){
+          if(parseInt(a.answer)===q.correct){
+            G.scores[a.team_id]=(G.scores[a.team_id]||0)+q.pts;
+          }
+        });
+      }
+    }).catch(function(){});
+}
+
+function renderAns(qi,ans,q){
+  var grid=document.getElementById('ans-grid');grid.innerHTML='';
+  TEAMS.forEach(function(t){
+    var a=ans.find(function(x){return x.team_id===t.id;});
+    var cell=document.createElement('div');
+    var cls='ans-cell pending',val='...';
+    if(a){
+      if(q.type==='mc'){
+        var ok=parseInt(a.answer)===q.correct;
+        cls='ans-cell '+(ok?'ok':'bad');
+        val=q.opts[parseInt(a.answer)]||a.answer;
+      } else {
+        var diff=Math.abs(parseFloat(a.answer)-q.answer);
+        cls='ans-cell pending';
+        val=a.answer+' (&#177;'+diff.toFixed(0)+')';
+      }
+    }
+    cell.className=cls;
+    cell.innerHTML='<div class="ans-cell-name">'+t.name+'</div><div class="ans-cell-val">'+val+'</div>';
+    grid.appendChild(cell);
+  });
+}
+
+function renderScore(){
+  var sl=document.getElementById('score-list');sl.innerHTML='';
+  var sorted=TEAMS.slice().sort(function(a,b){return (G.scores[b.id]||0)-(G.scores[a.id]||0);});
+  sorted.forEach(function(t,i){
+    var rc=i===0?'g':i===1?'s':i===2?'b':'';
+    var row=document.createElement('div');row.className='score-row';
+    row.innerHTML='<div class="rank '+rc+'">'+(i+1)+'</div>'+
+      '<div class="sname">'+t.name+'<div class="smembers">'+t.m+'</div></div>'+
+      '<div class="spts">'+(G.scores[t.id]||0)+'</div>';
+    sl.appendChild(row);
+  });
+}
+
+function toggleScore(){
+  var sc=document.getElementById('score-card');
+  sc.style.display=sc.style.display==='none'?'block':'none';
+}
+
+function toggleBonus(){
+  var bc=document.getElementById('bonus-card');
+  bc.style.display=bc.style.display==='none'?'block':'none';
+}
+
+function renderBonusGrid(){
+  var bg=document.getElementById('bonus-grid');bg.innerHTML='';
+  TEAMS.forEach(function(t){
+    var b=document.createElement('button');
+    b.className='bonus-btn';b.textContent=t.name;
+    b.onclick=function(){
+      b.classList.toggle('sel');
+      var idx=G.bonusSel.indexOf(t.id);
+      if(idx>=0)G.bonusSel.splice(idx,1);else G.bonusSel.push(t.id);
+    };
+    bg.appendChild(b);
+  });
+}
+
+function giveBonus(){
+  G.bonusSel.forEach(function(tid){G.scores[tid]=(G.scores[tid]||0)+5;});
+  G.bonusSel=[];
+  document.querySelectorAll('.bonus-btn').forEach(function(b){b.classList.remove('sel');});
+  renderScore();
+  alert('Bonus vergeben!');
+}
+
+function pushState(qi){
+  sbh('/rest/v1/cb_quiz_state?id=eq.1',{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({current_q:qi,started:true})
+  }).catch(function(){
+    sbh('/rest/v1/cb_quiz_state',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({id:1,current_q:qi,started:true})
+    }).catch(function(){});
+  });
+}
+
+function resetAll(){
+  if(!confirm('Alles zuruecksetzen?'))return;
+  G.q=-1;G.scored={};G.bonusSel=[];
+  TEAMS.forEach(function(t){G.scores[t.id]=0;});
+  sbh('/rest/v1/cb_quiz_answers?id=gt.0',{method:'DELETE'}).catch(function(){});
+  sbh('/rest/v1/cb_quiz_state?id=eq.1',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({current_q:-1,started:false})}).catch(function(){});
+  rebuildMasterCard();
+  var sb=document.createElement('button');
+  sb.className='mbtn mbtn-green';sb.id='start-btn';sb.style.cssText='flex:1;padding:12px';
+  sb.textContent='Quiz Starten';sb.onclick=startQuiz;
+  document.getElementById('mq-card').appendChild(sb);
+  renderScore();
+}
+</script>
+</body>
+</html>
