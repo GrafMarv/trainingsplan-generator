@@ -61,12 +61,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mcard-title{font-size:11px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.75rem}
 .mq-stage{font-size:12px;color:#666;margin-bottom:0.25rem}
 .mq-num{font-size:13px;color:#555;margin-bottom:0.5rem}
-.mq-text{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:1rem}
+.mq-text{font-size:42px;font-weight:800;line-height:1.3;margin-bottom:1.5rem}
 .mq-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
-.mq-opt{background:#0f0f1a;border:1px solid #2a2a3e;border-radius:8px;padding:0.75rem;font-size:13px;color:#888}
-.mq-opt.correct{border-color:#1D9E75;background:#0f2a1e;color:#1D9E75;font-weight:700}
+.mq-opt{background:#0f0f1a;border:1px solid #2a2a3e;border-radius:8px;padding:0.75rem;font-size:16px;color:#aaa}
+.mq-opt.correct{border-color:#2a2a3e;background:#0f0f1a;color:#aaa;font-weight:400}
 .mq-answer{background:#0f2a1e;border:1px solid #1D9E75;border-radius:8px;padding:0.75rem;font-size:16px;font-weight:700;color:#1D9E75;text-align:center;margin-bottom:1rem}
-.mtimer{font-size:56px;font-weight:900;text-align:center;color:#1D9E75;line-height:1}
+.mtimer{font-size:80px;font-weight:900;text-align:center;color:#1D9E75;line-height:1}
 .mtimer.warn{color:#F59E0B}.mtimer.danger{color:#E24B4A}
 .mtbar-wrap{background:#2a2a3e;border-radius:4px;height:8px;margin:0.75rem 0 1rem;overflow:hidden}
 .mtbar{height:8px;border-radius:4px;background:#1D9E75;transition:width 1s linear}
@@ -434,14 +434,14 @@ function showMasterQ(qi){
   if(q.type==='mc'){
     q.opts.forEach(function(o,i){
       var d=document.createElement('div');
-      d.className='mq-opt'+(i===q.correct?' correct':'');
+      d.className='mq-opt';
       d.textContent=o;opts.appendChild(d);
     });
   } else {
     opts.style.gridTemplateColumns='1fr';
     var d=document.createElement('div');
     d.className='mq-opt correct';d.style.gridColumn='1/-1';
-    d.textContent='Antwort: '+q.answer+' '+q.unit;
+    d.textContent='Schaetzfrage - Antwort wird nach Timer bekannt gegeben';
     opts.appendChild(d);
   }
 
