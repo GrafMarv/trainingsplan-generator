@@ -268,7 +268,7 @@ function renderGrid(){
 function joinTeam(){
   if(!selTeam)return;
   G.myTeam=selTeam;
-  document.getElementById('waiting-name').textContent=selTeam.name+' — '+selTeam.m;
+  document.getElementById('waiting-name').textContent=selTeam.name+' &mdash; '+selTeam.m;
   go('waiting');
 }
 
