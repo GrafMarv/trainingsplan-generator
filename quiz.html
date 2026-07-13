@@ -476,12 +476,21 @@ function loadAns(qi){
       renderAns(qi,ans,q);
       if(q.type==='mc'&&!G.scored[qi]){
         G.scored[qi]=true;
+        var correct=[];var wrong=[];
         ans.forEach(function(a){
+          var t=TEAMS.find(function(x){return x.id===a.team_id;});
+          var tname=t?t.name.split(',')[0]:a.team_id;
           if(parseInt(a.answer)===q.correct){
             G.scores[a.team_id]=(G.scores[a.team_id]||0)+q.pts;
+            correct.push(tname);
+          } else {
+            wrong.push(tname);
           }
         });
         saveScores();
+        var msg='Richtig: '+(correct.length?correct.join(', '):'Niemand');
+        if(wrong.length)msg+=' | Falsch: '+wrong.join(', ');
+        document.getElementById('mq-num').textContent=msg;
       }
     }).catch(function(){});
 }
