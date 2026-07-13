@@ -328,6 +328,7 @@ function showCountdown(qi, cb){
   var count=3;
   n.textContent=count;
   n.className='';
+  document.getElementById('cd-question').textContent='';
   var ci=setInterval(function(){
     count--;
     if(count>0){
@@ -337,7 +338,8 @@ function showCountdown(qi, cb){
       clearInterval(ci);
       n.textContent='LOS!';
       n.className='go';
-      setTimeout(function(){cb();},600);
+      document.getElementById('cd-question').textContent=q.text;
+      setTimeout(function(){cb();},800);
     }
   },1000);
 }
@@ -399,8 +401,41 @@ function submitEst(){
   if(!v)return;
   document.getElementById('est-btn').disabled=true;
   document.getElementById('est-val').disabled=true;
-  document.getElementById('ans-saved').style.display='block';
+  var msg=document.getElementById('ans-saved');
+  msg.textContent='Gespeichert! Ergebnis kommt nach dem Timer...';
+  msg.style.display='block';
   saveAns(G.q,parseFloat(v));
+  // Poll for result
+  var qi=G.q;
+  var checkResult=setInterval(function(){
+    var q=QS[qi];if(!q)return;
+    sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+qi+'&select=*')
+      .then(function(r){return r.json();})
+      .then(function(ans){
+        if(!ans||!ans.length)return;
+        var myTeamId=G.myTeam?G.myTeam.id:null;
+        if(!myTeamId)return;
+        var myAns=ans.find(function(a){return a.team_id===myTeamId;});
+        if(!myAns)return;
+        var diffs=ans.map(function(a){return Math.abs(parseFloat(a.answer)-q.answer);});
+        diffs.sort(function(a,b){return a-b;});
+        var myDiff=Math.abs(parseFloat(myAns.answer)-q.answer);
+        var minDiff=diffs[0];
+        var maxDiff=diffs[diffs.length-1];
+        var isWinner=myDiff===minDiff;
+        var isLoser=myDiff===maxDiff&&diffs.length>1&&maxDiff!==minDiff;
+        if(isWinner){
+          msg.textContent='Nah dran! +2 Punkte! Antwort: '+q.answer+' '+q.unit+' - Deine Schaetzung: '+myAns.answer;
+          msg.style.background='#0f2a1e';msg.style.borderColor='#1D9E75';msg.style.color='#1D9E75';
+        } else if(isLoser){
+          msg.textContent='Am weitesten weg! -1 Punkt. Antwort: '+q.answer+' '+q.unit+' - Deine Schaetzung: '+myAns.answer;
+          msg.style.background='#2a0f0f';msg.style.borderColor='#E24B4A';msg.style.color='#E24B4A';
+        } else {
+          msg.textContent='Antwort: '+q.answer+' '+q.unit+' - Deine Schaetzung: '+myAns.answer+' (Differenz: '+myDiff.toFixed(0)+')';
+        }
+        clearInterval(checkResult);
+      }).catch(function(){});
+  },3000);
 }
 
 function saveAns(qi,val){
@@ -526,9 +561,14 @@ function showMasterQ(qi){
     if(left<=0)clearInterval(mti);
   },1000);
 
-  // Show estimate score button only for stage 2
+  // Auto-score estimates after timer ends
   var estBtn=document.getElementById('score-est-btn');
   if(estBtn)estBtn.style.display=(q.type==='est'?'block':'none');
+  if(q.type==='est'){
+    setTimeout(function(){
+      if(G.q===qi)scoreEstimate(qi);
+    },(q.time+2)*1000);
+  }
   loadAns(qi);
 }
 
