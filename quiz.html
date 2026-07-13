@@ -458,7 +458,14 @@ function showMasterQ(qi){
     if(left<=0)clearInterval(mti);
   },1000);
 
+  // Show estimate score button only for stage 2
+  var estBtn=document.getElementById('score-est-btn');
+  if(estBtn)estBtn.style.display=(q.type==='est'?'block':'none');
   loadAns(qi);
+}
+
+function scoreCurrentEst(){
+  if(G.q>=0)scoreEstimate(G.q);
 }
 
 function loadAns(qi){
@@ -476,6 +483,44 @@ function loadAns(qi){
         });
         saveScores();
       }
+    }).catch(function(){});
+}
+
+function scoreEstimate(qi){
+  var q=QS[qi];if(!q||q.type!=='est')return;
+  if(G.scored[qi])return;
+  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+qi+'&select=*')
+    .then(function(r){return r.json();})
+    .then(function(ans){
+      if(!ans||!ans.length)return;
+      G.scored[qi]=true;
+      var diffs=ans.map(function(a){
+        return {tid:a.team_id,diff:Math.abs(parseFloat(a.answer)-q.answer),val:a.answer};
+      });
+      diffs.sort(function(a,b){return a.diff-b.diff;});
+      var minDiff=diffs[0].diff;
+      var maxDiff=diffs[diffs.length-1].diff;
+      // Award +2 to closest, -1 to furthest (only if different teams)
+      diffs.forEach(function(d){
+        if(d.diff===minDiff){
+          G.scores[d.tid]=(G.scores[d.tid]||0)+2;
+        }
+      });
+      if(diffs.length>1&&diffs[diffs.length-1].diff!==minDiff){
+        diffs.forEach(function(d){
+          if(d.diff===maxDiff){
+            G.scores[d.tid]=(G.scores[d.tid]||0)-1;
+          }
+        });
+      }
+      saveScores();renderScore();
+      // Show result on master
+      var closest=TEAMS.find(function(t){return t.id===diffs[0].tid;});
+      var furthest=TEAMS.find(function(t){return t.id===diffs[diffs.length-1].tid;});
+      var msg='Antwort: '+q.answer+' '+q.unit;
+      if(closest)msg+=' | Nah: '+closest.name.split(',')[0]+' ('+diffs[0].val+') +2';
+      if(furthest&&furthest.id!==diffs[0].tid)msg+=' | Weit: '+furthest.name.split(',')[0]+' ('+diffs[diffs.length-1].val+') -1';
+      document.getElementById('mq-num').textContent=msg;
     }).catch(function(){});
 }
 
