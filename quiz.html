@@ -96,6 +96,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 
+<div id="screen-countdown" class="screen">
+  <div style="min-height:100vh;background:#0f0f1a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem">
+    <div style="font-size:16px;color:#555;margin-bottom:1rem" id="cd-stage"></div>
+    <div style="font-size:22px;font-weight:600;color:#888;margin-bottom:1.5rem;max-width:500px;line-height:1.4" id="cd-question"></div>
+    <div style="font-size:180px;font-weight:900;line-height:1;color:#1D9E75" id="cd-num">3</div>
+  </div>
+</div>
+
 <div id="screen-login" class="screen active">
   <div class="login-wrap">
     <div class="logo-text">Coaching Brain &middot; DHB U16 Boys</div>
@@ -293,6 +301,29 @@ function playerPoll(){
         }
       }).catch(function(){});
   },2500);
+}
+
+function showCountdown(qi, cb){
+  var q=QS[qi];if(!q){cb();return;}
+  go('countdown');
+  document.getElementById('cd-stage').textContent='Stage '+q.stage+' - Frage '+(qi<8?qi+1:qi-7)+' / 8';
+  document.getElementById('cd-question').textContent=q.text;
+  var n=document.getElementById('cd-num');
+  var count=3;
+  n.textContent=count;
+  n.className='';
+  var ci=setInterval(function(){
+    count--;
+    if(count>0){
+      n.textContent=count;
+      if(count===1)n.className='warn';
+    } else {
+      clearInterval(ci);
+      n.textContent='LOS!';
+      n.className='go';
+      setTimeout(function(){cb();},600);
+    }
+  },1000);
 }
 
 function showPlayerQ(qi){
