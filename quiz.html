@@ -164,6 +164,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="master-logo">&#127381; Quiz-Master</div>
       <div class="master-btns">
         <button class="mbtn mbtn-teal" onclick="showFullScore()">&#128202; Vollbild</button>
+        <button class="mbtn mbtn-gray" onclick="clearCheats()">&#10005; Cheats</button>
         <button class="mbtn mbtn-amber" onclick="toggleBonus()">&#127942; Bonus</button>
         <button class="mbtn mbtn-gray" onclick="toggleScore()">&#128202; Score</button>
         <button class="mbtn mbtn-green" id="next-btn" onclick="nextQ()">Weiter &#8594;</button>
@@ -199,6 +200,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
 
       <div>
+        <div class="mcard" id="cheat-card" style="border:1px solid #E24B4A;display:none">
+          <div class="mcard-title" style="color:#E24B4A">&#9888; Tab verlassen!</div>
+          <div id="cheat-list"></div>
+        </div>
         <div class="mcard" id="score-card">
           <div class="mcard-title">Scoreboard</div>
           <div id="score-list"></div>
@@ -395,6 +400,18 @@ function saveAns(qi,val){
     body:JSON.stringify({team_id:G.myTeam.id,question_idx:qi,answer:String(val)})
   }).catch(function(){});
 }
+
+// Tab visibility detection
+document.addEventListener('visibilitychange',function(){
+  if(!G.myTeam)return;
+  if(document.hidden){
+    sbh('/rest/v1/cb_quiz_tableave',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({team_id:G.myTeam.id,team_name:G.myTeam.name,q_idx:G.q,ts:Date.now()})
+    }).catch(function(){});
+  }
+});
 
 // ===== MASTER =====
 function checkPw(){
