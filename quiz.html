@@ -142,11 +142,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<div id="screen-fullscore" class="screen">
+  <div style="min-height:100vh;background:#0f0f1a;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem">
+    <div style="font-size:16px;color:#555;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem">Coaching Brain &middot; DHB U16 Boys</div>
+    <div style="font-size:36px;font-weight:900;margin-bottom:2.5rem">Zwischenstand</div>
+    <div id="fullscore-list" style="width:100%;max-width:700px"></div>
+  </div>
+</div>
+
 <div id="screen-master" class="screen">
   <div class="master-wrap">
     <div class="master-top">
       <div class="master-logo">&#127381; Quiz-Master</div>
       <div class="master-btns">
+        <button class="mbtn mbtn-teal" onclick="showFullScore()">&#128202; Vollbild</button>
         <button class="mbtn mbtn-amber" onclick="toggleBonus()">&#127942; Bonus</button>
         <button class="mbtn mbtn-gray" onclick="toggleScore()">&#128202; Score</button>
         <button class="mbtn mbtn-green" id="next-btn" onclick="nextQ()">Weiter &#8594;</button>
@@ -637,6 +646,26 @@ function loadScores(cb){
       }
       if(cb)cb();
     }).catch(function(){if(cb)cb();});
+}
+
+function showFullScore(){
+  var sorted=TEAMS.slice().sort(function(a,b){return (G.scores[b.id]||0)-(G.scores[a.id]||0);});
+  var list=document.getElementById('fullscore-list');
+  list.innerHTML='';
+  sorted.forEach(function(t,i){
+    var rc=i===0?'g':i===1?'s':i===2?'b':'';
+    var row=document.createElement('div');
+    row.className='fullscore-row';
+    row.innerHTML='<div class="fullscore-rank '+rc+'">'+(i+1)+'</div>'+
+      '<div class="fullscore-name">'+t.name+'</div>'+
+      '<div class="fullscore-pts">'+(G.scores[t.id]||0)+' Pkt</div>';
+    list.appendChild(row);
+  });
+  go('fullscore');
+  // Click anywhere to go back
+  setTimeout(function(){
+    document.getElementById('screen-fullscore').onclick=function(){go('master');};
+  },500);
 }
 
 function resetAll(){
