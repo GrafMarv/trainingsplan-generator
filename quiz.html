@@ -269,7 +269,7 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
     </div>
 
     <!-- BUZZ MASTER OVERLAY -->
-    <div id="buzz-master-card" style="display:none;position:fixed;top:52px;right:0;width:380px;background:#111827;border-left:1px solid rgba(255,255,255,0.08);height:calc(100vh - 52px);z-index:100;padding:1.25rem;overflow-y:auto">
+    <div id="buzz-master-card" style="display:none;position:fixed;top:52px;right:0;width:380px;background:#111827;border-left:1px solid rgba(255,255,255,0.08);height:calc(100vh - 52px);z-index:99;padding:1.25rem;overflow-y:auto">
       <div style="font-size:10px;color:#444;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem">Block 3 &mdash; Buzzer</div>
       <div id="buzz-img-wrap" style="display:none"></div>
       <div id="buzz-winner-display" class="buzz-none-box">Noch kein Buzzer...</div>
@@ -278,7 +278,8 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
         <button class="pts-btn" style="background:linear-gradient(135deg,#be123c,#E11D74);color:#fff" onclick="awardPts(0)">Falsch</button>
         <button class="pts-btn" style="background:rgba(255,255,255,0.08);color:#888" onclick="clearBuzzer()">Reset</button>
       </div>
-      <button class="mbtn mbtn-purple" onclick="openMCFallback()" style="width:100%;padding:10px">Multiple Choice oeffnen</button>
+      <button class="mbtn mbtn-purple" id="mc-open-btn" onclick="openMCFallback()" style="width:100%;padding:10px;margin-bottom:8px">Multiple Choice oeffnen</button>
+      <button class="mbtn mbtn-green" id="mc-score-btn" onclick="scoreMCFallback(G.buzzQ)" style="width:100%;padding:10px;display:none">MC Punkte vergeben</button>
     </div>
 
     <!-- MAIN CONTENT - Frage + Timer -->
@@ -834,7 +835,27 @@ function clearBuzzer(){
 }
 
 function openMCFallback(){
+  // Clear existing MC answers for this buzz round
+  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+(-(G.buzzQ+1)),{method:'DELETE'}).catch(function(){});
   pushState({current_q:G.q,started:true,in_buzz:true,buzz_q:G.buzzQ,mc_open:true});
+  var msb=document.getElementById('mc-score-btn');
+  if(msb)msb.style.display='block';
+}
+
+function scoreMCFallback(bq){
+  var q=BUZZ_QS[bq];if(!q)return;
+  var correctIdx=q.opts.indexOf(q.answer);
+  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+(-(bq+1))+'&select=*')
+    .then(function(r){return r.json();})
+    .then(function(ans){
+      if(!ans||!ans.length)return;
+      ans.forEach(function(a){
+        if(parseInt(a.answer)===correctIdx){
+          G.scores[a.team_id]=(G.scores[a.team_id]||0)+3;
+        }
+      });
+      saveScores();renderScore();
+    }).catch(function(){});
 }
 
 function endBuzzBlock(){
