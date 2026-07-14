@@ -355,6 +355,7 @@ var TEAMS=[
 ];
 
 var QS=[
+  {stage:0,pts:0,time:30,type:'mc',text:'Was ist 1 + 1?',opts:['1','2','3','4'],correct:1,test:true},
   {stage:1,pts:1,time:60,type:'mc',text:'Was ist die Hauptstadt von Polen?',opts:['Krakau','Warschau','Danzig','Lodz'],correct:1},
   {stage:1,pts:1,time:60,type:'mc',text:'Wie viele Einwohner hat Polen?',opts:['28 Mio','33 Mio','38 Mio','45 Mio'],correct:2},
   {stage:1,pts:1,time:60,type:'mc',text:'Wie viele Laender grenzen an Polen?',opts:['5','6','7','8'],correct:2},
@@ -726,22 +727,22 @@ function showSolution(qi){
 }
 
 function advanceQuestion(){
-  // End of block 1
-  if(G.q===7&&!G.bonusShown1){
+  // End of block 1 (index 8 because test question is index 0)
+  if(G.q===8&&!G.bonusShown1){
     G.bonusShown1=true;
     document.getElementById('bonus-card').style.display='block';
     return;
   }
-  // End of block 2
-  if(G.q===15&&!G.bonusShown2){
+  // End of block 2 (index 16 because test question is index 0)
+  if(G.q===16&&!G.bonusShown2){
     G.bonusShown2=true;
     document.getElementById('bonus-card').style.display='block';
     return;
   }
-  if(G.q>=16)return;
+  if(G.q>=17)return;
   G.q++;
   document.getElementById('bonus-card').style.display='none';
-  if(G.q>=16){startBuzzBlock();return;}
+  if(G.q>=17){startBuzzBlock();return;}
   showMasterQ(G.q);
   pushState({current_q:G.q,started:true,in_buzz:false,buzz_q:-1,mc_open:false});
 }
@@ -878,10 +879,10 @@ function showMasterQ(qi){
   document.getElementById('start-block').style.display='none';
   document.getElementById('question-block').style.display='block';
   document.getElementById('buzz-main-block').style.display='none';
-  var stageLabel=q.stage===1?'Stage 1 &middot; 1 Punkt':'Stage 2 &middot; 2 Punkte';
+  var stageLabel=q.test?'TEST &mdash; zaehlt nicht':q.stage===1?'Stage 1 &middot; 1 Punkt':'Stage 2 &middot; 2 Punkte';
   document.getElementById('mq-stage').innerHTML=stageLabel;
-  var stageQ=qi<8?qi+1:qi-7;
-  document.getElementById('mq-num').textContent='Frage '+stageQ+' von 8';
+  var stageQ=q.test?'Test':qi<=8?qi:qi-8;
+  document.getElementById('mq-num').textContent=q.test?'Technik-Check':'Frage '+stageQ+' von 8';
   document.getElementById('mq-text').textContent=q.text;
   var estBtn=document.getElementById('score-est-btn');
   if(estBtn)estBtn.style.display=q.type==='est'?'block':'none';
@@ -920,12 +921,12 @@ function loadAns(qi){
           var t=TEAMS.find(function(x){return x.id===a.team_id;});
           var tname=t?t.name.split(',')[0]:a.team_id;
           if(parseInt(a.answer)===q.correct){
-            G.scores[a.team_id]=(G.scores[a.team_id]||0)+q.pts;
+            if(!q.test)G.scores[a.team_id]=(G.scores[a.team_id]||0)+q.pts;
             correct.push(tname);
           } else {wrong.push(tname);}
         });
-        saveScores();
-        var msg='Richtig: '+(correct.length?correct.join(', '):'Niemand');
+        if(!q.test)saveScores();
+        var msg=q.test?'Test OK: '+(correct.length?correct.join(', '):'Niemand'):'Richtig: '+(correct.length?correct.join(', '):'Niemand');
         if(wrong.length)msg+=' | Falsch: '+wrong.join(', ');
         document.getElementById('mq-num').textContent=msg;
       }
