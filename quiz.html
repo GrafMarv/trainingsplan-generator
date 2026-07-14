@@ -469,12 +469,22 @@ function sbh(url,opts){
 // ROUTING
 window.addEventListener('load',function(){
   if(window.location.hash==='#master'){
-    go('master');
-    renderBonusGrid();renderBonusGridScreen();
-    loadScores(function(){renderScore();});
-    masterPoll();
+    try{
+      go('master');
+      renderBonusGrid();
+      renderBonusGridScreen();
+      loadScores(function(){renderScore();});
+      masterPoll();
+    }catch(e){
+      console.error('Master init error:',e);
+      go('master');
+    }
   }
-  else{renderGrid();go('login');playerPoll();}
+  else{
+    try{renderGrid();}catch(e){}
+    go('login');
+    playerPoll();
+  }
 });
 
 function go(s){
@@ -1250,7 +1260,7 @@ function showBonusScreen(label){
 }
 
 function renderBonusGridScreen(){
-  var bg=document.getElementById('bonus-grid-screen');bg.innerHTML='';
+  var bg=document.getElementById('bonus-grid-screen');if(!bg)return;bg.innerHTML='';
   TEAMS.forEach(function(t){
     var b=document.createElement('button');b.className='bonus-btn';
     b.textContent=t.name.split(',')[0];
