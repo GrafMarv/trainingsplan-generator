@@ -434,7 +434,7 @@ function joinTeam(){
 function playerPoll(){
   G.pollInt=setInterval(function(){
     if(!G.myTeam)return;
-    sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started,buzz_q,in_buzz,mc_open')
+    sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started,buzz_q,in_buzz,mc_open,banned')
       .then(function(r){return r.json();})
       .then(function(d){
         if(!d||!d[0])return;
@@ -521,14 +521,8 @@ function showMCFallback(bq){
 function showPlayerQ(qi){
   var q=QS[qi];if(!q)return;
   go('question');
-  document.getElementById('q-pill').textContent='Stage '+q.stage;
-  document.getElementById('q-pill').className='stage-pill s'+q.stage;
-  var stageQ=qi<8?qi+1:qi-7;
-  document.getElementById('q-meta').textContent='Frage '+stageQ+' / 8';
-  document.getElementById('q-text').textContent=q.text;
   var saved=document.getElementById('ans-saved');
   saved.style.display='none';saved.className='ans-saved ans-neutral';
-  startPBar(q.time);
   if(q.type==='mc'){
     document.getElementById('q-options').style.display='grid';
     document.getElementById('q-est').style.display='none';
