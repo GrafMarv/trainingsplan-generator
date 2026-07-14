@@ -293,6 +293,67 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
         <button class="mbtn mbtn-green" id="start-btn" onclick="startQuiz()" style="padding:18px 48px;font-size:16px;border-radius:12px">Quiz Starten &#9654;</button>
       </div>
 
+      <!-- Intro Screen -->
+      <div id="intro-block" style="display:none;width:100%;max-width:1100px;text-align:center">
+        <div style="font-size:11px;color:#444;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem">DHB U16 Boys &middot; Quiz-Nacht</div>
+        <div style="font-size:48px;font-weight:900;margin-bottom:2.5rem;background:linear-gradient(135deg,#1D4EE8,#7C3AED,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Spielplan</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem">
+
+          <!-- Block 1 -->
+          <div style="background:rgba(29,78,232,0.08);border:1px solid rgba(29,78,232,0.3);border-radius:16px;padding:1.5rem">
+            <div style="font-size:32px;margin-bottom:0.5rem">&#127775;</div>
+            <div style="font-size:11px;color:#60a5fa;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Block 1</div>
+            <div style="font-size:20px;font-weight:800;color:#F5F7FA;margin-bottom:0.75rem">Allgemeinwissen</div>
+            <div style="font-size:13px;color:#555;margin-bottom:0.5rem">8 Fragen &middot; 60 Sek &middot; 1 Punkt</div>
+            <div style="font-size:12px;color:#444">Multiple Choice</div>
+          </div>
+
+          <!-- Bonus 1 -->
+          <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:1.5rem;align-self:center">
+            <div style="font-size:28px;margin-bottom:0.5rem">&#127942;</div>
+            <div style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Bonus</div>
+            <div style="font-size:18px;font-weight:800;color:#F5F7FA;margin-bottom:0.5rem">Real Life Aufgabe</div>
+            <div style="font-size:12px;color:#444">2 Teams &middot; +5 Punkte</div>
+          </div>
+
+          <!-- Block 2 -->
+          <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.3);border-radius:16px;padding:1.5rem">
+            <div style="font-size:32px;margin-bottom:0.5rem">&#128200;</div>
+            <div style="font-size:11px;color:#c084fc;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Block 2</div>
+            <div style="font-size:20px;font-weight:800;color:#F5F7FA;margin-bottom:0.75rem">Schaetzfragen</div>
+            <div style="font-size:13px;color:#555;margin-bottom:0.5rem">8 Fragen &middot; 90 Sek &middot; 2 Punkte</div>
+            <div style="font-size:12px;color:#444">Nah dran = +2 &middot; Weit weg = -1</div>
+          </div>
+
+          <!-- Bonus 2 -->
+          <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:1.5rem;align-self:center">
+            <div style="font-size:28px;margin-bottom:0.5rem">&#127942;</div>
+            <div style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Bonus</div>
+            <div style="font-size:18px;font-weight:800;color:#F5F7FA;margin-bottom:0.5rem">Real Life Aufgabe</div>
+            <div style="font-size:12px;color:#444">2 Teams &middot; +5 Punkte</div>
+          </div>
+
+          <!-- Block 3 -->
+          <div style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.25);border-radius:16px;padding:1.5rem">
+            <div style="font-size:32px;margin-bottom:0.5rem">&#128276;</div>
+            <div style="font-size:11px;color:#22D3EE;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Block 3</div>
+            <div style="font-size:20px;font-weight:800;color:#F5F7FA;margin-bottom:0.75rem">Wer ist das?</div>
+            <div style="font-size:13px;color:#555;margin-bottom:0.5rem">6 Bilder &middot; Buzzer &middot; 3 Punkte</div>
+            <div style="font-size:12px;color:#444">Richtig +3 &middot; Falsch -3</div>
+          </div>
+
+          <!-- Finale -->
+          <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);border-radius:16px;padding:1.5rem;align-self:center">
+            <div style="font-size:28px;margin-bottom:0.5rem">&#127881;</div>
+            <div style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Finale</div>
+            <div style="font-size:18px;font-weight:800;color:#F59E0B;margin-bottom:0.5rem">Top 2 Teams</div>
+            <div style="font-size:12px;color:#444">Penalty Shootout</div>
+          </div>
+
+        </div>
+        <div style="font-size:13px;color:#333;letter-spacing:0.05em">Weiter fuer den Technik-Check</div>
+      </div>
+
       <!-- Question Block -->
       <div id="question-block" style="display:none;width:100%;max-width:1000px">
         <div style="font-size:11px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem" id="mq-stage"></div>
@@ -385,7 +446,7 @@ var BUZZ_QS=[
 ];
 
 var G={
-  q:-1,buzzQ:-1,inBuzz:false,mcOpen:false,showingSolution:false,
+  q:-1,buzzQ:-1,inBuzz:false,mcOpen:false,showingSolution:false,introShown:false,
   scores:{},scored:{},bonusSel:[],bannedTeams:[],
   bonusShown1:false,bonusShown2:false,
   myTeam:null,lastQ:-1,lastBuzzQ:-1,buzzed:false,
@@ -695,13 +756,21 @@ function masterPoll(){
 
 // QUIZ FLOW
 function startQuiz(){
-  G.q=0;
   document.getElementById('start-block').style.display='none';
-  showMasterQ(0);
-  pushState({current_q:0,started:true,in_buzz:false,buzz_q:-1,mc_open:false});
+  document.getElementById('intro-block').style.display='block';
+  G.introShown=true;
 }
 
 function nextQ(){
+  // Intro screen -> start test question
+  if(G.introShown&&G.q===-1){
+    G.introShown=false;
+    G.q=0;
+    document.getElementById('intro-block').style.display='none';
+    showMasterQ(0);
+    pushState({current_q:0,started:true,in_buzz:false,buzz_q:-1,mc_open:false});
+    return;
+  }
   if(G.inBuzz){
     // Weiter always moves to next buzz image regardless
     G.bannedTeams=[];
@@ -1211,8 +1280,10 @@ function resetAll(){
   });
   // Reset UI
   document.getElementById('start-block').style.display='block';
+  document.getElementById('intro-block').style.display='none';
   document.getElementById('question-block').style.display='none';
   document.getElementById('solution-block').style.display='none';
+  G.introShown=false;
   document.getElementById('buzz-main-block').style.display='none';
   document.getElementById('buzz-master-card').style.display='none';
   document.getElementById('bonus-card').style.display='none';
