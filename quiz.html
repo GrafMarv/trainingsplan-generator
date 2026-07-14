@@ -54,7 +54,7 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
 .tbar.warn{background:linear-gradient(90deg,#E11D74,#F59E0B);box-shadow:0 0 8px rgba(245,158,11,0.5)}
 .tbar.danger{background:#E11D74;box-shadow:0 0 8px rgba(225,29,116,0.5)}
 .options{display:grid;gap:10px}
-.opt-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:1.25rem 1.5rem;font-size:18px;font-weight:700;color:#F5F7FA;cursor:pointer;transition:all 0.15s;text-align:center;font-family:'Montserrat',sans-serif;width:100%}
+.opt-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem 1.25rem;font-size:15px;font-weight:600;color:#F5F7FA;cursor:pointer;transition:all 0.15s;text-align:left;font-family:'Montserrat',sans-serif}
 .opt-btn:hover:not(:disabled){border-color:rgba(34,211,238,0.4);background:rgba(34,211,238,0.06)}
 .opt-btn:disabled{opacity:0.7;cursor:not-allowed}
 .est-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;font-size:28px;font-weight:800;color:#F5F7FA;text-align:center;margin-bottom:1rem;font-family:'Montserrat',sans-serif}
@@ -178,36 +178,50 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
 
 <!-- WAITING -->
 <div id="screen-waiting" class="screen">
-  <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0B1020">
+  <div class="waiting-wrap">
+    <div class="logo-text">DHB U16 Boys</div>
+    <div style="font-size:26px;font-weight:800;margin-bottom:0.5rem">Bereit!</div>
+    <div style="font-size:13px;color:#555;margin-bottom:0.75rem;letter-spacing:0.05em;text-transform:uppercase">Ihr spielt als</div>
     <div class="team-badge" id="waiting-name"></div>
-    <div style="font-size:13px;color:#333;margin-top:1rem;letter-spacing:0.05em">Warten auf den Trainer<span class="pulse"></span></div>
-    <div style="font-size:12px;color:#222;margin-top:0.5rem" id="waiting-count"></div>
+    <div style="font-size:13px;color:#333;margin-top:1.5rem;letter-spacing:0.05em">Warten auf den Trainer<span class="pulse"></span></div>
   </div>
 </div>
 
-<!-- COUNTDOWN (hidden, not used for players) -->
-<div id="screen-countdown" class="screen" style="display:none!important"></div>
+<!-- COUNTDOWN -->
+<div id="screen-countdown" class="screen">
+  <div class="cd-inner">
+    <div class="cd-stage" id="cd-stage"></div>
+    <div class="cd-question" id="cd-question"></div>
+    <div class="cd-num" id="cd-num">3</div>
+  </div>
+</div>
 
 <!-- QUESTION PLAYER -->
 <div id="screen-question" class="screen">
-  <div style="height:100vh;display:flex;flex-direction:column;justify-content:center;padding:1.5rem;overflow:hidden;background:#0B1020">
-    <div class="options" id="q-options" style="gap:12px"></div>
+  <div class="question-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+      <span class="stage-pill s1" id="q-pill">Stage 1</span>
+      <span class="q-meta" id="q-meta">Frage 1 / 8</span>
+    </div>
+    <div class="tbar-wrap"><div class="tbar" id="ptbar" style="width:100%"></div></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
     <div id="q-est" style="display:none">
       <input type="number" class="est-input" id="est-val" placeholder="Deine Schaetzung..." />
       <button class="big-btn" id="est-btn" onclick="submitEst()">Abschicken</button>
     </div>
-    <div class="ans-saved ans-neutral" id="ans-saved" style="display:none;margin-top:1rem">Gespeichert!</div>
+    <div class="ans-saved ans-neutral" id="ans-saved" style="display:none">Gespeichert!</div>
   </div>
 </div>
 
-<!-- BUZZER PLAYER - now just watching screen -->
+<!-- BUZZER PLAYER -->
 <div id="screen-buzzer" class="screen">
-  <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0B1020;text-align:center;padding:2rem">
-    <div style="font-size:48px;margin-bottom:1rem">&#128276;</div>
-    <div style="font-size:22px;font-weight:800;color:#22D3EE;margin-bottom:0.5rem">Block 3</div>
-    <div style="font-size:16px;color:#555;margin-bottom:2rem">Schaut auf den Beamer!</div>
-    <div style="font-size:14px;color:#333;letter-spacing:0.05em" id="buzz-q-num">Bild 1 / 6</div>
-    <div class="team-badge" style="margin-top:1.5rem" id="buzz-team-name"></div>
+  <div class="buzzer-wrap">
+    <div class="logo-text">DHB U16 Boys</div>
+    <div class="buzz-q-num" id="buzz-q-num">Bild 1 / 6</div>
+    <div class="buzz-status">Schaut auf den Beamer!</div>
+    <button class="buzzer-btn" id="buzz-btn" onclick="doBuzz()">BUZZ!</button>
+    <div class="buzz-result" id="buzz-result"></div>
   </div>
 </div>
 
@@ -237,171 +251,77 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
 
 <!-- MASTER -->
 <div id="screen-master" class="screen">
-  <div style="height:100vh;display:flex;flex-direction:column;overflow:hidden;background:#0B1020">
-    
-    <!-- TOP BAR -->
-    <div style="height:52px;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 1rem;gap:8px;flex-shrink:0">
-      <div style="font-size:13px;font-weight:800;background:linear-gradient(135deg,#1D4EE8,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:auto">Quiz-Master</div>
-      <button class="mbtn mbtn-gray" onclick="togglePanel('score-card')">&#128202; Score</button>
-      <button class="mbtn mbtn-amber" onclick="showBonusScreen('Bonus-Aufgabe +5 Punkte')">&#127942; Bonus</button>
-      <button class="mbtn mbtn-gray" onclick="togglePanel('edit-score-card')">&#9998; Punkte</button>
-      <button class="mbtn mbtn-gray" id="pause-btn" onclick="togglePause()">&#9646;&#9646; Pause</button>
-      <button class="mbtn mbtn-red" onclick="resetAll()">&#9888; Reset</button>
-      <button class="mbtn mbtn-green" id="next-btn" onclick="nextQ()">Weiter &#8594;</button>
+  <div class="neon-line"></div>
+  <div class="master-wrap">
+    <div class="master-top">
+      <div class="master-logo">Quiz-Master &middot; DHB U16</div>
+      <div class="master-btns">
+        <button class="mbtn mbtn-teal" onclick="showFullScore()">&#128202; Vollbild</button>
+        <button class="mbtn mbtn-amber" onclick="togglePanel('bonus-card')">&#127942; Bonus</button>
+        <button class="mbtn mbtn-gray" onclick="togglePanel('score-card')">Score</button>
+        <button class="mbtn mbtn-purple" id="score-est-btn" onclick="scoreCurrentEst()" style="display:none">Werten &#10003;</button>
+        <button class="mbtn mbtn-green" id="next-btn" onclick="nextQ()">Weiter &#8594;</button>
+      </div>
     </div>
 
-    <!-- OVERLAYS -->
-    <div id="score-card" style="display:none;position:fixed;top:52px;right:0;width:320px;background:#111827;border-left:1px solid rgba(255,255,255,0.08);height:calc(100vh - 52px);z-index:100;padding:1.25rem;overflow-y:auto">
-      <div style="font-size:10px;color:#444;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem">Scoreboard</div>
-      <div id="score-list"></div>
-      <button class="mbtn mbtn-teal" onclick="showFullScore()" style="width:100%;margin-top:1rem;padding:10px">Vollbild</button>
+    <!-- START / QUESTION CARD -->
+    <div class="mcard" id="mq-card">
+      <div class="mq-stage" id="mq-stage">Bereit zum Starten</div>
+      <div class="mq-num" id="mq-num"></div>
+      <div class="mq-text" id="mq-text">Quiz-Nacht</div>
+      <div class="mtimer" id="mtimer" style="display:none"></div>
+      <div class="mtbar-wrap" id="mtbar-wrap" style="display:none"><div class="mtbar" id="mtbar" style="width:100%"></div></div>
+      <div style="margin-bottom:0.75rem">
+        <button onclick="resetAll()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#be123c,#E11D74);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;letter-spacing:0.05em;text-transform:uppercase;box-shadow:0 4px 20px rgba(225,29,116,0.3)">&#9888; Alles zuruecksetzen</button>
+      </div>
+      <div class="mctrl">
+        <button class="mbtn mbtn-green" id="start-btn" onclick="startQuiz()" style="flex:1;padding:14px;font-size:14px">Quiz Starten &#9654;</button>
+      </div>
     </div>
 
-    <div id="bonus-card" style="display:none;position:fixed;top:52px;right:0;width:320px;background:#111827;border-left:1px solid rgba(255,255,255,0.08);height:calc(100vh - 52px);z-index:100;padding:1.25rem">
-      <div style="font-size:10px;color:#F59E0B;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem">Bonus +5 Punkte</div>
+    <!-- BUZZER MASTER CARD -->
+    <div class="buzz-master-card" id="buzz-master-card" style="display:none">
+      <div class="mcard-title">Block 3 &mdash; Buzzer</div>
+      <div class="buzz-img-wrap" id="buzz-img-wrap">
+        <div class="buzz-placeholder">Bild wird geladen...</div>
+      </div>
+      <div class="buzz-answer-label" id="buzz-answer-label"></div>
+      <div id="buzz-winner-display" class="buzz-none-box">Noch kein Buzzer...</div>
+      <div class="pts-btns" id="pts-btns" style="display:none">
+        <button class="pts-btn" style="background:linear-gradient(135deg,#059669,#1D9E75);color:#fff" onclick="awardPts(3)">+3 Richtig</button>
+        <button class="pts-btn" style="background:linear-gradient(135deg,#be123c,#E11D74);color:#fff" onclick="awardPts(0)">Falsch / Weiter</button>
+        <button class="pts-btn" style="background:rgba(255,255,255,0.08);color:#888" onclick="clearBuzzer()">Reset Buzzer</button>
+      </div>
+      <div style="margin-top:0.75rem">
+        <button class="mbtn mbtn-purple" onclick="openMCFallback()" style="width:100%;padding:10px">Multiple Choice oeffnen</button>
+      </div>
+    </div>
+
+    <!-- BONUS CARD -->
+    <div class="mcard" id="bonus-card" style="display:none">
+      <div class="mcard-title" style="color:#F59E0B">Bonus-Aufgabe +5 Punkte</div>
+      <p style="font-size:13px;color:#555;margin-bottom:1rem;letter-spacing:0.03em">Welche Teams gewinnen?</p>
       <div class="bonus-grid" id="bonus-grid"></div>
-      <button class="mbtn mbtn-amber" onclick="giveBonus()" style="width:100%;padding:12px">Vergeben</button>
+      <button class="mbtn mbtn-amber" onclick="giveBonus()" style="width:100%;padding:12px">Punkte vergeben</button>
     </div>
 
-    <div id="edit-score-card" style="display:none;position:fixed;top:52px;right:0;width:320px;background:#111827;border-left:1px solid rgba(255,255,255,0.08);height:calc(100vh - 52px);z-index:100;padding:1.25rem;overflow-y:auto">
-      <div style="font-size:10px;color:#444;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem">Punkte bearbeiten</div>
-      <div id="edit-score-list"></div>
-      <button class="mbtn mbtn-green" onclick="saveEditedScores()" style="width:100%;margin-top:1rem;padding:10px">Speichern</button>
+    <!-- ANSWERS CARD -->
+    <div class="mcard" id="ans-card" style="display:none">
+      <div class="mcard-title">Antworten</div>
+      <div class="ans-grid" id="ans-grid"></div>
     </div>
 
-    <!-- BUZZ MASTER OVERLAY -->
-    <div id="buzz-master-card" style="display:none;position:fixed;top:52px;right:0;width:340px;background:#111827;border-left:1px solid rgba(255,255,255,0.08);height:calc(100vh - 52px);z-index:99;padding:1.25rem;overflow-y:auto">
-      <div style="font-size:10px;color:#22D3EE;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem">Block 3 &mdash; Punkte vergeben</div>
-      <div id="manual-score-list"></div>
-      <div style="margin-top:1rem;border-top:1px solid rgba(255,255,255,0.06);padding-top:1rem">
-        <button class="mbtn mbtn-purple" id="mc-open-btn" onclick="openMCFallback()" style="width:100%;padding:10px;margin-bottom:8px">Multiple Choice oeffnen</button>
-        <button class="mbtn mbtn-green" id="mc-score-btn" onclick="scoreMCFallback(G.buzzQ)" style="width:100%;padding:10px;display:none">MC Punkte vergeben</button>
-      </div>
+    <!-- SCORE CARD -->
+    <div class="mcard" id="score-card" style="display:none">
+      <div class="mcard-title">Scoreboard</div>
+      <div id="score-list"></div>
     </div>
-
-    <!-- MAIN CONTENT - Frage + Timer -->
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center" id="main-content">
-      
-      <!-- Start Screen -->
-      <div id="start-block">
-        <div style="font-size:18px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem">Bereit zum Starten</div>
-        <div style="font-size:72px;font-weight:900;background:linear-gradient(135deg,#1D4EE8,#7C3AED,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:2rem">Quiz-Nacht</div>
-        <button class="mbtn mbtn-green" id="start-btn" onclick="startQuiz()" style="padding:18px 48px;font-size:16px;border-radius:12px">Quiz Starten &#9654;</button>
-      </div>
-
-      <!-- Intro Screen -->
-      <div id="intro-block" style="display:none;width:100%;max-width:1100px;text-align:center">
-        <div style="font-size:11px;color:#444;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem">DHB U16 Boys &middot; Quiz-Nacht</div>
-        <div style="font-size:48px;font-weight:900;margin-bottom:2.5rem;background:linear-gradient(135deg,#1D4EE8,#7C3AED,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Spielplan</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem">
-
-          <!-- Block 1 -->
-          <div style="background:rgba(29,78,232,0.08);border:1px solid rgba(29,78,232,0.3);border-radius:16px;padding:1.5rem">
-            <div style="font-size:32px;margin-bottom:0.5rem">&#127775;</div>
-            <div style="font-size:11px;color:#60a5fa;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Block 1</div>
-            <div style="font-size:20px;font-weight:800;color:#F5F7FA;margin-bottom:0.75rem">Allgemeinwissen</div>
-            <div style="font-size:13px;color:#555;margin-bottom:0.5rem">8 Fragen &middot; 60 Sek &middot; 1 Punkt</div>
-            <div style="font-size:12px;color:#444">Multiple Choice</div>
-          </div>
-
-          <!-- Bonus 1 -->
-          <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:1.5rem;align-self:center">
-            <div style="font-size:28px;margin-bottom:0.5rem">&#127942;</div>
-            <div style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Bonus</div>
-            <div style="font-size:18px;font-weight:800;color:#F5F7FA;margin-bottom:0.5rem">Real Life Aufgabe</div>
-            <div style="font-size:12px;color:#444">2 Teams &middot; +5 Punkte</div>
-          </div>
-
-          <!-- Block 2 -->
-          <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.3);border-radius:16px;padding:1.5rem">
-            <div style="font-size:32px;margin-bottom:0.5rem">&#128200;</div>
-            <div style="font-size:11px;color:#c084fc;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Block 2</div>
-            <div style="font-size:20px;font-weight:800;color:#F5F7FA;margin-bottom:0.75rem">Schaetzfragen</div>
-            <div style="font-size:13px;color:#555;margin-bottom:0.5rem">8 Fragen &middot; 90 Sek &middot; 2 Punkte</div>
-            <div style="font-size:12px;color:#444">Nah dran = +2 &middot; Weit weg = -1</div>
-          </div>
-
-          <!-- Bonus 2 -->
-          <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:1.5rem;align-self:center">
-            <div style="font-size:28px;margin-bottom:0.5rem">&#127942;</div>
-            <div style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Bonus</div>
-            <div style="font-size:18px;font-weight:800;color:#F5F7FA;margin-bottom:0.5rem">Real Life Aufgabe</div>
-            <div style="font-size:12px;color:#444">2 Teams &middot; +5 Punkte</div>
-          </div>
-
-          <!-- Block 3 -->
-          <div style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.25);border-radius:16px;padding:1.5rem">
-            <div style="font-size:32px;margin-bottom:0.5rem">&#128276;</div>
-            <div style="font-size:11px;color:#22D3EE;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Block 3</div>
-            <div style="font-size:20px;font-weight:800;color:#F5F7FA;margin-bottom:0.75rem">Wer ist das?</div>
-            <div style="font-size:13px;color:#555;margin-bottom:0.5rem">6 Bilder &middot; Buzzer &middot; 3 Punkte</div>
-            <div style="font-size:12px;color:#444">Richtig +3 &middot; Falsch -3</div>
-          </div>
-
-          <!-- Finale -->
-          <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);border-radius:16px;padding:1.5rem;align-self:center">
-            <div style="font-size:28px;margin-bottom:0.5rem">&#127881;</div>
-            <div style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">Finale</div>
-            <div style="font-size:18px;font-weight:800;color:#F59E0B;margin-bottom:0.5rem">Top 2 Teams</div>
-            <div style="font-size:12px;color:#444">Penalty Shootout</div>
-          </div>
-
-        </div>
-        <div style="font-size:13px;color:#333;letter-spacing:0.05em">Weiter fuer den Technik-Check</div>
-      </div>
-
-      <!-- Question Block -->
-      <div id="question-block" style="display:none;width:100%;max-width:1000px">
-        <div style="font-size:11px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem" id="mq-stage"></div>
-        <div style="font-size:13px;color:#333;margin-bottom:1.5rem" id="mq-num"></div>
-        <div style="font-size:clamp(32px,5vw,64px);font-weight:900;line-height:1.2;color:#F5F7FA;margin-bottom:2rem" id="mq-text"></div>
-        <div style="font-size:100px;font-weight:900;line-height:1;margin-bottom:0.5rem" id="mtimer" class="mtimer">-</div>
-        <div style="background:rgba(255,255,255,0.05);border-radius:4px;height:6px;overflow:hidden;max-width:600px;margin:0 auto">
-          <div class="mtbar" id="mtbar" style="width:100%;height:6px;border-radius:4px"></div>
-        </div>
-      </div>
-
-      <!-- Solution Block -->
-      <div id="solution-block" style="display:none;width:100%;max-width:1000px;text-align:center">
-        <div style="font-size:11px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem" id="sol-stage"></div>
-        <div style="font-size:13px;color:#555;margin-bottom:1rem" id="sol-question"></div>
-        <div style="font-size:28px;font-weight:900;color:#22D3EE;margin-bottom:0.5rem;letter-spacing:0.05em">RICHTIGE ANTWORT</div>
-        <div style="font-size:64px;font-weight:900;color:#F5F7FA;margin-bottom:2rem;line-height:1.1" id="sol-answer"></div>
-        <div id="sol-teams" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:1.5rem"></div>
-        <div style="font-size:13px;color:#333;letter-spacing:0.05em">Weiter druecken fuer naechste Frage</div>
-      </div>
-
-      <!-- Bonus Screen -->
-      <div id="bonus-screen-block" style="display:none;width:100%;max-width:700px;text-align:center">
-        <div style="font-size:32px;margin-bottom:1rem">&#127942;</div>
-        <div style="font-size:11px;color:#F59E0B;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem" id="bonus-screen-label">Bonus-Aufgabe</div>
-        <div style="font-size:52px;font-weight:900;color:#F5F7FA;margin-bottom:0.5rem">Real Life</div>
-        <div style="font-size:20px;color:#555;margin-bottom:2rem">Fuehrt die Aufgabe durch &mdash; dann Punkte vergeben</div>
-        <div class="bonus-grid" id="bonus-grid-screen" style="max-width:500px;margin:0 auto 1.5rem"></div>
-        <button onclick="giveBonusScreen()" style="padding:14px 32px;border-radius:10px;border:none;background:linear-gradient(135deg,#b45309,#F59E0B);color:#000;font-size:15px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;letter-spacing:0.05em">+5 Punkte vergeben</button>
-      </div>
-
-      <!-- Buzz Block -->
-      <div id="buzz-main-block" style="display:none;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
-        <div style="font-size:11px;color:#22D3EE;letter-spacing:0.1em;text-transform:uppercase">Block 3 &mdash; Bild <span id="buzz-main-num">1</span> / 6</div>
-        <div id="buzz-center-img" style="flex:1;display:flex;align-items:center;justify-content:center;width:100%">
-          <div style="color:#333;font-size:14px">Bild wird geladen...</div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ANSWERS BAR - bottom strip -->
-    <div id="ans-bar" style="display:none;height:60px;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.06);padding:0 1rem;flex-shrink:0;overflow-x:auto;white-space:nowrap;display:none;align-items:center;gap:8px">
-      <div class="ans-grid" id="ans-grid" style="display:inline-flex;gap:8px"></div>
-    </div>
-
   </div>
 </div>
 
 <!-- FULLSCORE -->
 <div id="screen-fullscore" class="screen">
-  <div class="fullscore-inner" onclick="if(fullscoreInterval)clearInterval(fullscoreInterval);go('master')">
+  <div class="fullscore-inner" onclick="go('master')">
     <div class="fullscore-title">Coaching Brain &middot; DHB U16 Boys</div>
     <div class="fullscore-h">Zwischenstand</div>
     <div id="fullscore-list"></div>
@@ -423,7 +343,6 @@ var TEAMS=[
 ];
 
 var QS=[
-  {stage:0,pts:0,time:30,type:'mc',text:'Was ist 1 + 1?',opts:['1','2','3','4'],correct:1,test:true},
   {stage:1,pts:1,time:60,type:'mc',text:'Was ist die Hauptstadt von Polen?',opts:['Krakau','Warschau','Danzig','Lodz'],correct:1},
   {stage:1,pts:1,time:60,type:'mc',text:'Wie viele Einwohner hat Polen?',opts:['28 Mio','33 Mio','38 Mio','45 Mio'],correct:2},
   {stage:1,pts:1,time:60,type:'mc',text:'Wie viele Laender grenzen an Polen?',opts:['5','6','7','8'],correct:2},
@@ -452,9 +371,8 @@ var BUZZ_QS=[
 ];
 
 var G={
-  q:-1,buzzQ:-1,inBuzz:false,mcOpen:false,showingSolution:false,introShown:false,
-  scores:{},scored:{},bonusSel:[],bannedTeams:[],
-  bonusShown1:false,bonusShown2:false,
+  q:-1,buzzQ:-1,inBuzz:false,mcOpen:false,
+  scores:{},scored:{},bonusSel:[],
   myTeam:null,lastQ:-1,lastBuzzQ:-1,buzzed:false,
   tiInt:null,pollInt:null,mtiInt:null
 };
@@ -481,22 +399,16 @@ function go(s){
 var selTeam=null;
 function renderGrid(){
   var g=document.getElementById('team-grid');g.innerHTML='';
-  // Check who's already logged in
-  sbh('/rest/v1/cb_quiz_answers?select=team_id&limit=100')
-    .then(function(r){return r.json();})
-    .catch(function(){return [];})
-    .then(function(ans){
-      TEAMS.forEach(function(t){
-        var b=document.createElement('button');b.className='team-btn';
-        b.innerHTML='<div class="team-name">'+t.name+'</div>';
-        b.onclick=function(){
-          document.querySelectorAll('.team-btn').forEach(function(x){x.classList.remove('selected');});
-          b.classList.add('selected');selTeam=t;
-          document.getElementById('join-btn').disabled=false;
-        };
-        g.appendChild(b);
-      });
-    });
+  TEAMS.forEach(function(t){
+    var b=document.createElement('button');b.className='team-btn';
+    b.innerHTML='<div class="team-name">'+t.name+'</div>';
+    b.onclick=function(){
+      document.querySelectorAll('.team-btn').forEach(function(x){x.classList.remove('selected');});
+      b.classList.add('selected');selTeam=t;
+      document.getElementById('join-btn').disabled=false;
+    };
+    g.appendChild(b);
+  });
 }
 
 function joinTeam(){
@@ -510,32 +422,16 @@ function joinTeam(){
 function playerPoll(){
   G.pollInt=setInterval(function(){
     if(!G.myTeam)return;
-    // Update waiting count
-    if(document.getElementById('screen-waiting').classList.contains('active')){
-      sbh('/rest/v1/cb_quiz_answers?select=team_id&limit=100')
-        .then(function(r){return r.json();})
-        .then(function(d){
-          var wc=document.getElementById('waiting-count');
-          if(wc&&d)wc.textContent=d.length+' Antworten bisher';
-        }).catch(function(){});
-    }
-    sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started,buzz_q,in_buzz,mc_open,banned')
+    sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started,buzz_q,in_buzz,mc_open')
       .then(function(r){return r.json();})
       .then(function(d){
         if(!d||!d[0])return;
         var s=d[0];
         if(s.in_buzz){
-          // Update banned teams
-          try{G.bannedTeams=s.banned?JSON.parse(s.banned):[];}catch(e){G.bannedTeams=[];}
-          // If our team got banned, re-enable buzzer with locked state
-          if(G.myTeam&&G.bannedTeams.indexOf(G.myTeam.id)>=0&&G.buzzed){
-            document.getElementById('buzz-result').innerHTML='<div class="buzz-locked">Ihr seid gesperrt &mdash; andere koennen noch buzzern!</div>';
-            document.getElementById('buzz-btn').disabled=true;
-          }
           if(s.mc_open&&!G.mcOpen){
             G.mcOpen=true;showMCFallback(s.buzz_q);
           } else if(!s.mc_open&&s.buzz_q!==G.lastBuzzQ){
-            G.lastBuzzQ=s.buzz_q;G.buzzQ=s.buzz_q;G.mcOpen=false;
+            G.lastBuzzQ=s.buzz_q;G.buzzQ=s.buzz_q;G.buzzed=false;G.mcOpen=false;
             showBuzzerScreen(s.buzz_q);
           }
         } else if(s.started&&s.current_q>=0&&s.current_q!==G.lastQ){
@@ -548,25 +444,38 @@ function playerPoll(){
 
 // COUNTDOWN
 function showCountdown(qi,cb){
-  cb();
+  var q=QS[qi];if(!q){cb();return;}
+  go('countdown');
+  var stageQ=qi<8?qi+1:qi-7;
+  document.getElementById('cd-stage').textContent='Stage '+q.stage+' - Frage '+stageQ+' / 8';
+  document.getElementById('cd-question').textContent='';
+  var n=document.getElementById('cd-num');
+  n.textContent='3';n.className='cd-num';
+  var count=3;
+  var ci=setInterval(function(){
+    count--;
+    if(count>0){
+      n.textContent=count;
+      if(count===1)n.className='cd-num warn';
+    } else {
+      clearInterval(ci);
+      n.className='cd-num go';n.textContent='LOS!';
+      document.getElementById('cd-question').textContent=q.text;
+      setTimeout(function(){cb();},800);
+    }
+  },1000);
 }
 
 // BUZZER PLAYER
 function showBuzzerScreen(bq){
   go('buzzer');
-  G.buzzed=false;G.bannedTeams=[];
   document.getElementById('buzz-q-num').textContent='Bild '+(bq+1)+' / '+BUZZ_QS.length;
-  var btn=document.getElementById('buzz-team-name');
-  if(btn&&G.myTeam)btn.textContent=G.myTeam.name;
+  document.getElementById('buzz-btn').disabled=false;
+  document.getElementById('buzz-result').innerHTML='';
 }
 
 function doBuzz(){
   if(G.buzzed||!G.myTeam)return;
-  // Check if banned
-  if(G.bannedTeams&&G.bannedTeams.indexOf(G.myTeam.id)>=0){
-    document.getElementById('buzz-result').innerHTML='<div class="buzz-locked">Ihr seid gesperrt fuer diese Runde!</div>';
-    return;
-  }
   G.buzzed=true;
   document.getElementById('buzz-btn').disabled=true;
   sbh('/rest/v1/cb_quiz_buzzer',{
@@ -607,8 +516,14 @@ function showMCFallback(bq){
 function showPlayerQ(qi){
   var q=QS[qi];if(!q)return;
   go('question');
+  document.getElementById('q-pill').textContent='Stage '+q.stage;
+  document.getElementById('q-pill').className='stage-pill s'+q.stage;
+  var stageQ=qi<8?qi+1:qi-7;
+  document.getElementById('q-meta').textContent='Frage '+stageQ+' / 8';
+  document.getElementById('q-text').textContent=q.text;
   var saved=document.getElementById('ans-saved');
   saved.style.display='none';saved.className='ans-saved ans-neutral';
+  startPBar(q.time);
   if(q.type==='mc'){
     document.getElementById('q-options').style.display='grid';
     document.getElementById('q-est').style.display='none';
@@ -661,9 +576,8 @@ function submitEst(){
   if(!v)return;
   document.getElementById('est-btn').disabled=true;
   document.getElementById('est-val').disabled=true;
-  var v2=document.getElementById('est-val').value.trim();
   var saved=document.getElementById('ans-saved');
-  saved.textContent='Gespeichert: '+v2+' | Ergebnis nach dem Timer...';
+  saved.textContent='Gespeichert! Ergebnis nach dem Timer...';
   saved.className='ans-saved ans-neutral';saved.style.display='block';
   saveAns(G.q,parseFloat(v));
   // Poll for result after timer
@@ -694,48 +608,8 @@ function saveAns(qi,val){
     method:'POST',
     headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
     body:JSON.stringify({team_id:G.myTeam.id,question_idx:qi,answer:String(val)})
-  }).then(function(r){
-    if(!r.ok){
-      var saved=document.getElementById('ans-saved');
-      if(saved){saved.textContent='Fehler! Nochmal versuchen.';saved.className='ans-saved ans-fail';saved.style.display='block';}
-    }
-  }).catch(function(){
-    var saved=document.getElementById('ans-saved');
-    if(saved){saved.textContent='Kein Internet! Antwort nicht gespeichert.';saved.className='ans-saved ans-fail';saved.style.display='block';}
-  });
+  }).catch(function(){});
 }
-
-// Phone wake-up: re-show current question when screen comes back
-document.addEventListener('visibilitychange',function(){
-  if(!document.hidden&&G.myTeam){
-    // Re-fetch state and show current question
-    // Update waiting count
-    if(document.getElementById('screen-waiting').classList.contains('active')){
-      sbh('/rest/v1/cb_quiz_answers?select=team_id&limit=100')
-        .then(function(r){return r.json();})
-        .then(function(d){
-          var wc=document.getElementById('waiting-count');
-          if(wc&&d)wc.textContent=d.length+' Antworten bisher';
-        }).catch(function(){});
-    }
-    sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started,buzz_q,in_buzz,mc_open,banned')
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(!d||!d[0])return;
-        var s=d[0];
-        if(s.in_buzz&&s.buzz_q>=0){
-          if(s.mc_open){showMCFallback(s.buzz_q);}
-          else{G.buzzed=false;showBuzzerScreen(s.buzz_q);}
-        } else if(s.started&&s.current_q>=0){
-          // Only re-show if it's a new question we haven't answered
-          if(s.current_q!==G.lastQ){
-            G.lastQ=s.current_q;G.q=s.current_q;
-            showPlayerQ(s.current_q);
-          }
-        }
-      }).catch(function(){});
-  }
-});
 
 // MASTER PW
 function checkPw(){
@@ -761,216 +635,105 @@ function masterPoll(){
 
 // QUIZ FLOW
 function startQuiz(){
-  document.getElementById('start-block').style.display='none';
-  document.getElementById('intro-block').style.display='block';
-  G.introShown=true;
+  G.q=0;
+  document.getElementById('start-btn').style.display='none';
+  document.getElementById('mtimer').style.display='block';
+  document.getElementById('mtbar-wrap').style.display='block';
+  showMasterQ(0);
+  pushState({current_q:0,started:true,in_buzz:false,buzz_q:-1,mc_open:false});
 }
 
 function nextQ(){
-  // Intro screen -> start test question
-  if(G.introShown&&G.q===-1){
-    G.introShown=false;G.q=0;
-    document.getElementById('intro-block').style.display='none';
-    showMasterQ(0);
-    pushState({current_q:0,started:true,in_buzz:false,buzz_q:-1,mc_open:false});
-    return;
-  }
-  // Bonus screen showing -> advance to next block
-  if(document.getElementById('bonus-screen-block').style.display!=='none'){
-    document.getElementById('bonus-screen-block').style.display='none';
-    G.q++;
-    document.getElementById('question-block').style.display='block';
-    if(G.q>=17){startBuzzBlock();return;}
-    showMasterQ(G.q);
-    pushState({current_q:G.q,started:true,in_buzz:false,buzz_q:-1,mc_open:false});
-    return;
-  }
   if(G.inBuzz){
-    // Weiter always moves to next buzz image regardless
-    G.bannedTeams=[];
+    // Next buzz question
     if(G.buzzQ<BUZZ_QS.length-1){
-      G.buzzQ++;showBuzzQ(G.buzzQ);
+      G.buzzQ++;
+      showBuzzQ(G.buzzQ);
     } else {
       endBuzzBlock();
     }
     return;
   }
-  // If showing solution, advance to next question
-  if(G.showingSolution){
-    G.showingSolution=false;
-    document.getElementById('solution-block').style.display='none';
-    document.getElementById('question-block').style.display='block';
-    // Now do the actual advance
-    advanceQuestion();
-    return;
-  }
-  // Show solution first
-  if(G.q>=0&&G.q<QS.length){
-    showSolution(G.q);
-    return;
-  }
-  advanceQuestion();
-}
-
-function showSolution(qi){
-  var q=QS[qi];if(!q)return;
-  G.showingSolution=true;
-  if(mtiInt)clearInterval(mtiInt);
-  // Auto-score estimate if not yet done
-  if(q.type==='est'&&!G.scored[qi]){scoreEstimate(qi);}
-  document.getElementById('question-block').style.display='none';
-  document.getElementById('solution-block').style.display='block';
-  var stageQ=qi<8?qi+1:qi-7;
-  document.getElementById('sol-stage').textContent='Stage '+q.stage+' - Frage '+stageQ+' von 8';
-  document.getElementById('sol-question').textContent=q.text;
-  if(q.type==='mc'){
-    document.getElementById('sol-answer').textContent=q.opts[q.correct];
-  } else {
-    document.getElementById('sol-answer').textContent=q.answer+' '+q.unit;
-  }
-  // Show team answers
-  var teams=document.getElementById('sol-teams');teams.innerHTML='';
-  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+qi+'&select=*')
-    .then(function(r){return r.json();})
-    .then(function(ans){
-      if(q.type==='mc'){
-        TEAMS.forEach(function(t){
-          var a=ans.find(function(x){return x.team_id===t.id;});
-          var div=document.createElement('div');
-          var correct=false,val='...';
-          if(a){correct=parseInt(a.answer)===q.correct;val=q.opts[parseInt(a.answer)]||a.answer;}
-          div.style.cssText='padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid '+(correct?'rgba(29,158,117,0.4)':'rgba(255,255,255,0.08)')+';background:'+(correct?'rgba(29,158,117,0.1)':'rgba(255,255,255,0.03)')+';color:'+(correct?'#1D9E75':'#888');
-          div.textContent=t.name.split(',')[0]+': '+val;
-          teams.appendChild(div);
-        });
-      } else {
-        // Estimate - sort by closest
-        var withDiff=ans.map(function(a){
-          var t=TEAMS.find(function(x){return x.id===a.team_id;});
-          return {name:t?t.name.split(',')[0]:a.team_id,val:parseFloat(a.answer),diff:Math.abs(parseFloat(a.answer)-q.answer),tid:a.team_id};
-        });
-        withDiff.sort(function(a,b){return a.diff-b.diff;});
-        var minDiff=withDiff.length?withDiff[0].diff:null;
-        var maxDiff=withDiff.length?withDiff[withDiff.length-1].diff:null;
-        withDiff.forEach(function(d){
-          var isWin=d.diff===minDiff;
-          var isLose=withDiff.length>1&&d.diff===maxDiff&&maxDiff!==minDiff;
-          var div=document.createElement('div');
-          var color=isWin?'rgba(29,158,117,0.4)':isLose?'rgba(225,29,116,0.4)':'rgba(255,255,255,0.08)';
-          var bg=isWin?'rgba(29,158,117,0.1)':isLose?'rgba(225,29,116,0.08)':'rgba(255,255,255,0.03)';
-          var tc=isWin?'#1D9E75':isLose?'#E11D74':'#888';
-          var label=isWin?' +2 Pkt':isLose?' -1 Pkt':'';
-          div.style.cssText='padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid '+color+';background:'+bg+';color:'+tc;
-          div.textContent=d.name+': '+d.val+' (+-'+d.diff.toFixed(0)+')'+label;
-          teams.appendChild(div);
-        });
-      }
-    }).catch(function(){});
-}
-
-function advanceQuestion(){
-  // End of block 1 (index 8 because test question is index 0)
-  if(G.q===8&&!G.bonusShown1){
-    G.bonusShown1=true;
+  // End of block 1
+  if(G.q===7){
     document.getElementById('bonus-card').style.display='block';
+    document.getElementById('mq-num').textContent='Block 1 abgeschlossen! Bonus-Aufgabe durchfuehren.';
     return;
   }
-  // End of block 2 (index 16 because test question is index 0)
-  if(G.q===16&&!G.bonusShown2){
-    G.bonusShown2=true;
+  // End of block 2
+  if(G.q===15){
     document.getElementById('bonus-card').style.display='block';
+    document.getElementById('mq-num').textContent='Block 2 abgeschlossen! Bonus-Aufgabe, dann Block 3.';
     return;
   }
-  if(G.q>=17)return;
+  if(G.q>=16)return;
   G.q++;
-  document.getElementById('bonus-card').style.display='none';
-  if(G.q>=17){startBuzzBlock();return;}
+  if(G.q>=16){
+    startBuzzBlock();return;
+  }
   showMasterQ(G.q);
   pushState({current_q:G.q,started:true,in_buzz:false,buzz_q:-1,mc_open:false});
 }
 
 function startBuzzBlock(){
   G.inBuzz=true;G.buzzQ=0;
-  document.getElementById('question-block').style.display='none';
-  document.getElementById('buzz-main-block').style.display='flex';
-  document.getElementById('score-card').style.display='none';
-  document.getElementById('bonus-card').style.display='none';
-  document.getElementById('edit-score-card').style.display='none';
+  document.getElementById('mq-card').style.display='none';
   document.getElementById('buzz-master-card').style.display='block';
-  renderManualScoreList();
+  document.getElementById('ans-card').style.display='none';
+  document.getElementById('score-est-btn').style.display='none';
   if(G.mtiInt)clearInterval(G.mtiInt);
   showBuzzQ(0);
 }
 
 function showBuzzQ(bq){
-  G.buzzQ=bq;G.bannedTeams=[];
+  G.buzzQ=bq;
   var q=BUZZ_QS[bq];if(!q)return;
   var wrap=document.getElementById('buzz-img-wrap');
-  var center=document.getElementById('buzz-center-img');
   if(q.img){
-    var imgTag='<img src="'+q.img+'" alt="Bild '+(bq+1)+'" style="max-height:calc(100vh - 140px);max-width:90%;border-radius:16px;object-fit:contain;box-shadow:0 0 60px rgba(0,0,0,0.8)" />';
-    wrap.innerHTML=imgTag;
-    if(center)center.innerHTML=imgTag;
+    wrap.innerHTML='<img src="'+q.img+'" alt="Bild '+(bq+1)+'" />';
   } else {
     wrap.innerHTML='<div class="buzz-placeholder">Bild '+(bq+1)+' / '+BUZZ_QS.length+'</div>';
-    if(center)center.innerHTML='<div style="color:#333;font-size:14px">Kein Bild</div>';
   }
+  document.getElementById('buzz-answer-label').textContent='Antwort: '+q.answer;
   document.getElementById('buzz-winner-display').className='buzz-none-box';
   document.getElementById('buzz-winner-display').innerHTML='Noch kein Buzzer...';
   document.getElementById('pts-btns').style.display='none';
-  var bn=document.getElementById('buzz-main-num');if(bn)bn.textContent=bq+1;
   // Clear buzzer for this round
   sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+bq,{method:'DELETE'}).catch(function(){});
   pushState({current_q:G.q,started:true,in_buzz:true,buzz_q:bq,mc_open:false});
 }
 
 function loadBuzzer(){
-  sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ+'&select=*&order=ts.asc')
+  sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ+'&select=*&order=ts.asc&limit=1')
     .then(function(r){return r.json();})
     .then(function(rows){
-      if(!rows||!rows.length)return;
-      // Find first non-banned team
-      var winner=null;
-      for(var i=0;i<rows.length;i++){
-        if(G.bannedTeams.indexOf(rows[i].team_id)<0){winner=rows[i];break;}
+      if(rows&&rows.length){
+        var w=rows[0];
+        var el=document.getElementById('buzz-winner-display');
+        el.className='buzz-winner-box';
+        el.innerHTML='<h2>'+w.team_name+'</h2><p>Erstes Buzzer!</p>';
+        document.getElementById('pts-btns').style.display='flex';
       }
-      if(!winner)return;
-      var el=document.getElementById('buzz-winner-display');
-      el.className='buzz-winner-box';
-      el.innerHTML='<h2>'+winner.team_name+'</h2><p>Erstes Buzzer!</p>';
-      document.getElementById('pts-btns').style.display='flex';
     }).catch(function(){});
 }
 
 function awardPts(pts){
-  sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ+'&select=*&order=ts.asc&limit=1')
-    .then(function(r){return r.json();})
-    .then(function(rows){
-      if(!rows||!rows.length)return;
-      var winner=rows[0];
-      if(pts>0){
-        // Correct - award points and move to next
-        G.scores[winner.team_id]=(G.scores[winner.team_id]||0)+pts;
-        saveScores();renderScore();
-        G.bannedTeams=[];
-        if(G.buzzQ<BUZZ_QS.length-1){G.buzzQ++;showBuzzQ(G.buzzQ);}
-        else{endBuzzBlock();}
-      } else {
-        // Wrong - ban this team, -3 points, reset buzzer, same image
-        G.bannedTeams.push(winner.team_id);
-        G.scores[winner.team_id]=(G.scores[winner.team_id]||0)-3;
-        saveScores();renderScore();
-        var t=TEAMS.find(function(x){return x.id===winner.team_id;});
-        var tname=t?t.name.split(',')[0]:winner.team_id;
-        // Delete only this team's buzzer and re-open
-        sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ,{method:'DELETE'}).catch(function(){});
-        document.getElementById('buzz-winner-display').className='buzz-none-box';
-        document.getElementById('buzz-winner-display').innerHTML='<span style="color:#E11D74">'+tname+' FALSCH &mdash; gesperrt!</span><br><span style="color:#555;font-size:12px">Andere Teams koennen noch buzzern</span>';
-        document.getElementById('pts-btns').style.display='none';
-        // Push banned teams to state so players know
-        pushState({current_q:G.q,started:true,in_buzz:true,buzz_q:G.buzzQ,mc_open:false,banned:JSON.stringify(G.bannedTeams)});
-      }
-    });
+  if(pts>0){
+    sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ+'&select=*&order=ts.asc&limit=1')
+      .then(function(r){return r.json();})
+      .then(function(rows){
+        if(rows&&rows.length){
+          G.scores[rows[0].team_id]=(G.scores[rows[0].team_id]||0)+pts;
+          saveScores();renderScore();
+        }
+      });
+  }
+  // Next
+  if(G.buzzQ<BUZZ_QS.length-1){
+    G.buzzQ++;showBuzzQ(G.buzzQ);
+  } else {
+    endBuzzBlock();
+  }
 }
 
 function clearBuzzer(){
@@ -981,54 +744,34 @@ function clearBuzzer(){
 }
 
 function openMCFallback(){
-  // Clear existing MC answers for this buzz round
-  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+(-(G.buzzQ+1)),{method:'DELETE'}).catch(function(){});
   pushState({current_q:G.q,started:true,in_buzz:true,buzz_q:G.buzzQ,mc_open:true});
-  var msb=document.getElementById('mc-score-btn');
-  if(msb)msb.style.display='block';
-}
-
-function scoreMCFallback(bq){
-  var q=BUZZ_QS[bq];if(!q)return;
-  var correctIdx=q.opts.indexOf(q.answer);
-  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+(-(bq+1))+'&select=*')
-    .then(function(r){return r.json();})
-    .then(function(ans){
-      if(!ans||!ans.length)return;
-      ans.forEach(function(a){
-        if(parseInt(a.answer)===correctIdx){
-          G.scores[a.team_id]=(G.scores[a.team_id]||0)+3;
-        }
-      });
-      saveScores();renderScore();
-    }).catch(function(){});
 }
 
 function endBuzzBlock(){
   G.inBuzz=false;
   document.getElementById('buzz-master-card').style.display='none';
-  document.getElementById('buzz-main-block').style.display='none';
-  document.getElementById('question-block').style.display='block';
+  document.getElementById('mq-card').style.display='block';
   document.getElementById('mq-text').textContent='Quiz abgeschlossen!';
   document.getElementById('mq-stage').textContent='Fertig';
   document.getElementById('mq-num').textContent='Alle Runden gespielt.';
-  document.getElementById('mtimer').textContent='';
+  document.getElementById('mtimer').style.display='none';
+  document.getElementById('mtbar-wrap').style.display='none';
 }
 
 // MASTER QUESTION
 var mtiInt=null;
 function showMasterQ(qi){
   var q=QS[qi];if(!q)return;
-  document.getElementById('start-block').style.display='none';
-  document.getElementById('question-block').style.display='block';
-  document.getElementById('buzz-main-block').style.display='none';
-  var stageLabel=q.test?'TEST &mdash; zaehlt nicht':q.stage===1?'Stage 1 &middot; 1 Punkt':'Stage 2 &middot; 2 Punkte';
+  var stageLabel=q.stage===1?'Stage 1 &middot; 1 Punkt':'Stage 2 &middot; 2 Punkte';
   document.getElementById('mq-stage').innerHTML=stageLabel;
-  var stageQ=q.test?'Test':qi<=8?qi:qi-8;
-  document.getElementById('mq-num').textContent=q.test?'Technik-Check':'Frage '+stageQ+' von 8';
+  var stageQ=qi<8?qi+1:qi-7;
+  document.getElementById('mq-num').textContent='Frage '+stageQ+' von 8';
   document.getElementById('mq-text').textContent=q.text;
+  document.getElementById('mtimer').style.display='block';
+  document.getElementById('mtbar-wrap').style.display='block';
+
   var estBtn=document.getElementById('score-est-btn');
-  if(estBtn)estBtn.style.display=q.type==='est'?'block':'none';
+  estBtn.style.display=q.type==='est'?'block':'none';
 
   if(mtiInt)clearInterval(mtiInt);
   var total=q.time,left=total;
@@ -1048,6 +791,7 @@ function showMasterQ(qi){
     }
   },1000);
 
+  document.getElementById('ans-card').style.display='block';
   loadAns(qi);
 }
 
@@ -1064,12 +808,12 @@ function loadAns(qi){
           var t=TEAMS.find(function(x){return x.id===a.team_id;});
           var tname=t?t.name.split(',')[0]:a.team_id;
           if(parseInt(a.answer)===q.correct){
-            if(!q.test)G.scores[a.team_id]=(G.scores[a.team_id]||0)+q.pts;
+            G.scores[a.team_id]=(G.scores[a.team_id]||0)+q.pts;
             correct.push(tname);
           } else {wrong.push(tname);}
         });
-        if(!q.test)saveScores();
-        var msg=q.test?'Test OK: '+(correct.length?correct.join(', '):'Niemand'):'Richtig: '+(correct.length?correct.join(', '):'Niemand');
+        saveScores();
+        var msg='Richtig: '+(correct.length?correct.join(', '):'Niemand');
         if(wrong.length)msg+=' | Falsch: '+wrong.join(', ');
         document.getElementById('mq-num').textContent=msg;
       }
@@ -1078,9 +822,6 @@ function loadAns(qi){
 
 function renderAns(qi,ans,q){
   var grid=document.getElementById('ans-grid');grid.innerHTML='';
-  // Show answer count
-  var countEl=document.getElementById('ans-count');
-  if(countEl)countEl.textContent=ans.length+' / '+TEAMS.length+' geantwortet';
   if(!ans||!ans.length){
     grid.innerHTML='<div style="color:#333;font-size:12px;text-align:center;padding:0.5rem;grid-column:1/-1;letter-spacing:0.05em">Noch keine Antworten...</div>';
     return;
@@ -1133,32 +874,19 @@ function scoreCurrentEst(){if(G.q>=0)scoreEstimate(G.q);}
 
 // SCORES
 function saveScores(){
-  // Save team scores as integers
   var payload=TEAMS.map(function(t){return {team_id:t.id,points:G.scores[t.id]||0};});
   sbh('/rest/v1/cb_quiz_scores',{
     method:'POST',
     headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
     body:JSON.stringify(payload)
-  }).catch(function(e){console.error('saveScores error',e);});
-  // Save scored flags separately in quiz_state as text
-  sbh('/rest/v1/cb_quiz_state?id=eq.1',{
-    method:'PATCH',
-    headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
-    body:JSON.stringify({scored_flags:JSON.stringify(G.scored)})
   }).catch(function(){});
 }
 
 function loadScores(cb){
-  sbh('/rest/v1/cb_quiz_scores?select=team_id,points')
+  sbh('/rest/v1/cb_quiz_scores?select=*')
     .then(function(r){return r.json();})
     .then(function(rows){
-      if(rows&&rows.length){
-        rows.forEach(function(r){
-          if(r.team_id&&r.team_id!=='_scored'){
-            G.scores[r.team_id]=parseInt(r.points)||0;
-          }
-        });
-      }
+      if(rows&&rows.length)rows.forEach(function(r){G.scores[r.team_id]=r.points;});
       if(cb)cb();
     }).catch(function(){if(cb)cb();});
 }
@@ -1174,41 +902,7 @@ function renderScore(){
   });
 }
 
-function renderManualScoreList(){
-  var list=document.getElementById('manual-score-list');
-  if(!list)return;
-  list.innerHTML='';
-  TEAMS.forEach(function(t){
-    var row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)';
-    row.innerHTML=
-      '<div style="flex:1;font-size:12px;font-weight:700;color:#F5F7FA">'+t.name.split(',')[0]+'</div>'+
-      '<div style="font-size:13px;font-weight:800;color:#22D3EE;min-width:28px;text-align:center">'+(G.scores[t.id]||0)+'</div>'+
-      '<button onclick="manualPts(''+t.id+'',3)" style="padding:5px 10px;border-radius:6px;border:none;background:linear-gradient(135deg,#059669,#1D9E75);color:#fff;font-size:12px;font-weight:700;cursor:pointer">+3</button>'+
-      '<button onclick="manualPts(''+t.id+'',-3)" style="padding:5px 10px;border-radius:6px;border:none;background:linear-gradient(135deg,#be123c,#E11D74);color:#fff;font-size:12px;font-weight:700;cursor:pointer">-3</button>';
-    list.appendChild(row);
-  });
-}
-
-function manualPts(tid,pts){
-  G.scores[tid]=(G.scores[tid]||0)+pts;
-  if(G.scores[tid]<0)G.scores[tid]=0;
-  saveScores();
-  renderManualScoreList();
-  renderScore();
-}
-
-var fullscoreInterval=null;
 function showFullScore(){
-  go('fullscore');
-  renderFullScore();
-  if(fullscoreInterval)clearInterval(fullscoreInterval);
-  fullscoreInterval=setInterval(function(){
-    loadScores(function(){renderFullScore();});
-  },3000);
-}
-
-function renderFullScore(){
   var sorted=TEAMS.slice().sort(function(a,b){return (G.scores[b.id]||0)-(G.scores[a.id]||0);});
   var list=document.getElementById('fullscore-list');list.innerHTML='';
   sorted.forEach(function(t,i){
@@ -1217,6 +911,7 @@ function renderFullScore(){
     row.innerHTML='<div class="fullscore-rank '+rc+'">'+(i+1)+'</div><div class="fullscore-name">'+t.name+'</div><div class="fullscore-pts">'+(G.scores[t.id]||0)+' Pkt</div>';
     list.appendChild(row);
   });
+  go('fullscore');
 }
 
 // BONUS
@@ -1234,104 +929,19 @@ function renderBonusGrid(){
   });
 }
 
-function showBonusScreen(label){
-  document.getElementById('question-block').style.display='none';
-  document.getElementById('solution-block').style.display='none';
-  document.getElementById('buzz-main-block').style.display='none';
-  document.getElementById('start-block').style.display='none';
-  document.getElementById('intro-block').style.display='none';
-  // Close all panels
-  ['score-card','edit-score-card','buzz-master-card'].forEach(function(id){
-    document.getElementById(id).style.display='none';
-  });
-  document.getElementById('bonus-screen-block').style.display='block';
-  document.getElementById('bonus-screen-label').innerHTML=label||'Bonus-Aufgabe';
-  G.bonusSel=[];
-  renderBonusGridScreen();
-}
-
-function renderBonusGridScreen(){
-  var bg=document.getElementById('bonus-grid-screen');bg.innerHTML='';
-  TEAMS.forEach(function(t){
-    var b=document.createElement('button');b.className='bonus-btn';
-    b.textContent=t.name.split(',')[0];
-    b.onclick=function(){
-      b.classList.toggle('sel');
-      var idx=G.bonusSel.indexOf(t.id);
-      if(idx>=0)G.bonusSel.splice(idx,1);else G.bonusSel.push(t.id);
-    };
-    bg.appendChild(b);
-  });
-}
-
-function giveBonusScreen(){
-  if(G.bonusSel.length===0){alert('Kein Team ausgewaehlt!');return;}
-  G.bonusSel.forEach(function(tid){G.scores[tid]=(G.scores[tid]||0)+5;});
-  G.bonusSel=[];
-  document.querySelectorAll('#bonus-grid-screen .bonus-btn').forEach(function(b){b.classList.remove('sel');});
-  saveScores();
-  loadScores(function(){
-    renderScore();
-    alert('Bonus vergeben! Weiter fuer naechsten Block.');
-  });
-}
-
 function giveBonus(){
   G.bonusSel.forEach(function(tid){G.scores[tid]=(G.scores[tid]||0)+5;});
   G.bonusSel=[];
   document.querySelectorAll('.bonus-btn').forEach(function(b){b.classList.remove('sel');});
-  saveScores();
-  // Reload from Supabase to confirm
-  loadScores(function(){
-    renderScore();
-    document.getElementById('bonus-card').style.display='none';
-    alert('Bonus vergeben! +5 Punkte im Scoreboard.');
-  });
+  saveScores();renderScore();
+  document.getElementById('bonus-card').style.display='none';
+  alert('Bonus vergeben!');
 }
 
 function togglePanel(id){
-  var panels=['score-card','bonus-card','edit-score-card','buzz-master-card'];
-  panels.forEach(function(p){
-    if(p!==id)document.getElementById(p).style.display='none';
-  });
   var el=document.getElementById(id);
   el.style.display=el.style.display==='none'?'block':'none';
   if(id==='score-card'&&el.style.display==='block')renderScore();
-  if(id==='edit-score-card'&&el.style.display==='block')renderEditScores();
-}
-
-var G_paused=false;
-function togglePause(){
-  G_paused=!G_paused;
-  var btn=document.getElementById('pause-btn');
-  if(G_paused){
-    btn.textContent='Play';btn.style.background='#1D9E75';
-    if(mtiInt)clearInterval(mtiInt);
-  } else {
-    btn.textContent='Pause';btn.style.background='';
-    if(G.q>=0&&!G.inBuzz)showMasterQ(G.q);
-  }
-}
-
-function renderEditScores(){
-  var list=document.getElementById('edit-score-list');list.innerHTML='';
-  TEAMS.forEach(function(t){
-    var row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)';
-    row.innerHTML='<div style="flex:1;font-size:12px;font-weight:700">'+t.name.split(',')[0]+'</div>'+
-      '<input type="number" id="edit-'+t.id+'" value="'+(G.scores[t.id]||0)+'" style="width:70px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px;font-size:14px;font-weight:700;color:#F5F7FA;text-align:center;font-family:Montserrat,sans-serif">';
-    list.appendChild(row);
-  });
-}
-
-function saveEditedScores(){
-  TEAMS.forEach(function(t){
-    var inp=document.getElementById('edit-'+t.id);
-    if(inp)G.scores[t.id]=parseInt(inp.value)||0;
-  });
-  saveScores();renderScore();
-  document.getElementById('edit-score-card').style.display='none';
-  alert('Punkte gespeichert!');
 }
 
 // STATE
@@ -1352,8 +962,8 @@ function pushState(obj){
 
 // RESET
 function resetAll(){
-  if(!confirm('ACHTUNG: Alles zuruecksetzen? Alle Punkte, Antworten und Fortschritt werden unwiderruflich geloescht!'))return;
-  G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.mcOpen=false;G.showingSolution=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;G.bonusShown1=false;G.bonusShown2=false;
+  if(!confirm('Alles zuruecksetzen? Alle Punkte und Antworten werden geloescht.'))return;
+  G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.mcOpen=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;
   TEAMS.forEach(function(t){G.scores[t.id]=0;});
   if(mtiInt)clearInterval(mtiInt);
   Promise.all([
@@ -1368,17 +978,17 @@ function resetAll(){
     pushState({current_q:-1,started:false,in_buzz:false,buzz_q:-1,mc_open:false});
   });
   // Reset UI
-  document.getElementById('start-block').style.display='block';
-  document.getElementById('intro-block').style.display='none';
-  document.getElementById('bonus-screen-block').style.display='none';
-  document.getElementById('question-block').style.display='none';
-  document.getElementById('solution-block').style.display='none';
-  G.introShown=false;
-  document.getElementById('buzz-main-block').style.display='none';
+  document.getElementById('mq-card').style.display='block';
   document.getElementById('buzz-master-card').style.display='none';
   document.getElementById('bonus-card').style.display='none';
-  document.getElementById('score-card').style.display='none';
-  document.getElementById('edit-score-card').style.display='none';
+  document.getElementById('ans-card').style.display='none';
+  document.getElementById('mq-stage').textContent='Bereit zum Starten';
+  document.getElementById('mq-num').textContent='';
+  document.getElementById('mq-text').textContent='Quiz-Nacht';
+  document.getElementById('mtimer').style.display='none';
+  document.getElementById('mtbar-wrap').style.display='none';
+  document.getElementById('start-btn').style.display='block';
+  document.getElementById('score-est-btn').style.display='none';
   renderScore();
 }
 </script>
