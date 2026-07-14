@@ -469,9 +469,10 @@ function showCountdown(qi,cb){
 // BUZZER PLAYER
 function showBuzzerScreen(bq){
   go('buzzer');
-  document.getElementById('buzz-q-num').textContent='Bild '+(bq+1)+' / '+BUZZ_QS.length;
-  document.getElementById('buzz-btn').disabled=false;
-  document.getElementById('buzz-result').innerHTML='';
+  var qn=document.getElementById('buzz-q-num');
+  if(qn)qn.textContent='Bild '+(bq+1)+' / '+BUZZ_QS.length;
+  var bt=document.getElementById('buzz-team-show');
+  if(bt&&G.myTeam)bt.textContent=G.myTeam.name;
 }
 
 function doBuzz(){
@@ -685,6 +686,70 @@ function startBuzzBlock(){
   showBuzzQ(0);
 }
 
+function showSolution(qi){
+  var q=QS[qi];if(!q)return;
+  G.showingSolution=true;
+  if(mtiInt)clearInterval(mtiInt);
+  document.getElementById('question-block').style.display='none';
+  document.getElementById('solution-block').style.display='block';
+  var stageQ=qi<8?qi+1:qi-7;
+  document.getElementById('sol-stage').textContent='Stage '+q.stage+' - Frage '+stageQ+' von 8';
+  document.getElementById('sol-question').textContent=q.text;
+  document.getElementById('sol-answer').textContent=q.type==='mc'?q.opts[q.correct]:q.answer+' '+q.unit;
+  var teams=document.getElementById('sol-teams');teams.innerHTML='';
+  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+qi+'&select=*')
+    .then(function(r){return r.json();})
+    .then(function(ans){
+      if(q.type==='mc'){
+        TEAMS.forEach(function(t){
+          var a=ans.find(function(x){return x.team_id===t.id;});
+          var correct=a&&parseInt(a.answer)===q.correct;
+          var val=a?q.opts[parseInt(a.answer)]||a.answer:'...';
+          var div=document.createElement('div');
+          div.style.cssText='padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid '+(correct?'rgba(29,158,117,0.4)':'rgba(255,255,255,0.08)')+';background:'+(correct?'rgba(29,158,117,0.1)':'rgba(255,255,255,0.03)')+';color:'+(correct?'#1D9E75':'#888');
+          div.textContent=t.name.split(',')[0]+': '+val+(correct?' +1':'');
+          teams.appendChild(div);
+        });
+      } else {
+        var diffs=ans.map(function(a){
+          var t=TEAMS.find(function(x){return x.id===a.team_id;});
+          return{name:t?t.name.split(',')[0]:a.team_id,val:parseFloat(a.answer),diff:Math.abs(parseFloat(a.answer)-q.answer),tid:a.team_id};
+        });
+        diffs.sort(function(a,b){return a.diff-b.diff;});
+        var minD=diffs.length?diffs[0].diff:null;
+        var maxD=diffs.length?diffs[diffs.length-1].diff:null;
+        diffs.forEach(function(d){
+          var win=d.diff===minD;
+          var lose=diffs.length>1&&d.diff===maxD&&maxD!==minD;
+          var div=document.createElement('div');
+          div.style.cssText='padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid '+(win?'rgba(29,158,117,0.4)':lose?'rgba(225,29,116,0.4)':'rgba(255,255,255,0.08)')+';background:'+(win?'rgba(29,158,117,0.1)':lose?'rgba(225,29,116,0.08)':'rgba(255,255,255,0.03)')+';color:'+(win?'#1D9E75':lose?'#E11D74':'#888');
+          div.textContent=d.name+': '+d.val+' (+-'+d.diff.toFixed(0)+')'+(win?' +2':lose?' -1':'');
+          teams.appendChild(div);
+        });
+      }
+    }).catch(function(){});
+}
+
+function renderManualScoreList(){
+  var list=document.getElementById('manual-score-list');if(!list)return;
+  list.innerHTML='';
+  TEAMS.forEach(function(t){
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)';
+    row.innerHTML='<div style="flex:1;font-size:12px;font-weight:700;color:#F5F7FA">'+t.name.split(',')[0]+'</div>'+
+      '<div style="font-size:13px;font-weight:800;color:#22D3EE;min-width:28px;text-align:center" id="mscore-'+t.id+'">'+(G.scores[t.id]||0)+'</div>'+
+      '<button onclick="manualPts(''+t.id+'',3)" style="padding:5px 10px;border-radius:6px;border:none;background:linear-gradient(135deg,#059669,#1D9E75);color:#fff;font-size:12px;font-weight:700;cursor:pointer">+3</button>'+
+      '<button onclick="manualPts(''+t.id+'',-3)" style="padding:5px 10px;border-radius:6px;border:none;background:linear-gradient(135deg,#be123c,#E11D74);color:#fff;font-size:12px;font-weight:700;cursor:pointer">-3</button>';
+    list.appendChild(row);
+  });
+}
+
+function manualPts(tid,pts){
+  G.scores[tid]=(G.scores[tid]||0)+pts;
+  if(G.scores[tid]<0)G.scores[tid]=0;
+  saveScores();renderManualScoreList();renderScore();
+}
+
 function showBuzzQ(bq){
   G.buzzQ=bq;
   var q=BUZZ_QS[bq];if(!q)return;
@@ -792,6 +857,8 @@ function showMasterQ(qi){
   },1000);
 
   document.getElementById('ans-card').style.display='block';
+  var estBtn=document.getElementById('score-est-btn');
+  if(estBtn)estBtn.style.display=(q.type==='est'?'block':'none');
   loadAns(qi);
 }
 
@@ -873,6 +940,47 @@ function scoreEstimate(qi){
 function scoreCurrentEst(){if(G.q>=0)scoreEstimate(G.q);}
 
 // SCORES
+function scoreEstimate(qi){
+  var q=QS[qi];if(!q||q.type!=='est')return;
+  if(G.scored[qi])return;
+  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+qi+'&select=*')
+    .then(function(r){return r.json();})
+    .then(function(ans){
+      if(!ans||!ans.length)return;
+      G.scored[qi]=true;
+      var diffs=ans.map(function(a){return{tid:a.team_id,diff:Math.abs(parseFloat(a.answer)-q.answer)};});
+      diffs.sort(function(a,b){return a.diff-b.diff;});
+      var minD=diffs[0].diff,maxD=diffs[diffs.length-1].diff;
+      diffs.forEach(function(d){if(d.diff===minD)G.scores[d.tid]=(G.scores[d.tid]||0)+2;});
+      if(diffs.length>1&&maxD!==minD)diffs.forEach(function(d){if(d.diff===maxD)G.scores[d.tid]=(G.scores[d.tid]||0)-1;});
+      saveScores();renderScore();
+      var closest=TEAMS.find(function(t){return t.id===diffs[0].tid;});
+      var furthest=diffs.length>1&&maxD!==minD?TEAMS.find(function(t){return t.id===diffs[diffs.length-1].tid;}):null;
+      var msg='Antwort: '+q.answer+' '+q.unit;
+      if(closest)msg+=' | +2: '+closest.name.split(',')[0];
+      if(furthest)msg+=' | -1: '+furthest.name.split(',')[0];
+      document.getElementById('mq-num').textContent=msg;
+    }).catch(function(){});
+}
+
+function scoreCurrentEst(){if(G.q>=0)scoreEstimate(G.q);}
+
+function scoreMCFallback(bq){
+  var q=BUZZ_QS[bq];if(!q)return;
+  var correctIdx=q.opts.indexOf(q.answer);
+  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+(-(bq+1))+'&select=*')
+    .then(function(r){return r.json();})
+    .then(function(ans){
+      if(!ans||!ans.length)return;
+      ans.forEach(function(a){
+        if(parseInt(a.answer)===correctIdx)G.scores[a.team_id]=(G.scores[a.team_id]||0)+3;
+      });
+      saveScores();renderScore();renderManualScoreList();
+      var msb=document.getElementById('mc-score-btn');if(msb)msb.style.display='none';
+      alert('MC Punkte vergeben!');
+    }).catch(function(){});
+}
+
 function saveScores(){
   var payload=TEAMS.map(function(t){return {team_id:t.id,points:G.scores[t.id]||0};});
   sbh('/rest/v1/cb_quiz_scores',{
@@ -930,12 +1038,23 @@ function renderBonusGrid(){
 }
 
 function giveBonus(){
+  if(G.bonusSel.length===0){alert('Kein Team ausgewaehlt!');return;}
   G.bonusSel.forEach(function(tid){G.scores[tid]=(G.scores[tid]||0)+5;});
   G.bonusSel=[];
   document.querySelectorAll('.bonus-btn').forEach(function(b){b.classList.remove('sel');});
-  saveScores();renderScore();
-  document.getElementById('bonus-card').style.display='none';
-  alert('Bonus vergeben!');
+  var payload=TEAMS.map(function(t){return{team_id:t.id,points:G.scores[t.id]||0};});
+  sbh('/rest/v1/cb_quiz_scores',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+    body:JSON.stringify(payload)
+  }).then(function(){
+    renderScore();
+    document.getElementById('bonus-card').style.display='none';
+    alert('Bonus vergeben! +5 im Scoreboard.');
+  }).catch(function(){
+    renderScore();
+    document.getElementById('bonus-card').style.display='none';
+  });
 }
 
 function togglePanel(id){
@@ -963,7 +1082,7 @@ function pushState(obj){
 // RESET
 function resetAll(){
   if(!confirm('Alles zuruecksetzen? Alle Punkte und Antworten werden geloescht.'))return;
-  G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.mcOpen=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;
+  G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.showingSolution=false;G.mcOpen=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;
   TEAMS.forEach(function(t){G.scores[t.id]=0;});
   if(mtiInt)clearInterval(mtiInt);
   Promise.all([
