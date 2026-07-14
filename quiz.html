@@ -829,8 +829,10 @@ function awardPts(pts){
         if(G.buzzQ<BUZZ_QS.length-1){G.buzzQ++;showBuzzQ(G.buzzQ);}
         else{endBuzzBlock();}
       } else {
-        // Wrong - ban this team, reset buzzer, same image
+        // Wrong - ban this team, -3 points, reset buzzer, same image
         G.bannedTeams.push(winner.team_id);
+        G.scores[winner.team_id]=(G.scores[winner.team_id]||0)-3;
+        saveScores();renderScore();
         var t=TEAMS.find(function(x){return x.id===winner.team_id;});
         var tname=t?t.name.split(',')[0]:winner.team_id;
         // Delete only this team's buzzer and re-open
