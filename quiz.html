@@ -613,6 +613,9 @@ function showPlayerQ(qi){
   go('question');
   var saved=document.getElementById('ans-saved');
   saved.style.display='none';saved.className='ans-saved ans-neutral';
+  document.querySelectorAll('.opt-btn').forEach(function(b){
+    b.style.background='';b.style.borderColor='';b.disabled=false;
+  });
   if(q.type==='mc'){
     document.getElementById('q-options').style.display='grid';
     document.getElementById('q-est').style.display='none';
@@ -622,16 +625,10 @@ function showPlayerQ(qi){
       b.onclick=function(){
         if(b.disabled)return;
         document.querySelectorAll('.opt-btn').forEach(function(x){x.disabled=true;});
-        var correct=(i===q.correct);
-        b.style.background=correct?'rgba(29,158,117,0.2)':'rgba(225,29,116,0.2)';
-        b.style.borderColor=correct?'#1D9E75':'#E11D74';
-        if(!correct){
-          var allBtns=document.querySelectorAll('.opt-btn');
-          allBtns[q.correct].style.background='rgba(29,158,117,0.2)';
-          allBtns[q.correct].style.borderColor='#1D9E75';
-        }
-        saved.textContent=correct?'Richtig! +1 Punkt':'Leider falsch...';
-        saved.className='ans-saved '+(correct?'ans-ok':'ans-fail');
+        b.style.background='rgba(34,211,238,0.15)';
+        b.style.borderColor='#22D3EE';
+        saved.textContent='Gespeichert!';
+        saved.className='ans-saved ans-neutral';
         saved.style.display='block';
         saveAns(qi,i);
       };
