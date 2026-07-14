@@ -257,6 +257,14 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
       <button class="mbtn mbtn-teal" onclick="showFullScore()" style="width:100%;margin-top:1rem;padding:10px">Vollbild</button>
     </div>
 
+    <div id="buzzer-master-card" style="display:none;position:fixed;top:52px;right:0;width:340px;background:#111827;border-left:1px solid rgba(255,255,255,0.08);height:calc(100vh - 52px);z-index:99;padding:1.25rem;overflow-y:auto">
+      <div style="font-size:10px;color:#22D3EE;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem">Block 3 &mdash; Punkte vergeben</div>
+      <div class="buzz-img-wrap" id="buzz-img-wrap" style="margin-bottom:1rem"><div class="buzz-placeholder">Bild wird geladen...</div></div>
+      <div id="manual-score-list"></div>
+      <div style="margin-top:1rem">
+        <button class="mbtn mbtn-purple" onclick="openMCFallback()" style="width:100%;padding:10px;margin-bottom:6px">Multiple Choice oeffnen</button>
+      </div>
+    </div>
     <div id="bonus-card" style="display:none;position:fixed;top:52px;right:0;width:320px;background:#111827;border-left:1px solid rgba(255,255,255,0.08);height:calc(100vh - 52px);z-index:100;padding:1.25rem">
       <div style="font-size:10px;color:#F59E0B;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem">Bonus +5 Punkte</div>
       <div class="bonus-grid" id="bonus-grid"></div>
