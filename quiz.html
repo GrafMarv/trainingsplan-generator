@@ -1118,25 +1118,29 @@ function scoreCurrentEst(){if(G.q>=0)scoreEstimate(G.q);}
 
 // SCORES
 function saveScores(){
+  // Save team scores as integers
   var payload=TEAMS.map(function(t){return {team_id:t.id,points:G.scores[t.id]||0};});
-  payload.push({team_id:'_scored',points:JSON.stringify(G.scored)});
   sbh('/rest/v1/cb_quiz_scores',{
     method:'POST',
     headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
     body:JSON.stringify(payload)
+  }).catch(function(e){console.error('saveScores error',e);});
+  // Save scored flags separately in quiz_state as text
+  sbh('/rest/v1/cb_quiz_state?id=eq.1',{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({scored_flags:JSON.stringify(G.scored)})
   }).catch(function(){});
 }
 
 function loadScores(cb){
-  sbh('/rest/v1/cb_quiz_scores?select=*')
+  sbh('/rest/v1/cb_quiz_scores?select=team_id,points')
     .then(function(r){return r.json();})
     .then(function(rows){
       if(rows&&rows.length){
         rows.forEach(function(r){
-          if(r.team_id==='_scored'){
-            try{G.scored=JSON.parse(r.points);}catch(e){}
-          } else {
-            G.scores[r.team_id]=r.points;
+          if(r.team_id&&r.team_id!=='_scored'){
+            G.scores[r.team_id]=parseInt(r.points)||0;
           }
         });
       }
