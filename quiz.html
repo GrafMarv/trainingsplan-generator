@@ -317,6 +317,16 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
         </div>
       </div>
 
+      <!-- Solution Block -->
+      <div id="solution-block" style="display:none;width:100%;max-width:1000px;text-align:center">
+        <div style="font-size:11px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem" id="sol-stage"></div>
+        <div style="font-size:13px;color:#555;margin-bottom:1rem" id="sol-question"></div>
+        <div style="font-size:28px;font-weight:900;color:#22D3EE;margin-bottom:0.5rem;letter-spacing:0.05em">RICHTIGE ANTWORT</div>
+        <div style="font-size:64px;font-weight:900;color:#F5F7FA;margin-bottom:2rem;line-height:1.1" id="sol-answer"></div>
+        <div id="sol-teams" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:1.5rem"></div>
+        <div style="font-size:13px;color:#333;letter-spacing:0.05em">Weiter druecken fuer naechste Frage</div>
+      </div>
+
       <!-- Buzz Block -->
       <div id="buzz-main-block" style="display:none;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
         <div style="font-size:11px;color:#22D3EE;letter-spacing:0.1em;text-transform:uppercase">Block 3 &mdash; Bild <span id="buzz-main-num">1</span> / 6</div>
@@ -387,7 +397,7 @@ var BUZZ_QS=[
 ];
 
 var G={
-  q:-1,buzzQ:-1,inBuzz:false,mcOpen:false,
+  q:-1,buzzQ:-1,inBuzz:false,mcOpen:false,showingSolution:false,
   scores:{},scored:{},bonusSel:[],
   bonusShown1:false,bonusShown2:false,
   myTeam:null,lastQ:-1,lastBuzzQ:-1,buzzed:false,
@@ -667,26 +677,74 @@ function nextQ(){
     }
     return;
   }
-  // End of block 1 - show bonus first time, then advance
+  // If showing solution, advance to next question
+  if(G.showingSolution){
+    G.showingSolution=false;
+    document.getElementById('solution-block').style.display='none';
+    document.getElementById('question-block').style.display='block';
+    // Now do the actual advance
+    advanceQuestion();
+    return;
+  }
+  // Show solution first
+  if(G.q>=0&&G.q<QS.length){
+    showSolution(G.q);
+    return;
+  }
+  advanceQuestion();
+}
+
+function showSolution(qi){
+  var q=QS[qi];if(!q)return;
+  G.showingSolution=true;
+  if(mtiInt)clearInterval(mtiInt);
+  document.getElementById('question-block').style.display='none';
+  document.getElementById('solution-block').style.display='block';
+  var stageQ=qi<8?qi+1:qi-7;
+  document.getElementById('sol-stage').textContent='Stage '+q.stage+' - Frage '+stageQ+' von 8';
+  document.getElementById('sol-question').textContent=q.text;
+  if(q.type==='mc'){
+    document.getElementById('sol-answer').textContent=q.opts[q.correct];
+  } else {
+    document.getElementById('sol-answer').textContent=q.answer+' '+q.unit;
+  }
+  // Show team answers
+  var teams=document.getElementById('sol-teams');teams.innerHTML='';
+  sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+qi+'&select=*')
+    .then(function(r){return r.json();})
+    .then(function(ans){
+      TEAMS.forEach(function(t){
+        var a=ans.find(function(x){return x.team_id===t.id;});
+        var div=document.createElement('div');
+        var correct=false,val='...';
+        if(a){
+          if(q.type==='mc'){correct=parseInt(a.answer)===q.correct;val=q.opts[parseInt(a.answer)]||a.answer;}
+          else{val=a.answer;correct=false;}
+        }
+        div.style.cssText='padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid '+(correct?'rgba(29,158,117,0.4)':'rgba(255,255,255,0.08)')+';background:'+(correct?'rgba(29,158,117,0.1)':'rgba(255,255,255,0.03)')+';color:'+(correct?'#1D9E75':'#888');
+        div.textContent=t.name.split(',')[0]+': '+val;
+        teams.appendChild(div);
+      });
+    }).catch(function(){});
+}
+
+function advanceQuestion(){
+  // End of block 1
   if(G.q===7&&!G.bonusShown1){
     G.bonusShown1=true;
     document.getElementById('bonus-card').style.display='block';
-    document.getElementById('mq-num').textContent='Block 1 abgeschlossen! Bonus-Aufgabe, dann Weiter druecken.';
     return;
   }
-  // End of block 2 - show bonus first time, then advance
+  // End of block 2
   if(G.q===15&&!G.bonusShown2){
     G.bonusShown2=true;
     document.getElementById('bonus-card').style.display='block';
-    document.getElementById('mq-num').textContent='Block 2 abgeschlossen! Bonus-Aufgabe, dann Weiter druecken.';
     return;
   }
   if(G.q>=16)return;
   G.q++;
   document.getElementById('bonus-card').style.display='none';
-  if(G.q>=16){
-    startBuzzBlock();return;
-  }
+  if(G.q>=16){startBuzzBlock();return;}
   showMasterQ(G.q);
   pushState({current_q:G.q,started:true,in_buzz:false,buzz_q:-1,mc_open:false});
 }
@@ -1023,7 +1081,7 @@ function pushState(obj){
 // RESET
 function resetAll(){
   if(!confirm('Alles zuruecksetzen? Alle Punkte und Antworten werden geloescht.'))return;
-  G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.mcOpen=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;G.bonusShown1=false;G.bonusShown2=false;
+  G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.mcOpen=false;G.showingSolution=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;G.bonusShown1=false;G.bonusShown2=false;
   TEAMS.forEach(function(t){G.scores[t.id]=0;});
   if(mtiInt)clearInterval(mtiInt);
   Promise.all([
@@ -1040,6 +1098,7 @@ function resetAll(){
   // Reset UI
   document.getElementById('start-block').style.display='block';
   document.getElementById('question-block').style.display='none';
+  document.getElementById('solution-block').style.display='none';
   document.getElementById('buzz-main-block').style.display='none';
   document.getElementById('buzz-master-card').style.display='none';
   document.getElementById('bonus-card').style.display='none';
