@@ -413,16 +413,22 @@ function go(s){
 var selTeam=null;
 function renderGrid(){
   var g=document.getElementById('team-grid');g.innerHTML='';
-  TEAMS.forEach(function(t){
-    var b=document.createElement('button');b.className='team-btn';
-    b.innerHTML='<div class="team-name">'+t.name+'</div>';
-    b.onclick=function(){
-      document.querySelectorAll('.team-btn').forEach(function(x){x.classList.remove('selected');});
-      b.classList.add('selected');selTeam=t;
-      document.getElementById('join-btn').disabled=false;
-    };
-    g.appendChild(b);
-  });
+  // Check who's already logged in
+  sbh('/rest/v1/cb_quiz_answers?select=team_id&limit=100')
+    .then(function(r){return r.json();})
+    .catch(function(){return [];})
+    .then(function(ans){
+      TEAMS.forEach(function(t){
+        var b=document.createElement('button');b.className='team-btn';
+        b.innerHTML='<div class="team-name">'+t.name+'</div>';
+        b.onclick=function(){
+          document.querySelectorAll('.team-btn').forEach(function(x){x.classList.remove('selected');});
+          b.classList.add('selected');selTeam=t;
+          document.getElementById('join-btn').disabled=false;
+        };
+        g.appendChild(b);
+      });
+    });
 }
 
 function joinTeam(){
@@ -614,6 +620,29 @@ function saveAns(qi,val){
   }).catch(function(){});
 }
 
+// Phone wake-up: re-show current question when screen comes back
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&G.myTeam){
+    // Re-fetch state and show current question
+    sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started,buzz_q,in_buzz,mc_open,banned')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d||!d[0])return;
+        var s=d[0];
+        if(s.in_buzz&&s.buzz_q>=0){
+          if(s.mc_open){showMCFallback(s.buzz_q);}
+          else{G.buzzed=false;showBuzzerScreen(s.buzz_q);}
+        } else if(s.started&&s.current_q>=0){
+          // Only re-show if it's a new question we haven't answered
+          if(s.current_q!==G.lastQ){
+            G.lastQ=s.current_q;G.q=s.current_q;
+            showPlayerQ(s.current_q);
+          }
+        }
+      }).catch(function(){});
+  }
+});
+
 // MASTER PW
 function checkPw(){
   if(document.getElementById('mpw').value==='2804'){
@@ -676,6 +705,8 @@ function showSolution(qi){
   var q=QS[qi];if(!q)return;
   G.showingSolution=true;
   if(mtiInt)clearInterval(mtiInt);
+  // Auto-score estimate if not yet done
+  if(q.type==='est'&&!G.scored[qi]){scoreEstimate(qi);}
   document.getElementById('question-block').style.display='none';
   document.getElementById('solution-block').style.display='block';
   var stageQ=qi<8?qi+1:qi-7;
@@ -988,6 +1019,7 @@ function scoreCurrentEst(){if(G.q>=0)scoreEstimate(G.q);}
 // SCORES
 function saveScores(){
   var payload=TEAMS.map(function(t){return {team_id:t.id,points:G.scores[t.id]||0};});
+  payload.push({team_id:'_scored',points:JSON.stringify(G.scored)});
   sbh('/rest/v1/cb_quiz_scores',{
     method:'POST',
     headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
@@ -999,7 +1031,15 @@ function loadScores(cb){
   sbh('/rest/v1/cb_quiz_scores?select=*')
     .then(function(r){return r.json();})
     .then(function(rows){
-      if(rows&&rows.length)rows.forEach(function(r){G.scores[r.team_id]=r.points;});
+      if(rows&&rows.length){
+        rows.forEach(function(r){
+          if(r.team_id==='_scored'){
+            try{G.scored=JSON.parse(r.points);}catch(e){}
+          } else {
+            G.scores[r.team_id]=r.points;
+          }
+        });
+      }
       if(cb)cb();
     }).catch(function(){if(cb)cb();});
 }
@@ -1114,7 +1154,7 @@ function pushState(obj){
 
 // RESET
 function resetAll(){
-  if(!confirm('Alles zuruecksetzen? Alle Punkte und Antworten werden geloescht.'))return;
+  if(!confirm('ACHTUNG: Alles zuruecksetzen? Alle Punkte, Antworten und Fortschritt werden unwiderruflich geloescht!'))return;
   G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.mcOpen=false;G.showingSolution=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;G.bonusShown1=false;G.bonusShown2=false;
   TEAMS.forEach(function(t){G.scores[t.id]=0;});
   if(mtiInt)clearInterval(mtiInt);
