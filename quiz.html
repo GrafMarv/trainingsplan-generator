@@ -398,7 +398,7 @@ var BUZZ_QS=[
 
 var G={
   q:-1,buzzQ:-1,inBuzz:false,mcOpen:false,showingSolution:false,
-  scores:{},scored:{},bonusSel:[],
+  scores:{},scored:{},bonusSel:[],bannedTeams:[],
   bonusShown1:false,bonusShown2:false,
   myTeam:null,lastQ:-1,lastBuzzQ:-1,buzzed:false,
   tiInt:null,pollInt:null,mtiInt:null
@@ -455,10 +455,17 @@ function playerPoll(){
         if(!d||!d[0])return;
         var s=d[0];
         if(s.in_buzz){
+          // Update banned teams
+          try{G.bannedTeams=s.banned?JSON.parse(s.banned):[];}catch(e){G.bannedTeams=[];}
+          // If our team got banned, re-enable buzzer with locked state
+          if(G.myTeam&&G.bannedTeams.indexOf(G.myTeam.id)>=0&&G.buzzed){
+            document.getElementById('buzz-result').innerHTML='<div class="buzz-locked">Ihr seid gesperrt &mdash; andere koennen noch buzzern!</div>';
+            document.getElementById('buzz-btn').disabled=true;
+          }
           if(s.mc_open&&!G.mcOpen){
             G.mcOpen=true;showMCFallback(s.buzz_q);
           } else if(!s.mc_open&&s.buzz_q!==G.lastBuzzQ){
-            G.lastBuzzQ=s.buzz_q;G.buzzQ=s.buzz_q;G.buzzed=false;G.mcOpen=false;
+            G.lastBuzzQ=s.buzz_q;G.buzzQ=s.buzz_q;G.buzzed=false;G.mcOpen=false;G.bannedTeams=[];
             showBuzzerScreen(s.buzz_q);
           }
         } else if(s.started&&s.current_q>=0&&s.current_q!==G.lastQ){
@@ -503,6 +510,11 @@ function showBuzzerScreen(bq){
 
 function doBuzz(){
   if(G.buzzed||!G.myTeam)return;
+  // Check if banned
+  if(G.bannedTeams&&G.bannedTeams.indexOf(G.myTeam.id)>=0){
+    document.getElementById('buzz-result').innerHTML='<div class="buzz-locked">Ihr seid gesperrt fuer diese Runde!</div>';
+    return;
+  }
   G.buzzed=true;
   document.getElementById('buzz-btn').disabled=true;
   sbh('/rest/v1/cb_quiz_buzzer',{
@@ -670,6 +682,8 @@ function startQuiz(){
 
 function nextQ(){
   if(G.inBuzz){
+    // Weiter always moves to next buzz image regardless
+    G.bannedTeams=[];
     if(G.buzzQ<BUZZ_QS.length-1){
       G.buzzQ++;showBuzzQ(G.buzzQ);
     } else {
@@ -762,7 +776,7 @@ function startBuzzBlock(){
 }
 
 function showBuzzQ(bq){
-  G.buzzQ=bq;
+  G.buzzQ=bq;G.bannedTeams=[];
   var q=BUZZ_QS[bq];if(!q)return;
   var wrap=document.getElementById('buzz-img-wrap');
   var center=document.getElementById('buzz-center-img');
@@ -784,36 +798,50 @@ function showBuzzQ(bq){
 }
 
 function loadBuzzer(){
-  sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ+'&select=*&order=ts.asc&limit=1')
+  sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ+'&select=*&order=ts.asc')
     .then(function(r){return r.json();})
     .then(function(rows){
-      if(rows&&rows.length){
-        var w=rows[0];
-        var el=document.getElementById('buzz-winner-display');
-        el.className='buzz-winner-box';
-        el.innerHTML='<h2>'+w.team_name+'</h2><p>Erstes Buzzer!</p>';
-        document.getElementById('pts-btns').style.display='flex';
+      if(!rows||!rows.length)return;
+      // Find first non-banned team
+      var winner=null;
+      for(var i=0;i<rows.length;i++){
+        if(G.bannedTeams.indexOf(rows[i].team_id)<0){winner=rows[i];break;}
       }
+      if(!winner)return;
+      var el=document.getElementById('buzz-winner-display');
+      el.className='buzz-winner-box';
+      el.innerHTML='<h2>'+winner.team_name+'</h2><p>Erstes Buzzer!</p>';
+      document.getElementById('pts-btns').style.display='flex';
     }).catch(function(){});
 }
 
 function awardPts(pts){
-  if(pts>0){
-    sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ+'&select=*&order=ts.asc&limit=1')
-      .then(function(r){return r.json();})
-      .then(function(rows){
-        if(rows&&rows.length){
-          G.scores[rows[0].team_id]=(G.scores[rows[0].team_id]||0)+pts;
-          saveScores();renderScore();
-        }
-      });
-  }
-  // Next
-  if(G.buzzQ<BUZZ_QS.length-1){
-    G.buzzQ++;showBuzzQ(G.buzzQ);
-  } else {
-    endBuzzBlock();
-  }
+  sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ+'&select=*&order=ts.asc&limit=1')
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if(!rows||!rows.length)return;
+      var winner=rows[0];
+      if(pts>0){
+        // Correct - award points and move to next
+        G.scores[winner.team_id]=(G.scores[winner.team_id]||0)+pts;
+        saveScores();renderScore();
+        G.bannedTeams=[];
+        if(G.buzzQ<BUZZ_QS.length-1){G.buzzQ++;showBuzzQ(G.buzzQ);}
+        else{endBuzzBlock();}
+      } else {
+        // Wrong - ban this team, reset buzzer, same image
+        G.bannedTeams.push(winner.team_id);
+        var t=TEAMS.find(function(x){return x.id===winner.team_id;});
+        var tname=t?t.name.split(',')[0]:winner.team_id;
+        // Delete only this team's buzzer and re-open
+        sbh('/rest/v1/cb_quiz_buzzer?buzz_q=eq.'+G.buzzQ,{method:'DELETE'}).catch(function(){});
+        document.getElementById('buzz-winner-display').className='buzz-none-box';
+        document.getElementById('buzz-winner-display').innerHTML='<span style="color:#E11D74">'+tname+' FALSCH &mdash; gesperrt!</span><br><span style="color:#555;font-size:12px">Andere Teams koennen noch buzzern</span>';
+        document.getElementById('pts-btns').style.display='none';
+        // Push banned teams to state so players know
+        pushState({current_q:G.q,started:true,in_buzz:true,buzz_q:G.buzzQ,mc_open:false,banned:JSON.stringify(G.bannedTeams)});
+      }
+    });
 }
 
 function clearBuzzer(){
