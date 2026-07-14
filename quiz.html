@@ -95,12 +95,12 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
 .mbtn-amber{background:linear-gradient(135deg,#b45309,#F59E0B);color:#000;box-shadow:0 4px 15px rgba(245,158,11,0.3)}
 .mbtn-purple{background:linear-gradient(135deg,#6d28d9,#7C3AED);color:#fff;box-shadow:0 4px 15px rgba(124,58,237,0.3)}
 .mbtn-teal{background:linear-gradient(135deg,#0e7490,#22D3EE);color:#000;box-shadow:0 4px 15px rgba(34,211,238,0.3)}
-.master-grid{display:grid;grid-template-columns:1fr 320px;gap:1.25rem}
+.master-grid{display:grid;grid-template-columns:1fr;gap:1.25rem;max-width:860px;margin:0 auto}
 .mcard{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.25rem;margin-bottom:1.25rem;backdrop-filter:blur(10px)}
 .mcard-title{font-size:10px;color:#444;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem}
 .mq-stage{font-size:11px;color:#555;margin-bottom:0.25rem;letter-spacing:0.05em;text-transform:uppercase}
 .mq-num{font-size:12px;color:#444;margin-bottom:0.5rem}
-.mq-text{font-size:36px;font-weight:800;line-height:1.3;margin-bottom:1.5rem;color:#F5F7FA}
+.mq-text{font-size:56px;font-weight:900;line-height:1.2;margin-bottom:1.5rem;color:#F5F7FA;text-align:center}
 .mq-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
 .mq-opt{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:0.75rem;font-size:15px;color:#888;font-weight:600}
 .mtimer{font-size:80px;font-weight:900;text-align:center;color:#22D3EE;line-height:1;text-shadow:0 0 30px rgba(34,211,238,0.5)}
@@ -238,11 +238,10 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
           <div class="mq-stage" id="mq-stage">Stage 1 &middot; 1 Punkt</div>
           <div class="mq-num" id="mq-num">Frage 1 von 8</div>
           <div class="mq-text" id="mq-text">Bereit zum Starten?</div>
-          <div class="mq-opts" id="mq-opts"></div>
           <div class="mtimer" id="mtimer">-</div>
           <div class="mtbar-wrap"><div class="mtbar" id="mtbar" style="width:100%"></div></div>
           <div class="mctrl">
-            <button class="mbtn mbtn-green" id="start-btn" onclick="startQuiz()" style="flex:1;padding:12px">Quiz Starten &#9654;</button>
+            <button class="mbtn mbtn-green" id="start-btn" onclick="startQuiz()" style="flex:1;padding:16px;font-size:16px">Quiz Starten &#9654;</button>
             <button class="mbtn mbtn-red" onclick="resetAll()" style="padding:12px">Reset</button>
           </div>
         </div>
@@ -265,7 +264,7 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
           <div class="mcard-title" style="color:#E24B4A">&#9888; Tab verlassen!</div>
           <div id="cheat-list"></div>
         </div>
-        <div class="mcard" id="score-card">
+        <div class="mcard" id="score-card" style="display:none">
           <div class="mcard-title">Scoreboard</div>
           <div id="score-list"></div>
         </div>
