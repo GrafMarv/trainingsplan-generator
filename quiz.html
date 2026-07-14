@@ -1195,9 +1195,13 @@ function giveBonus(){
   G.bonusSel.forEach(function(tid){G.scores[tid]=(G.scores[tid]||0)+5;});
   G.bonusSel=[];
   document.querySelectorAll('.bonus-btn').forEach(function(b){b.classList.remove('sel');});
-  saveScores();renderScore();
-  document.getElementById('bonus-card').style.display='none';
-  alert('Bonus vergeben!');
+  saveScores();
+  // Reload from Supabase to confirm
+  loadScores(function(){
+    renderScore();
+    document.getElementById('bonus-card').style.display='none';
+    alert('Bonus vergeben! +5 Punkte im Scoreboard.');
+  });
 }
 
 function togglePanel(id){
