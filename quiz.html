@@ -320,10 +320,11 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
       </div>
 
       <!-- Buzz Block -->
-      <div id="buzz-main-block" style="display:none;width:100%;max-width:800px">
-        <div style="font-size:11px;color:#22D3EE;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem">Block 3 &mdash; Bild <span id="buzz-main-num">1</span> / 6</div>
-        <div style="font-size:48px;font-weight:900;color:#F5F7FA;margin-bottom:1rem">Wer ist das?</div>
-        <div style="font-size:14px;color:#333;letter-spacing:0.05em">Buzzer auf dem Handy &mdash; wer zuerst drueckt darf antworten</div>
+      <div id="buzz-main-block" style="display:none;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
+        <div style="font-size:11px;color:#22D3EE;letter-spacing:0.1em;text-transform:uppercase">Block 3 &mdash; Bild <span id="buzz-main-num">1</span> / 6</div>
+        <div id="buzz-center-img" style="flex:1;display:flex;align-items:center;justify-content:center;width:100%">
+          <div style="color:#333;font-size:14px">Bild wird geladen...</div>
+        </div>
       </div>
 
     </div>
@@ -695,7 +696,10 @@ function nextQ(){
 function startBuzzBlock(){
   G.inBuzz=true;G.buzzQ=0;
   document.getElementById('question-block').style.display='none';
-  document.getElementById('buzz-main-block').style.display='block';
+  document.getElementById('buzz-main-block').style.display='flex';
+  document.getElementById('score-card').style.display='none';
+  document.getElementById('bonus-card').style.display='none';
+  document.getElementById('edit-score-card').style.display='none';
   document.getElementById('buzz-master-card').style.display='block';
   if(G.mtiInt)clearInterval(G.mtiInt);
   showBuzzQ(0);
@@ -705,10 +709,14 @@ function showBuzzQ(bq){
   G.buzzQ=bq;
   var q=BUZZ_QS[bq];if(!q)return;
   var wrap=document.getElementById('buzz-img-wrap');
+  var center=document.getElementById('buzz-center-img');
   if(q.img){
-    wrap.innerHTML='<img src="'+q.img+'" alt="Bild '+(bq+1)+'" />';
+    var imgTag='<img src="'+q.img+'" alt="Bild '+(bq+1)+'" style="max-height:calc(100vh - 140px);max-width:90%;border-radius:16px;object-fit:contain;box-shadow:0 0 60px rgba(0,0,0,0.8)" />';
+    wrap.innerHTML=imgTag;
+    if(center)center.innerHTML=imgTag;
   } else {
     wrap.innerHTML='<div class="buzz-placeholder">Bild '+(bq+1)+' / '+BUZZ_QS.length+'</div>';
+    if(center)center.innerHTML='<div style="color:#333;font-size:14px">Kein Bild</div>';
   }
   document.getElementById('buzz-winner-display').className='buzz-none-box';
   document.getElementById('buzz-winner-display').innerHTML='Noch kein Buzzer...';
