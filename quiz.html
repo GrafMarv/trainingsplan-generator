@@ -54,7 +54,7 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
 .tbar.warn{background:linear-gradient(90deg,#E11D74,#F59E0B);box-shadow:0 0 8px rgba(245,158,11,0.5)}
 .tbar.danger{background:#E11D74;box-shadow:0 0 8px rgba(225,29,116,0.5)}
 .options{display:grid;gap:10px}
-.opt-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem 1.25rem;font-size:15px;font-weight:600;color:#F5F7FA;cursor:pointer;transition:all 0.15s;text-align:left;font-family:'Montserrat',sans-serif}
+.opt-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:1.25rem 1.5rem;font-size:18px;font-weight:700;color:#F5F7FA;cursor:pointer;transition:all 0.15s;text-align:center;font-family:'Montserrat',sans-serif;width:100%}
 .opt-btn:hover:not(:disabled){border-color:rgba(34,211,238,0.4);background:rgba(34,211,238,0.06)}
 .opt-btn:disabled{opacity:0.7;cursor:not-allowed}
 .est-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;font-size:28px;font-weight:800;color:#F5F7FA;text-align:center;margin-bottom:1rem;font-family:'Montserrat',sans-serif}
@@ -178,39 +178,24 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
 
 <!-- WAITING -->
 <div id="screen-waiting" class="screen">
-  <div class="waiting-wrap">
-    <div class="logo-text">DHB U16 Boys</div>
-    <div style="font-size:26px;font-weight:800;margin-bottom:0.5rem">Bereit!</div>
-    <div style="font-size:13px;color:#555;margin-bottom:0.75rem;letter-spacing:0.05em;text-transform:uppercase">Ihr spielt als</div>
+  <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0B1020">
     <div class="team-badge" id="waiting-name"></div>
-    <div style="font-size:13px;color:#333;margin-top:1.5rem;letter-spacing:0.05em">Warten auf den Trainer<span class="pulse"></span></div>
+    <div style="font-size:13px;color:#333;margin-top:1rem;letter-spacing:0.05em">Warten<span class="pulse"></span></div>
   </div>
 </div>
 
-<!-- COUNTDOWN -->
-<div id="screen-countdown" class="screen">
-  <div class="cd-inner">
-    <div class="cd-stage" id="cd-stage"></div>
-    <div class="cd-question" id="cd-question"></div>
-    <div class="cd-num" id="cd-num">3</div>
-  </div>
-</div>
+<!-- COUNTDOWN (hidden, not used for players) -->
+<div id="screen-countdown" class="screen" style="display:none!important"></div>
 
 <!-- QUESTION PLAYER -->
 <div id="screen-question" class="screen">
-  <div class="question-wrap">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
-      <span class="stage-pill s1" id="q-pill">Stage 1</span>
-      <span class="q-meta" id="q-meta">Frage 1 / 8</span>
-    </div>
-    <div class="tbar-wrap"><div class="tbar" id="ptbar" style="width:100%"></div></div>
-    <div class="q-text" id="q-text"></div>
-    <div class="options" id="q-options"></div>
+  <div style="height:100vh;display:flex;flex-direction:column;justify-content:center;padding:1.5rem;overflow:hidden;background:#0B1020">
+    <div class="options" id="q-options" style="gap:12px"></div>
     <div id="q-est" style="display:none">
       <input type="number" class="est-input" id="est-val" placeholder="Deine Schaetzung..." />
       <button class="big-btn" id="est-btn" onclick="submitEst()">Abschicken</button>
     </div>
-    <div class="ans-saved ans-neutral" id="ans-saved" style="display:none">Gespeichert!</div>
+    <div class="ans-saved ans-neutral" id="ans-saved" style="display:none;margin-top:1rem">Gespeichert!</div>
   </div>
 </div>
 
@@ -478,26 +463,7 @@ function playerPoll(){
 
 // COUNTDOWN
 function showCountdown(qi,cb){
-  var q=QS[qi];if(!q){cb();return;}
-  go('countdown');
-  var stageQ=qi<8?qi+1:qi-7;
-  document.getElementById('cd-stage').textContent='Stage '+q.stage+' - Frage '+stageQ+' / 8';
-  document.getElementById('cd-question').textContent='';
-  var n=document.getElementById('cd-num');
-  n.textContent='3';n.className='cd-num';
-  var count=3;
-  var ci=setInterval(function(){
-    count--;
-    if(count>0){
-      n.textContent=count;
-      if(count===1)n.className='cd-num warn';
-    } else {
-      clearInterval(ci);
-      n.className='cd-num go';n.textContent='LOS!';
-      document.getElementById('cd-question').textContent=q.text;
-      setTimeout(function(){cb();},800);
-    }
-  },1000);
+  cb();
 }
 
 // BUZZER PLAYER
