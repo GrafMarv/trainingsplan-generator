@@ -285,7 +285,6 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
       <div class="buzz-img-wrap" id="buzz-img-wrap">
         <div class="buzz-placeholder">Bild wird geladen...</div>
       </div>
-      <div class="buzz-answer-label" id="buzz-answer-label"></div>
       <div id="buzz-winner-display" class="buzz-none-box">Noch kein Buzzer...</div>
       <div class="pts-btns" id="pts-btns" style="display:none">
         <button class="pts-btn" style="background:linear-gradient(135deg,#059669,#1D9E75);color:#fff" onclick="awardPts(3)">+3 Richtig</button>
@@ -696,7 +695,6 @@ function showBuzzQ(bq){
   } else {
     wrap.innerHTML='<div class="buzz-placeholder">Bild '+(bq+1)+' / '+BUZZ_QS.length+'</div>';
   }
-  document.getElementById('buzz-answer-label').textContent='Antwort: '+q.answer;
   document.getElementById('buzz-winner-display').className='buzz-none-box';
   document.getElementById('buzz-winner-display').innerHTML='Noch kein Buzzer...';
   document.getElementById('pts-btns').style.display='none';
