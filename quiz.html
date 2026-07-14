@@ -468,7 +468,12 @@ function sbh(url,opts){
 
 // ROUTING
 window.addEventListener('load',function(){
-  if(window.location.hash==='#master'){go('pw');}
+  if(window.location.hash==='#master'){
+    go('master');
+    renderBonusGrid();renderBonusGridScreen();
+    loadScores(function(){renderScore();});
+    masterPoll();
+  }
   else{renderGrid();go('login');playerPoll();}
 });
 
