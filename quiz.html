@@ -373,6 +373,7 @@ var BUZZ_QS=[
 var G={
   q:-1,buzzQ:-1,inBuzz:false,mcOpen:false,
   scores:{},scored:{},bonusSel:[],
+  bonusShown1:false,bonusShown2:false,
   myTeam:null,lastQ:-1,lastBuzzQ:-1,buzzed:false,
   tiInt:null,pollInt:null,mtiInt:null
 };
@@ -645,29 +646,30 @@ function startQuiz(){
 
 function nextQ(){
   if(G.inBuzz){
-    // Next buzz question
     if(G.buzzQ<BUZZ_QS.length-1){
-      G.buzzQ++;
-      showBuzzQ(G.buzzQ);
+      G.buzzQ++;showBuzzQ(G.buzzQ);
     } else {
       endBuzzBlock();
     }
     return;
   }
-  // End of block 1
-  if(G.q===7){
+  // End of block 1 - show bonus first time, then advance
+  if(G.q===7&&!G.bonusShown1){
+    G.bonusShown1=true;
     document.getElementById('bonus-card').style.display='block';
-    document.getElementById('mq-num').textContent='Block 1 abgeschlossen! Bonus-Aufgabe durchfuehren.';
+    document.getElementById('mq-num').textContent='Block 1 abgeschlossen! Bonus-Aufgabe, dann Weiter druecken.';
     return;
   }
-  // End of block 2
-  if(G.q===15){
+  // End of block 2 - show bonus first time, then advance
+  if(G.q===15&&!G.bonusShown2){
+    G.bonusShown2=true;
     document.getElementById('bonus-card').style.display='block';
-    document.getElementById('mq-num').textContent='Block 2 abgeschlossen! Bonus-Aufgabe, dann Block 3.';
+    document.getElementById('mq-num').textContent='Block 2 abgeschlossen! Bonus-Aufgabe, dann Weiter druecken.';
     return;
   }
   if(G.q>=16)return;
   G.q++;
+  document.getElementById('bonus-card').style.display='none';
   if(G.q>=16){
     startBuzzBlock();return;
   }
@@ -963,7 +965,7 @@ function pushState(obj){
 // RESET
 function resetAll(){
   if(!confirm('Alles zuruecksetzen? Alle Punkte und Antworten werden geloescht.'))return;
-  G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.mcOpen=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;
+  G.q=-1;G.scored={};G.bonusSel=[];G.inBuzz=false;G.buzzQ=-1;G.mcOpen=false;G.lastQ=-1;G.lastBuzzQ=-1;G.buzzed=false;G.bonusShown1=false;G.bonusShown2=false;
   TEAMS.forEach(function(t){G.scores[t.id]=0;});
   if(mtiInt)clearInterval(mtiInt);
   Promise.all([
