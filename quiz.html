@@ -687,18 +687,38 @@ function showSolution(qi){
   sbh('/rest/v1/cb_quiz_answers?question_idx=eq.'+qi+'&select=*')
     .then(function(r){return r.json();})
     .then(function(ans){
-      TEAMS.forEach(function(t){
-        var a=ans.find(function(x){return x.team_id===t.id;});
-        var div=document.createElement('div');
-        var correct=false,val='...';
-        if(a){
-          if(q.type==='mc'){correct=parseInt(a.answer)===q.correct;val=q.opts[parseInt(a.answer)]||a.answer;}
-          else{val=a.answer;correct=false;}
-        }
-        div.style.cssText='padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid '+(correct?'rgba(29,158,117,0.4)':'rgba(255,255,255,0.08)')+';background:'+(correct?'rgba(29,158,117,0.1)':'rgba(255,255,255,0.03)')+';color:'+(correct?'#1D9E75':'#888');
-        div.textContent=t.name.split(',')[0]+': '+val;
-        teams.appendChild(div);
-      });
+      if(q.type==='mc'){
+        TEAMS.forEach(function(t){
+          var a=ans.find(function(x){return x.team_id===t.id;});
+          var div=document.createElement('div');
+          var correct=false,val='...';
+          if(a){correct=parseInt(a.answer)===q.correct;val=q.opts[parseInt(a.answer)]||a.answer;}
+          div.style.cssText='padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid '+(correct?'rgba(29,158,117,0.4)':'rgba(255,255,255,0.08)')+';background:'+(correct?'rgba(29,158,117,0.1)':'rgba(255,255,255,0.03)')+';color:'+(correct?'#1D9E75':'#888');
+          div.textContent=t.name.split(',')[0]+': '+val;
+          teams.appendChild(div);
+        });
+      } else {
+        // Estimate - sort by closest
+        var withDiff=ans.map(function(a){
+          var t=TEAMS.find(function(x){return x.id===a.team_id;});
+          return {name:t?t.name.split(',')[0]:a.team_id,val:parseFloat(a.answer),diff:Math.abs(parseFloat(a.answer)-q.answer),tid:a.team_id};
+        });
+        withDiff.sort(function(a,b){return a.diff-b.diff;});
+        var minDiff=withDiff.length?withDiff[0].diff:null;
+        var maxDiff=withDiff.length?withDiff[withDiff.length-1].diff:null;
+        withDiff.forEach(function(d){
+          var isWin=d.diff===minDiff;
+          var isLose=withDiff.length>1&&d.diff===maxDiff&&maxDiff!==minDiff;
+          var div=document.createElement('div');
+          var color=isWin?'rgba(29,158,117,0.4)':isLose?'rgba(225,29,116,0.4)':'rgba(255,255,255,0.08)';
+          var bg=isWin?'rgba(29,158,117,0.1)':isLose?'rgba(225,29,116,0.08)':'rgba(255,255,255,0.03)';
+          var tc=isWin?'#1D9E75':isLose?'#E11D74':'#888';
+          var label=isWin?' +2 Pkt':isLose?' -1 Pkt':'';
+          div.style.cssText='padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid '+color+';background:'+bg+';color:'+tc;
+          div.textContent=d.name+': '+d.val+' (+-'+d.diff.toFixed(0)+')'+label;
+          teams.appendChild(div);
+        });
+      }
     }).catch(function(){});
 }
 
