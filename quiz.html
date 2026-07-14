@@ -180,7 +180,8 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
 <div id="screen-waiting" class="screen">
   <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0B1020">
     <div class="team-badge" id="waiting-name"></div>
-    <div style="font-size:13px;color:#333;margin-top:1rem;letter-spacing:0.05em">Warten<span class="pulse"></span></div>
+    <div style="font-size:13px;color:#333;margin-top:1rem;letter-spacing:0.05em">Warten auf den Trainer<span class="pulse"></span></div>
+    <div style="font-size:12px;color:#222;margin-top:0.5rem" id="waiting-count"></div>
   </div>
 </div>
 
@@ -333,7 +334,7 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
 
 <!-- FULLSCORE -->
 <div id="screen-fullscore" class="screen">
-  <div class="fullscore-inner" onclick="go('master')">
+  <div class="fullscore-inner" onclick="if(fullscoreInterval)clearInterval(fullscoreInterval);go('master')">
     <div class="fullscore-title">Coaching Brain &middot; DHB U16 Boys</div>
     <div class="fullscore-h">Zwischenstand</div>
     <div id="fullscore-list"></div>
@@ -442,6 +443,15 @@ function joinTeam(){
 function playerPoll(){
   G.pollInt=setInterval(function(){
     if(!G.myTeam)return;
+    // Update waiting count
+    if(document.getElementById('screen-waiting').classList.contains('active')){
+      sbh('/rest/v1/cb_quiz_answers?select=team_id&limit=100')
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var wc=document.getElementById('waiting-count');
+          if(wc&&d)wc.textContent=d.length+' Antworten bisher';
+        }).catch(function(){});
+    }
     sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started,buzz_q,in_buzz,mc_open,banned')
       .then(function(r){return r.json();})
       .then(function(d){
@@ -585,8 +595,9 @@ function submitEst(){
   if(!v)return;
   document.getElementById('est-btn').disabled=true;
   document.getElementById('est-val').disabled=true;
+  var v2=document.getElementById('est-val').value.trim();
   var saved=document.getElementById('ans-saved');
-  saved.textContent='Gespeichert! Ergebnis nach dem Timer...';
+  saved.textContent='Gespeichert: '+v2+' | Ergebnis nach dem Timer...';
   saved.className='ans-saved ans-neutral';saved.style.display='block';
   saveAns(G.q,parseFloat(v));
   // Poll for result after timer
@@ -617,13 +628,30 @@ function saveAns(qi,val){
     method:'POST',
     headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
     body:JSON.stringify({team_id:G.myTeam.id,question_idx:qi,answer:String(val)})
-  }).catch(function(){});
+  }).then(function(r){
+    if(!r.ok){
+      var saved=document.getElementById('ans-saved');
+      if(saved){saved.textContent='Fehler! Nochmal versuchen.';saved.className='ans-saved ans-fail';saved.style.display='block';}
+    }
+  }).catch(function(){
+    var saved=document.getElementById('ans-saved');
+    if(saved){saved.textContent='Kein Internet! Antwort nicht gespeichert.';saved.className='ans-saved ans-fail';saved.style.display='block';}
+  });
 }
 
 // Phone wake-up: re-show current question when screen comes back
 document.addEventListener('visibilitychange',function(){
   if(!document.hidden&&G.myTeam){
     // Re-fetch state and show current question
+    // Update waiting count
+    if(document.getElementById('screen-waiting').classList.contains('active')){
+      sbh('/rest/v1/cb_quiz_answers?select=team_id&limit=100')
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var wc=document.getElementById('waiting-count');
+          if(wc&&d)wc.textContent=d.length+' Antworten bisher';
+        }).catch(function(){});
+    }
     sbh('/rest/v1/cb_quiz_state?id=eq.1&select=current_q,started,buzz_q,in_buzz,mc_open,banned')
       .then(function(r){return r.json();})
       .then(function(d){
@@ -966,6 +994,9 @@ function loadAns(qi){
 
 function renderAns(qi,ans,q){
   var grid=document.getElementById('ans-grid');grid.innerHTML='';
+  // Show answer count
+  var countEl=document.getElementById('ans-count');
+  if(countEl)countEl.textContent=ans.length+' / '+TEAMS.length+' geantwortet';
   if(!ans||!ans.length){
     grid.innerHTML='<div style="color:#333;font-size:12px;text-align:center;padding:0.5rem;grid-column:1/-1;letter-spacing:0.05em">Noch keine Antworten...</div>';
     return;
@@ -1055,7 +1086,17 @@ function renderScore(){
   });
 }
 
+var fullscoreInterval=null;
 function showFullScore(){
+  go('fullscore');
+  renderFullScore();
+  if(fullscoreInterval)clearInterval(fullscoreInterval);
+  fullscoreInterval=setInterval(function(){
+    loadScores(function(){renderFullScore();});
+  },3000);
+}
+
+function renderFullScore(){
   var sorted=TEAMS.slice().sort(function(a,b){return (G.scores[b.id]||0)-(G.scores[a.id]||0);});
   var list=document.getElementById('fullscore-list');list.innerHTML='';
   sorted.forEach(function(t,i){
@@ -1064,7 +1105,6 @@ function showFullScore(){
     row.innerHTML='<div class="fullscore-rank '+rc+'">'+(i+1)+'</div><div class="fullscore-name">'+t.name+'</div><div class="fullscore-pts">'+(G.scores[t.id]||0)+' Pkt</div>';
     list.appendChild(row);
   });
-  go('fullscore');
 }
 
 // BONUS
