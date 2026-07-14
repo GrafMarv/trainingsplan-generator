@@ -451,7 +451,7 @@ function playerPoll(){
           if(s.mc_open&&!G.mcOpen){
             G.mcOpen=true;showMCFallback(s.buzz_q);
           } else if(!s.mc_open&&s.buzz_q!==G.lastBuzzQ){
-            G.lastBuzzQ=s.buzz_q;G.buzzQ=s.buzz_q;G.buzzed=false;G.mcOpen=false;G.bannedTeams=[];
+            G.lastBuzzQ=s.buzz_q;G.buzzQ=s.buzz_q;G.mcOpen=false;
             showBuzzerScreen(s.buzz_q);
           }
         } else if(s.started&&s.current_q>=0&&s.current_q!==G.lastQ){
@@ -470,6 +470,8 @@ function showCountdown(qi,cb){
 // BUZZER PLAYER
 function showBuzzerScreen(bq){
   go('buzzer');
+  G.buzzed=false;
+  G.bannedTeams=[];
   document.getElementById('buzz-q-num').textContent='Bild '+(bq+1)+' / '+BUZZ_QS.length;
   document.getElementById('buzz-btn').disabled=false;
   document.getElementById('buzz-result').innerHTML='';
