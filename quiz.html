@@ -243,7 +243,7 @@ body{font-family:'Montserrat',sans-serif;background:#0B1020;color:#F5F7FA;min-he
     <div style="height:52px;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 1rem;gap:8px;flex-shrink:0">
       <div style="font-size:13px;font-weight:800;background:linear-gradient(135deg,#1D4EE8,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:auto">Quiz-Master</div>
       <button class="mbtn mbtn-gray" onclick="togglePanel('score-card')">&#128202; Score</button>
-      <button class="mbtn mbtn-amber" onclick="togglePanel('bonus-card')">&#127942; Bonus</button>
+      <button class="mbtn mbtn-amber" onclick="showBonusScreen('Bonus-Aufgabe +5 Punkte')">&#127942; Bonus</button>
       <button class="mbtn mbtn-gray" onclick="togglePanel('edit-score-card')">&#9998; Punkte</button>
       <button class="mbtn mbtn-gray" id="pause-btn" onclick="togglePause()">&#9646;&#9646; Pause</button>
       <button class="mbtn mbtn-red" onclick="resetAll()">&#9888; Reset</button>
@@ -1217,8 +1217,16 @@ function renderBonusGrid(){
 function showBonusScreen(label){
   document.getElementById('question-block').style.display='none';
   document.getElementById('solution-block').style.display='none';
+  document.getElementById('buzz-main-block').style.display='none';
+  document.getElementById('start-block').style.display='none';
+  document.getElementById('intro-block').style.display='none';
+  // Close all panels
+  ['score-card','edit-score-card','buzz-master-card'].forEach(function(id){
+    document.getElementById(id).style.display='none';
+  });
   document.getElementById('bonus-screen-block').style.display='block';
   document.getElementById('bonus-screen-label').innerHTML=label||'Bonus-Aufgabe';
+  G.bonusSel=[];
   renderBonusGridScreen();
 }
 
