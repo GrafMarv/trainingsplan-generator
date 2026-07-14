@@ -468,23 +468,8 @@ function sbh(url,opts){
 
 // ROUTING
 window.addEventListener('load',function(){
-  if(window.location.hash==='#master'){
-    try{
-      go('master');
-      renderBonusGrid();
-      renderBonusGridScreen();
-      loadScores(function(){renderScore();});
-      masterPoll();
-    }catch(e){
-      console.error('Master init error:',e);
-      go('master');
-    }
-  }
-  else{
-    try{renderGrid();}catch(e){}
-    go('login');
-    playerPoll();
-  }
+  if(window.location.hash==='#master'){go('pw');}
+  else{renderGrid();go('login');playerPoll();}
 });
 
 function go(s){
@@ -496,16 +481,22 @@ function go(s){
 var selTeam=null;
 function renderGrid(){
   var g=document.getElementById('team-grid');g.innerHTML='';
-  TEAMS.forEach(function(t){
-    var b=document.createElement('button');b.className='team-btn';
-    b.innerHTML='<div class="team-name">'+t.name+'</div>';
-    b.onclick=function(){
-      document.querySelectorAll('.team-btn').forEach(function(x){x.classList.remove('selected');});
-      b.classList.add('selected');selTeam=t;
-      document.getElementById('join-btn').disabled=false;
-    };
-    g.appendChild(b);
-  });
+  // Check who's already logged in
+  sbh('/rest/v1/cb_quiz_answers?select=team_id&limit=100')
+    .then(function(r){return r.json();})
+    .catch(function(){return [];})
+    .then(function(ans){
+      TEAMS.forEach(function(t){
+        var b=document.createElement('button');b.className='team-btn';
+        b.innerHTML='<div class="team-name">'+t.name+'</div>';
+        b.onclick=function(){
+          document.querySelectorAll('.team-btn').forEach(function(x){x.classList.remove('selected');});
+          b.classList.add('selected');selTeam=t;
+          document.getElementById('join-btn').disabled=false;
+        };
+        g.appendChild(b);
+      });
+    });
 }
 
 function joinTeam(){
@@ -1260,7 +1251,7 @@ function showBonusScreen(label){
 }
 
 function renderBonusGridScreen(){
-  var bg=document.getElementById('bonus-grid-screen');if(!bg)return;bg.innerHTML='';
+  var bg=document.getElementById('bonus-grid-screen');bg.innerHTML='';
   TEAMS.forEach(function(t){
     var b=document.createElement('button');b.className='bonus-btn';
     b.textContent=t.name.split(',')[0];
