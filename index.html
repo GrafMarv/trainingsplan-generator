@@ -283,7 +283,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .rename-actions { display: flex; gap: 10px; }
 
 /* HOME SCREEN */
-#home-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+#home-screen { min-height:100vh; display:block; position:relative; background:#F7F8F4; }
 .home-deco-left { position: fixed; left: 0; top: 0; bottom: 0; width: 200px; display: flex; align-items: center; justify-content: center; pointer-events: none; overflow: hidden; }
 .home-deco-right { position: fixed; right: 0; top: 0; bottom: 0; width: 200px; display: flex; align-items: center; justify-content: center; pointer-events: none; overflow: hidden; }
 .home-deco-name { font-size: 48px; font-weight: 700; color: #d1d1d6; letter-spacing: -1px; writing-mode: vertical-rl; transform: rotate(180deg); user-select: none; }
@@ -529,12 +529,46 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .td-block-textarea::placeholder { color:rgba(255,255,255,0.3); }
 .td-block-tag { font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;display:block; }
 
+
+/* ===== WHV Startseite ===== */
+#home-screen{--hell:#57B84A;--dunkel:#0E6B36;--sonne:#B9CE2F;--tinte:#12301F;--papier:#F7F8F4;--linie:#DCE3D6;--grau:#6B7A6E;}
+.whv-wrap{max-width:680px;margin:0 auto;padding:0 20px 64px;font-family:'IBM Plex Sans',system-ui,sans-serif;color:var(--tinte);}
+.whv-kopf{position:relative;padding:36px 20px 30px;margin:0 -20px 4px;overflow:hidden;background:var(--dunkel);}
+.whv-kopf::after{content:"";position:absolute;right:-70px;top:-40px;width:280px;height:280px;background:linear-gradient(150deg,var(--hell) 0%,var(--hell) 48%,var(--sonne) 48%,var(--sonne) 100%);transform:skewX(-16deg);opacity:.9;}
+.whv-kopf-inhalt{position:relative;z-index:2;}
+.whv-marke{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+.whv-logo{width:38px;height:38px;flex:0 0 38px;border:1.5px dashed rgba(255,255,255,.45);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:16px;color:rgba(255,255,255,.7);}
+.whv-marke-text{font-size:12px;color:rgba(255,255,255,.72);line-height:1.35;}
+.whv-h1{font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:clamp(38px,11vw,58px);line-height:.92;letter-spacing:-.025em;color:#fff;margin:0;}
+.whv-saison{margin-top:12px;font-size:13px;color:rgba(255,255,255,.62);}
+.whv-suche{position:relative;margin:22px 0 10px;}
+.whv-suche input{width:100%;padding:13px 14px 13px 40px;border:1px solid var(--linie);border-radius:9px;background:#fff;font-family:inherit;font-size:15px;color:var(--tinte);outline:none;box-sizing:border-box;}
+.whv-suche input:focus{border-color:var(--hell);box-shadow:0 0 0 3px rgba(87,184,74,.16);}
+.whv-suche svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);stroke:var(--grau);}
+.whv-liste{border-top:1px solid var(--linie);}
+.whv-reihe{width:100%;display:flex;align-items:baseline;gap:16px;padding:22px 4px;border:0;border-bottom:1px solid var(--linie);background:none;font-family:inherit;text-align:left;color:inherit;cursor:pointer;}
+.whv-reihe:focus-visible{outline:2px solid var(--hell);outline-offset:3px;}
+.whv-titel{font-family:'Archivo',sans-serif;font-weight:600;font-size:26px;letter-spacing:-.02em;line-height:1.1;flex:1;}
+.whv-zahl{font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;color:var(--dunkel);flex:0 0 auto;}
+.whv-sub{display:block;margin-top:5px;font-family:'IBM Plex Sans',sans-serif;font-weight:400;font-size:13.5px;color:var(--grau);letter-spacing:0;}
+.whv-teams{display:none;padding:2px 0 18px;border-bottom:1px solid var(--linie);}
+.whv-teams.offen{display:block;}
+.whv-team{display:flex;align-items:center;gap:14px;width:100%;padding:12px 4px;background:none;border:0;font-family:inherit;text-align:left;color:inherit;cursor:pointer;border-radius:6px;}
+.whv-team:hover{background:rgba(87,184,74,.08);}
+.whv-balken{width:4px;height:30px;border-radius:2px;flex:0 0 4px;}
+.whv-m{background:#0E6B36;}
+.whv-w{background:#B9CE2F;}
+.whv-team-name{font-weight:600;font-size:16px;flex:1;}
+.whv-fuss{margin-top:34px;font-size:12.5px;color:var(--grau);}
+.whv-fuss a{color:var(--dunkel);text-decoration:none;border-bottom:1px solid var(--linie);cursor:pointer;}
 </style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
 <!-- HOME SCREEN -->
-<div id="home-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;">
-  <canvas id="bg-cv" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+<div id="home-screen" style="min-height:100vh;display:block;position:relative;">
+  <canvas id="bg-cv" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
   <script>
   (function(){
     var cv=document.getElementById('bg-cv');
@@ -618,43 +652,52 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
   <div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background:rgba(8,8,26,0.45);pointer-events:none;"></div>
 
-  <div id="home-wrap" style="max-width:860px;width:100%;padding:48px 24px;position:relative;z-index:2;">
-    <div id="home-title-wrap" style="text-align:center;margin-bottom:56px;">
-      <h1 id="home-title" style="font-size:42px;font-weight:700;letter-spacing:-1.5px;color:#ffffff;margin-bottom:8px;">Coaching Brain</h1>
-      <p style="font-size:16px;color:rgba(255,255,255,0.6);">Dein KI-gestütztes Coaching-System</p>
+  <div id="home-wrap" class="whv-wrap">
+    <header class="whv-kopf">
+      <div class="whv-kopf-inhalt">
+        <div class="whv-marke">
+          <div class="whv-logo">W</div>
+          <div class="whv-marke-text">Westdeutscher<br>Hockey-Verband</div>
+        </div>
+        <h1 class="whv-h1">Athletik</h1>
+        <p class="whv-saison">Landeskader Feld &middot; Saison 2026/27</p>
+      </div>
+    </header>
+
+    <div class="whv-suche">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.6-3.6"></path></svg>
+      <input type="search" id="whv-q" placeholder="Spieler suchen" autocomplete="off">
     </div>
-    <div id="home-cards" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
-      <div class="home-card" onclick="goTo('wissen')">
-        <svg class="hc-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;">Wissen</h2>
-        <p style="font-size:13px;color:#8e8e93;line-height:1.5;margin-bottom:24px;">Fachwissen hochladen, verwalten und durchsuchen</p>
-        <span class="hc-arrow" style="font-size:18px;">→</span>
+
+    <nav class="whv-liste">
+      <button class="whv-reihe" id="whv-btn-teams" aria-expanded="false">
+        <span class="whv-titel">Mannschaften<span class="whv-sub">Kader, Anwesenheit und Termine</span></span>
+        <span class="whv-zahl">6</span>
+      </button>
+      <div class="whv-teams" id="whv-teams">
+        <button class="whv-team" onclick="whvTeam('M13')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U13 maennlich</span></button>
+        <button class="whv-team" onclick="whvTeam('W13')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U13 weiblich</span></button>
+        <button class="whv-team" onclick="whvTeam('M14')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U14 maennlich</span></button>
+        <button class="whv-team" onclick="whvTeam('W14')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U14 weiblich</span></button>
+        <button class="whv-team" onclick="whvTeam('M16')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U16 maennlich</span></button>
+        <button class="whv-team" onclick="whvTeam('W16')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U16 weiblich</span></button>
       </div>
-      <div class="home-card" onclick="goTo('generator')">
-        <svg class="hc-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;">Trainingsplan</h2>
-        <p style="font-size:13px;color:#8e8e93;line-height:1.5;margin-bottom:24px;">KI-gestützte Trainingspläne in Sekunden erstellen</p>
-        <span class="hc-arrow" style="font-size:18px;">→</span>
-      </div>
-      <div class="home-card" onclick="goTo('profile')">
-        <svg class="hc-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;">Spielerprofile</h2>
-        <p style="font-size:13px;color:#8e8e93;line-height:1.5;margin-bottom:24px;">Athleten verwalten, Diagnostik und Entwicklung</p>
-        <span class="hc-arrow" style="font-size:18px;">→</span>
-      </div>
-      <div class="home-card" onclick="goTo('diagnostik')">
-        <svg class="hc-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;">Diagnostik</h2>
-        <p style="font-size:13px;color:#8e8e93;line-height:1.5;margin-bottom:24px;">Testdaten importieren, Team-Uebersicht und Vergleiche</p>
-        <span class="hc-arrow" style="font-size:18px;">→</span>
-      </div>
-      <div class="home-card" onclick="goTo('trainingsdoku')" style="grid-column:1/-1;">
-        <svg class="hc-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;">Trainingsdokumentation</h2>
-        <p style="font-size:13px;line-height:1.5;margin-bottom:24px;">Training protokollieren - Team, Trainer, Inhalte und Dauer</p>
-        <span class="hc-arrow" style="font-size:18px;">&#x2192;</span>
-      </div>
-    </div>
+      <button class="whv-reihe" onclick="goTo('profile')">
+        <span class="whv-titel">Spieler<span class="whv-sub">Stammdaten, Werte und Notizen</span></span>
+      </button>
+      <button class="whv-reihe" onclick="goTo('diagnostik')">
+        <span class="whv-titel">Diagnostiken<span class="whv-sub">Testtage anlegen und vergleichen</span></span>
+      </button>
+      <button class="whv-reihe" onclick="goTo('generator')">
+        <span class="whv-titel">Einheiten<span class="whv-sub">Plaene bauen und an Spieler geben</span></span>
+      </button>
+    </nav>
+
+    <p class="whv-fuss">Werkzeuge:
+      <a onclick="goTo('wissen')">Wissen</a> &nbsp;
+      <a onclick="goTo('umbenenner')">Uebungsbilder</a> &nbsp;
+      <a onclick="goTo('trainingsdoku')">Dokumentation</a>
+    </p>
   </div>
 </div>
 
@@ -1092,10 +1135,29 @@ function goTo(screen) {
     }
   }
 }
+function whvTeam(code) {
+  try {
+    PL_FILTER_CLUB = 'WHV';
+    PL_FILTER_TEAM = code;
+  } catch (e) {}
+  goTo('profile');
+  setTimeout(function(){
+    if (window.plPopulateFilters) plPopulateFilters();
+    if (window.plRenderList) plRenderList();
+  }, 260);
+}
+document.addEventListener('click', function(ev){
+  var b = ev.target.closest ? ev.target.closest('#whv-btn-teams') : null;
+  if (!b) return;
+  var box = document.getElementById('whv-teams');
+  if (!box) return;
+  var offen = box.classList.toggle('offen');
+  b.setAttribute('aria-expanded', offen ? 'true' : 'false');
+});
 function goHome() {
   window.location.hash = '';
   const hs = document.getElementById('home-screen');
-  hs.style.display = 'flex';
+  hs.style.display = 'block';
   playScreenEnter(hs);
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('wissen-screen').style.display = 'none';
