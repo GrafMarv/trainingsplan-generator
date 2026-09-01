@@ -762,7 +762,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <input type="search" id="whv-q" placeholder="Spieler suchen" autocomplete="off">
     </div>
 
-    <div class="sf-titel"><h2>Mannschaften</h2><span>Kader, Anwesenheit und Termine</span></div>
+    <div class="sf-titel"><h2>Mannschaften Feld</h2><span>Kader, Anwesenheit und Termine</span></div>
     <div class="sf-teams">
         <button class="sf-team" onclick="whvTeam('M13')"><span class="sf-tnr sf-tm">13</span><span><span class="sf-tname">U13 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
         <button class="sf-team" onclick="whvTeam('W13')"><span class="sf-tnr sf-tw">13</span><span><span class="sf-tname">U13 weiblich</span><span class="sf-tsub" id="sfc-W13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
@@ -770,6 +770,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <button class="sf-team" onclick="whvTeam('W14')"><span class="sf-tnr sf-tw">14</span><span><span class="sf-tname">U14 weiblich</span><span class="sf-tsub" id="sfc-W14">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
         <button class="sf-team" onclick="whvTeam('M16')"><span class="sf-tnr sf-tm">16</span><span><span class="sf-tname">U16 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
         <button class="sf-team" onclick="whvTeam('W16')"><span class="sf-tnr sf-tw">16</span><span><span class="sf-tname">U16 weiblich</span><span class="sf-tsub" id="sfc-W16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+    </div>
+
+    <div class="sf-titel"><h2>Mannschaften Halle</h2><span>Wintersaison</span></div>
+    <div class="sf-teams">
+        <button class="sf-team" onclick="whvTeam('MP')"><span class="sf-tnr sf-tm">P</span><span><span class="sf-tname">P-Kader m&auml;nnlich</span><span class="sf-tsub" id="sfc-MP">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('WP')"><span class="sf-tnr sf-tw">P</span><span><span class="sf-tname">P-Kader weiblich</span><span class="sf-tsub" id="sfc-WP">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('M15')"><span class="sf-tnr sf-tm">15</span><span><span class="sf-tname">U15 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M15">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('W15')"><span class="sf-tnr sf-tw">15</span><span><span class="sf-tname">U15 weiblich</span><span class="sf-tsub" id="sfc-W15">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
     </div>
 
     <div class="sf-titel"><h2>Bereiche</h2><span>Alle Kader &uuml;bergreifend</span></div>
@@ -819,9 +827,15 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <div class="tv-switch">
       <small>MANNSCHAFT WECHSELN</small>
       <select id="tv-switch" onchange="whvTeam(this.value)">
-        <option value="M13">U13 m&auml;nnlich</option><option value="W13">U13 weiblich</option>
-        <option value="M14">U14 m&auml;nnlich</option><option value="W14">U14 weiblich</option>
-        <option value="M16">U16 m&auml;nnlich</option><option value="W16">U16 weiblich</option>
+        <optgroup label="Feld">
+          <option value="M13">U13 m&auml;nnlich</option><option value="W13">U13 weiblich</option>
+          <option value="M14">U14 m&auml;nnlich</option><option value="W14">U14 weiblich</option>
+          <option value="M16">U16 m&auml;nnlich</option><option value="W16">U16 weiblich</option>
+        </optgroup>
+        <optgroup label="Halle">
+          <option value="MP">P-Kader m&auml;nnlich</option><option value="WP">P-Kader weiblich</option>
+          <option value="M15">U15 m&auml;nnlich</option><option value="W15">U15 weiblich</option>
+        </optgroup>
       </select>
     </div>
   </aside>
@@ -1132,6 +1146,10 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
             <option value="W14">W14</option>
             <option value="M16">M16</option>
             <option value="W16">W16</option>
+            <option value="MP">P-Kader m&auml;nnlich</option>
+            <option value="WP">P-Kader weiblich</option>
+            <option value="M15">U15 m&auml;nnlich</option>
+            <option value="W15">U15 weiblich</option>
           </select>
           <div id="np-team-hint" style="font-size:11.5px;color:#8e8e93;margin-top:6px;min-height:15px;"></div>
         </div>
@@ -1351,12 +1369,15 @@ var TM_MONAT = ['Januar','Februar','M\u00e4rz','April','Mai','Juni','Juli','Augu
 
 function tmLabel(code) {
   if (!code) return 'Mannschaft';
-  return 'U' + code.slice(1) + ' ' + (code.charAt(0) === 'W' ? 'weiblich' : 'm\u00e4nnlich');
+  var g = (code.charAt(0) === 'W' ? 'weiblich' : 'm\u00e4nnlich');
+  var rest = code.slice(1);
+  if (rest === 'P') return 'P-Kader ' + g;
+  return 'U' + rest + ' ' + g;
 }
 
 function tmNaechsterTermin(code) {
   var ziel = TM_TRAININGSTAG[code.slice(1)];
-  if (ziel === undefined) return '';
+  if (ziel === undefined) return 'Trainingstag noch nicht hinterlegt';
   var d = new Date();
   d.setHours(0, 0, 0, 0);
   var diff = (ziel - d.getDay() + 7) % 7;
@@ -1367,7 +1388,7 @@ function tmNaechsterTermin(code) {
 }
 
 function whvHomeCounts() {
-  var codes = ['M13','W13','M14','W14','M16','W16'];
+  var codes = ['M13','W13','M14','W14','M16','W16','MP','WP','M15','W15'];
   function mal() {
     codes.forEach(function(c) {
       var el = document.getElementById('sfc-' + c);
@@ -1404,6 +1425,7 @@ function whvTeam(code) {
   document.getElementById('tm-title').textContent = tmLabel(code);
   document.getElementById('tm-next').textContent = tmNaechsterTermin(code);
   var nr = document.getElementById('tv-nr'); if (nr) nr.textContent = code.slice(1);
+  var hallenTeam = (code.slice(1) === 'P' || code.slice(1) === '15');
   var sw = document.getElementById('tv-switch'); if (sw) sw.value = code;
   var ziel = TM_TRAININGSTAG[code.slice(1)];
   if (ziel !== undefined) {
@@ -3039,7 +3061,7 @@ var PL_FILTER_CLUB = '';
 var PL_FILTER_TEAM = '';
 var TEAM_OPTIONS = {
   'Rot-Weiss Koeln': ['M12','M14','M16','M18','W12','W14','W16','W18'],
-  'WHV': ['M13','M14','M16','W13','W14','W16']
+  'WHV': ['M13','M14','M16','W13','W14','W16','MP','WP','M15','W15']
 };
 var ALL_TEAM_CODES = ['M12','M13','M14','M16','M18','W12','W13','W14','W16','W18'];
 var PL_CUR = null;
