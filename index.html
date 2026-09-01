@@ -916,6 +916,13 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <div style="background:#fff;border-radius:20px;padding:28px;width:440px;max-width:92vw;">
       <h3 id="pv-modal-title" style="font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:20px;">Neuer Spieler</h3>
       <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">GESCHLECHT</label>
+          <div style="display:flex;gap:8px;">
+            <button id="sex-m" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">M&auml;nnlich</button>
+            <button id="sex-w" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">Weiblich</button>
+          </div>
+        </div>
         <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VORNAME</label><input id="np-fn" type="text" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
         <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">NACHNAME</label><input id="np-ln" type="text" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
         <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">GEBURTSDATUM</label><input id="np-dob" type="date" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
@@ -926,8 +933,20 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
             <button id="pos-tor" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">Torwart</button>
           </div>
         </div>
-        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VEREIN / VERBAND</label><input id="np-club" type="text" list="np-club-list" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"><datalist id="np-club-list"><option value="Rot-Weiss Koeln"><option value="WHV"></datalist></div>
-        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">MANNSCHAFT</label><input id="np-team" type="text" list="np-team-list" placeholder="z.B. M14, W16" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"><datalist id="np-team-list"></datalist></div>
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VEREIN / VERBAND</label><input id="np-club" type="text" list="np-club-list" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"><datalist id="np-club-list"><option value="WHV"><option value="Rot-Weiss Koeln"></datalist></div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">MANNSCHAFT <span style="font-weight:400;text-transform:none;">(optional)</span></label>
+          <select id="np-team" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
+            <option value="">Automatisch nach Geburtsdatum</option>
+            <option value="M13">M13</option>
+            <option value="W13">W13</option>
+            <option value="M14">M14</option>
+            <option value="W14">W14</option>
+            <option value="M16">M16</option>
+            <option value="W16">W16</option>
+          </select>
+          <div id="np-team-hint" style="font-size:11.5px;color:#8e8e93;margin-top:6px;min-height:15px;"></div>
+        </div>
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button id="btn-cancel-player" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>
@@ -2897,6 +2916,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (p) plShowModal(p);
   });
   document.getElementById('np-club').addEventListener('input', npUpdateTeamList);
+  document.getElementById('np-dob').addEventListener('change', npUpdateTeamList);
+  document.getElementById('np-team').addEventListener('change', npUpdateTeamList);
+  document.getElementById('sex-m').addEventListener('click', function(){ plSetSex('m'); });
+  document.getElementById('sex-w').addEventListener('click', function(){ plSetSex('w'); });
   document.getElementById('pl-filter-club').addEventListener('change', function() { plFilterChanged('club', this.value); });
   document.getElementById('pl-filter-team').addEventListener('change', function() { plFilterChanged('team', this.value); });
   document.getElementById('dg-filter-club').addEventListener('change', function() { plFilterChanged('club', this.value); });
@@ -3353,17 +3376,53 @@ function plShowModal(p) {
   document.getElementById('np-fn').value = p ? (p.fn || '') : '';
   document.getElementById('np-ln').value = p ? (p.ln || '') : '';
   document.getElementById('np-dob').value = p ? (p.dob || '') : '';
-  document.getElementById('np-club').value = p ? (p.club || '') : '';
+  document.getElementById('np-club').value = p ? (p.club || 'WHV') : 'WHV';
   document.getElementById('np-team').value = p ? (p.team || '') : '';
+  plSetSex(p ? (p.sex || (String(p.team || '').charAt(0) === 'W' ? 'w' : 'm')) : 'm');
   npUpdateTeamList();
   plSetPos(PL_POS);
   document.getElementById('pv-modal').style.display = 'flex';
 }
 
+var PL_SEX = 'm';
+
+// Kader nach Jahrgang: U13 = 2013, U14 = 2012, U16 = 2010/2011
+function whvKaderAusJahrgang(dob, sex) {
+  if (!dob) return '';
+  var jahr = parseInt(String(dob).slice(0, 4), 10);
+  if (!jahr) return '';
+  var stufe = '';
+  if (jahr >= 2013) stufe = '13';
+  else if (jahr === 2012) stufe = '14';
+  else if (jahr === 2011 || jahr === 2010) stufe = '16';
+  else return '';
+  return (sex === 'w' ? 'W' : 'M') + stufe;
+}
+
 function npUpdateTeamList() {
-  var club = document.getElementById('np-club').value.trim();
-  var opts = TEAM_OPTIONS[club] || ALL_TEAM_CODES;
-  document.getElementById('np-team-list').innerHTML = opts.map(function(t) { return '<option value="' + t + '">'; }).join('');
+  var sel = document.getElementById('np-team');
+  var hint = document.getElementById('np-team-hint');
+  if (!sel || !hint) return;
+  if (sel.value) { hint.textContent = ''; return; }
+  var dob = document.getElementById('np-dob').value;
+  var auto = whvKaderAusJahrgang(dob, PL_SEX);
+  if (auto) hint.textContent = 'Wird zugeordnet zu: ' + auto;
+  else if (dob) hint.textContent = 'Jahrgang passt zu keinem Kader - bleibt ohne Mannschaft';
+  else hint.textContent = 'Geburtsdatum eintragen, dann wird automatisch zugeordnet';
+}
+
+function plSetSex(sex) {
+  PL_SEX = sex;
+  var m = document.getElementById('sex-m');
+  var w = document.getElementById('sex-w');
+  if (!m || !w) return;
+  m.style.background = sex === 'm' ? '#1c1c1e' : '#fff';
+  m.style.color = sex === 'm' ? '#fff' : '#1c1c1e';
+  m.style.borderColor = sex === 'm' ? '#1c1c1e' : '#e5e5ea';
+  w.style.background = sex === 'w' ? '#1c1c1e' : '#fff';
+  w.style.color = sex === 'w' ? '#fff' : '#1c1c1e';
+  w.style.borderColor = sex === 'w' ? '#1c1c1e' : '#e5e5ea';
+  npUpdateTeamList();
 }
 
 function plHideModal() {
@@ -3387,10 +3446,11 @@ function plSaveNew() {
   var dob = document.getElementById('np-dob').value;
   var club = document.getElementById('np-club').value.trim();
   var team = document.getElementById('np-team').value.trim();
+  if (!team) team = whvKaderAusJahrgang(dob, PL_SEX);
   if (PL_EDIT_ID) {
     var ex = PL.find(function(x) { return x.id === PL_EDIT_ID; });
     if (!ex) { plHideModal(); return; }
-    ex.fn = fn; ex.ln = ln; ex.dob = dob; ex.pos = PL_POS; ex.club = club; ex.team = team;
+    ex.fn = fn; ex.ln = ln; ex.dob = dob; ex.pos = PL_POS; ex.club = club; ex.team = team; ex.sex = PL_SEX;
     plSave();
     plUpsert(ex);
     plHideModal();
@@ -3402,6 +3462,7 @@ function plSaveNew() {
     fn: fn, ln: ln,
     dob: dob,
     pos: PL_POS,
+    sex: PL_SEX,
     club: club,
     team: team,
     diag: [], notes: ''
