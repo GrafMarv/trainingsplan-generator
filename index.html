@@ -711,7 +711,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <nav class="whv-liste">
-      <button class="whv-reihe" id="whv-btn-teams" aria-expanded="false">
+      <button class="whv-reihe" id="whv-btn-teams" aria-expanded="false" onclick="whvToggleTeams(this)">
         <span class="whv-titel">Mannschaften<span class="whv-sub">Kader, Anwesenheit und Termine</span></span>
         <span class="whv-zahl">6</span>
       </button>
@@ -1307,6 +1307,13 @@ function tmNaechsterTermin(code) {
   d.setDate(d.getDate() + diff);
   var heute = diff === 0 ? ' (heute)' : '';
   return 'Naechste Einheit: ' + TM_WOCHENTAG[ziel] + ', ' + d.getDate() + '. ' + TM_MONAT[d.getMonth()] + heute;
+}
+
+function whvToggleTeams(b) {
+  var box = document.getElementById('whv-teams');
+  if (!box) return;
+  var offen = box.classList.toggle('offen');
+  if (b) b.setAttribute('aria-expanded', offen ? 'true' : 'false');
 }
 
 function whvTeam(code) {
