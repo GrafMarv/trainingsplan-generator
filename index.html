@@ -3500,7 +3500,6 @@ function onId(id, ev, fn) {
 document.addEventListener('DOMContentLoaded', function() {
   whvSideInit();
   // Back buttons
-  onId('btn-back-profile', 'click', function() { goTo('home'); });
   onId('btn-back-list', 'click', function() { plShowList(); });
 
   // New player buttons
@@ -3513,9 +3512,7 @@ document.addEventListener('DOMContentLoaded', function() {
   onId('np-team', 'change', npUpdateTeamList);
   onId('sex-m', 'click', function(){ plSetSex('m'); });
   onId('sex-w', 'click', function(){ plSetSex('w'); });
-  onId('pl-filter-club', 'change', function() { plFilterChanged('club', this.value); });
   onId('pl-filter-team', 'change', function() { plFilterChanged('team', this.value); });
-  onId('dg-filter-club', 'change', function() { plFilterChanged('club', this.value); });
   onId('dg-filter-team', 'change', function() { plFilterChanged('team', this.value); });
   onId('btn-diag-template', 'click', function() { downloadDiagTemplate(); });
   onId('btn-prio-chunk', 'click', function() { loadPrioChunk(); });
