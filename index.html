@@ -879,6 +879,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 #app-screen .tab.active{background:#fff;color:#0E6B36;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08);}
 #app-screen .btn-primary{background:#0E6B36;}
 #app-screen .btn-primary:hover{background:#0A5A2C;}
+
+.pd-wq{font-size:10.5px;color:#8B978C;margin-top:3px;line-height:1.2;}
+.pd-wq b{font-weight:600;color:#6B7A6E;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -3765,6 +3768,32 @@ function plTabShow(tab) {
     if (b) b.className = 'pd-tab' + (t === tab ? ' an' : '');
   });
 }
+function plSex(p) {
+  return p.sex || (String(p.team || '').charAt(0) === 'W' ? 'w' : 'm');
+}
+
+// Schnitt aller Spieler mit gleichem Geburtsjahr und Geschlecht,
+// je Spieler sein zuletzt gemessener Wert
+function plJahrgangSchnitt(p, key) {
+  if (!p.dob) return null;
+  var jahr = String(p.dob).slice(0, 4);
+  var sex = plSex(p);
+  var werte = [];
+  PL.forEach(function(x) {
+    if (!x.dob || String(x.dob).slice(0, 4) !== jahr) return;
+    if (plSex(x) !== sex) return;
+    var d = x.diag || [];
+    for (var i = d.length - 1; i >= 0; i--) {
+      var v = parseFloat(d[i][key]);
+      if (!isNaN(v)) { werte.push(v); break; }
+    }
+  });
+  if (werte.length < 3) return null;
+  var s = 0;
+  werte.forEach(function(v) { s += v; });
+  return { schnitt: s / werte.length, anzahl: werte.length, jahr: jahr, sex: sex };
+}
+
 function plRenderDiag(p) {
   var el = document.getElementById('pv-diag-list');
   if (!p.diag || p.diag.length === 0) {
@@ -3788,8 +3817,16 @@ function plRenderDiag(p) {
     out += '<div class="pd-werte">';
     Object.keys(lbl).forEach(function(k) {
       if (d[k] === undefined || d[k] === null || d[k] === '') return;
+      var ref = plJahrgangSchnitt(p, k);
+      var stellen = (unt[k] === 's' ? 2 : 1);
+      var refZeile = ref
+        ? '<div class="pd-wq" title="Schnitt aller ' + ref.jahr + '-Jahrgaenge, '
+            + (ref.sex === 'w' ? 'weiblich' : 'maennlich') + ', n=' + ref.anzahl + '">'
+            + '\u00d8 <b>' + ref.schnitt.toFixed(stellen) + '</b></div>'
+        : '';
       out += '<div class="pd-wert"><div class="pd-wl">' + sv(symb[k]) + '<span>' + lbl[k] + '</span></div>'
-          + '<div class="pd-wv">' + d[k] + '</div><div class="pd-wu">' + unt[k] + '</div></div>';
+          + '<div class="pd-wv">' + d[k] + '</div><div class="pd-wu">' + unt[k] + '</div>'
+          + refZeile + '</div>';
     });
     out += '</div></div>';
   });
