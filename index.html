@@ -589,6 +589,12 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .tm-pill{display:inline-block;margin-top:8px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;color:#fff;}
 .tm-leer{color:#6B7A6E;font-size:13.5px;background:#fff;border:1px dashed #DCE3D6;border-radius:12px;padding:26px 18px;text-align:center;}
 @media(max-width:520px){.tm-stats{grid-template-columns:repeat(2,1fr);}}
+
+.tm-link{display:flex;align-items:center;gap:12px;width:100%;margin-top:10px;padding:15px 16px;background:#fff;border:1px solid #DCE3D6;border-left:3px solid #57B84A;border-radius:11px;font-family:inherit;text-align:left;cursor:pointer;color:#12301F;}
+.tm-link:hover{background:#FAFCF8;box-shadow:0 3px 12px rgba(0,0,0,.06);}
+.tm-link b{font-size:14.5px;font-weight:600;display:block;}
+.tm-link small{font-size:12px;color:#6B7A6E;display:block;margin-top:2px;}
+.tm-link .pf{margin-left:auto;color:#0E6B36;font-size:17px;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -743,6 +749,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     <div class="tm-stats" id="tm-stats"></div>
     <div id="tm-warn"></div>
+
+    <button class="tm-link" onclick="tmDiagnostik()">
+      <div>
+        <b>Diagnostik der Mannschaft</b>
+        <small id="tm-diag-sub">Testwerte und Entwicklung im Kader</small>
+      </div>
+      <span class="pf">&#8594;</span>
+    </button>
 
     <div class="tm-tabs">
       <button class="tm-tab an" id="tmt-spieler"      onclick="tmTab('spieler')">Spieler</button>
@@ -1261,6 +1275,17 @@ function whvTeam(code) {
   }
 }
 
+function tmDiagnostik() {
+  PL_FILTER_CLUB = 'WHV';
+  PL_FILTER_TEAM = TM_CUR;
+  document.getElementById('team-screen').style.display = 'none';
+  goTo('diagnostik');
+  setTimeout(function(){
+    if (window.plPopulateFilters) plPopulateFilters();
+    if (window.diagRenderTeamOverview) diagRenderTeamOverview();
+  }, 220);
+}
+
 function tmKader() {
   return PL.filter(function(p) { return (p.team || '') === TM_CUR; });
 }
@@ -1285,6 +1310,11 @@ function tmRender() {
     + '<div class="tm-stat"><b>' + z.fit + '</b><span>FIT</span></div>'
     + '<div class="tm-stat"><b>' + z.angeschlagen + '</b><span>ANGESCHLAGEN</span></div>'
     + '<div class="tm-stat"><b>' + z.verletzt + '</b><span>VERLETZT</span></div>';
+
+  var mitTest = k.filter(function(p) { return (p.diag || []).length > 0; }).length;
+  var ds = document.getElementById('tm-diag-sub');
+  if (ds) ds.textContent = k.length === 0 ? 'Testwerte und Entwicklung im Kader'
+    : mitTest + ' von ' + k.length + ' Spielern haben Testwerte';
 
   var raus = k.filter(function(p) { return (p.status || 'fit') !== 'fit'; });
   document.getElementById('tm-warn').innerHTML = raus.length === 0 ? '' :
