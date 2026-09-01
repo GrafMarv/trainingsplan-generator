@@ -561,6 +561,34 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .whv-team-name{font-weight:600;font-size:16px;flex:1;}
 .whv-fuss{margin-top:34px;font-size:12.5px;color:var(--grau);}
 .whv-fuss a{color:var(--dunkel);text-decoration:none;border-bottom:1px solid var(--linie);cursor:pointer;}
+
+/* ===== Mannschaftsseite ===== */
+#team-screen{min-height:100vh;background:#F7F8F4;display:none;}
+#team-screen .whv-wrap{padding-top:0;}
+.tm-kopf{position:relative;padding:22px 20px 26px;margin:0 -20px 0;overflow:hidden;background:#0E6B36;}
+.tm-kopf::after{content:"";position:absolute;right:-80px;top:-50px;width:240px;height:240px;background:linear-gradient(150deg,#57B84A 0%,#57B84A 48%,#B9CE2F 48%,#B9CE2F 100%);transform:skewX(-16deg);opacity:.85;}
+.tm-kopf-in{position:relative;z-index:2;}
+.tm-back{background:none;border:0;color:rgba(255,255,255,.75);font-family:inherit;font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;}
+.tm-h1{font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:clamp(30px,8vw,44px);line-height:.95;letter-spacing:-.025em;color:#fff;margin:0;}
+.tm-next{margin-top:10px;font-size:13px;color:rgba(255,255,255,.72);}
+.tm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0 6px;}
+.tm-stat{background:#fff;border:1px solid #DCE3D6;border-radius:10px;padding:12px 10px;text-align:center;}
+.tm-stat b{display:block;font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;line-height:1;color:#12301F;}
+.tm-stat span{display:block;margin-top:5px;font-size:10.5px;color:#6B7A6E;letter-spacing:.02em;}
+.tm-warn{background:#fff;border:1px solid #DCE3D6;border-left:3px solid #ff9500;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px;color:#12301F;}
+.tm-warn p{margin:3px 0;}
+.tm-tabs{display:flex;gap:4px;background:#EAEFE6;padding:4px;border-radius:11px;margin:18px 0 16px;}
+.tm-tab{flex:1;padding:9px 8px;border-radius:8px;border:0;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#6B7A6E;}
+.tm-tab.an{background:#fff;color:#12301F;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.tm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.tm-karte{background:#fff;border:1px solid #DCE3D6;border-radius:12px;padding:14px;cursor:pointer;}
+.tm-karte:hover{box-shadow:0 4px 14px rgba(0,0,0,.07);}
+.tm-init{width:40px;height:40px;border-radius:50%;background:#EAEFE6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#12301F;margin-bottom:10px;}
+.tm-nm{font-size:14.5px;font-weight:600;color:#12301F;}
+.tm-sub{font-size:12px;color:#6B7A6E;margin-top:2px;}
+.tm-pill{display:inline-block;margin-top:8px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;color:#fff;}
+.tm-leer{color:#6B7A6E;font-size:13.5px;background:#fff;border:1px dashed #DCE3D6;border-radius:12px;padding:26px 18px;text-align:center;}
+@media(max-width:520px){.tm-stats{grid-template-columns:repeat(2,1fr);}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -698,6 +726,37 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <a onclick="goTo('umbenenner')">Uebungsbilder</a> &nbsp;
       <a onclick="goTo('trainingsdoku')">Dokumentation</a>
     </p>
+  </div>
+</div>
+
+
+<!-- MANNSCHAFTS-SCREEN -->
+<div id="team-screen">
+  <div class="whv-wrap">
+    <header class="tm-kopf">
+      <div class="tm-kopf-in">
+        <button class="tm-back" onclick="goHome()">&#8592; Startseite</button>
+        <h1 class="tm-h1" id="tm-title">Mannschaft</h1>
+        <p class="tm-next" id="tm-next"></p>
+      </div>
+    </header>
+
+    <div class="tm-stats" id="tm-stats"></div>
+    <div id="tm-warn"></div>
+
+    <div class="tm-tabs">
+      <button class="tm-tab an" id="tmt-spieler"      onclick="tmTab('spieler')">Spieler</button>
+      <button class="tm-tab"    id="tmt-trainings"    onclick="tmTab('trainings')">Trainings</button>
+      <button class="tm-tab"    id="tmt-anwesenheit"  onclick="tmTab('anwesenheit')">Anwesenheit</button>
+    </div>
+
+    <div id="tmc-spieler"><div class="tm-grid" id="tm-grid"></div></div>
+    <div id="tmc-trainings" style="display:none;">
+      <div class="tm-leer">Noch keine Trainings erfasst.<br>Hier erscheinen die gehaltenen Einheiten mit Plan.</div>
+    </div>
+    <div id="tmc-anwesenheit" style="display:none;">
+      <div class="tm-leer">Anwesenheit ist noch nicht eingerichtet.<br>Naechster Schritt: Rueckmeldelink fuer die Spieler.</div>
+    </div>
   </div>
 </div>
 
@@ -1127,6 +1186,7 @@ function goTo(screen) {
   document.getElementById('diagnostik-screen').style.display = 'none';
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('trainingsdoku-screen').style.display = 'none';
+  var _ts = document.getElementById('team-screen'); if (_ts) _ts.style.display = 'none';
   if (screen === 'generator' || screen === 'umbenenner') {
     const app = document.getElementById('app-screen');
     app.style.display = 'block';
@@ -1155,16 +1215,107 @@ function goTo(screen) {
     }
   }
 }
+var TM_CUR = null;
+var TM_TAB = 'spieler';
+var TM_TRAININGSTAG = { '13': 1, '14': 1, '16': 3 };   // Mo = 1, Mi = 3
+var TM_WOCHENTAG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+var TM_MONAT = ['Januar','Februar','Maerz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+function tmLabel(code) {
+  if (!code) return 'Mannschaft';
+  return 'U' + code.slice(1) + ' ' + (code.charAt(0) === 'W' ? 'weiblich' : 'maennlich');
+}
+
+function tmNaechsterTermin(code) {
+  var ziel = TM_TRAININGSTAG[code.slice(1)];
+  if (ziel === undefined) return '';
+  var d = new Date();
+  d.setHours(0, 0, 0, 0);
+  var diff = (ziel - d.getDay() + 7) % 7;
+  if (diff === 0) diff = 0;
+  d.setDate(d.getDate() + diff);
+  var heute = diff === 0 ? ' (heute)' : '';
+  return 'Naechste Einheit: ' + TM_WOCHENTAG[ziel] + ', ' + d.getDate() + '. ' + TM_MONAT[d.getMonth()] + heute;
+}
+
 function whvTeam(code) {
-  try {
-    PL_FILTER_CLUB = 'WHV';
-    PL_FILTER_TEAM = code;
-  } catch (e) {}
-  goTo('profile');
-  setTimeout(function(){
-    if (window.plPopulateFilters) plPopulateFilters();
-    if (window.plRenderList) plRenderList();
-  }, 260);
+  TM_CUR = code;
+  window.location.hash = 'team-' + code;
+  ['home','wissen','profile','diagnostik','app','trainingsdoku'].forEach(function(s) {
+    var el = document.getElementById(s + '-screen');
+    if (el) el.style.display = 'none';
+  });
+  var ts = document.getElementById('team-screen');
+  ts.style.display = 'block';
+  if (window.playScreenEnter) playScreenEnter(ts);
+  document.getElementById('tm-title').textContent = tmLabel(code);
+  document.getElementById('tm-next').textContent = tmNaechsterTermin(code);
+  tmTab('spieler');
+  tmRender();
+  if (!PL || PL.length === 0) {
+    fetch('/api/players').then(function(r){ return r.json(); }).then(function(d){
+      PL = (d && d.players) ? d.players : [];
+      plSave();
+      tmRender();
+    }).catch(function(){});
+  }
+}
+
+function tmKader() {
+  return PL.filter(function(p) { return (p.team || '') === TM_CUR; });
+}
+
+function tmTab(t) {
+  TM_TAB = t;
+  ['spieler','trainings','anwesenheit'].forEach(function(x) {
+    var b = document.getElementById('tmt-' + x);
+    var c = document.getElementById('tmc-' + x);
+    if (b) b.className = 'tm-tab' + (x === t ? ' an' : '');
+    if (c) c.style.display = (x === t ? 'block' : 'none');
+  });
+}
+
+function tmRender() {
+  var k = tmKader();
+  var z = { fit: 0, angeschlagen: 0, verletzt: 0, pause: 0 };
+  k.forEach(function(p) { z[p.status || 'fit'] = (z[p.status || 'fit'] || 0) + 1; });
+
+  document.getElementById('tm-stats').innerHTML =
+      '<div class="tm-stat"><b>' + k.length + '</b><span>IM KADER</span></div>'
+    + '<div class="tm-stat"><b>' + z.fit + '</b><span>FIT</span></div>'
+    + '<div class="tm-stat"><b>' + z.angeschlagen + '</b><span>ANGESCHLAGEN</span></div>'
+    + '<div class="tm-stat"><b>' + z.verletzt + '</b><span>VERLETZT</span></div>';
+
+  var raus = k.filter(function(p) { return (p.status || 'fit') !== 'fit'; });
+  document.getElementById('tm-warn').innerHTML = raus.length === 0 ? '' :
+    '<div class="tm-warn">' + raus.map(function(p) {
+      return '<p><b>' + p.fn + ' ' + p.ln + '</b> - ' + plStatusInfo(p.status).l + '</p>';
+    }).join('') + '</div>';
+
+  var g = document.getElementById('tm-grid');
+  if (k.length === 0) {
+    g.innerHTML = '<div class="tm-leer" style="grid-column:1/-1;">Noch keine Spieler in diesem Kader.</div>';
+    return;
+  }
+  g.innerHTML = k.map(function(p) {
+    var st = p.status || 'fit';
+    var si = plStatusInfo(st);
+    var alter = plAge(p.dob);
+    return '<div class="tm-karte" data-id="' + p.id + '">'
+      + '<div class="tm-init">' + ((p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '')) + '</div>'
+      + '<div class="tm-nm">' + p.fn + ' ' + p.ln + '</div>'
+      + '<div class="tm-sub">' + (p.pos || '') + (alter ? ' - ' + alter + ' J.' : '') + '</div>'
+      + (st !== 'fit' ? '<span class="tm-pill" style="background:' + si.f + ';">' + si.l + '</span>' : '')
+      + '</div>';
+  }).join('');
+  Array.prototype.forEach.call(g.querySelectorAll('.tm-karte'), function(el) {
+    el.addEventListener('click', function() {
+      var id = el.getAttribute('data-id');
+      document.getElementById('team-screen').style.display = 'none';
+      goTo('profile');
+      setTimeout(function(){ plOpen(id); }, 120);
+    });
+  });
 }
 document.addEventListener('click', function(ev){
   var b = ev.target.closest ? ev.target.closest('#whv-btn-teams') : null;
@@ -1184,12 +1335,14 @@ function goHome() {
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('diagnostik-screen').style.display = 'none';
   document.getElementById('trainingsdoku-screen').style.display = 'none';
+  var _t = document.getElementById('team-screen'); if (_t) _t.style.display = 'none';
 }
 
 // Hash router - on load and on hash change
 function handleHash() {
   var hash = window.location.hash.replace('#','');
   var valid = ['wissen','generator','profile','diagnostik','trainingsdoku'];
+  if (hash.indexOf('team-') === 0) { whvTeam(hash.slice(5)); return; }
   if(hash && valid.indexOf(hash) > -1) {
     goTo(hash);
   } else {
