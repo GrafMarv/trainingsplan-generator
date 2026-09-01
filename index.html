@@ -729,6 +729,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sf-fuss a{color:#0E6B36;text-decoration:none;cursor:pointer;margin-right:16px;}
 .sf-fuss a:hover{text-decoration:underline;}
 
+.sf-teams2{grid-template-columns:repeat(2,1fr);}
 @media(max-width:980px){.sf-teams,.sf-bereiche{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:620px){
   .sf{padding:14px 14px 50px;}
@@ -764,20 +765,20 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     <div class="sf-titel"><h2>Mannschaften Feld</h2><span>Kader, Anwesenheit und Termine</span></div>
     <div class="sf-teams">
-        <button class="sf-team" onclick="whvTeam('M13')"><span class="sf-tnr sf-tm">13</span><span><span class="sf-tname">U13 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
         <button class="sf-team" onclick="whvTeam('W13')"><span class="sf-tnr sf-tw">13</span><span><span class="sf-tname">U13 weiblich</span><span class="sf-tsub" id="sfc-W13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('M14')"><span class="sf-tnr sf-tm">14</span><span><span class="sf-tname">U14 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M14">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
         <button class="sf-team" onclick="whvTeam('W14')"><span class="sf-tnr sf-tw">14</span><span><span class="sf-tname">U14 weiblich</span><span class="sf-tsub" id="sfc-W14">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('M16')"><span class="sf-tnr sf-tm">16</span><span><span class="sf-tname">U16 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
         <button class="sf-team" onclick="whvTeam('W16')"><span class="sf-tnr sf-tw">16</span><span><span class="sf-tname">U16 weiblich</span><span class="sf-tsub" id="sfc-W16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('M13')"><span class="sf-tnr sf-tm">13</span><span><span class="sf-tname">U13 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('M14')"><span class="sf-tnr sf-tm">14</span><span><span class="sf-tname">U14 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M14">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('M16')"><span class="sf-tnr sf-tm">16</span><span><span class="sf-tname">U16 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
     </div>
 
     <div class="sf-titel"><h2>Mannschaften Halle</h2><span>Wintersaison</span></div>
-    <div class="sf-teams">
-        <button class="sf-team" onclick="whvTeam('MP')"><span class="sf-tnr sf-tm">P</span><span><span class="sf-tname">P-Kader m&auml;nnlich</span><span class="sf-tsub" id="sfc-MP">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+    <div class="sf-teams sf-teams2">
         <button class="sf-team" onclick="whvTeam('WP')"><span class="sf-tnr sf-tw">P</span><span><span class="sf-tname">P-Kader weiblich</span><span class="sf-tsub" id="sfc-WP">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('M15')"><span class="sf-tnr sf-tm">15</span><span><span class="sf-tname">U15 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M15">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
         <button class="sf-team" onclick="whvTeam('W15')"><span class="sf-tnr sf-tw">15</span><span><span class="sf-tname">U15 weiblich</span><span class="sf-tsub" id="sfc-W15">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('MP')"><span class="sf-tnr sf-tm">P</span><span><span class="sf-tname">P-Kader m&auml;nnlich</span><span class="sf-tsub" id="sfc-MP">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('M15')"><span class="sf-tnr sf-tm">15</span><span><span class="sf-tname">U15 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M15">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
     </div>
 
     <div class="sf-titel"><h2>Bereiche</h2><span>Alle Kader &uuml;bergreifend</span></div>
