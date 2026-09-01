@@ -831,6 +831,11 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .pd-sk b.leer{color:#B4BFB6;font-weight:400;font-size:14px;font-family:inherit;}
 @media(max-width:1100px){.pd-stamm{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:620px){.pd-stamm{grid-template-columns:repeat(2,1fr);}}
+
+.pd-sk select{width:100%;border:0;background:none;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;color:#12301F;cursor:pointer;outline:none;padding:0;margin:-1px 0 0 -2px;}
+.pd-sk select:hover{color:#0E6B36;}
+.pd-hz{display:inline-block;margin-top:7px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:600;background:#EDF4EA;color:#0E6B36;}
+.tv-hz{display:inline-block;margin-top:7px;margin-left:5px;padding:3px 8px;border-radius:20px;font-size:10.5px;font-weight:600;background:#EDF4EA;color:#0E6B36;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1696,6 +1701,7 @@ function tmRender() {
       + '<div class="tv-nm">' + p.fn + ' ' + p.ln + '</div>'
       + '<div class="tv-sub2">' + (p.pos || '') + (alter ? ' - ' + alter + ' J.' : '') + '</div>'
       + (st !== 'fit' ? '<span class="tv-pill" style="background:' + si.f + ';">' + si.l + '</span>' : '')
+      + (plKaderHinweis(p) ? '<span class="tv-hz">hochgezogen</span>' : '')
       + '</div>';
   }).join('');
   Array.prototype.forEach.call(g.querySelectorAll('.tv-karte'), function(el) {
@@ -3412,7 +3418,41 @@ function plRenderStammdaten(p) {
     + feld('GROESSE', p.hgt, ' cm')
     + feld('GEWICHT', p.wgt, ' kg')
     + feld('VEREIN', p.verein)
-    + feld('MANNSCHAFT', p.team ? (WHV_LABEL[p.team] || p.team) : '');
+    + kaderFeld(p);
+}
+
+function plKaderHinweis(p) {
+  var soll = whvKaderAusJahrgang(p.dob, p.sex || (String(p.team||'').charAt(0)==='W' ? 'w' : 'm'));
+  if (!soll || !p.team || soll === p.team) return '';
+  var stufeIst = p.team.slice(1), stufeSoll = soll.slice(1);
+  var rang = { '13':1, '14':2, '15':3, 'P':3, '16':4 };
+  var hoch = (rang[stufeIst] || 0) > (rang[stufeSoll] || 0);
+  return '<span class="pd-hz">' + (hoch ? 'Hochgezogen aus ' : 'Spielt in ')
+    + (WHV_LABEL[soll] || soll).replace(' weiblich','').replace(' m\u00e4nnlich','') + '</span>';
+}
+
+function kaderFeld(p) {
+  var opt = WHV_TEAMS.map(function(t) {
+    return '<option value="' + t + '"' + (t === p.team ? ' selected' : '') + '>'
+      + (WHV_LABEL[t] || t) + '</option>';
+  }).join('');
+  return '<div class="pd-sk"><span>MANNSCHAFT</span>'
+    + '<select onchange="plSetTeam(this.value)">'
+    + '<option value=""' + (p.team ? '' : ' selected') + '>Keine</option>' + opt + '</select>'
+    + plKaderHinweis(p) + '</div>';
+}
+
+function plSetTeam(code) {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  p.team = code;
+  plSave();
+  plUpsert(p);
+  plRenderStammdaten(p);
+  document.getElementById('pv-meta').textContent = p.pos
+    + (plAge(p.dob) ? ' | ' + plAge(p.dob) + ' Jahre' : '')
+    + (p.verein ? ' | ' + p.verein : '')
+    + (p.team ? ' | ' + (WHV_LABEL[p.team] || p.team) : '');
 }
 
 function plRenderStatus(p) {
@@ -3448,7 +3488,9 @@ function plOpen(id) {
   var init = (p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '');
   document.getElementById('pv-photo').textContent = init;
   document.getElementById('pv-name').textContent = p.fn + ' ' + p.ln;
-  document.getElementById('pv-meta').textContent = p.pos + (age ? ' | ' + age + ' Jahre' : '') + (p.club ? ' | ' + p.club : '') + (p.team ? ' | ' + p.team : '');
+  document.getElementById('pv-meta').textContent = p.pos + (age ? ' | ' + age + ' Jahre' : '')
+    + (p.verein ? ' | ' + p.verein : '')
+    + (p.team ? ' | ' + (WHV_LABEL[p.team] || p.team) : '');
   document.getElementById('pv-notes').value = p.notes || '';
   plRenderStammdaten(p);
   plRenderStatus(p);
