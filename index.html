@@ -598,6 +598,92 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 .cb-light{background:#F7F8F4;min-height:100vh;position:relative;}
 .cb-light h1,.cb-light h2,.cb-light h3{color:#12301F;}
+
+/* ===== Mannschaftsseite v2 ===== */
+#team-screen{display:none;min-height:100vh;background:#F7F8F4;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#12301F;}
+.tv{display:flex;min-height:100vh;}
+
+/* Seitenleiste */
+.tv-side{width:236px;flex:0 0 236px;background:#fff;border-right:1px solid #E4EADE;display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:100vh;}
+.tv-brand{display:flex;align-items:center;gap:10px;padding:0 8px 22px;}
+.tv-brand-mark{width:32px;height:32px;border-radius:7px;background:#0E6B36;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:15px;}
+.tv-brand-txt{font-size:11px;font-weight:600;letter-spacing:.06em;color:#6B7A6E;line-height:1.3;}
+.tv-nav{display:flex;flex-direction:column;gap:2px;}
+.tv-navi{display:flex;align-items:center;gap:11px;padding:10px 12px;border:0;background:none;border-radius:9px;font-family:inherit;font-size:14px;color:#3F5145;cursor:pointer;text-align:left;width:100%;}
+.tv-navi:hover{background:#F2F6F0;}
+.tv-navi.an{background:#EDF4EA;color:#0E6B36;font-weight:600;}
+.tv-navi svg{width:17px;height:17px;flex:0 0 17px;stroke:currentColor;fill:none;stroke-width:1.7;}
+.tv-switch{margin-top:auto;border-top:1px solid #E4EADE;padding-top:14px;}
+.tv-switch select{width:100%;padding:10px 11px;border:1px solid #DCE3D6;border-radius:9px;font-family:inherit;font-size:13px;background:#fff;color:#12301F;cursor:pointer;}
+.tv-switch small{display:block;padding:0 3px 7px;font-size:11px;color:#6B7A6E;}
+
+/* Hauptbereich */
+.tv-main{flex:1;min-width:0;padding:22px 26px 60px;}
+.tv-banner{position:relative;border-radius:14px;overflow:hidden;background:#0B4A28;padding:26px 28px 30px;min-height:150px;}
+.tv-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(112deg,transparent 0%,transparent 52%,#1C7A3E 52%,#1C7A3E 68%,#57B84A 68%,#57B84A 84%,#8FC63D 84%);opacity:.95;}
+.tv-banner-in{position:relative;z-index:2;}
+.tv-back{background:none;border:0;color:#9FD4A8;font-family:inherit;font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;}
+.tv-h1{font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:clamp(30px,4.4vw,46px);line-height:1;letter-spacing:-.03em;color:#fff;margin:0;}
+.tv-sub{margin-top:10px;font-size:14px;color:rgba(255,255,255,.78);}
+.tv-nr{position:absolute;right:34px;top:50%;transform:translateY(-50%);z-index:1;font-family:'Archivo',sans-serif;font-weight:800;font-size:64px;color:rgba(255,255,255,.22);letter-spacing:-.04em;}
+
+.tv-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px;}
+.tv-stat{background:#fff;border:1px solid #E4EADE;border-radius:13px;padding:17px 18px;display:flex;align-items:center;gap:13px;}
+.tv-ico{width:38px;height:38px;flex:0 0 38px;border-radius:50%;background:#EDF4EA;display:flex;align-items:center;justify-content:center;}
+.tv-ico svg{width:18px;height:18px;stroke:#0E6B36;fill:none;stroke-width:1.8;}
+.tv-stat b{display:block;font-family:'Archivo',sans-serif;font-weight:800;font-size:25px;line-height:1;color:#12301F;}
+.tv-stat span{display:block;margin-top:4px;font-size:10.5px;letter-spacing:.07em;color:#6B7A6E;}
+
+.tv-link{display:flex;align-items:center;gap:15px;width:100%;margin-top:14px;padding:17px 20px;background:#fff;border:1px solid #E4EADE;border-radius:13px;font-family:inherit;text-align:left;cursor:pointer;color:#12301F;}
+.tv-link:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);}
+.tv-link-ico{width:42px;height:42px;flex:0 0 42px;border-radius:10px;background:#0E6B36;display:flex;align-items:center;justify-content:center;}
+.tv-link-ico svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8;}
+.tv-link b{font-size:15px;font-weight:600;display:block;}
+.tv-link small{font-size:13px;color:#6B7A6E;display:block;margin-top:3px;}
+.tv-link .pf{margin-left:auto;color:#0E6B36;font-size:19px;}
+
+.tv-cols{display:grid;grid-template-columns:1fr 330px;gap:16px;margin-top:16px;align-items:start;}
+.tv-card{background:#fff;border:1px solid #E4EADE;border-radius:13px;}
+.tv-tabs{display:flex;border-bottom:1px solid #E4EADE;}
+.tv-tab{flex:1;padding:17px 10px;border:0;background:none;font-family:inherit;font-size:14px;color:#6B7A6E;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tv-tab.an{color:#12301F;font-weight:600;border-bottom-color:#0E6B36;}
+.tv-body{padding:22px;}
+.tv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px;}
+.tv-karte{background:#fff;border:1px solid #E4EADE;border-radius:12px;padding:15px;cursor:pointer;}
+.tv-karte:hover{box-shadow:0 4px 14px rgba(0,0,0,.07);border-color:#CFE0C8;}
+.tv-init{width:40px;height:40px;border-radius:50%;background:#EDF4EA;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#0E6B36;margin-bottom:11px;}
+.tv-nm{font-size:14.5px;font-weight:600;}
+.tv-sub2{font-size:12px;color:#6B7A6E;margin-top:2px;}
+.tv-pill{display:inline-block;margin-top:9px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;color:#fff;}
+
+.tv-leer{text-align:center;padding:46px 20px;}
+.tv-leer-ico{width:62px;height:62px;margin:0 auto 16px;border-radius:50%;background:#EDF4EA;display:flex;align-items:center;justify-content:center;}
+.tv-leer-ico svg{width:27px;height:27px;stroke:#0E6B36;fill:none;stroke-width:1.6;}
+.tv-leer b{display:block;font-size:14.5px;font-weight:600;}
+.tv-leer p{margin-top:6px;font-size:13px;color:#6B7A6E;}
+.tv-btn{margin-top:17px;display:inline-flex;align-items:center;gap:8px;padding:11px 19px;background:#0E6B36;color:#fff;border:0;border-radius:9px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;}
+.tv-btn:hover{background:#0A5A2C;}
+
+.tv-r-head{display:flex;align-items:center;gap:9px;padding:17px 19px 0;font-size:14px;font-weight:600;}
+.tv-r-head svg{width:17px;height:17px;stroke:#0E6B36;fill:none;stroke-width:1.8;}
+.tv-termin{margin:14px 19px;padding:15px 16px;background:#F2F7EF;border-radius:11px;display:flex;align-items:center;justify-content:space-between;}
+.tv-termin small{font-size:12px;color:#6B7A6E;display:block;}
+.tv-termin b{font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;display:block;margin-top:2px;}
+.tv-zeile{display:flex;align-items:center;gap:10px;padding:12px 19px;border-top:1px solid #EEF2EB;font-size:13.5px;color:#3F5145;}
+.tv-zeile svg{width:15px;height:15px;stroke:#6B7A6E;fill:none;stroke-width:1.8;flex:0 0 15px;}
+.tv-zeile em{font-style:normal;color:#9AA79C;}
+.tv-plan{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 19px;background:#F2F7EF;border:0;border-top:1px solid #EEF2EB;font-family:inherit;font-size:13.5px;font-weight:600;color:#12301F;cursor:pointer;border-radius:0 0 12px 12px;}
+.tv-plan:hover{background:#EAF2E5;}
+.tv-warn{margin-top:14px;background:#fff;border:1px solid #E4EADE;border-left:3px solid #ff9500;border-radius:12px;padding:15px 18px;font-size:13.5px;}
+.tv-warn p{margin:3px 0;}
+
+@media(max-width:1100px){.tv-cols{grid-template-columns:1fr;}.tv-stats{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:860px){
+  .tv-side{display:none;}
+  .tv-main{padding:14px 14px 50px;}
+  .tv-nr{display:none;}
+  .tv-banner{padding:20px;}
+}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -659,40 +745,90 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 <!-- MANNSCHAFTS-SCREEN -->
 <div id="team-screen">
-  <div class="whv-wrap">
-    <header class="tm-kopf">
-      <div class="tm-kopf-in">
-        <button class="tm-back" onclick="goHome()">&#8592; Startseite</button>
-        <h1 class="tm-h1" id="tm-title">Mannschaft</h1>
-        <p class="tm-next" id="tm-next"></p>
-      </div>
-    </header>
+ <div class="tv">
 
-    <div class="tm-stats" id="tm-stats"></div>
+  <aside class="tv-side">
+    <div class="tv-brand">
+      <div class="tv-brand-mark">W</div>
+      <div class="tv-brand-txt">WHV<br>ATHLETIK</div>
+    </div>
+    <nav class="tv-nav">
+      <button class="tv-navi an" onclick="goHome()"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg> Startseite</button>
+      <button class="tv-navi" id="tvn-spieler"     onclick="tmTab('spieler')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg> Spieler</button>
+      <button class="tv-navi" id="tvn-trainings"   onclick="tmTab('trainings')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Trainings</button>
+      <button class="tv-navi" id="tvn-anwesenheit" onclick="tmTab('anwesenheit')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg> Anwesenheit</button>
+      <button class="tv-navi" onclick="tmDiagnostik()"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg> Diagnostik</button>
+    </nav>
+    <div class="tv-switch">
+      <small>MANNSCHAFT WECHSELN</small>
+      <select id="tv-switch" onchange="whvTeam(this.value)">
+        <option value="M13">U13 maennlich</option><option value="W13">U13 weiblich</option>
+        <option value="M14">U14 maennlich</option><option value="W14">U14 weiblich</option>
+        <option value="M16">U16 maennlich</option><option value="W16">U16 weiblich</option>
+      </select>
+    </div>
+  </aside>
+
+  <main class="tv-main">
+    <div class="tv-banner">
+      <div class="tv-nr" id="tv-nr"></div>
+      <div class="tv-banner-in">
+        <button class="tv-back" onclick="goHome()">&#8592; Startseite</button>
+        <h1 class="tv-h1" id="tm-title">Mannschaft</h1>
+        <p class="tv-sub" id="tm-next"></p>
+      </div>
+    </div>
+
+    <div class="tv-stats" id="tm-stats"></div>
     <div id="tm-warn"></div>
 
-    <button class="tm-link" onclick="tmDiagnostik()">
-      <div>
-        <b>Diagnostik der Mannschaft</b>
-        <small id="tm-diag-sub">Testwerte und Entwicklung im Kader</small>
-      </div>
+    <button class="tv-link" onclick="tmDiagnostik()">
+      <div class="tv-link-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
+      <div><b>Diagnostik der Mannschaft</b><small id="tm-diag-sub">Testwerte und Entwicklung im Kader</small></div>
       <span class="pf">&#8594;</span>
     </button>
 
-    <div class="tm-tabs">
-      <button class="tm-tab an" id="tmt-spieler"      onclick="tmTab('spieler')">Spieler</button>
-      <button class="tm-tab"    id="tmt-trainings"    onclick="tmTab('trainings')">Trainings</button>
-      <button class="tm-tab"    id="tmt-anwesenheit"  onclick="tmTab('anwesenheit')">Anwesenheit</button>
-    </div>
+    <div class="tv-cols">
+      <div class="tv-card">
+        <div class="tv-tabs">
+          <button class="tv-tab an" id="tmt-spieler"     onclick="tmTab('spieler')">Spieler</button>
+          <button class="tv-tab"    id="tmt-trainings"   onclick="tmTab('trainings')">Trainings</button>
+          <button class="tv-tab"    id="tmt-anwesenheit" onclick="tmTab('anwesenheit')">Anwesenheit</button>
+        </div>
+        <div class="tv-body">
+          <div id="tmc-spieler"><div class="tv-grid" id="tm-grid"></div></div>
+          <div id="tmc-trainings" style="display:none;">
+            <div class="tv-leer">
+              <div class="tv-leer-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+              <b>Noch keine Trainings erfasst.</b>
+              <p>Hier erscheinen die gehaltenen Einheiten mit Plan.</p>
+              <button class="tv-btn" onclick="goTo('generator')">Einheit planen</button>
+            </div>
+          </div>
+          <div id="tmc-anwesenheit" style="display:none;">
+            <div class="tv-leer">
+              <div class="tv-leer-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg></div>
+              <b>Anwesenheit ist noch nicht eingerichtet.</b>
+              <p>Naechster Schritt: Rueckmeldelink fuer die Spieler.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div id="tmc-spieler"><div class="tm-grid" id="tm-grid"></div></div>
-    <div id="tmc-trainings" style="display:none;">
-      <div class="tm-leer">Noch keine Trainings erfasst.<br>Hier erscheinen die gehaltenen Einheiten mit Plan.</div>
+      <div class="tv-card">
+        <div class="tv-r-head"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Naechste Einheit</div>
+        <div class="tv-termin">
+          <div><small id="tv-wtag"></small><b id="tv-datum"></b></div>
+          <div id="tv-zeit"></div>
+        </div>
+        <div class="tv-zeile"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> <span id="tv-ort"><em>Ort noch nicht hinterlegt</em></span></div>
+        <div class="tv-zeile"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg> <span id="tv-art"><em>Inhalt noch nicht hinterlegt</em></span></div>
+        <button class="tv-plan" onclick="goTo('generator')">Einheit planen <span>&#8250;</span></button>
+      </div>
     </div>
-    <div id="tmc-anwesenheit" style="display:none;">
-      <div class="tm-leer">Anwesenheit ist noch nicht eingerichtet.<br>Naechster Schritt: Rueckmeldelink fuer die Spieler.</div>
-    </div>
-  </div>
+  </main>
+
+ </div>
 </div>
 
 <!-- WISSEN SCREEN -->
@@ -1185,6 +1321,15 @@ function whvTeam(code) {
   if (window.playScreenEnter) playScreenEnter(ts);
   document.getElementById('tm-title').textContent = tmLabel(code);
   document.getElementById('tm-next').textContent = tmNaechsterTermin(code);
+  var nr = document.getElementById('tv-nr'); if (nr) nr.textContent = code.slice(1);
+  var sw = document.getElementById('tv-switch'); if (sw) sw.value = code;
+  var ziel = TM_TRAININGSTAG[code.slice(1)];
+  if (ziel !== undefined) {
+    var d = new Date(); d.setHours(0,0,0,0);
+    d.setDate(d.getDate() + ((ziel - d.getDay() + 7) % 7));
+    document.getElementById('tv-wtag').textContent = TM_WOCHENTAG[ziel];
+    document.getElementById('tv-datum').textContent = d.getDate() + '. ' + TM_MONAT[d.getMonth()];
+  }
   tmTab('spieler');
   tmRender();
   if (!PL || PL.length === 0) {
@@ -1215,22 +1360,37 @@ function tmTab(t) {
   TM_TAB = t;
   ['spieler','trainings','anwesenheit'].forEach(function(x) {
     var b = document.getElementById('tmt-' + x);
+    var n = document.getElementById('tvn-' + x);
     var c = document.getElementById('tmc-' + x);
-    if (b) b.className = 'tm-tab' + (x === t ? ' an' : '');
+    if (b) b.className = 'tv-tab' + (x === t ? ' an' : '');
+    if (n) n.className = 'tv-navi' + (x === t ? ' an' : '');
     if (c) c.style.display = (x === t ? 'block' : 'none');
   });
+}
+
+function tmIcon(p) {
+  return '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>';
 }
 
 function tmRender() {
   var k = tmKader();
   var z = { fit: 0, angeschlagen: 0, verletzt: 0, pause: 0 };
-  k.forEach(function(p) { z[p.status || 'fit'] = (z[p.status || 'fit'] || 0) + 1; });
+  k.forEach(function(p) { var s = p.status || 'fit'; z[s] = (z[s] || 0) + 1; });
 
+  var P_TEAM = '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>';
+  var P_UP   = '<path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/>';
+  var P_MED  = '<path d="M10.5 20.5a4.9 4.9 0 0 1-7-7l6-6a4.9 4.9 0 0 1 7 7z"/><path d="M8.5 8.5l7 7"/>';
+  var P_PLUS = '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>';
+
+  function karte(p, wert, txt) {
+    return '<div class="tv-stat"><div class="tv-ico">' + tmIcon(p) + '</div>'
+      + '<div><b>' + wert + '</b><span>' + txt + '</span></div></div>';
+  }
   document.getElementById('tm-stats').innerHTML =
-      '<div class="tm-stat"><b>' + k.length + '</b><span>IM KADER</span></div>'
-    + '<div class="tm-stat"><b>' + z.fit + '</b><span>FIT</span></div>'
-    + '<div class="tm-stat"><b>' + z.angeschlagen + '</b><span>ANGESCHLAGEN</span></div>'
-    + '<div class="tm-stat"><b>' + z.verletzt + '</b><span>VERLETZT</span></div>';
+      karte(P_TEAM, k.length, 'IM KADER')
+    + karte(P_UP,   z.fit,    'FIT')
+    + karte(P_MED,  z.angeschlagen, 'ANGESCHLAGEN')
+    + karte(P_PLUS, z.verletzt,     'VERLETZT');
 
   var mitTest = k.filter(function(p) { return (p.diag || []).length > 0; }).length;
   var ds = document.getElementById('tm-diag-sub');
@@ -1239,27 +1399,31 @@ function tmRender() {
 
   var raus = k.filter(function(p) { return (p.status || 'fit') !== 'fit'; });
   document.getElementById('tm-warn').innerHTML = raus.length === 0 ? '' :
-    '<div class="tm-warn">' + raus.map(function(p) {
+    '<div class="tv-warn">' + raus.map(function(p) {
       return '<p><b>' + p.fn + ' ' + p.ln + '</b> - ' + plStatusInfo(p.status).l + '</p>';
     }).join('') + '</div>';
 
   var g = document.getElementById('tm-grid');
   if (k.length === 0) {
-    g.innerHTML = '<div class="tm-leer" style="grid-column:1/-1;">Noch keine Spieler in diesem Kader.</div>';
+    g.innerHTML = '<div class="tv-leer" style="grid-column:1/-1;">'
+      + '<div class="tv-leer-ico">' + tmIcon(P_TEAM) + '</div>'
+      + '<b>Noch keine Spieler in diesem Kader.</b>'
+      + '<p>Lege Spieler an und weise sie der Mannschaft zu.</p>'
+      + '<button class="tv-btn" onclick="goTo(\'profile\')">Spieler hinzufuegen</button></div>';
     return;
   }
   g.innerHTML = k.map(function(p) {
     var st = p.status || 'fit';
     var si = plStatusInfo(st);
     var alter = plAge(p.dob);
-    return '<div class="tm-karte" data-id="' + p.id + '">'
-      + '<div class="tm-init">' + ((p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '')) + '</div>'
-      + '<div class="tm-nm">' + p.fn + ' ' + p.ln + '</div>'
-      + '<div class="tm-sub">' + (p.pos || '') + (alter ? ' - ' + alter + ' J.' : '') + '</div>'
-      + (st !== 'fit' ? '<span class="tm-pill" style="background:' + si.f + ';">' + si.l + '</span>' : '')
+    return '<div class="tv-karte" data-id="' + p.id + '">'
+      + '<div class="tv-init">' + ((p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '')) + '</div>'
+      + '<div class="tv-nm">' + p.fn + ' ' + p.ln + '</div>'
+      + '<div class="tv-sub2">' + (p.pos || '') + (alter ? ' - ' + alter + ' J.' : '') + '</div>'
+      + (st !== 'fit' ? '<span class="tv-pill" style="background:' + si.f + ';">' + si.l + '</span>' : '')
       + '</div>';
   }).join('');
-  Array.prototype.forEach.call(g.querySelectorAll('.tm-karte'), function(el) {
+  Array.prototype.forEach.call(g.querySelectorAll('.tv-karte'), function(el) {
     el.addEventListener('click', function() {
       var id = el.getAttribute('data-id');
       document.getElementById('team-screen').style.display = 'none';
@@ -1268,14 +1432,6 @@ function tmRender() {
     });
   });
 }
-document.addEventListener('click', function(ev){
-  var b = ev.target.closest ? ev.target.closest('#whv-btn-teams') : null;
-  if (!b) return;
-  var box = document.getElementById('whv-teams');
-  if (!box) return;
-  var offen = box.classList.toggle('offen');
-  b.setAttribute('aria-expanded', offen ? 'true' : 'false');
-});
 function goHome() {
   window.location.hash = '';
   const hs = document.getElementById('home-screen');
