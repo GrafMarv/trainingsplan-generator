@@ -885,6 +885,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <div style="flex:1;">
         <h2 id="pv-name" style="font-size:22px;font-weight:700;color:#1c1c1e;margin-bottom:4px;"></h2>
         <p id="pv-meta" style="font-size:13px;color:#8e8e93;"></p>
+        <div id="pv-status" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;"></div>
       </div>
       <button id="btn-edit-player" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#1c1c1e;cursor:pointer;font-family:inherit;">Bearbeiten</button>
       <button id="btn-delete-player" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#ff3b30;cursor:pointer;font-family:inherit;">Loeschen</button>
@@ -2835,6 +2836,12 @@ function plRenderList() {
     h += '<p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">' + p.fn + ' ' + p.ln + '</p>';
     h += '<p style="font-size:12px;color:#8e8e93;">' + p.pos + (age ? ' &middot; ' + age + ' J.' : '') + '</p>';
     h += '<p style="font-size:12px;color:#8e8e93;">' + (sub || '') + '</p>';
+    var st = p.status || 'fit';
+    if (st !== 'fit') {
+      var si = plStatusInfo(st);
+      h += '<p style="margin-top:8px;display:inline-block;padding:3px 9px;border-radius:20px;'
+        + 'font-size:11px;font-weight:600;color:#fff;background:' + si.f + ';">' + si.l + '</p>';
+    }
     h += '</div>';
   });
   grid.innerHTML = h;
@@ -2846,6 +2853,45 @@ function plRenderList() {
       el.addEventListener('mouseout', function() { el.style.boxShadow = 'none'; });
     }
   });
+}
+
+var PL_STATUS = [
+  { k: 'fit',          l: 'Fit',          f: '#34c759' },
+  { k: 'angeschlagen', l: 'Angeschlagen', f: '#ff9500' },
+  { k: 'verletzt',     l: 'Verletzt',     f: '#ff3b30' },
+  { k: 'pause',        l: 'Pause',        f: '#8e8e93' }
+];
+
+function plStatusInfo(k) {
+  for (var i = 0; i < PL_STATUS.length; i++) {
+    if (PL_STATUS[i].k === k) return PL_STATUS[i];
+  }
+  return PL_STATUS[0];
+}
+
+function plRenderStatus(p) {
+  var box = document.getElementById('pv-status');
+  if (!box) return;
+  var cur = p.status || 'fit';
+  box.innerHTML = PL_STATUS.map(function(s) {
+    var an = s.k === cur;
+    return '<button data-st="' + s.k + '" style="padding:6px 12px;border-radius:20px;font-size:12px;'
+      + 'font-family:inherit;cursor:pointer;border:1px solid ' + (an ? s.f : '#e5e5ea') + ';'
+      + 'background:' + (an ? s.f : '#fff') + ';color:' + (an ? '#fff' : '#8e8e93') + ';'
+      + 'font-weight:' + (an ? '600' : '400') + ';">' + s.l + '</button>';
+  }).join('');
+  Array.prototype.forEach.call(box.querySelectorAll('button'), function(b) {
+    b.addEventListener('click', function() { plSetStatus(b.getAttribute('data-st')); });
+  });
+}
+
+function plSetStatus(k) {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  p.status = k;
+  plSave();
+  plUpsert(p);
+  plRenderStatus(p);
 }
 
 function plOpen(id) {
@@ -2860,6 +2906,7 @@ function plOpen(id) {
   document.getElementById('pv-name').textContent = p.fn + ' ' + p.ln;
   document.getElementById('pv-meta').textContent = p.pos + (age ? ' | ' + age + ' Jahre' : '') + (p.club ? ' | ' + p.club : '') + (p.team ? ' | ' + p.team : '');
   document.getElementById('pv-notes').value = p.notes || '';
+  plRenderStatus(p);
   plTabShow('diagnostik');
   plRenderDiag(p);
 }
@@ -3463,6 +3510,7 @@ function plSaveNew() {
     dob: dob,
     pos: PL_POS,
     sex: PL_SEX,
+    status: 'fit',
     club: club,
     team: team,
     diag: [], notes: ''
