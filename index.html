@@ -1224,6 +1224,10 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <div style="flex:1;"><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">GEWICHT (kg)</label><input id="np-wgt" type="number" min="20" max="150" step="0.5" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
         </div>
         
+        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VEREIN</label>
+          <input id="np-verein" type="text" list="np-verein-list" placeholder="Heimatverein des Spielers" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
+          <datalist id="np-verein-list"></datalist>
+        </div>
         <div>
           <label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">MANNSCHAFT <span style="font-weight:400;text-transform:none;">(optional)</span></label>
           <select id="np-team" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
@@ -3407,7 +3411,7 @@ function plRenderStammdaten(p) {
     + feld('QUARTAL', q)
     + feld('GROESSE', p.hgt, ' cm')
     + feld('GEWICHT', p.wgt, ' kg')
-    + feld('POSITION', p.pos)
+    + feld('VEREIN', p.verein)
     + feld('MANNSCHAFT', p.team ? (WHV_LABEL[p.team] || p.team) : '');
 }
 
@@ -3966,6 +3970,11 @@ function plShowModal(p) {
   document.getElementById('np-fn').value = p ? (p.fn || '') : '';
   document.getElementById('np-ln').value = p ? (p.ln || '') : '';
   document.getElementById('np-dob').value = p ? (p.dob || '') : '';
+  document.getElementById('np-verein').value = p ? (p.verein || '') : '';
+  var vl = {};
+  PL.forEach(function(x) { if (x.verein) vl[x.verein] = true; });
+  document.getElementById('np-verein-list').innerHTML =
+    Object.keys(vl).sort().map(function(v) { return '<option value="' + v + '">'; }).join('');
   document.getElementById('np-hgt').value = p ? (p.hgt || '') : '';
   document.getElementById('np-wgt').value = p ? (p.wgt || '') : '';
   document.getElementById('np-team').value = p ? (p.team || '') : '';
@@ -4038,12 +4047,13 @@ function plSaveNew() {
   var club = 'WHV';
   var team = document.getElementById('np-team').value.trim();
   if (!team) team = whvKaderAusJahrgang(dob, PL_SEX);
+  var verein = document.getElementById('np-verein').value.trim();
   var hgt = document.getElementById('np-hgt').value.trim();
   var wgt = document.getElementById('np-wgt').value.trim();
   if (PL_EDIT_ID) {
     var ex = PL.find(function(x) { return x.id === PL_EDIT_ID; });
     if (!ex) { plHideModal(); return; }
-    ex.fn = fn; ex.ln = ln; ex.dob = dob; ex.pos = PL_POS; ex.club = club; ex.team = team; ex.sex = PL_SEX; ex.hgt = hgt; ex.wgt = wgt;
+    ex.fn = fn; ex.ln = ln; ex.dob = dob; ex.pos = PL_POS; ex.club = club; ex.team = team; ex.sex = PL_SEX; ex.hgt = hgt; ex.wgt = wgt; ex.verein = verein;
     plSave();
     plUpsert(ex);
     plHideModal();
@@ -4059,6 +4069,7 @@ function plSaveNew() {
     status: 'fit',
     hgt: hgt,
     wgt: wgt,
+    verein: verein,
     club: club,
     team: team,
     diag: [], notes: ''
