@@ -899,33 +899,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 <div id="team-screen">
  <div class="tv">
 
-  <aside class="tv-side">
-    <div class="tv-brand">
-      <div class="tv-brand-mark">W</div>
-      <div class="tv-brand-txt">WHV<br>ATHLETIK</div>
-    </div>
-    <nav class="tv-nav">
-      <button class="tv-navi an" onclick="goHome()"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg> Startseite</button>
-      <button class="tv-navi" id="tvn-spieler"     onclick="tmTab('spieler')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg> Spieler</button>
-      <button class="tv-navi" id="tvn-trainings"   onclick="tmTab('trainings')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Trainings</button>
-      <button class="tv-navi" id="tvn-anwesenheit" onclick="tmTab('anwesenheit')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg> Anwesenheit</button>
-      <button class="tv-navi" onclick="tmDiagnostik()"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg> Diagnostik</button>
-    </nav>
-    <div class="tv-switch">
-      <small>MANNSCHAFT WECHSELN</small>
-      <select id="tv-switch" onchange="whvTeam(this.value)">
-        <optgroup label="Feld">
-          <option value="M13">U13 m&auml;nnlich</option><option value="W13">U13 weiblich</option>
-          <option value="M14">U14 m&auml;nnlich</option><option value="W14">U14 weiblich</option>
-          <option value="M16">U16 m&auml;nnlich</option><option value="W16">U16 weiblich</option>
-        </optgroup>
-        <optgroup label="Halle">
-          <option value="MP">P-Kader m&auml;nnlich</option><option value="WP">P-Kader weiblich</option>
-          <option value="M15">U15 m&auml;nnlich</option><option value="W15">U15 weiblich</option>
-        </optgroup>
-      </select>
-    </div>
-  </aside>
+  <aside class="tv-side" id="side-team"></aside>
 
   <main class="tv-main">
     <div class="tv-banner">
@@ -1137,18 +1111,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 <!-- PROFILE SCREEN -->
 <div id="profile-screen" class="cb-light" style="display:none;">
  <div class="tv">
-  <aside class="tv-side">
-    <div class="tv-brand">
-      <div class="tv-brand-mark">W</div>
-      <div class="tv-brand-txt">WHV<br>ATHLETIK</div>
-    </div>
-    <nav class="tv-nav">
-      <button class="tv-navi" onclick="goHome()"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg> Startseite</button>
-      <button class="tv-navi an"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg> Spieler</button>
-      <button class="tv-navi" onclick="goTo('diagnostik')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg> Diagnostik</button>
-      <button class="tv-navi" onclick="goTo('generator')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Einheiten</button>
-    </nav>
-  </aside>
+  <aside class="tv-side" id="side-profile"></aside>
 
   <main class="tv-main">
   <!-- Listen-Ansicht -->
@@ -1295,18 +1258,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 <!-- DIAGNOSTIK SCREEN -->
 <div id="diagnostik-screen" class="cb-light" style="display:none;">
  <div class="tv">
-  <aside class="tv-side">
-    <div class="tv-brand">
-      <div class="tv-brand-mark">W</div>
-      <div class="tv-brand-txt">WHV<br>ATHLETIK</div>
-    </div>
-    <nav class="tv-nav">
-      <button class="tv-navi" onclick="goHome()"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg> Startseite</button>
-      <button class="tv-navi" onclick="goTo('profile')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg> Spieler</button>
-      <button class="tv-navi an"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg> Diagnostik</button>
-      <button class="tv-navi" onclick="goTo('generator')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Einheiten</button>
-    </nav>
-  </aside>
+  <aside class="tv-side" id="side-diagnostik"></aside>
 
   <main class="tv-main">
     <div class="dg-banner">
@@ -1526,6 +1478,53 @@ function whvHomeCounts() {
   }).catch(function(){});
 }
 
+var WHV_NAV = [
+  { k: 'home',       l: 'Startseite',  a: 'goHome()',
+    p: '<path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>' },
+  { k: 'profile',    l: 'Spieler',     a: "goTo('profile')",
+    p: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>' },
+  { k: 'diagnostik', l: 'Diagnostik',  a: "goTo('diagnostik')",
+    p: '<path d="M3 12h4l3 8 4-16 3 8h4"/>' },
+  { k: 'generator',  l: 'Einheiten',   a: "goTo('generator')",
+    p: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>' }
+];
+
+function whvSide(aktiv, mitWechsler) {
+  var nav = WHV_NAV.map(function(n) {
+    var an = (n.k === aktiv);
+    return '<button class="tv-navi' + (an ? ' an' : '') + '"'
+      + (an ? '' : ' onclick="' + n.a + '"') + '>'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">' + n.p + '</svg> '
+      + n.l + '</button>';
+  }).join('');
+
+  var wechsler = '';
+  if (mitWechsler) {
+    wechsler = '<div class="tv-switch"><small>MANNSCHAFT WECHSELN</small>'
+      + '<select id="tv-switch" onchange="whvTeam(this.value)">'
+      + '<optgroup label="Feld">'
+      + '<option value="W13">U13 weiblich</option><option value="W14">U14 weiblich</option><option value="W16">U16 weiblich</option>'
+      + '<option value="M13">U13 m\u00e4nnlich</option><option value="M14">U14 m\u00e4nnlich</option><option value="M16">U16 m\u00e4nnlich</option>'
+      + '</optgroup><optgroup label="Halle">'
+      + '<option value="WP">P-Kader weiblich</option><option value="W15">U15 weiblich</option>'
+      + '<option value="MP">P-Kader m\u00e4nnlich</option><option value="M15">U15 m\u00e4nnlich</option>'
+      + '</optgroup></select></div>';
+  }
+
+  return '<div class="tv-brand"><div class="tv-brand-mark">W</div>'
+    + '<div class="tv-brand-txt">WHV<br>ATHLETIK</div></div>'
+    + '<nav class="tv-nav">' + nav + '</nav>' + wechsler;
+}
+
+function whvSideInit() {
+  var t = document.getElementById('side-team');
+  var p = document.getElementById('side-profile');
+  var d = document.getElementById('side-diagnostik');
+  if (t) t.innerHTML = whvSide('team', true);
+  if (p) p.innerHTML = whvSide('profile', false);
+  if (d) d.innerHTML = whvSide('diagnostik', false);
+}
+
 function whvToggleTeams(b) {
   var box = document.getElementById('whv-teams');
   if (!box) return;
@@ -1585,7 +1584,7 @@ function tmTab(t) {
   TM_TAB = t;
   ['spieler','trainings','anwesenheit'].forEach(function(x) {
     var b = document.getElementById('tmt-' + x);
-    var n = document.getElementById('tvn-' + x);
+    var n = null;
     var c = document.getElementById('tmc-' + x);
     if (b) b.className = 'tv-tab' + (x === t ? ' an' : '');
     if (n) n.className = 'tv-navi' + (x === t ? ' an' : '');
@@ -3440,6 +3439,7 @@ function onId(id, ev, fn) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  whvSideInit();
   // Back buttons
   onId('btn-back-profile', 'click', function() { goTo('home'); });
   onId('btn-back-list', 'click', function() { plRenderList(); });
