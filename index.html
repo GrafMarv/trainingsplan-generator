@@ -716,11 +716,11 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <span class="whv-zahl">6</span>
       </button>
       <div class="whv-teams" id="whv-teams">
-        <button class="whv-team" onclick="whvTeam('M13')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U13 maennlich</span></button>
+        <button class="whv-team" onclick="whvTeam('M13')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U13 m&auml;nnlich</span></button>
         <button class="whv-team" onclick="whvTeam('W13')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U13 weiblich</span></button>
-        <button class="whv-team" onclick="whvTeam('M14')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U14 maennlich</span></button>
+        <button class="whv-team" onclick="whvTeam('M14')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U14 m&auml;nnlich</span></button>
         <button class="whv-team" onclick="whvTeam('W14')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U14 weiblich</span></button>
-        <button class="whv-team" onclick="whvTeam('M16')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U16 maennlich</span></button>
+        <button class="whv-team" onclick="whvTeam('M16')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U16 m&auml;nnlich</span></button>
         <button class="whv-team" onclick="whvTeam('W16')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U16 weiblich</span></button>
       </div>
       <button class="whv-reihe" onclick="goTo('profile')">
@@ -730,13 +730,13 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <span class="whv-titel">Diagnostiken<span class="whv-sub">Testtage anlegen und vergleichen</span></span>
       </button>
       <button class="whv-reihe" onclick="goTo('generator')">
-        <span class="whv-titel">Einheiten<span class="whv-sub">Plaene bauen und an Spieler geben</span></span>
+        <span class="whv-titel">Einheiten<span class="whv-sub">Pl&auml;ne bauen und an Spieler geben</span></span>
       </button>
     </nav>
 
     <p class="whv-fuss">Werkzeuge:
       <a onclick="goTo('wissen')">Wissen</a> &nbsp;
-      <a onclick="goTo('umbenenner')">Uebungsbilder</a> &nbsp;
+      <a onclick="goTo('umbenenner')">&Uuml;bungsbilder</a> &nbsp;
       <a onclick="goTo('trainingsdoku')">Dokumentation</a>
     </p>
   </div>
@@ -762,9 +762,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <div class="tv-switch">
       <small>MANNSCHAFT WECHSELN</small>
       <select id="tv-switch" onchange="whvTeam(this.value)">
-        <option value="M13">U13 maennlich</option><option value="W13">U13 weiblich</option>
-        <option value="M14">U14 maennlich</option><option value="W14">U14 weiblich</option>
-        <option value="M16">U16 maennlich</option><option value="W16">U16 weiblich</option>
+        <option value="M13">U13 m&auml;nnlich</option><option value="W13">U13 weiblich</option>
+        <option value="M14">U14 m&auml;nnlich</option><option value="W14">U14 weiblich</option>
+        <option value="M16">U16 m&auml;nnlich</option><option value="W16">U16 weiblich</option>
       </select>
     </div>
   </aside>
@@ -809,14 +809,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
             <div class="tv-leer">
               <div class="tv-leer-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg></div>
               <b>Anwesenheit ist noch nicht eingerichtet.</b>
-              <p>Naechster Schritt: Rueckmeldelink fuer die Spieler.</p>
+              <p>N&auml;chster Schritt: R&uuml;ckmeldelink f&uuml;r die Spieler.</p>
             </div>
           </div>
         </div>
       </div>
 
       <div class="tv-card">
-        <div class="tv-r-head"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Naechste Einheit</div>
+        <div class="tv-r-head"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> N&auml;chste Einheit</div>
         <div class="tv-termin">
           <div><small id="tv-wtag"></small><b id="tv-datum"></b></div>
           <div id="tv-zeit"></div>
@@ -1003,7 +1003,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <div id="pv-empty" style="display:none;text-align:center;padding:80px 0;">
       <p style="font-size:16px;font-weight:600;color:#12301F;margin-bottom:8px;">Noch keine Spieler</p>
       <p style="font-size:14px;color:#6B7A6E;margin-bottom:24px;">Fuege deinen ersten Athleten hinzu</p>
-      <button id="btn-new-player-2" style="background:#fff;color:#1c1c1e;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">+ Ersten Spieler hinzufuegen</button>
+      <button id="btn-new-player-2" style="background:#fff;color:#1c1c1e;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">+ Ersten Spieler hinzuf&uuml;gen</button>
     </div>
   </div>
 
@@ -1290,11 +1290,11 @@ var TM_CUR = null;
 var TM_TAB = 'spieler';
 var TM_TRAININGSTAG = { '13': 1, '14': 1, '16': 3 };   // Mo = 1, Mi = 3
 var TM_WOCHENTAG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-var TM_MONAT = ['Januar','Februar','Maerz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+var TM_MONAT = ['Januar','Februar','M\u00e4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
 function tmLabel(code) {
   if (!code) return 'Mannschaft';
-  return 'U' + code.slice(1) + ' ' + (code.charAt(0) === 'W' ? 'weiblich' : 'maennlich');
+  return 'U' + code.slice(1) + ' ' + (code.charAt(0) === 'W' ? 'weiblich' : 'm\u00e4nnlich');
 }
 
 function tmNaechsterTermin(code) {
@@ -1306,7 +1306,7 @@ function tmNaechsterTermin(code) {
   if (diff === 0) diff = 0;
   d.setDate(d.getDate() + diff);
   var heute = diff === 0 ? ' (heute)' : '';
-  return 'Naechste Einheit: ' + TM_WOCHENTAG[ziel] + ', ' + d.getDate() + '. ' + TM_MONAT[d.getMonth()] + heute;
+  return 'N\u00e4chste Einheit: ' + TM_WOCHENTAG[ziel] + ', ' + d.getDate() + '. ' + TM_MONAT[d.getMonth()] + heute;
 }
 
 function whvToggleTeams(b) {
@@ -1416,7 +1416,7 @@ function tmRender() {
       + '<div class="tv-leer-ico">' + tmIcon(P_TEAM) + '</div>'
       + '<b>Noch keine Spieler in diesem Kader.</b>'
       + '<p>Lege Spieler an und weise sie der Mannschaft zu.</p>'
-      + '<button class="tv-btn" onclick="goTo(\'profile\')">Spieler hinzufuegen</button></div>';
+      + '<button class="tv-btn" onclick="goTo(\'profile\')">Spieler hinzuf\u00fcgen</button></div>';
     return;
   }
   g.innerHTML = k.map(function(p) {
