@@ -684,6 +684,57 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   .tv-nr{display:none;}
   .tv-banner{padding:20px;}
 }
+
+/* ===== Startseite v2 ===== */
+#home-screen{background:#F7F8F4;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#12301F;}
+.sf{max-width:1240px;margin:0 auto;padding:22px 26px 70px;}
+.sf-banner{position:relative;border-radius:14px;overflow:hidden;background:#0B4A28;padding:34px 34px 38px;min-height:186px;display:flex;flex-direction:column;justify-content:center;}
+.sf-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(112deg,transparent 0%,transparent 54%,#1C7A3E 54%,#1C7A3E 69%,#57B84A 69%,#57B84A 85%,#8FC63D 85%);opacity:.95;}
+.sf-b-in{position:relative;z-index:2;}
+.sf-marke{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.sf-logo{width:42px;height:42px;flex:0 0 42px;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:18px;color:#fff;}
+.sf-marke-t{font-size:11.5px;font-weight:600;letter-spacing:.05em;color:rgba(255,255,255,.8);line-height:1.35;}
+.sf-h1{font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:clamp(36px,5.4vw,58px);line-height:.95;letter-spacing:-.03em;color:#fff;margin:0;}
+.sf-sub{margin-top:11px;font-size:14.5px;color:rgba(255,255,255,.78);}
+
+.sf-suche{position:relative;margin:18px 0 4px;max-width:460px;}
+.sf-suche input{width:100%;padding:13px 14px 13px 42px;border:1px solid #DCE3D6;border-radius:10px;background:#fff;font-family:inherit;font-size:15px;color:#12301F;outline:none;box-sizing:border-box;}
+.sf-suche input:focus{border-color:#57B84A;box-shadow:0 0 0 3px rgba(87,184,74,.16);}
+.sf-suche svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:#6B7A6E;fill:none;stroke-width:2;}
+
+.sf-titel{display:flex;align-items:baseline;gap:10px;margin:28px 0 13px;}
+.sf-titel h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.01em;margin:0;}
+.sf-titel span{font-size:12.5px;color:#6B7A6E;}
+
+.sf-teams{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
+.sf-team{position:relative;overflow:hidden;background:#fff;border:1px solid #E4EADE;border-radius:13px;padding:17px 18px;text-align:left;font-family:inherit;color:#12301F;cursor:pointer;display:flex;align-items:center;gap:14px;}
+.sf-team:hover{box-shadow:0 5px 18px rgba(0,0,0,.07);border-color:#CFE0C8;}
+.sf-tnr{width:44px;height:44px;flex:0 0 44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:800;font-size:17px;color:#fff;}
+.sf-tm{background:#0E6B36;}
+.sf-tw{background:#8FC63D;}
+.sf-tname{font-size:15px;font-weight:600;display:block;}
+.sf-tsub{font-size:12.5px;color:#6B7A6E;display:block;margin-top:2px;}
+.sf-tpf{margin-left:auto;color:#0E6B36;font-size:17px;}
+
+.sf-bereiche{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
+.sf-ber{background:#fff;border:1px solid #E4EADE;border-radius:13px;padding:20px;text-align:left;font-family:inherit;color:#12301F;cursor:pointer;display:block;}
+.sf-ber:hover{box-shadow:0 5px 18px rgba(0,0,0,.07);border-color:#CFE0C8;}
+.sf-bico{width:42px;height:42px;border-radius:10px;background:#EDF4EA;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.sf-bico svg{width:20px;height:20px;stroke:#0E6B36;fill:none;stroke-width:1.8;}
+.sf-ber b{font-size:16px;font-weight:600;display:block;}
+.sf-ber small{font-size:13px;color:#6B7A6E;display:block;margin-top:4px;line-height:1.45;}
+.sf-ber i{font-style:normal;display:block;margin-top:12px;color:#0E6B36;font-size:13px;font-weight:600;}
+
+.sf-fuss{margin-top:32px;padding-top:18px;border-top:1px solid #E4EADE;font-size:12.5px;color:#6B7A6E;}
+.sf-fuss a{color:#0E6B36;text-decoration:none;cursor:pointer;margin-right:16px;}
+.sf-fuss a:hover{text-decoration:underline;}
+
+@media(max-width:980px){.sf-teams,.sf-bereiche{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:620px){
+  .sf{padding:14px 14px 50px;}
+  .sf-teams,.sf-bereiche{grid-template-columns:1fr;}
+  .sf-banner{padding:24px 20px 26px;min-height:0;}
+}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -693,50 +744,56 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 <div id="home-screen" style="min-height:100vh;display:block;position:relative;">
   
 
-  <div id="home-wrap" class="whv-wrap">
-    <header class="whv-kopf">
-      <div class="whv-kopf-inhalt">
-        <div class="whv-marke">
-          <div class="whv-logo">W</div>
-          <div class="whv-marke-text">Westdeutscher<br>Hockey-Verband</div>
+  <div id="home-wrap" class="sf">
+
+    <header class="sf-banner">
+      <div class="sf-b-in">
+        <div class="sf-marke">
+          <div class="sf-logo">W</div>
+          <div class="sf-marke-t">WESTDEUTSCHER<br>HOCKEY-VERBAND</div>
         </div>
-        <h1 class="whv-h1">Athletik</h1>
-        <p class="whv-saison">Landeskader Feld &middot; Saison 2026/27</p>
+        <h1 class="sf-h1">Athletik</h1>
+        <p class="sf-sub">Landeskader Feld &middot; Saison 2026/27</p>
       </div>
     </header>
 
-    <div class="whv-suche">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.6-3.6"></path></svg>
+    <div class="sf-suche">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
       <input type="search" id="whv-q" placeholder="Spieler suchen" autocomplete="off">
     </div>
 
-    <nav class="whv-liste">
-      <button class="whv-reihe" id="whv-btn-teams" aria-expanded="false" onclick="whvToggleTeams(this)">
-        <span class="whv-titel">Mannschaften<span class="whv-sub">Kader, Anwesenheit und Termine</span></span>
-        <span class="whv-zahl">6</span>
-      </button>
-      <div class="whv-teams" id="whv-teams">
-        <button class="whv-team" onclick="whvTeam('M13')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U13 m&auml;nnlich</span></button>
-        <button class="whv-team" onclick="whvTeam('W13')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U13 weiblich</span></button>
-        <button class="whv-team" onclick="whvTeam('M14')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U14 m&auml;nnlich</span></button>
-        <button class="whv-team" onclick="whvTeam('W14')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U14 weiblich</span></button>
-        <button class="whv-team" onclick="whvTeam('M16')"><span class="whv-balken whv-m"></span><span class="whv-team-name">U16 m&auml;nnlich</span></button>
-        <button class="whv-team" onclick="whvTeam('W16')"><span class="whv-balken whv-w"></span><span class="whv-team-name">U16 weiblich</span></button>
-      </div>
-      <button class="whv-reihe" onclick="goTo('profile')">
-        <span class="whv-titel">Spieler<span class="whv-sub">Stammdaten, Werte und Notizen</span></span>
-      </button>
-      <button class="whv-reihe" onclick="goTo('diagnostik')">
-        <span class="whv-titel">Diagnostiken<span class="whv-sub">Testtage anlegen und vergleichen</span></span>
-      </button>
-      <button class="whv-reihe" onclick="goTo('generator')">
-        <span class="whv-titel">Einheiten<span class="whv-sub">Pl&auml;ne bauen und an Spieler geben</span></span>
-      </button>
-    </nav>
+    <div class="sf-titel"><h2>Mannschaften</h2><span>Kader, Anwesenheit und Termine</span></div>
+    <div class="sf-teams">
+        <button class="sf-team" onclick="whvTeam('M13')"><span class="sf-tnr sf-tm">13</span><span><span class="sf-tname">U13 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('W13')"><span class="sf-tnr sf-tw">13</span><span><span class="sf-tname">U13 weiblich</span><span class="sf-tsub" id="sfc-W13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('M14')"><span class="sf-tnr sf-tm">14</span><span><span class="sf-tname">U14 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M14">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('W14')"><span class="sf-tnr sf-tw">14</span><span><span class="sf-tname">U14 weiblich</span><span class="sf-tsub" id="sfc-W14">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('M16')"><span class="sf-tnr sf-tm">16</span><span><span class="sf-tname">U16 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('W16')"><span class="sf-tnr sf-tw">16</span><span><span class="sf-tname">U16 weiblich</span><span class="sf-tsub" id="sfc-W16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+    </div>
 
-    <p class="whv-fuss">Werkzeuge:
-      <a onclick="goTo('wissen')">Wissen</a> &nbsp;
-      <a onclick="goTo('umbenenner')">&Uuml;bungsbilder</a> &nbsp;
+    <div class="sf-titel"><h2>Bereiche</h2><span>Alle Kader &uuml;bergreifend</span></div>
+    <div class="sf-bereiche">
+      <button class="sf-ber" onclick="goTo('profile')">
+        <div class="sf-bico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+        <b>Spieler</b><small>Stammdaten, Werte und Notizen aller Kader</small>
+        <i>&Ouml;ffnen &#8594;</i>
+      </button>
+      <button class="sf-ber" onclick="goTo('diagnostik')">
+        <div class="sf-bico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
+        <b>Diagnostiken</b><small>Testtage anlegen, importieren und vergleichen</small>
+        <i>&Ouml;ffnen &#8594;</i>
+      </button>
+      <button class="sf-ber" onclick="goTo('generator')">
+        <div class="sf-bico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></div>
+        <b>Einheiten</b><small>Pl&auml;ne bauen und an Spieler weitergeben</small>
+        <i>&Ouml;ffnen &#8594;</i>
+      </button>
+    </div>
+
+    <p class="sf-fuss">Werkzeuge:
+      <a onclick="goTo('wissen')">Wissen</a>
+      <a onclick="goTo('umbenenner')">&Uuml;bungsbilder</a>
       <a onclick="goTo('trainingsdoku')">Dokumentation</a>
     </p>
   </div>
@@ -1309,6 +1366,24 @@ function tmNaechsterTermin(code) {
   return 'N\u00e4chste Einheit: ' + TM_WOCHENTAG[ziel] + ', ' + d.getDate() + '. ' + TM_MONAT[d.getMonth()] + heute;
 }
 
+function whvHomeCounts() {
+  var codes = ['M13','W13','M14','W14','M16','W16'];
+  function mal() {
+    codes.forEach(function(c) {
+      var el = document.getElementById('sfc-' + c);
+      if (!el) return;
+      var n = PL.filter(function(p) { return (p.team || '') === c; }).length;
+      var raus = PL.filter(function(p) { return (p.team || '') === c && (p.status || 'fit') !== 'fit'; }).length;
+      el.textContent = n === 0 ? 'Noch keine Spieler'
+        : n + (n === 1 ? ' Spieler' : ' Spieler') + (raus ? ' \u00b7 ' + raus + ' nicht fit' : '');
+    });
+  }
+  mal();
+  fetch('/api/players').then(function(r){ return r.json(); }).then(function(d){
+    if (d && Array.isArray(d.players)) { PL = d.players; plSave(); mal(); }
+  }).catch(function(){});
+}
+
 function whvToggleTeams(b) {
   var box = document.getElementById('whv-teams');
   if (!box) return;
@@ -1450,6 +1525,7 @@ function goHome() {
   document.getElementById('diagnostik-screen').style.display = 'none';
   document.getElementById('trainingsdoku-screen').style.display = 'none';
   var _t = document.getElementById('team-screen'); if (_t) _t.style.display = 'none';
+  if (window.whvHomeCounts) whvHomeCounts();
 }
 
 // Hash router - on load and on hash change
