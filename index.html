@@ -966,7 +966,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     <div style="max-width:680px;margin:0 auto 32px;padding-top:16px;border-top:0.5px solid #e5e5ea;">
       <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:8px;">Semantische Cluster-Analyse (Beta, im Hintergrund)</p>
-      <p style="font-size:12px;color:#8e8e93;margin-bottom:10px;line-height:1.6;">Berechnet auf Basis der Embeddings echte thematische Gruppen (k-Means) und vergibt Namen per Claude. Aendert NICHT die Visualisierung oben, sondern nur Metadaten der Chunks (cluster_id/cluster_label) fuer spaetere Nutzung.</p>
+      <p style="font-size:12px;color:#8e8e93;margin-bottom:10px;line-height:1.6;">Berechnet auf Basis der Embeddings echte thematische Gruppen (k-Means) und vergibt Namen per Claude. Aendert NICHT die Visualisierung oben, sondern nur Metadaten der Chunks (cluster_id/cluster_label) f&uuml;r sp&auml;tere Nutzung.</p>
       <button onclick="runBrainCluster()" id="brain-cluster-btn" style="padding:8px 16px;background:#f2f2f7;color:#1c1c1e;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">Semantische Cluster berechnen</button>
       <div id="brain-cluster-result" style="margin-top:12px;"></div>
     </div>
@@ -979,7 +979,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 <!-- PROFILE SCREEN -->
 <div id="profile-screen" class="cb-light" style="display:none;">
   <div style="max-width:960px;margin:0 auto;padding:20px 24px 0;">
-    <button id="btn-back-profile" style="background:none;border:0.5px solid #DCE3D6;border-radius:20px;font-size:13px;color:#12301F;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurueck</button>
+    <button id="btn-back-profile" style="background:none;border:0.5px solid #DCE3D6;border-radius:20px;font-size:13px;color:#12301F;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zur&uuml;ck</button>
   </div>
 
   <!-- Listen-Ansicht -->
@@ -993,7 +993,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
     <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
       <select id="pl-filter-club" style="padding:8px 12px;border:0.5px solid #DCE3D6;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
-        <option value="">Alle Vereine/Verbaende</option>
+        <option value="">Alle Vereine/Verb&auml;nde</option>
       </select>
       <select id="pl-filter-team" style="padding:8px 12px;border:0.5px solid #DCE3D6;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
         <option value="">Alle Mannschaften</option>
@@ -1018,7 +1018,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <div id="pv-status" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;"></div>
       </div>
       <button id="btn-edit-player" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#1c1c1e;cursor:pointer;font-family:inherit;">Bearbeiten</button>
-      <button id="btn-delete-player" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#ff3b30;cursor:pointer;font-family:inherit;">Loeschen</button>
+      <button id="btn-delete-player" style="background:none;border:0.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;color:#ff3b30;cursor:pointer;font-family:inherit;">L&ouml;schen</button>
     </div>
     <div style="display:flex;gap:4px;background:#f2f2f7;padding:4px;border-radius:12px;margin-bottom:20px;width:fit-content;">
       <button id="ptab-diagnostik" style="padding:7px 14px;border-radius:9px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Diagnostik</button>
@@ -1112,13 +1112,13 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 <!-- DIAGNOSTIK SCREEN -->
 <div id="diagnostik-screen" class="cb-light" style="display:none;">
   <div style="max-width:960px;margin:0 auto;padding:20px 24px 0;">
-    <button id="btn-back-diagnostik" style="background:none;border:0.5px solid #DCE3D6;border-radius:20px;font-size:13px;color:#12301F;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurueck</button>
+    <button id="btn-back-diagnostik" style="background:none;border:0.5px solid #DCE3D6;border-radius:20px;font-size:13px;color:#12301F;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zur&uuml;ck</button>
   </div>
   <div style="max-width:960px;margin:0 auto;padding:24px;">
     <div style="margin-bottom:28px;">
       <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#6B7A6E;margin-bottom:6px;">TEAM</p>
       <h2 style="font-size:28px;font-weight:700;color:#12301F;">Diagnostik</h2>
-      <p style="font-size:13px;color:#6B7A6E;margin-top:6px;">Testdaten aus Excel importieren, Team-Uebersicht und Vergleiche</p>
+      <p style="font-size:13px;color:#6B7A6E;margin-top:6px;">Testdaten aus Excel importieren, Team-&Uuml;bersicht und Vergleiche</p>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
       <button id="btn-diag-template" style="background:#0E6B36;color:#12301F;border:0.5px solid #DCE3D6;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Vorlage herunterladen</button>
@@ -1128,7 +1128,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
     <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
       <select id="dg-filter-club" style="padding:8px 12px;border:0.5px solid #DCE3D6;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
-        <option value="">Alle Vereine/Verbaende</option>
+        <option value="">Alle Vereine/Verb&auml;nde</option>
       </select>
       <select id="dg-filter-team" style="padding:8px 12px;border:0.5px solid #DCE3D6;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
         <option value="">Alle Mannschaften</option>
@@ -1209,14 +1209,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 
 <button id="explain-btn" onclick="showExplain()" style="display:none;position:fixed;right:28px;top:50%;transform:translateY(-50%);z-index:50;background:#fff;color:#1c1c1e;border:none;border-radius:30px;padding:14px 20px;font-size:13px;font-weight:600;box-shadow:0 4px 24px rgba(0,0,0,0.4);cursor:pointer;font-family:inherit;align-items:center;gap:8px;">
-  <span style="font-size:16px;">&#128161;</span> Erklaerung anzeigen
+  <span style="font-size:16px;">&#128161;</span> Erkl&auml;rung anzeigen
 </button>
 
 <div id="explain-modal" style="display:none;position:fixed;inset:0;background:rgba(8,8,26,0.6);z-index:60;align-items:center;justify-content:center;padding:24px;">
   <div style="background:#fff;max-width:640px;width:100%;max-height:82vh;overflow:auto;border-radius:16px;padding:30px 34px;position:relative;box-shadow:0 12px 48px rgba(0,0,0,0.4);">
     <button onclick="closeExplain()" style="position:absolute;top:14px;right:14px;background:#f2f2f7;border:none;width:30px;height:30px;border-radius:50%;font-size:16px;color:#8e8e93;cursor:pointer;line-height:1;">&times;</button>
     <h3 style="font-size:18px;font-weight:700;margin:0 0 6px;color:#1c1c1e;">Wie dieser Plan entstanden ist</h3>
-    <p style="font-size:12px;color:#8e8e93;margin:0 0 18px;">Basierend auf den Wissens-Chunks, die fuer diese Generierung herangezogen wurden.</p>
+    <p style="font-size:12px;color:#8e8e93;margin:0 0 18px;">Basierend auf den Wissens-Chunks, die f&uuml;r diese Generierung herangezogen wurden.</p>
     <div id="explain-body" style="font-size:14px;line-height:1.7;color:#3a3a3c;white-space:pre-line;"></div>
   </div>
 </div>
@@ -1887,7 +1887,7 @@ async function openWeekSession(sessIdx, w, sess){
     showWeekSession(sessIdx, plan, input, w, sess);
   }catch(e){
     if(window.hideLoader) hideLoader();
-    container.innerHTML='<div style="padding:40px;text-align:center;color:#c0392b;font-size:14px;">Fehler: '+e.message+'<br><br><span style="color:#8e8e93;font-size:13px;">Tippe oben auf &larr; Wochenplan, um zurueckzukehren.</span></div>';
+    container.innerHTML='<div style="padding:40px;text-align:center;color:#c0392b;font-size:14px;">Fehler: '+e.message+'<br><br><span style="color:#8e8e93;font-size:13px;">Tippe oben auf &larr; Wochenplan, um zur\u00fcckzukehren.</span></div>';
   }
 }
 
@@ -1985,7 +1985,7 @@ function renderRenameCard({ id, file, status, name }) {
   const editorHtml = status === 'done' ? `
     <div class="rename-editor" id="editor-${id}">
       <div class="rename-editor-title">Kategorien anpassen</div>
-      <input type="text" id="ename-${id}" value="${p.exerciseName}" placeholder="Uebungsname" oninput="updatePreview('${id}')">
+      <input type="text" id="ename-${id}" value="${p.exerciseName}" placeholder="\u00dcbungsname" oninput="updatePreview('${id}')">
       <select id="ecat-${id}" onchange="updateEditor('${id}')">
         <option value="strength" ${p.category==='strength'?'selected':''}>strength</option>
         <option value="core" ${p.category==='core'?'selected':''}>core</option>
@@ -1996,7 +1996,7 @@ function renderRenameCard({ id, file, status, name }) {
       </select>
       <div id="esubs-${id}"></div>
       <div class="rename-editor-preview" id="epreview-${id}">${name}</div>
-      <button class="rename-editor-btn" onclick="applyEdit('${id}')">Uebernehmen</button>
+      <button class="rename-editor-btn" onclick="applyEdit('${id}')">\u00dcbernehmen</button>
     </div>` : '';
 
   card.innerHTML = `<img src="${f.url}" alt=""><div class="rename-card-body"><div class="rename-status">${statusText}</div><div class="rename-name" id="rname-${id}">${name || file.name}</div></div>${editorHtml}`;
@@ -2566,11 +2566,11 @@ function renderDistillPanel(id) {
   }
   var cards = list.map(function(c, i){ return distillChunkCard(id, c, i); }).join('');
   el.innerHTML = '<div style="margin-top:10px;">'
-    + '<p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:2px;">' + list.length + ' Chunk-Vorschlaege - bearbeiten oder entfernen, dann uebernehmen</p>'
+    + '<p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#8e8e93;margin-bottom:2px;">' + list.length + ' Chunk-Vorschl\u00e4ge - bearbeiten oder entfernen, dann \u00fcbernehmen</p>'
     + cards
     + '<div style="display:flex;gap:8px;margin-top:10px;">'
     + '<button onclick="distillRequest(' + id + ')" style="padding:8px 14px;background:#f2f2f7;color:#1c1c1e;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">+ Mehr finden</button>'
-    + '<button onclick="distillCommit(' + id + ')" style="padding:8px 14px;background:#34c759;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">In Wissensbasis (Brain) uebernehmen</button>'
+    + '<button onclick="distillCommit(' + id + ')" style="padding:8px 14px;background:#34c759;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">In Wissensbasis (Brain) \u00fcbernehmen</button>'
     + '</div>'
     + '<div id="distill-status-' + id + '" style="font-size:12px;color:#8e8e93;margin-top:8px;"></div>'
     + '</div>';
@@ -2652,7 +2652,7 @@ function wissenCard(entry) {
         <span style="font-size:11px;color:#8e8e93;">${entry.datum}</span>
         ${entry.autoren ? `<span style="font-size:11px;color:#8e8e93;">${entry.autoren}</span>` : ''}
       </div>
-      <button onclick="deleteWissen(${entry.id})" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:13px;padding:0;flex-shrink:0;">Loeschen</button>
+      <button onclick="deleteWissen(${entry.id})" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:13px;padding:0;flex-shrink:0;">L\u00f6schen</button>
     </div>
     <p style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">${entry.titel}</p>
     <div id="wcard-short-${entry.id}">
@@ -2803,7 +2803,7 @@ async function uploadAll() {
   
   btn.disabled = false;
   btn.textContent = 'Zu GitHub hochladen';
-  status.textContent = `${success} hochgeladen${errors > 0 ? ', ' + errors + ' Fehler' : ''} - Uebungsliste wird automatisch aktualisiert!`;
+  status.textContent = `${success} hochgeladen${errors > 0 ? ', ' + errors + ' Fehler' : ''} - \u00dcbungsliste wird automatisch aktualisiert!`;
   status.className = success > 0 ? 'status-box' : 'status-box error';
 }
 </script>
@@ -3036,7 +3036,7 @@ function plPopulateFilters() {
   ['pl-filter-club', 'dg-filter-club'].forEach(function(id) {
     var sel = document.getElementById(id);
     if (!sel) return;
-    sel.innerHTML = '<option value="">Alle Vereine/Verbaende</option>' + clubList.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
+    sel.innerHTML = '<option value="">Alle Vereine/Verb&auml;nde</option>' + clubList.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
     sel.value = PL_FILTER_CLUB;
   });
 
@@ -3051,7 +3051,7 @@ function plPopulateFilters() {
     var sel = document.getElementById(id);
     if (!sel) return;
     if (!PL_FILTER_CLUB) {
-      sel.innerHTML = '<option value="">Erst Verein/Verband waehlen</option>';
+      sel.innerHTML = '<option value="">Erst Verein/Verband w\u00e4hlen</option>';
       sel.value = '';
       sel.disabled = true;
       return;
@@ -3266,7 +3266,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Delete player
   document.getElementById('btn-delete-player').addEventListener('click', function() {
-    if (!confirm('Spieler loeschen?')) return;
+    if (!confirm('Spieler l\u00f6schen?')) return;
     var delId = PL_CUR;
     PL = PL.filter(function(p) { return p.id !== delId; });
     plSave();
@@ -3371,7 +3371,7 @@ function diagRenderTeamOverview() {
     return (a.fn || '').toLowerCase().localeCompare((b.fn || '').toLowerCase());
   });
   var html = '<div style="background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;padding:20px;">';
-  html += '<h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">Team-Uebersicht</h3>';
+  html += '<h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:4px;">Team-\u00dcbersicht</h3>';
   html += '<p style="font-size:12px;color:#8e8e93;margin-bottom:14px;">Letzter Wert pro Test &middot; gruen/rot = Veraenderung zur vorherigen Messung &middot; Klick auf Spieler oeffnet Profil</p>';
   html += '<div style="overflow-x:auto;">';
   html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
@@ -3593,7 +3593,7 @@ function loadPrioChunk() {
     quelle: "Marvin Graf - Coaching-Praxis RWK/WHV"
   }, {
     titel: "Ausdauermethod Zuweisung nach vIFT-Niveau (30-15 IFT)",
-    inhalt: "Methodenzuweisung anhand des vIFT-Wertes aus dem 30-15 Intermittent Fitness Test: Unter 16 km/h: aerobe Basis fehlt, nur Cardiac Output (GA1) und Schwellenmethode - kein HIIT. 16-18 km/h: HRIT (kurze aerobe Intervalle 10-12s) oder Schwellen-Intervalle als Einstieg, noch kein 15/15 HIIT. 18-20 km/h: 15/15 HIIT geeignet (Einstiegsvolumen), Cardiac Output als Basis weiter. 20-22 km/h: 15/15 HIIT mit mittlerem Volumen, Schwellenmethode fuer Schwellenentwicklung. 22-24 km/h: 15/15 HIIT mit hohem Volumen, Cardiac Power (4x4) moeglich. Ueber 24 km/h: alle Methoden moeglich, Sprint-Intervalle und Repeated Sprints sinnvoll. Diese Grenzen sind Richtwerte - Alter, Trainingsjahre und Saisonphase koennen Abweichungen begruenden. Bei jungen Athleten (U14/U16) immer eine Stufe konservativer ansetzen.",
+    inhalt: "Methodenzuweisung anhand des vIFT-Wertes aus dem 30-15 Intermittent Fitness Test: Unter 16 km/h: aerobe Basis fehlt, nur Cardiac Output (GA1) und Schwellenmethode - kein HIIT. 16-18 km/h: HRIT (kurze aerobe Intervalle 10-12s) oder Schwellen-Intervalle als Einstieg, noch kein 15/15 HIIT. 18-20 km/h: 15/15 HIIT geeignet (Einstiegsvolumen), Cardiac Output als Basis weiter. 20-22 km/h: 15/15 HIIT mit mittlerem Volumen, Schwellenmethode fuer Schwellenentwicklung. 22-24 km/h: 15/15 HIIT mit hohem Volumen, Cardiac Power (4x4) moeglich. Ueber 24 km/h: alle Methoden moeglich, Sprint-Intervalle und Repeated Sprints sinnvoll. Diese Grenzen sind Richtwerte - Alter, Trainingsjahre und Saisonphase k\u00f6nnen Abweichungen begr\u00fcnden. Bei jungen Athleten (U14/U16) immer eine Stufe konservativer ansetzen.",
     tags: ["vift","methodenzuweisung","ausdauer","hiit","15/15","cardiac-power","schwellenmethode","ga1","assessment","30-15-ift"],
     quelle: "Marvin Graf - Coaching-Praxis RWK/WHV, DOSB Trainingsmethoden Stefan Adler"
   }];
@@ -4033,7 +4033,7 @@ function plSaveDiag() {
       });
       return { type:b.type, label:b.label, exercises:exercises };
     }).filter(function(b){ return b.exercises.length>0; });
-    if(blocks.length===0){ alert('Bitte mindestens eine \u00dcbung waehlen.'); return; }
+    if(blocks.length===0){ alert('Bitte mindestens eine \u00dcbung w\u00e4hlen.'); return; }
     var nameEl = document.getElementById('plan-name');
     var title = nameEl ? nameEl.value : 'Trainingsplan';
     renderPlan(blocks, title);
@@ -4527,7 +4527,7 @@ function plSaveDiag() {
   };
 
   window.tdDeleteEntry = function(id, btn) {
-    if (!confirm('Eintrag loeschen?')) return;
+    if (!confirm('Eintrag l\u00f6schen?')) return;
     btn.disabled = true;
     btn.textContent = '...';
     fetch('/api/library?collection=trainingdocs&id=' + encodeURIComponent(id), { method: 'DELETE' })
@@ -4576,8 +4576,8 @@ function plSaveDiag() {
 
   window.tdGoBlocks = function() {
     var dateVal = document.getElementById('td-date').value;
-    if(!dateVal) { alert('Bitte Datum auswaehlen'); return; }
-    if(!TD.dur) { alert('Bitte Dauer auswaehlen'); return; }
+    if(!dateVal) { alert('Bitte Datum ausw\u00e4hlen'); return; }
+    if(!TD.dur) { alert('Bitte Dauer ausw\u00e4hlen'); return; }
     TD.date = dateVal;
     // Format date nicely
     var parts = dateVal.split('-');
@@ -4908,7 +4908,7 @@ function plSaveDiag() {
 <!-- TRAININGSDOKU SCREEN -->
 <div id="trainingsdoku-screen" class="cb-dark" style="display:none;">
   <div style="max-width:680px;margin:0 auto;padding:20px 20px 0;display:flex;align-items:center;justify-content:space-between;">
-    <button onclick="goHome()" style="display:flex;align-items:center;gap:6px;background:none;border:0.5px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px;color:rgba(255,255,255,0.85);cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zurueck</button>
+    <button onclick="goHome()" style="display:flex;align-items:center;gap:6px;background:none;border:0.5px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px;color:rgba(255,255,255,0.85);cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zur&uuml;ck</button>
     <div style="width:60px;"></div>
   </div>
   <div style="max-width:680px;margin:0 auto;padding:24px 20px 60px;">
@@ -4944,7 +4944,7 @@ function plSaveDiag() {
         <button class="td-trainer-btn" onclick="tdSelectTrainer('Marvin')">Marvin</button>
         <button class="td-trainer-btn" onclick="tdSelectTrainer('Niklas')">Niklas</button>
       </div>
-      <button onclick="tdBack(1)" style="margin-top:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;">&#8592; Zurueck</button>
+      <button onclick="tdBack(1)" style="margin-top:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;">&#8592; Zur&uuml;ck</button>
     </div>
     <!-- STEP 3: Datum + Dauer -->
     <div id="td-step-meta" style="display:none;">
@@ -4959,7 +4959,7 @@ function plSaveDiag() {
         <button class="td-dur-btn" data-min="60" onclick="tdSelectDur(this,60)">60 min</button>
       </div>
       <button onclick="tdGoBlocks()" style="width:100%;padding:16px;background:#e74c3c;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">Weiter zu den Bloecken &#x2192;</button>
-      <button onclick="tdBack(2)" style="margin-top:12px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;display:block;">&#8592; Zurueck</button>
+      <button onclick="tdBack(2)" style="margin-top:12px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;display:block;">&#8592; Zur&uuml;ck</button>
     </div>
     <!-- STEP 4: Bloecke -->
     <div id="td-step-blocks" style="display:none;">
@@ -4992,7 +4992,7 @@ function plSaveDiag() {
       </div>
       <div id="td-blocks-list"></div>
       <button onclick="tdSave()" style="width:100%;margin-top:24px;padding:16px;background:#e74c3c;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">Training speichern &#x2713;</button>
-      <button onclick="tdBack(3)" style="margin-top:12px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;display:block;">&#8592; Zurueck</button>
+      <button onclick="tdBack(3)" style="margin-top:12px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;display:block;">&#8592; Zur&uuml;ck</button>
     </div>
     <!-- STEP 5: Erfolg nach Speichern -->
     <div id="td-step-history" style="display:none;">
@@ -5023,7 +5023,7 @@ function plSaveDiag() {
         <button class="td-filter-btn" data-filter="RWK W U18" onclick="tdFilterHistory(this,'RWK W U18')" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">W U18</button>
       </div>
       <div id="td-verlauf-list" style="margin-top:4px;"></div>
-      <button onclick="tdBack(1)" style="margin-top:16px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;display:block;">&#8592; Zurueck</button>
+      <button onclick="tdBack(1)" style="margin-top:16px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;display:block;">&#8592; Zur&uuml;ck</button>
     </div>
   </div>
 </div>
