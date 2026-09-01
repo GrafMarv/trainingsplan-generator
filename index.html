@@ -598,6 +598,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 .cb-light{background:#F7F8F4;min-height:100vh;position:relative;}
 .cb-light h1,.cb-light h2,.cb-light h3{color:#12301F;}
+.cb-light .pd-h1{color:#fff;}
+.cb-light .pd-meta{color:rgba(255,255,255,.8);}
 
 /* ===== Mannschaftsseite v2 ===== */
 #team-screen{display:none;min-height:100vh;background:#F7F8F4;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#12301F;}
@@ -3388,54 +3390,60 @@ function plRenderDiag(p) {
   el.innerHTML = out;
 }
 
+function onId(id, ev, fn) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener(ev, fn);
+  else if (window.console) console.warn('Element fehlt:', id);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Back buttons
-  document.getElementById('btn-back-profile').addEventListener('click', function() { goTo('home'); });
-  document.getElementById('btn-back-list').addEventListener('click', function() { plRenderList(); });
+  onId('btn-back-profile', 'click', function() { goTo('home'); });
+  onId('btn-back-list', 'click', function() { plRenderList(); });
 
   // New player buttons
-  document.getElementById('btn-new-player').addEventListener('click', function() { plShowModal(); });
-  document.getElementById('btn-edit-player').addEventListener('click', function() {
+  onId('btn-new-player', 'click', function() { plShowModal(); });
+  onId('btn-edit-player', 'click', function() {
     var p = PL.find(function(x) { return x.id === PL_CUR; });
     if (p) plShowModal(p);
   });
-  document.getElementById('np-club').addEventListener('input', npUpdateTeamList);
-  document.getElementById('np-dob').addEventListener('change', npUpdateTeamList);
-  document.getElementById('np-team').addEventListener('change', npUpdateTeamList);
-  document.getElementById('sex-m').addEventListener('click', function(){ plSetSex('m'); });
-  document.getElementById('sex-w').addEventListener('click', function(){ plSetSex('w'); });
-  document.getElementById('pl-filter-club').addEventListener('change', function() { plFilterChanged('club', this.value); });
-  document.getElementById('pl-filter-team').addEventListener('change', function() { plFilterChanged('team', this.value); });
-  document.getElementById('dg-filter-club').addEventListener('change', function() { plFilterChanged('club', this.value); });
-  document.getElementById('dg-filter-team').addEventListener('change', function() { plFilterChanged('team', this.value); });
-  document.getElementById('btn-diag-template').addEventListener('click', function() { downloadDiagTemplate(); });
-  document.getElementById('btn-prio-chunk').addEventListener('click', function() { loadPrioChunk(); });
-  document.getElementById('btn-back-diagnostik').addEventListener('click', function() { goTo('home'); });
-  document.getElementById('btn-diag-import').addEventListener('click', function() {
+  onId('np-club', 'input', npUpdateTeamList);
+  onId('np-dob', 'change', npUpdateTeamList);
+  onId('np-team', 'change', npUpdateTeamList);
+  onId('sex-m', 'click', function(){ plSetSex('m'); });
+  onId('sex-w', 'click', function(){ plSetSex('w'); });
+  onId('pl-filter-club', 'change', function() { plFilterChanged('club', this.value); });
+  onId('pl-filter-team', 'change', function() { plFilterChanged('team', this.value); });
+  onId('dg-filter-club', 'change', function() { plFilterChanged('club', this.value); });
+  onId('dg-filter-team', 'change', function() { plFilterChanged('team', this.value); });
+  onId('btn-diag-template', 'click', function() { downloadDiagTemplate(); });
+  onId('btn-prio-chunk', 'click', function() { loadPrioChunk(); });
+  onId('btn-back-diagnostik', 'click', function() { goTo('home'); });
+  onId('btn-diag-import', 'click', function() {
     document.getElementById('diag-import-file').click();
   });
-  document.getElementById('diag-import-file').addEventListener('change', function(e) {
+  onId('diag-import-file', 'change', function(e) {
     var file = e.target.files[0];
     e.target.value = '';
     if (file) diagImportFile(file);
   });
-  document.getElementById('btn-new-player-2').addEventListener('click', function() { plShowModal(); });
+  onId('btn-new-player-2', 'click', function() { plShowModal(); });
 
   // Modal buttons
-  document.getElementById('btn-cancel-player').addEventListener('click', function() { plHideModal(); });
-  document.getElementById('btn-save-player').addEventListener('click', function() { plSaveNew(); });
+  onId('btn-cancel-player', 'click', function() { plHideModal(); });
+  onId('btn-save-player', 'click', function() { plSaveNew(); });
 
   // Position toggle
-  document.getElementById('pos-feld').addEventListener('click', function() { plSetPos('Feldspieler'); });
-  document.getElementById('pos-tor').addEventListener('click', function() { plSetPos('Torwart'); });
+  onId('pos-feld', 'click', function() { plSetPos('Feldspieler'); });
+  onId('pos-tor', 'click', function() { plSetPos('Torwart'); });
 
   // Tab buttons
-  document.getElementById('ptab-diagnostik').addEventListener('click', function() { plTabShow('diagnostik'); });
-  document.getElementById('ptab-verletzungen').addEventListener('click', function() { plTabShow('verletzungen'); });
-  document.getElementById('ptab-notizen').addEventListener('click', function() { plTabShow('notizen'); });
+  onId('ptab-diagnostik', 'click', function() { plTabShow('diagnostik'); });
+  onId('ptab-verletzungen', 'click', function() { plTabShow('verletzungen'); });
+  onId('ptab-notizen', 'click', function() { plTabShow('notizen'); });
 
   // Delete player
-  document.getElementById('btn-delete-player').addEventListener('click', function() {
+  onId('btn-delete-player', 'click', function() {
     if (!confirm('Spieler l\u00f6schen?')) return;
     var delId = PL_CUR;
     PL = PL.filter(function(p) { return p.id !== delId; });
@@ -3445,7 +3453,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Notes autosave
-  document.getElementById('pv-notes').addEventListener('input', function() {
+  onId('pv-notes', 'input', function() {
     var p = PL.find(function(x) { return x.id === PL_CUR; });
     if (p) {
       p.notes = this.value;
@@ -3456,7 +3464,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Diagnostik modal
-  document.getElementById('btn-add-diag').addEventListener('click', function() {
+  onId('btn-add-diag', 'click', function() {
     document.getElementById('dd-date').value = new Date().toISOString().slice(0,10);
     ['dd-s10','dd-s30','dd-cr','dd-cl','dd-mr','dd-ml','dd-sw','dd-ift'].forEach(function(id) {
       document.getElementById(id).value = '';
