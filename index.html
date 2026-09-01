@@ -792,6 +792,36 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   .pd-werte{grid-template-columns:repeat(2,1fr);}
   .pd-actions{margin-left:0;}
 }
+
+/* ===== Diagnostikseite v2 ===== */
+#diagnostik-screen{background:#F7F8F4;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#12301F;}
+.dg-banner{position:relative;overflow:hidden;border-radius:14px;background:#0B4A28;padding:26px 28px 28px;margin-bottom:18px;}
+.dg-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(112deg,transparent 0%,transparent 56%,#1C7A3E 56%,#1C7A3E 70%,#57B84A 70%,#57B84A 86%,#8FC63D 86%);opacity:.95;}
+.dg-in{position:relative;z-index:2;max-width:640px;}
+.dg-back{background:none;border:0;color:#9FD4A8;font-family:inherit;font-size:13px;cursor:pointer;padding:0;margin-bottom:14px;}
+.cb-light .dg-h1{font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:clamp(30px,4.2vw,44px);line-height:1;letter-spacing:-.03em;color:#fff;margin:0;}
+.dg-sub{margin-top:10px;font-size:14px;color:rgba(255,255,255,.78);}
+
+.dg-aktionen{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.dg-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;border:1px solid #DCE3D6;background:#fff;color:#12301F;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;}
+.dg-btn:hover{box-shadow:0 3px 12px rgba(0,0,0,.06);}
+.dg-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.dg-btn-p{background:#0E6B36;color:#fff;border-color:#0E6B36;}
+.dg-btn-p:hover{background:#0A5A2C;}
+.dg-btn-w{background:#FFF6E8;color:#B26B00;border-color:#F5D9AC;}
+
+.dg-filter{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px;}
+.dg-filter select{padding:10px 13px;border:1px solid #DCE3D6;border-radius:10px;font-size:13.5px;font-family:inherit;background:#fff;color:#12301F;min-width:210px;cursor:pointer;}
+
+.dg-karte{background:#fff;border:1px solid #E4EADE;border-radius:14px;padding:22px;}
+#diag-team-overview h3{font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;color:#12301F;margin:0 0 4px;}
+#diag-team-overview table{width:100%;border-collapse:collapse;}
+#diag-team-overview th{font-size:11.5px;letter-spacing:.04em;color:#6B7A6E;font-weight:600;text-align:right;padding:11px 9px;border-bottom:1px solid #E4EADE;}
+#diag-team-overview th:first-child,#diag-team-overview th:nth-child(2){text-align:left;}
+#diag-team-overview td{padding:13px 9px;border-bottom:1px solid #F0F4EE;font-size:13.5px;text-align:right;}
+#diag-team-overview td:first-child,#diag-team-overview td:nth-child(2){text-align:left;}
+#diag-team-overview tr:last-child td{border-bottom:0;}
+#diag-team-overview tbody tr:hover{background:#F7FAF5;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1264,32 +1294,45 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 <!-- DIAGNOSTIK SCREEN -->
 <div id="diagnostik-screen" class="cb-light" style="display:none;">
-  <div style="max-width:960px;margin:0 auto;padding:20px 24px 0;">
-    <button id="btn-back-diagnostik" style="background:none;border:0.5px solid #DCE3D6;border-radius:20px;font-size:13px;color:#12301F;cursor:pointer;font-family:inherit;font-weight:500;padding:6px 14px;">&#8592; Zur&uuml;ck</button>
-  </div>
-  <div style="max-width:960px;margin:0 auto;padding:24px;">
-    <div style="margin-bottom:28px;">
-      <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#6B7A6E;margin-bottom:6px;">TEAM</p>
-      <h2 style="font-size:28px;font-weight:700;color:#12301F;">Diagnostik</h2>
-      <p style="font-size:13px;color:#6B7A6E;margin-top:6px;">Testdaten aus Excel importieren, Team-&Uuml;bersicht und Vergleiche</p>
+ <div class="tv">
+  <aside class="tv-side">
+    <div class="tv-brand">
+      <div class="tv-brand-mark">W</div>
+      <div class="tv-brand-txt">WHV<br>ATHLETIK</div>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
-      <button id="btn-diag-template" style="background:#0E6B36;color:#12301F;border:0.5px solid #DCE3D6;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Vorlage herunterladen</button>
-      <button id="btn-diag-import" style="background:#fff;color:#1c1c1e;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Diagnostik importieren</button>
+    <nav class="tv-nav">
+      <button class="tv-navi" onclick="goHome()"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg> Startseite</button>
+      <button class="tv-navi" onclick="goTo('profile')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg> Spieler</button>
+      <button class="tv-navi an"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg> Diagnostik</button>
+      <button class="tv-navi" onclick="goTo('generator')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Einheiten</button>
+    </nav>
+  </aside>
+
+  <main class="tv-main">
+    <div class="dg-banner">
+      <div class="dg-in">
+        <button id="btn-back-diagnostik" class="dg-back">&#8592; Startseite</button>
+        <h1 class="dg-h1">Diagnostik</h1>
+        <p class="dg-sub">Testdaten aus Excel importieren, Team-&Uuml;bersicht und Vergleiche</p>
+      </div>
+    </div>
+
+    <div class="dg-aktionen">
+      <button id="btn-diag-import" class="dg-btn dg-btn-p"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M7 12l5-5 5 5"/><path d="M4 3h16"/></svg> Diagnostik importieren</button>
+      <button id="btn-diag-template" class="dg-btn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 12l5 5 5-5"/><path d="M4 21h16"/></svg> Vorlage herunterladen</button>
       <input type="file" id="diag-import-file" accept=".xlsx,.xls" style="display:none;">
-      <button id="btn-prio-chunk" style="background:rgba(255,149,0,0.2);color:#FF9500;border:0.5px solid rgba(255,149,0,0.4);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Prio-Chunk laden</button>
+      <button id="btn-prio-chunk" class="dg-btn dg-btn-w"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6.1L12 16.9 6.7 19.7l1.1-6.1L3.4 9.4l6-.8z"/></svg> Prio-Chunk laden</button>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
-      <select id="dg-filter-club" style="padding:8px 12px;border:0.5px solid #DCE3D6;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
-        <option value="">Alle Vereine/Verb&auml;nde</option>
-      </select>
-      <select id="dg-filter-team" style="padding:8px 12px;border:0.5px solid #DCE3D6;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
-        <option value="">Alle Mannschaften</option>
-      </select>
+
+    <div class="dg-filter">
+      <select id="dg-filter-club"><option value="">Alle Vereine/Verb&auml;nde</option></select>
+      <select id="dg-filter-team"><option value="">Alle Mannschaften</option></select>
     </div>
-    <div id="diag-team-overview" style="margin-bottom:20px;"></div>
+
+    <div id="diag-team-overview" style="margin-bottom:18px;"></div>
     <div id="diag-overview"></div>
-  </div>
+  </main>
+ </div>
 </div>
 
 <!-- APP SCREEN -->
