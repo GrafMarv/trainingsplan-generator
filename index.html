@@ -1137,9 +1137,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button id="btn-new-player" class="pd-neu">+ Neuer Spieler</button>
     </div>
     <div class="pd-filter">
-      <select id="pl-filter-club" style="padding:8px 12px;border:0.5px solid #DCE3D6;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
-        <option value="">Alle Vereine/Verb&auml;nde</option>
-      </select>
+      
       <select id="pl-filter-team" style="padding:8px 12px;border:0.5px solid #DCE3D6;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1c1c1e;">
         <option value="">Alle Mannschaften</option>
       </select>
@@ -1225,7 +1223,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <div style="flex:1;"><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">GROESSE (cm)</label><input id="np-hgt" type="number" min="100" max="230" step="1" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
           <div style="flex:1;"><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">GEWICHT (kg)</label><input id="np-wgt" type="number" min="20" max="150" step="0.5" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
         </div>
-        <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VEREIN / VERBAND</label><input id="np-club" type="text" list="np-club-list" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"><datalist id="np-club-list"><option value="WHV"><option value="Rot-Weiss Koeln"></datalist></div>
+        
         <div>
           <label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">MANNSCHAFT <span style="font-weight:400;text-transform:none;">(optional)</span></label>
           <select id="np-team" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;">
@@ -1296,7 +1294,6 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <div class="dg-filter">
-      <select id="dg-filter-club"><option value="">Alle Vereine/Verb&auml;nde</option></select>
       <select id="dg-filter-team"><option value="">Alle Mannschaften</option></select>
     </div>
 
@@ -3231,11 +3228,10 @@ var PL = JSON.parse(localStorage.getItem('cb_pl') || '[]');
 var PL_EDIT_ID = null;
 var PL_FILTER_CLUB = '';
 var PL_FILTER_TEAM = '';
-var TEAM_OPTIONS = {
-  'Rot-Weiss Koeln': ['M12','M14','M16','M18','W12','W14','W16','W18'],
-  'WHV': ['M13','M14','M16','W13','W14','W16','MP','WP','M15','W15']
-};
-var ALL_TEAM_CODES = ['M12','M13','M14','M16','M18','W12','W13','W14','W16','W18'];
+var WHV_TEAMS = ["W13", "W14", "W16", "M13", "M14", "M16", "WP", "W15", "MP", "M15"];
+var WHV_LABEL = {"W13": "U13 weiblich", "W14": "U14 weiblich", "W16": "U16 weiblich", "M13": "U13 m&auml;nnlich", "M14": "U14 m&auml;nnlich", "M16": "U16 m&auml;nnlich", "WP": "P-Kader weiblich", "W15": "U15 weiblich", "MP": "P-Kader m&auml;nnlich", "M15": "U15 m&auml;nnlich"};
+var TEAM_OPTIONS = { 'WHV': WHV_TEAMS };
+var ALL_TEAM_CODES = WHV_TEAMS;
 var PL_CUR = null;
 var PL_POS = 'Feldspieler';
 
@@ -3291,54 +3287,25 @@ function initProfileScreen() {
 
 function plFilteredList() {
   return PL.filter(function(p) {
-    if (PL_FILTER_CLUB && (p.club || '') !== PL_FILTER_CLUB) return false;
     if (PL_FILTER_TEAM && (p.team || '') !== PL_FILTER_TEAM) return false;
     return true;
   });
 }
 
 function plPopulateFilters() {
-  var clubs = {};
-  Object.keys(TEAM_OPTIONS).forEach(function(c) { clubs[c] = true; });
-  PL.forEach(function(p) { if (p.club) clubs[p.club] = true; });
-  var clubList = Object.keys(clubs).sort();
-
-  ['pl-filter-club', 'dg-filter-club'].forEach(function(id) {
-    var sel = document.getElementById(id);
-    if (!sel) return;
-    sel.innerHTML = '<option value="">Alle Vereine/Verb&auml;nde</option>' + clubList.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
-    sel.value = PL_FILTER_CLUB;
-  });
-
-  var teams = {};
-  if (PL_FILTER_CLUB) {
-    (TEAM_OPTIONS[PL_FILTER_CLUB] || []).forEach(function(t) { teams[t] = true; });
-    PL.forEach(function(p) { if (p.club === PL_FILTER_CLUB && p.team) teams[p.team] = true; });
-  }
-  var teamList = Object.keys(teams).sort();
-
   ['pl-filter-team', 'dg-filter-team'].forEach(function(id) {
     var sel = document.getElementById(id);
     if (!sel) return;
-    if (!PL_FILTER_CLUB) {
-      sel.innerHTML = '<option value="">Erst Verein/Verband w\u00e4hlen</option>';
-      sel.value = '';
-      sel.disabled = true;
-      return;
-    }
     sel.disabled = false;
-    sel.innerHTML = '<option value="">Alle Mannschaften (' + PL_FILTER_CLUB + ')</option>' + teamList.map(function(t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+    sel.innerHTML = '<option value="">Alle Mannschaften</option>'
+      + WHV_TEAMS.map(function(t) {
+          return '<option value="' + t + '">' + (WHV_LABEL[t] || t) + '</option>';
+        }).join('');
     sel.value = PL_FILTER_TEAM;
   });
 }
-
 function plFilterChanged(kind, value) {
-  if (kind === 'club') {
-    PL_FILTER_CLUB = value;
-    PL_FILTER_TEAM = '';
-  } else {
-    PL_FILTER_TEAM = value;
-  }
+  PL_FILTER_TEAM = value;
   if (document.getElementById('pv-list').style.display !== 'none') plShowList();
   if (document.getElementById('diagnostik-screen').style.display !== 'none') diagRenderTeamOverview();
 }
@@ -3440,8 +3407,8 @@ function plRenderStammdaten(p) {
     + feld('QUARTAL', q)
     + feld('GROESSE', p.hgt, ' cm')
     + feld('GEWICHT', p.wgt, ' kg')
-    + feld('VEREIN', p.club)
-    + feld('MANNSCHAFT', p.team);
+    + feld('POSITION', p.pos)
+    + feld('MANNSCHAFT', p.team ? (WHV_LABEL[p.team] || p.team) : '');
 }
 
 function plRenderStatus(p) {
@@ -3542,7 +3509,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var p = PL.find(function(x) { return x.id === PL_CUR; });
     if (p) plShowModal(p);
   });
-  onId('np-club', 'input', npUpdateTeamList);
   onId('np-dob', 'change', npUpdateTeamList);
   onId('np-team', 'change', npUpdateTeamList);
   onId('sex-m', 'click', function(){ plSetSex('m'); });
@@ -4005,7 +3971,6 @@ function plShowModal(p) {
   document.getElementById('np-dob').value = p ? (p.dob || '') : '';
   document.getElementById('np-hgt').value = p ? (p.hgt || '') : '';
   document.getElementById('np-wgt').value = p ? (p.wgt || '') : '';
-  document.getElementById('np-club').value = p ? (p.club || 'WHV') : 'WHV';
   document.getElementById('np-team').value = p ? (p.team || '') : '';
   plSetSex(p ? (p.sex || (String(p.team || '').charAt(0) === 'W' ? 'w' : 'm')) : 'm');
   npUpdateTeamList();
@@ -4073,7 +4038,7 @@ function plSaveNew() {
   var ln = document.getElementById('np-ln').value.trim();
   if (!fn || !ln) { alert('Bitte Vor- und Nachname eingeben'); return; }
   var dob = document.getElementById('np-dob').value;
-  var club = document.getElementById('np-club').value.trim();
+  var club = 'WHV';
   var team = document.getElementById('np-team').value.trim();
   if (!team) team = whvKaderAusJahrgang(dob, PL_SEX);
   var hgt = document.getElementById('np-hgt').value.trim();
@@ -5242,16 +5207,18 @@ function plSaveDiag() {
         <button onclick="tdGoHistory()" style="padding:8px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">Verlauf &#x2192;</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div style="color:rgba(255,255,255,0.4);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;grid-column:1/-1;padding:4px 0;">Maennlich</div>
-        <button class="td-team-btn" onclick="tdSelectTeam('RWK M U12')">RWK M U12</button>
-        <button class="td-team-btn" onclick="tdSelectTeam('RWK M U14')">RWK M U14</button>
-        <button class="td-team-btn" onclick="tdSelectTeam('RWK M U16')">RWK M U16</button>
-        <button class="td-team-btn" onclick="tdSelectTeam('RWK M U18')">RWK M U18</button>
         <div style="color:rgba(255,255,255,0.4);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;grid-column:1/-1;padding:4px 0;">Weiblich</div>
-        <button class="td-team-btn" onclick="tdSelectTeam('RWK W U12')">RWK W U12</button>
-        <button class="td-team-btn" onclick="tdSelectTeam('RWK W U14')">RWK W U14</button>
-        <button class="td-team-btn" onclick="tdSelectTeam('RWK W U16')">RWK W U16</button>
-        <button class="td-team-btn" onclick="tdSelectTeam('RWK W U18')">RWK W U18</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('W13')">U13 weiblich</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('W14')">U14 weiblich</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('W16')">U16 weiblich</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('WP')">P-Kader weiblich</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('W15')">U15 weiblich</button>
+        <div style="color:rgba(255,255,255,0.4);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;grid-column:1/-1;padding:4px 0;">Maennlich</div>
+        <button class="td-team-btn" onclick="tdSelectTeam('M13')">U13 maennlich</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('M14')">U14 maennlich</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('M16')">U16 maennlich</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('MP')">P-Kader maennlich</button>
+        <button class="td-team-btn" onclick="tdSelectTeam('M15')">U15 maennlich</button>
       </div>
     </div>
     <!-- STEP 2: Trainer -->
