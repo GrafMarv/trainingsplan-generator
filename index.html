@@ -822,6 +822,15 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 #diag-team-overview td:first-child,#diag-team-overview td:nth-child(2){text-align:left;}
 #diag-team-overview tr:last-child td{border-bottom:0;}
 #diag-team-overview tbody tr:hover{background:#F7FAF5;}
+
+.pd-stamm{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:22px;}
+.pd-sk{background:#fff;border:1px solid #E4EADE;border-radius:11px;padding:13px 14px;}
+.pd-sk span{display:block;font-size:10.5px;letter-spacing:.06em;color:#6B7A6E;margin-bottom:6px;}
+.pd-sk b{font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;color:#12301F;}
+.pd-sk b em{font-style:normal;font-size:12px;color:#8B978C;font-weight:400;margin-left:2px;}
+.pd-sk b.leer{color:#B4BFB6;font-weight:400;font-size:14px;font-family:inherit;}
+@media(max-width:1100px){.pd-stamm{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:620px){.pd-stamm{grid-template-columns:repeat(2,1fr);}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1162,6 +1171,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <div id="pv-photo" class="pd-photo"></div>
     </div>
 
+    <div class="pd-stamm" id="pv-stamm"></div>
+
     <div class="pd-tabs">
       <button id="ptab-diagnostik" class="pd-tab an"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg> Diagnostik</button>
       <button id="ptab-verletzungen" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5a4.9 4.9 0 0 1-7-7l6-6a4.9 4.9 0 0 1 7 7z"/><path d="M8.5 8.5l7 7"/></svg> Verletzungen</button>
@@ -1209,6 +1220,10 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
             <button id="pos-feld" style="flex:1;padding:10px;border:0.5px solid #1c1c1e;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#1c1c1e;color:#fff;">Feldspieler</button>
             <button id="pos-tor" style="flex:1;padding:10px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;color:#1c1c1e;">Torwart</button>
           </div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;"><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">GROESSE (cm)</label><input id="np-hgt" type="number" min="100" max="230" step="1" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
+          <div style="flex:1;"><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">GEWICHT (kg)</label><input id="np-wgt" type="number" min="20" max="150" step="0.5" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"></div>
         </div>
         <div><label style="font-size:11px;font-weight:600;color:#8e8e93;display:block;margin-bottom:5px;">VEREIN / VERBAND</label><input id="np-club" type="text" list="np-club-list" style="width:100%;padding:10px 12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;"><datalist id="np-club-list"><option value="WHV"><option value="Rot-Weiss Koeln"></datalist></div>
         <div>
@@ -3402,6 +3417,33 @@ function plStatusInfo(k) {
   return PL_STATUS[0];
 }
 
+function plQuartal(dob) {
+  if (!dob) return null;
+  var m = parseInt(String(dob).slice(5, 7), 10);
+  if (!m) return null;
+  return 'Q' + Math.ceil(m / 3);
+}
+
+function plRenderStammdaten(p) {
+  var box = document.getElementById('pv-stamm');
+  if (!box) return;
+  var dt = p.dob ? new Date(p.dob).toLocaleDateString('de-DE') : '';
+  var q = plQuartal(p.dob);
+  function feld(titel, wert, einheit) {
+    var inhalt = (wert === undefined || wert === null || wert === '')
+      ? '<b class="leer">-</b>'
+      : '<b>' + wert + (einheit ? '<em>' + einheit + '</em>' : '') + '</b>';
+    return '<div class="pd-sk"><span>' + titel + '</span>' + inhalt + '</div>';
+  }
+  box.innerHTML =
+      feld('GEBURTSDATUM', dt)
+    + feld('QUARTAL', q)
+    + feld('GROESSE', p.hgt, ' cm')
+    + feld('GEWICHT', p.wgt, ' kg')
+    + feld('VEREIN', p.club)
+    + feld('MANNSCHAFT', p.team);
+}
+
 function plRenderStatus(p) {
   var box = document.getElementById('pv-status');
   if (!box) return;
@@ -3437,6 +3479,7 @@ function plOpen(id) {
   document.getElementById('pv-name').textContent = p.fn + ' ' + p.ln;
   document.getElementById('pv-meta').textContent = p.pos + (age ? ' | ' + age + ' Jahre' : '') + (p.club ? ' | ' + p.club : '') + (p.team ? ' | ' + p.team : '');
   document.getElementById('pv-notes').value = p.notes || '';
+  plRenderStammdaten(p);
   plRenderStatus(p);
   plTabShow('diagnostik');
   plRenderDiag(p);
@@ -3960,6 +4003,8 @@ function plShowModal(p) {
   document.getElementById('np-fn').value = p ? (p.fn || '') : '';
   document.getElementById('np-ln').value = p ? (p.ln || '') : '';
   document.getElementById('np-dob').value = p ? (p.dob || '') : '';
+  document.getElementById('np-hgt').value = p ? (p.hgt || '') : '';
+  document.getElementById('np-wgt').value = p ? (p.wgt || '') : '';
   document.getElementById('np-club').value = p ? (p.club || 'WHV') : 'WHV';
   document.getElementById('np-team').value = p ? (p.team || '') : '';
   plSetSex(p ? (p.sex || (String(p.team || '').charAt(0) === 'W' ? 'w' : 'm')) : 'm');
@@ -4031,10 +4076,12 @@ function plSaveNew() {
   var club = document.getElementById('np-club').value.trim();
   var team = document.getElementById('np-team').value.trim();
   if (!team) team = whvKaderAusJahrgang(dob, PL_SEX);
+  var hgt = document.getElementById('np-hgt').value.trim();
+  var wgt = document.getElementById('np-wgt').value.trim();
   if (PL_EDIT_ID) {
     var ex = PL.find(function(x) { return x.id === PL_EDIT_ID; });
     if (!ex) { plHideModal(); return; }
-    ex.fn = fn; ex.ln = ln; ex.dob = dob; ex.pos = PL_POS; ex.club = club; ex.team = team; ex.sex = PL_SEX;
+    ex.fn = fn; ex.ln = ln; ex.dob = dob; ex.pos = PL_POS; ex.club = club; ex.team = team; ex.sex = PL_SEX; ex.hgt = hgt; ex.wgt = wgt;
     plSave();
     plUpsert(ex);
     plHideModal();
@@ -4048,6 +4095,8 @@ function plSaveNew() {
     pos: PL_POS,
     sex: PL_SEX,
     status: 'fit',
+    hgt: hgt,
+    wgt: wgt,
     club: club,
     team: team,
     diag: [], notes: ''
