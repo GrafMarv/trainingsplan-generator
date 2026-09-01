@@ -1567,6 +1567,7 @@ function whvToggleTeams(b) {
 }
 
 function whvTeam(code) {
+  PL_PENDING = null;
   TM_CUR = code;
   window.location.hash = 'team-' + code;
   ['home','wissen','profile','diagnostik','app','trainingsdoku'].forEach(function(s) {
@@ -1684,9 +1685,10 @@ function tmRender() {
   Array.prototype.forEach.call(g.querySelectorAll('.tv-karte'), function(el) {
     el.addEventListener('click', function() {
       var id = el.getAttribute('data-id');
+      PL_PENDING = id;
       document.getElementById('team-screen').style.display = 'none';
       goTo('profile');
-      setTimeout(function(){ plOpen(id); }, 120);
+      plOpen(id);
     });
   });
 }
@@ -1702,6 +1704,7 @@ function goHome() {
   document.getElementById('trainingsdoku-screen').style.display = 'none';
   var _t = document.getElementById('team-screen'); if (_t) _t.style.display = 'none';
   if (window.whvHomeCounts) whvHomeCounts();
+  PL_PENDING = null;
 }
 
 // Hash router - on load and on hash change
@@ -3321,11 +3324,22 @@ function plFilterChanged(kind, value) {
   } else {
     PL_FILTER_TEAM = value;
   }
-  if (document.getElementById('pv-list').style.display !== 'none') plRenderList();
+  if (document.getElementById('pv-list').style.display !== 'none') plShowList();
   if (document.getElementById('diagnostik-screen').style.display !== 'none') diagRenderTeamOverview();
 }
 
+var PL_PENDING = null;
+
+function plShowList() {
+  PL_PENDING = null;
+  plRenderList();
+}
+
 function plRenderList() {
+  if (PL_PENDING) {
+    var vorhanden = PL.find(function(x) { return x.id === PL_PENDING; });
+    if (vorhanden) { plOpen(PL_PENDING); return; }
+  }
   document.getElementById('pv-list').style.display = 'block';
   document.getElementById('pv-detail').style.display = 'none';
   var grid = document.getElementById('pv-grid');
@@ -3412,6 +3426,7 @@ function plSetStatus(k) {
 
 function plOpen(id) {
   PL_CUR = id;
+  PL_PENDING = id;
   var p = PL.find(function(x) { return x.id === id; });
   if (!p) return;
   document.getElementById('pv-list').style.display = 'none';
@@ -3476,7 +3491,7 @@ document.addEventListener('DOMContentLoaded', function() {
   whvSideInit();
   // Back buttons
   onId('btn-back-profile', 'click', function() { goTo('home'); });
-  onId('btn-back-list', 'click', function() { plRenderList(); });
+  onId('btn-back-list', 'click', function() { plShowList(); });
 
   // New player buttons
   onId('btn-new-player', 'click', function() { plShowModal(); });
@@ -3526,7 +3541,7 @@ document.addEventListener('DOMContentLoaded', function() {
     PL = PL.filter(function(p) { return p.id !== delId; });
     plSave();
     plRemoteDelete(delId);
-    plRenderList();
+    plShowList();
   });
 
   // Notes autosave
