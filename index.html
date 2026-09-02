@@ -882,6 +882,23 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 .pd-wq{font-size:10.5px;color:#8B978C;margin-top:3px;line-height:1.2;}
 .pd-wq b{font-weight:600;color:#6B7A6E;}
+
+.pd-verlauf{background:#fff;border:1px solid #E4EADE;border-radius:14px;padding:20px;margin-bottom:16px;}
+.pd-vkopf{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;}
+.pd-vkopf h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin:0;}
+.pd-vkopf span{font-size:12px;color:#6B7A6E;}
+.pd-vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.pd-v{border:1px solid #EEF2EB;border-radius:10px;padding:12px 13px;}
+.pd-vt{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px;}
+.pd-vt b{font-size:12px;font-weight:600;color:#3F5145;}
+.pd-vt i{font-style:normal;font-size:11px;font-weight:600;}
+.pd-vt i.gut{color:#1E9E52;}
+.pd-vt i.schlecht{color:#D93025;}
+.pd-vt i.neutral{color:#8B978C;}
+.pd-v svg{display:block;width:100%;height:38px;overflow:visible;}
+.pd-vf{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:#8B978C;}
+@media(max-width:1100px){.pd-vgrid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:620px){.pd-vgrid{grid-template-columns:1fr;}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1280,6 +1297,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <div id="ptc-diagnostik">
+      <div id="pv-verlauf"></div>
       <div class="pd-sec">
         <h3>Diagnostikwerte</h3>
         <button id="btn-add-diag" class="pd-neu">+ Neuer Test</button>
@@ -3754,6 +3772,7 @@ function plOpen(id) {
     + (p.verein ? ' | ' + p.verein : '')
     + (p.team ? ' | ' + (WHV_LABEL[p.team] || p.team) : '');
   document.getElementById('pv-notes').value = p.notes || '';
+  plRenderVerlauf(p);
   plRenderStammdaten(p);
   plRenderStatus(p);
   plTabShow('diagnostik');
@@ -3792,6 +3811,82 @@ function plJahrgangSchnitt(p, key) {
   var s = 0;
   werte.forEach(function(v) { s += v; });
   return { schnitt: s / werte.length, anzahl: werte.length, jahr: jahr, sex: sex };
+}
+
+// Bei diesen Werten ist weniger besser
+var DIAG_KLEINER_BESSER = { s10:1, s30:1, cr:1, cl:1 };
+
+function plRenderVerlauf(p) {
+  var box = document.getElementById('pv-verlauf');
+  if (!box) return;
+  var tests = (p.diag || []).slice().sort(function(a, b) {
+    return String(a.date).localeCompare(String(b.date));
+  });
+  if (tests.length < 2) { box.innerHTML = ''; return; }
+
+  var lbl = {s10:'10m',s30:'30m',cr:'505 R',cl:'505 L',mr:'MB R',ml:'MB L',sw:'Weit',ift:'IFT'};
+  var karten = '';
+
+  Object.keys(lbl).forEach(function(k) {
+    var punkte = [];
+    tests.forEach(function(t) {
+      var v = parseFloat(t[k]);
+      if (!isNaN(v)) punkte.push({ v: v, d: t.date });
+    });
+    if (punkte.length < 2) return;
+
+    var werte = punkte.map(function(x) { return x.v; });
+    var min = Math.min.apply(null, werte);
+    var max = Math.max.apply(null, werte);
+    var spanne = (max - min) || 1;
+    var breite = 100, hoehe = 30;
+    var schritt = punkte.length > 1 ? breite / (punkte.length - 1) : 0;
+
+    var koord = punkte.map(function(x, idx) {
+      var y = hoehe - ((x.v - min) / spanne) * (hoehe - 6) - 3;
+      return { x: idx * schritt, y: y };
+    });
+
+    var erst = werte[0], letzt = werte[werte.length - 1];
+    var diff = letzt - erst;
+    var besserWennKlein = !!DIAG_KLEINER_BESSER[k];
+    var richtung = 'neutral';
+    if (Math.abs(diff) > 0.001) {
+      richtung = ((diff < 0) === besserWennKlein) ? 'gut' : 'schlecht';
+    }
+    var farbe = richtung === 'gut' ? '#1E9E52' : (richtung === 'schlecht' ? '#D93025' : '#8B978C');
+    var stellen = (k === 'mr' || k === 'ml' || k === 'ift') ? 1 : 2;
+    var vorz = diff > 0 ? '+' : '';
+
+    var linie = koord.map(function(c) { return c.x.toFixed(1) + ',' + c.y.toFixed(1); }).join(' ');
+    var kreise = koord.map(function(c, idx) {
+      var letzterPunkt = (idx === koord.length - 1);
+      return '<circle cx="' + c.x.toFixed(1) + '" cy="' + c.y.toFixed(1) + '" r="'
+        + (letzterPunkt ? 2.6 : 1.8) + '" fill="' + (letzterPunkt ? farbe : '#fff')
+        + '" stroke="' + farbe + '" stroke-width="1.2"/>';
+    }).join('');
+
+    function kurz(datum) {
+      var d = new Date(datum);
+      return isNaN(d) ? '' : (d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(2);
+    }
+
+    karten += '<div class="pd-v">'
+      + '<div class="pd-vt"><b>' + lbl[k] + '</b>'
+      + '<i class="' + richtung + '">' + vorz + diff.toFixed(stellen) + '</i></div>'
+      + '<svg viewBox="0 0 100 30" preserveAspectRatio="none">'
+      + '<polyline points="' + linie + '" fill="none" stroke="' + farbe
+      + '" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>'
+      + kreise + '</svg>'
+      + '<div class="pd-vf"><span>' + kurz(punkte[0].d) + '</span>'
+      + '<span>' + letzt.toFixed(stellen) + '</span></div>'
+      + '</div>';
+  });
+
+  if (!karten) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div class="pd-verlauf"><div class="pd-vkopf"><h4>Verlauf</h4>'
+    + '<span>' + tests.length + ' Tests, gruen = Verbesserung</span></div>'
+    + '<div class="pd-vgrid">' + karten + '</div></div>';
 }
 
 function plRenderDiag(p) {
