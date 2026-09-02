@@ -899,6 +899,61 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .pd-vf{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:#8B978C;}
 @media(max-width:1100px){.pd-vgrid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:620px){.pd-vgrid{grid-template-columns:1fr;}}
+
+/* ===== Feinschliff: Ergebnislisten-Aesthetik ===== */
+
+/* Ziffern immer gleich breit - Werte stehen untereinander buendig */
+.tv-stat b,.pd-wv,.pd-sk b,.sf-tnr,.tv-nr,.pd-vt i,.pd-vf,
+#diag-team-overview td,.eh-ue-t span{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;}
+
+/* Spielfeldlinien im Banner - Motiv aus dem Sport, nicht Dekor */
+.tv-banner::before,.pd-banner::before,.dg-banner::before,.eh-banner::before,.sf-banner::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(112deg,rgba(255,255,255,.05) 0 1px,transparent 1px 46px);
+}
+
+/* Der schraege Schnitt aus dem Verbandszeichen als Erkennungsmerkmal */
+.tv-navi.an{position:relative;background:#EDF4EA;}
+.tv-navi.an::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;
+  background:#0E6B36;transform:skewX(-14deg);border-radius:1px;}
+
+/* Statistikwerte: Zahl fuehrt, Kante statt Kreis */
+.tv-stats{gap:0;border:1px solid #E4EADE;border-radius:12px;overflow:hidden;background:#fff;}
+.tv-stat{border:0;border-right:1px solid #EEF2EB;border-radius:0;padding:16px 18px;display:block;}
+.tv-stat:last-child{border-right:0;}
+.tv-ico{display:none;}
+.tv-stat b{font-size:32px;letter-spacing:-.03em;line-height:1;}
+.tv-stat span{margin-top:6px;font-size:12px;letter-spacing:0;text-transform:none;}
+
+/* Schatten nur als Antwort auf eine Handlung, nicht als Grundzustand */
+.sf-team,.sf-ber,.eh-k,.tv-karte,.tv-link,.pd-test{box-shadow:none;transition:border-color .12s ease,transform .12s ease;}
+.sf-team:hover,.sf-ber:hover,.eh-k:hover,.tv-karte:hover,.tv-link:hover{
+  box-shadow:none;border-color:#0E6B36;transform:translateY(-1px);}
+
+/* Radien nach Rang: Banner gross, Karten mittel, Chips rund */
+.sf-banner,.tv-banner,.pd-banner,.dg-banner,.eh-banner{border-radius:18px;}
+
+/* Kaderkarten: Nummer als Marke, schraeg angeschnitten */
+.sf-tnr{border-radius:9px 9px 9px 2px;font-size:19px;letter-spacing:-.02em;}
+.sf-team{padding:16px 18px;}
+.sf-tsub{font-size:12px;}
+
+/* Diagnostikwerte: Zahl gross, Einheit angehaengt statt eigene Zeile */
+.pd-wert{background:none;border-left:2px solid #DCE3D6;border-radius:0;padding:2px 0 2px 11px;}
+.pd-wl{font-size:12px;color:#6B7A6E;}
+.pd-wl svg{display:none;}
+.pd-wv{font-size:23px;letter-spacing:-.03em;}
+.pd-wu{display:inline;margin-left:3px;font-size:11px;}
+.pd-werte{gap:14px 12px;}
+
+/* Grunddaten: Linien statt Kaesten */
+.pd-sk{background:none;border:0;border-top:2px solid #DCE3D6;border-radius:0;padding:11px 0 0;}
+.pd-sk span{font-size:12px;letter-spacing:0;text-transform:none;}
+.pd-sk b{font-size:17px;}
+.pd-stamm{gap:10px 20px;}
+
+/* Werkzeugzeile am Fuss zurueckhaltender */
+.sf-fuss a{border:0;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -917,7 +972,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <div class="sf-marke-t">WESTDEUTSCHER<br>HOCKEY-VERBAND</div>
         </div>
         <h1 class="sf-h1">Athletik</h1>
-        <p class="sf-sub">Landeskader Feld &middot; Saison 2026/27</p>
+        <p class="sf-sub">Landeskader Feld, Saison 2026/27</p>
       </div>
     </header>
 
@@ -926,40 +981,40 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <input type="search" id="whv-q" placeholder="Spieler suchen" autocomplete="off">
     </div>
 
-    <div class="sf-titel"><h2>Mannschaften Feld</h2><span>Kader, Anwesenheit und Termine</span></div>
+    <div class="sf-titel"><h2>Mannschaften Feld</h2><span>Kader und Termine</span></div>
     <div class="sf-teams">
-        <button class="sf-team" onclick="whvTeam('W13')"><span class="sf-tnr sf-tw">13</span><span><span class="sf-tname">U13 weiblich</span><span class="sf-tsub" id="sfc-W13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('W14')"><span class="sf-tnr sf-tw">14</span><span><span class="sf-tname">U14 weiblich</span><span class="sf-tsub" id="sfc-W14">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('W16')"><span class="sf-tnr sf-tw">16</span><span><span class="sf-tname">U16 weiblich</span><span class="sf-tsub" id="sfc-W16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('M13')"><span class="sf-tnr sf-tm">13</span><span><span class="sf-tname">U13 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M13">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('M14')"><span class="sf-tnr sf-tm">14</span><span><span class="sf-tname">U14 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M14">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('M16')"><span class="sf-tnr sf-tm">16</span><span><span class="sf-tname">U16 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M16">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('W13')"><span class="sf-tnr sf-tw">13</span><span><span class="sf-tname">U13 weiblich</span><span class="sf-tsub" id="sfc-W13">Kader</span></span><span class="sf-tpf"></span></button>
+        <button class="sf-team" onclick="whvTeam('W14')"><span class="sf-tnr sf-tw">14</span><span><span class="sf-tname">U14 weiblich</span><span class="sf-tsub" id="sfc-W14">Kader</span></span><span class="sf-tpf"></span></button>
+        <button class="sf-team" onclick="whvTeam('W16')"><span class="sf-tnr sf-tw">16</span><span><span class="sf-tname">U16 weiblich</span><span class="sf-tsub" id="sfc-W16">Kader</span></span><span class="sf-tpf"></span></button>
+        <button class="sf-team" onclick="whvTeam('M13')"><span class="sf-tnr sf-tm">13</span><span><span class="sf-tname">U13 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M13">Kader</span></span><span class="sf-tpf"></span></button>
+        <button class="sf-team" onclick="whvTeam('M14')"><span class="sf-tnr sf-tm">14</span><span><span class="sf-tname">U14 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M14">Kader</span></span><span class="sf-tpf"></span></button>
+        <button class="sf-team" onclick="whvTeam('M16')"><span class="sf-tnr sf-tm">16</span><span><span class="sf-tname">U16 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M16">Kader</span></span><span class="sf-tpf"></span></button>
     </div>
 
     <div class="sf-titel"><h2>Mannschaften Halle</h2><span>Wintersaison</span></div>
     <div class="sf-teams sf-teams2">
-        <button class="sf-team" onclick="whvTeam('WP')"><span class="sf-tnr sf-tw">P</span><span><span class="sf-tname">P-Kader weiblich</span><span class="sf-tsub" id="sfc-WP">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('W15')"><span class="sf-tnr sf-tw">15</span><span><span class="sf-tname">U15 weiblich</span><span class="sf-tsub" id="sfc-W15">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('MP')"><span class="sf-tnr sf-tm">P</span><span><span class="sf-tname">P-Kader m&auml;nnlich</span><span class="sf-tsub" id="sfc-MP">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
-        <button class="sf-team" onclick="whvTeam('M15')"><span class="sf-tnr sf-tm">15</span><span><span class="sf-tname">U15 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M15">Kader</span></span><span class="sf-tpf">&#8594;</span></button>
+        <button class="sf-team" onclick="whvTeam('WP')"><span class="sf-tnr sf-tw">P</span><span><span class="sf-tname">P-Kader weiblich</span><span class="sf-tsub" id="sfc-WP">Kader</span></span><span class="sf-tpf"></span></button>
+        <button class="sf-team" onclick="whvTeam('W15')"><span class="sf-tnr sf-tw">15</span><span><span class="sf-tname">U15 weiblich</span><span class="sf-tsub" id="sfc-W15">Kader</span></span><span class="sf-tpf"></span></button>
+        <button class="sf-team" onclick="whvTeam('MP')"><span class="sf-tnr sf-tm">P</span><span><span class="sf-tname">P-Kader m&auml;nnlich</span><span class="sf-tsub" id="sfc-MP">Kader</span></span><span class="sf-tpf"></span></button>
+        <button class="sf-team" onclick="whvTeam('M15')"><span class="sf-tnr sf-tm">15</span><span><span class="sf-tname">U15 m&auml;nnlich</span><span class="sf-tsub" id="sfc-M15">Kader</span></span><span class="sf-tpf"></span></button>
     </div>
 
-    <div class="sf-titel"><h2>Bereiche</h2><span>Alle Kader &uuml;bergreifend</span></div>
+    <div class="sf-titel"><h2>Bereiche</h2><span>Kader&uuml;bergreifend</span></div>
     <div class="sf-bereiche">
       <button class="sf-ber" onclick="goTo('profile')">
         <div class="sf-bico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
         <b>Spieler</b><small>Stammdaten, Werte und Notizen aller Kader</small>
-        <i>&Ouml;ffnen &#8594;</i>
+        <i>&Ouml;ffnen</i>
       </button>
       <button class="sf-ber" onclick="goTo('diagnostik')">
         <div class="sf-bico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
         <b>Diagnostiken</b><small>Testtage anlegen, importieren und vergleichen</small>
-        <i>&Ouml;ffnen &#8594;</i>
+        <i>&Ouml;ffnen</i>
       </button>
       <button class="sf-ber" onclick="goTo('einheiten')">
         <div class="sf-bico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></div>
         <b>Einheiten</b><small>Pl&auml;ne bauen und an Spieler weitergeben</small>
-        <i>&Ouml;ffnen &#8594;</i>
+        <i>&Ouml;ffnen</i>
       </button>
     </div>
 
@@ -1063,19 +1118,19 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <div class="eh-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
           <b>Einheit erstellen</b>
           <small>Neue Einheit oder Makrozyklus bauen, manuell oder generiert</small>
-          <i>&Ouml;ffnen &#8594;</i>
+          <i>&Ouml;ffnen</i>
         </button>
         <button class="eh-k" onclick="ehZeige('bibliothek')">
           <div class="eh-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M9 3v18"/></svg></div>
           <b>Einheiten-Bibliothek</b>
           <small id="eh-anz-plaene">Gespeicherte Pl&auml;ne und Bl&ouml;cke wiederverwenden</small>
-          <i>&Ouml;ffnen &#8594;</i>
+          <i>&Ouml;ffnen</i>
         </button>
         <button class="eh-k" onclick="ehZeige('uebungen')">
           <div class="eh-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
           <b>&Uuml;bungsbibliothek</b>
           <small id="eh-anz-uebungen">Alle &Uuml;bungen mit Grafik</small>
-          <i>&Ouml;ffnen &#8594;</i>
+          <i>&Ouml;ffnen</i>
         </button>
       </div>
     </div>
@@ -1250,7 +1305,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <div id="pv-list" style="max-width:960px;margin:0 auto;padding:24px;">
     <div class="pd-kopf">
       <div>
-        <p>KADER</p>
+        <p>Landeskader</p>
         <h2>Spielerprofile</h2>
       </div>
       <button id="btn-new-player" class="pd-neu">+ Neuer Spieler</button>
@@ -1650,7 +1705,7 @@ function whvSide(aktiv, mitWechsler) {
 
   var wechsler = '';
   if (mitWechsler) {
-    wechsler = '<div class="tv-switch"><small>MANNSCHAFT WECHSELN</small>'
+    wechsler = '<div class="tv-switch"><small>Mannschaft wechseln</small>'
       + '<select id="tv-switch" onchange="whvTeam(this.value)">'
       + '<optgroup label="Feld">'
       + '<option value="W13">U13 weiblich</option><option value="W14">U14 weiblich</option><option value="W16">U16 weiblich</option>'
@@ -1928,10 +1983,10 @@ function tmRender() {
       + '<div><b>' + wert + '</b><span>' + txt + '</span></div></div>';
   }
   document.getElementById('tm-stats').innerHTML =
-      karte(P_TEAM, k.length, 'IM KADER')
-    + karte(P_UP,   z.fit,    'FIT')
-    + karte(P_MED,  z.angeschlagen, 'ANGESCHLAGEN')
-    + karte(P_PLUS, z.verletzt,     'VERLETZT');
+      karte(P_TEAM, k.length, 'im Kader')
+    + karte(P_UP,   z.fit,    'fit')
+    + karte(P_MED,  z.angeschlagen, 'angeschlagen')
+    + karte(P_PLUS, z.verletzt,     'verletzt');
 
   var mitTest = k.filter(function(p) { return (p.diag || []).length > 0; }).length;
   var ds = document.getElementById('tm-diag-sub');
@@ -3678,11 +3733,11 @@ function plRenderStammdaten(p) {
     return '<div class="pd-sk"><span>' + titel + '</span>' + inhalt + '</div>';
   }
   box.innerHTML =
-      feld('GEBURTSDATUM', dt)
-    + feld('QUARTAL', q)
-    + feld('GROESSE', p.hgt, ' cm')
-    + feld('GEWICHT', p.wgt, ' kg')
-    + feld('VEREIN', p.verein)
+      feld('Geburtstag', dt)
+    + feld('Quartal', q)
+    + feld('Gr\u00f6\u00dfe', p.hgt, ' cm')
+    + feld('Gewicht', p.wgt, ' kg')
+    + feld('Verein', p.verein)
     + kaderFeld(p);
 }
 
@@ -3711,7 +3766,7 @@ function kaderAuswahl(titel, liste, wert, aktion, leer, zusatz) {
 function kaderFeld(p) {
   var phv = (p.phv === undefined || p.phv === null || p.phv === '')
     ? '<b class="leer">-</b>' : '<b>' + p.phv + '</b>';
-  return kaderAuswahl('MANNSCHAFT', WHV_FELD, p.team, 'plSetTeam', 'Keine', plKaderHinweis(p))
+  return kaderAuswahl('Mannschaft', WHV_FELD, p.team, 'plSetTeam', 'Keine', plKaderHinweis(p))
        + '<div class="pd-sk"><span>PHV</span>' + phv + '</div>';
 }
 
