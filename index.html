@@ -3709,8 +3709,10 @@ function kaderAuswahl(titel, liste, wert, aktion, leer, zusatz) {
 }
 
 function kaderFeld(p) {
+  var phv = (p.phv === undefined || p.phv === null || p.phv === '')
+    ? '<b class="leer">-</b>' : '<b>' + p.phv + '</b>';
   return kaderAuswahl('MANNSCHAFT', WHV_FELD, p.team, 'plSetTeam', 'Keine', plKaderHinweis(p))
-       + kaderAuswahl('HALLENKADER', WHV_HALLE, p.halle, 'plSetHalle', 'Keiner', '');
+       + '<div class="pd-sk"><span>PHV</span>' + phv + '</div>';
 }
 
 function plSetHalle(code) {
