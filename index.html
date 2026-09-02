@@ -954,6 +954,29 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 /* Werkzeugzeile am Fuss zurueckhaltender */
 .sf-fuss a{border:0;}
+
+.pe-karte{background:#fff;border:1px solid #E4EADE;border-radius:13px;padding:20px;margin-bottom:14px;}
+.pe-kopf{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.pe-kopf h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin:0;}
+.pe-kopf small{font-size:12px;color:#6B7A6E;display:block;margin-top:3px;font-weight:400;}
+.pe-wahl{background:#0E6B36;color:#fff;border:0;border-radius:9px;padding:9px 15px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.pe-wahl:hover{background:#0A5A2C;}
+.pe-weg{background:none;border:0;color:#D93025;font-family:inherit;font-size:12.5px;cursor:pointer;padding:0;}
+.pe-treffer{display:flex;align-items:center;gap:14px;padding:15px 16px;background:#F5F8F3;border-left:3px solid #57B84A;border-radius:10px;}
+.pe-treffer b{font-size:14.5px;font-weight:600;display:block;}
+.pe-treffer span{font-size:12.5px;color:#6B7A6E;display:block;margin-top:3px;}
+.pe-leer{padding:26px 18px;text-align:center;color:#6B7A6E;font-size:13.5px;border:1px dashed #DCE3D6;border-radius:10px;line-height:1.55;}
+
+.pe-overlay{position:fixed;inset:0;background:rgba(12,32,20,.45);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;}
+.pe-dialog{background:#fff;border-radius:15px;width:100%;max-width:440px;max-height:78vh;display:flex;flex-direction:column;overflow:hidden;}
+.pe-dkopf{padding:18px 20px;border-bottom:1px solid #E4EADE;display:flex;align-items:center;justify-content:space-between;}
+.pe-dkopf h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin:0;}
+.pe-dkopf button{background:none;border:0;font-size:20px;color:#6B7A6E;cursor:pointer;line-height:1;padding:0 4px;}
+.pe-dliste{overflow-y:auto;padding:10px;}
+.pe-opt{display:block;width:100%;text-align:left;background:none;border:0;border-radius:9px;padding:13px 14px;font-family:inherit;cursor:pointer;color:#12301F;}
+.pe-opt:hover{background:#F2F7EF;}
+.pe-opt b{font-size:14px;font-weight:600;display:block;}
+.pe-opt span{font-size:12px;color:#6B7A6E;display:block;margin-top:2px;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1349,6 +1372,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button id="ptab-diagnostik" class="pd-tab an"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg> Diagnostik</button>
       <button id="ptab-verletzungen" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5a4.9 4.9 0 0 1-7-7l6-6a4.9 4.9 0 0 1 7 7z"/><path d="M8.5 8.5l7 7"/></svg> Verletzungen</button>
       <button id="ptab-notizen" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg> Notizen</button>
+      <button id="ptab-einheiten" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Einheiten</button>
     </div>
 
     <div id="ptc-diagnostik">
@@ -1363,6 +1387,19 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <div class="pd-sec"><h3>Verletzungshistorie</h3></div>
       <div class="pd-leer">Noch nicht eingerichtet.</div>
     </div>
+    <div id="ptc-einheiten" style="display:none;">
+      <div class="pe-karte">
+        <div class="pe-kopf">
+          <div>
+            <h4>Empfohlene Einheit</h4>
+            <small id="pe-quelle">Noch nicht gesetzt</small>
+          </div>
+          <button class="pe-wahl" onclick="peWaehlen()">Einheit w&auml;hlen</button>
+        </div>
+        <div id="pe-inhalt"></div>
+      </div>
+    </div>
+
     <div id="ptc-notizen" style="display:none;">
       <div class="pd-sec"><h3>Notizen</h3></div>
       <textarea id="pv-notes" class="pd-notiz"></textarea>
@@ -3829,6 +3866,7 @@ function plOpen(id) {
     + (p.verein ? ' | ' + p.verein : '')
     + (p.team ? ' | ' + (WHV_LABEL[p.team] || p.team) : '');
   document.getElementById('pv-notes').value = p.notes || '';
+  peRender(p);
   plRenderVerlauf(p);
   plRenderStammdaten(p);
   plRenderStatus(p);
@@ -3837,7 +3875,7 @@ function plOpen(id) {
 }
 
 function plTabShow(tab) {
-  ['diagnostik','verletzungen','notizen'].forEach(function(t) {
+  ['diagnostik','verletzungen','einheiten','notizen'].forEach(function(t) {
     var c = document.getElementById('ptc-' + t);
     var b = document.getElementById('ptab-' + t);
     if (c) c.style.display = (t === tab ? 'block' : 'none');
@@ -3946,6 +3984,80 @@ function plRenderVerlauf(p) {
     + '<div class="pd-vgrid">' + karten + '</div></div>';
 }
 
+function peRender(p) {
+  var box = document.getElementById('pe-inhalt');
+  var q = document.getElementById('pe-quelle');
+  if (!box) return;
+  var e = p.empfehlung;
+  if (!e || !e.name) {
+    box.innerHTML = '<div class="pe-leer">Noch keine Einheit hinterlegt.<br>'
+      + 'W\u00e4hle eine aus der Bibliothek, bis die automatische Empfehlung aus den Testwerten kommt.</div>';
+    if (q) q.textContent = 'Noch nicht gesetzt';
+    return;
+  }
+  var dt = e.datum ? new Date(e.datum).toLocaleDateString('de-DE') : '';
+  box.innerHTML = '<div class="pe-treffer"><div style="flex:1;"><b>' + e.name + '</b>'
+    + '<span>' + (dt ? 'gesetzt am ' + dt : '') + '</span></div>'
+    + '<button class="pe-weg" onclick="peEntfernen()">Entfernen</button></div>';
+  if (q) q.textContent = e.quelle === 'auto' ? 'Automatisch aus den Testwerten' : 'Von Hand gew\u00e4hlt';
+}
+
+function peEntfernen() {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  p.empfehlung = null;
+  plSave();
+  plUpsert(p);
+  peRender(p);
+}
+
+function peSetzen(name, id) {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  p.empfehlung = { name: name, planId: id || '', datum: new Date().toISOString(), quelle: 'manuell' };
+  plSave();
+  plUpsert(p);
+  peSchliessen();
+  peRender(p);
+}
+
+function peSchliessen() {
+  var o = document.getElementById('pe-overlay');
+  if (o) o.remove();
+}
+
+function peWaehlen() {
+  peSchliessen();
+  var o = document.createElement('div');
+  o.id = 'pe-overlay';
+  o.className = 'pe-overlay';
+  o.innerHTML = '<div class="pe-dialog"><div class="pe-dkopf"><h4>Einheit w\u00e4hlen</h4>'
+    + '<button onclick="peSchliessen()">&times;</button></div>'
+    + '<div class="pe-dliste" id="pe-dliste">Wird geladen...</div></div>';
+  o.addEventListener('click', function(ev) { if (ev.target === o) peSchliessen(); });
+  document.body.appendChild(o);
+
+  fetch('/api/library?collection=plans').then(function(r){ return r.json(); }).then(function(d){
+    var items = (d && d.items) ? d.items : [];
+    var box = document.getElementById('pe-dliste');
+    if (!box) return;
+    if (items.length === 0) {
+      box.innerHTML = '<div class="pe-leer" style="border:0;">Die Bibliothek ist noch leer.<br>'
+        + 'Speichere eine Einheit im Generator, dann erscheint sie hier.</div>';
+      return;
+    }
+    box.innerHTML = items.map(function(it) {
+      var nm = (it.name || 'Ohne Namen').replace(/'/g, "\\'");
+      var dt = it.created_at ? new Date(it.created_at).toLocaleDateString('de-DE') : '';
+      return '<button class="pe-opt" onclick="peSetzen(\'' + nm + '\', \'' + (it.id || '') + '\')">'
+        + '<b>' + (it.name || 'Ohne Namen') + '</b><span>' + dt + '</span></button>';
+    }).join('');
+  }).catch(function(){
+    var box = document.getElementById('pe-dliste');
+    if (box) box.innerHTML = '<div class="pe-leer" style="border:0;">Bibliothek konnte nicht geladen werden.</div>';
+  });
+}
+
 function plRenderDiag(p) {
   var el = document.getElementById('pv-diag-list');
   if (!p.diag || p.diag.length === 0) {
@@ -4033,6 +4145,7 @@ document.addEventListener('DOMContentLoaded', function() {
   onId('ptab-diagnostik', 'click', function() { plTabShow('diagnostik'); });
   onId('ptab-verletzungen', 'click', function() { plTabShow('verletzungen'); });
   onId('ptab-notizen', 'click', function() { plTabShow('notizen'); });
+  onId('ptab-einheiten', 'click', function() { plTabShow('einheiten'); });
 
   // Delete player
   onId('btn-delete-player', 'click', function() {
