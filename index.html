@@ -1026,8 +1026,6 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sp-body svg{max-width:250px;} .sp-werte{width:100%;}}
 
 .sp-fazit{border-left:1px solid #EEF2EB;padding-left:26px;align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:18px;}
-.sp-gesamt b{display:block;font-family:'Archivo',sans-serif;font-weight:800;font-size:40px;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
-.sp-gesamt span{display:block;margin-top:5px;font-size:12px;color:#6B7A6E;}
 .sp-block h5{font-size:12px;font-weight:600;color:#6B7A6E;margin:0 0 7px;}
 .sp-tag{display:inline-block;margin:0 6px 6px 0;padding:5px 11px;border-radius:20px;font-size:12.5px;font-weight:600;}
 .sp-tag.plus{background:#EAF5E9;color:#1E7A3E;}
@@ -4240,11 +4238,6 @@ function spFazit(achsen) {
   var da = achsen.filter(function(x) { return x.punkte !== null; });
   if (da.length === 0) return '<div class="sp-fazit"></div>';
 
-  var summe = 0;
-  da.forEach(function(x) { summe += x.punkte; });
-  var gesamt = Math.round(summe / da.length);
-  var farbe = gesamt >= 60 ? '#1E9E52' : (gesamt <= 40 ? '#D93025' : '#12301F');
-
   var sortiert = da.slice().sort(function(a, b) { return b.punkte - a.punkte; });
   var stark = sortiert.filter(function(x) { return x.punkte >= 60; }).slice(0, 2);
   var schwach = sortiert.slice().reverse().filter(function(x) { return x.punkte <= 40; }).slice(0, 2);
@@ -4259,8 +4252,6 @@ function spFazit(achsen) {
   }
 
   return '<div class="sp-fazit">'
-    + '<div class="sp-gesamt"><b style="color:' + farbe + ';">' + gesamt + '</b>'
-    + '<span>Gesamt, ' + da.length + ' von 6 Werten</span></div>'
     + '<div class="sp-block"><h5>St\u00e4rken</h5>' + tags(stark, 'plus') + '</div>'
     + '<div class="sp-block"><h5>Entwicklungsfeld</h5>' + tags(schwach, 'minus') + '</div>'
     + '</div>';
