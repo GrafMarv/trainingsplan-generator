@@ -977,6 +977,32 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .pe-opt:hover{background:#F2F7EF;}
 .pe-opt b{font-size:14px;font-weight:600;display:block;}
 .pe-opt span{font-size:12px;color:#6B7A6E;display:block;margin-top:2px;}
+
+/* ===== Wechselansicht ===== */
+#wechsel-screen{display:none;min-height:100vh;background:#F7F8F4;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#12301F;}
+.wx-banner{position:relative;overflow:hidden;border-radius:18px;background:#0B4A28;padding:26px 28px 28px;margin-bottom:18px;}
+.wx-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(112deg,transparent 0%,transparent 56%,#1C7A3E 56%,#1C7A3E 70%,#57B84A 70%,#57B84A 86%,#8FC63D 86%);opacity:.95;}
+.wx-in{position:relative;z-index:2;max-width:620px;}
+.wx-back{background:none;border:0;color:#9FD4A8;font-family:inherit;font-size:13px;cursor:pointer;padding:0;margin-bottom:14px;}
+.cb-light .wx-h1,.wx-h1{font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:clamp(28px,4vw,42px);line-height:1;letter-spacing:-.03em;color:#fff;margin:0;}
+.wx-sub{margin-top:10px;font-size:14px;color:rgba(255,255,255,.78);}
+.wx-spalten{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+.wx-sp{background:#fff;border:1px solid #E4EADE;border-radius:13px;overflow:hidden;}
+.wx-sp.ziel{border-color:#0E6B36;background:#F7FBF5;}
+.wx-kopf{padding:14px 16px;border-bottom:1px solid #E4EADE;}
+.wx-kopf select{width:100%;padding:10px 12px;border:1px solid #DCE3D6;border-radius:9px;font-family:inherit;font-size:14px;background:#fff;color:#12301F;cursor:pointer;}
+.wx-kopf span{display:block;margin-top:7px;font-size:12px;color:#6B7A6E;}
+.wx-liste{padding:10px;min-height:220px;display:flex;flex-direction:column;gap:8px;}
+.wx-sp-karte{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid #E4EADE;border-radius:10px;background:#fff;cursor:grab;}
+.wx-sp-karte:active{cursor:grabbing;}
+.wx-sp-karte.zieht{opacity:.4;}
+.wx-init{width:32px;height:32px;flex:0 0 32px;border-radius:50%;background:#EDF4EA;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;color:#0E6B36;}
+.wx-nm{font-size:13.5px;font-weight:600;flex:1;min-width:0;}
+.wx-nm em{display:block;font-style:normal;font-size:11.5px;color:#6B7A6E;font-weight:400;margin-top:1px;}
+.wx-pf{background:none;border:0;color:#0E6B36;font-size:17px;cursor:pointer;padding:2px 5px;line-height:1;}
+.wx-leer{color:#8B978C;font-size:13px;text-align:center;padding:34px 12px;border:1px dashed #DCE3D6;border-radius:10px;}
+.wx-hinweis{background:#fff;border:1px solid #E4EADE;border-left:3px solid #8FC63D;border-radius:11px;padding:13px 16px;margin-bottom:16px;font-size:13px;color:#3F5145;line-height:1.55;}
+@media(max-width:760px){.wx-spalten{grid-template-columns:1fr;}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1004,7 +1030,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <input type="search" id="whv-q" placeholder="Spieler suchen" autocomplete="off">
     </div>
 
-    <div class="sf-titel"><h2>Mannschaften Feld</h2><span>Kader und Termine</span></div>
+    <div class="sf-titel"><h2>Mannschaften Feld</h2><span>Kader und Termine</span><a onclick="goTo('wechsel')" style="margin-left:auto;font-size:12.5px;color:#0E6B36;cursor:pointer;font-weight:600;">Spieler verschieben</a></div>
     <div class="sf-teams">
         <button class="sf-team" onclick="whvTeam('W13')"><span class="sf-tnr sf-tw">13</span><span><span class="sf-tname">U13 weiblich</span><span class="sf-tsub" id="sfc-W13">Kader</span></span><span class="sf-tpf"></span></button>
         <button class="sf-team" onclick="whvTeam('W14')"><span class="sf-tnr sf-tw">14</span><span><span class="sf-tname">U14 weiblich</span><span class="sf-tsub" id="sfc-W14">Kader</span></span><span class="sf-tpf"></span></button>
@@ -1168,6 +1194,44 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       </div>
       <div class="eh-chips" id="eh-chips"></div>
       <div class="eh-grid" id="eh-uegrid"></div>
+    </div>
+  </main>
+ </div>
+</div>
+
+<!-- WECHSEL SCREEN -->
+<div id="wechsel-screen">
+ <div class="tv">
+  <aside class="tv-side" id="side-wechsel"></aside>
+  <main class="tv-main">
+    <div class="wx-banner">
+      <div class="wx-in">
+        <button class="wx-back" onclick="goHome()">&#8592; Startseite</button>
+        <h1 class="wx-h1">Spieler verschieben</h1>
+        <p class="wx-sub">Zwei Kader nebeneinander, Spieler per Ziehen oder Pfeil umh&auml;ngen</p>
+      </div>
+    </div>
+
+    <div class="wx-hinweis">
+      Ein Zug in einen <b>Feldkader</b> verschiebt die feste Mannschaft, der Spieler verl&auml;sst seinen alten Feldkader.
+      Ein Zug in einen <b>Hallenkader</b> kommt zus&auml;tzlich dazu, die Feldmannschaft bleibt bestehen.
+    </div>
+
+    <div class="wx-spalten">
+      <div class="wx-sp" id="wx-sp-a">
+        <div class="wx-kopf">
+          <select id="wx-a" onchange="wxRender()"><optgroup label="Feld"><option value="W13" selected>U13 weiblich</option><option value="W14">U14 weiblich</option><option value="W16">U16 weiblich</option><option value="M13">U13 m&auml;nnlich</option><option value="M14">U14 m&auml;nnlich</option><option value="M16">U16 m&auml;nnlich</option></optgroup><optgroup label="Halle"><option value="WP">P-Kader weiblich</option><option value="W15">U15 weiblich</option><option value="MP">P-Kader m&auml;nnlich</option><option value="M15">U15 m&auml;nnlich</option></optgroup></select>
+          <span id="wx-anz-a"></span>
+        </div>
+        <div class="wx-liste" id="wx-liste-a"></div>
+      </div>
+      <div class="wx-sp" id="wx-sp-b">
+        <div class="wx-kopf">
+          <select id="wx-b" onchange="wxRender()"><optgroup label="Feld"><option value="W13">U13 weiblich</option><option value="W14" selected>U14 weiblich</option><option value="W16">U16 weiblich</option><option value="M13">U13 m&auml;nnlich</option><option value="M14">U14 m&auml;nnlich</option><option value="M16">U16 m&auml;nnlich</option></optgroup><optgroup label="Halle"><option value="WP">P-Kader weiblich</option><option value="W15">U15 weiblich</option><option value="MP">P-Kader m&auml;nnlich</option><option value="M15">U15 m&auml;nnlich</option></optgroup></select>
+          <span id="wx-anz-b"></span>
+        </div>
+        <div class="wx-liste" id="wx-liste-b"></div>
+      </div>
     </div>
   </main>
  </div>
@@ -1645,6 +1709,7 @@ function goTo(screen) {
   document.getElementById('trainingsdoku-screen').style.display = 'none';
   var _ts = document.getElementById('team-screen'); if (_ts) _ts.style.display = 'none';
   var _es = document.getElementById('einheiten-screen'); if (_es) _es.style.display = 'none';
+  var _ws = document.getElementById('wechsel-screen'); if (_ws) _ws.style.display = 'none';
   if (screen === 'generator' || screen === 'umbenenner') {
     const app = document.getElementById('app-screen');
     app.style.display = 'block';
@@ -1673,6 +1738,9 @@ function goTo(screen) {
     }
     if (screen === 'einheiten') {
       setTimeout(function(){ if(window.ehInit) ehInit(); }, 60);
+    }
+    if (screen === 'wechsel') {
+      setTimeout(function(){ if(window.wxInit) wxInit(); }, 60);
     }
   }
 }
@@ -1763,6 +1831,8 @@ function whvSideInit() {
   var p = document.getElementById('side-profile');
   var d = document.getElementById('side-diagnostik');
   var e = document.getElementById('side-einheiten');
+  var w = document.getElementById('side-wechsel');
+  if (w) w.innerHTML = whvSide('', false);
   if (t) t.innerHTML = whvSide('team', true);
   if (p) p.innerHTML = whvSide('profile', false);
   if (d) d.innerHTML = whvSide('diagnostik', false);
@@ -1928,6 +1998,81 @@ function ehRenderUebungen() {
   }).join('');
 }
 
+var WX_ZIEHT = null;
+
+function wxSeite(s) { return document.getElementById('wx-' + s).value; }
+
+function wxKarte(p, seite, ziel) {
+  var pf = seite === 'a' ? '&#8594;' : '&#8592;';
+  var alter = plAge(p.dob);
+  return '<div class="wx-sp-karte" draggable="true" data-id="' + p.id + '">'
+    + '<span class="wx-init">' + ((p.fn ? p.fn[0] : '') + (p.ln ? p.ln[0] : '')) + '</span>'
+    + '<span class="wx-nm">' + p.fn + ' ' + p.ln
+    + '<em>' + (alter ? alter + ' J.' : '') + (p.verein ? ' - ' + p.verein : '') + '</em></span>'
+    + '<button class="wx-pf" onclick="wxVerschiebe(\'' + p.id + '\', \'' + ziel + '\')">' + pf + '</button>'
+    + '</div>';
+}
+
+function wxRender() {
+  ['a','b'].forEach(function(seite) {
+    var code = wxSeite(seite);
+    var ziel = wxSeite(seite === 'a' ? 'b' : 'a');
+    var kader = PL.filter(function(p) { return whvGehoertZu(p, code); })
+                  .sort(function(x, y) { return String(x.ln || '').localeCompare(String(y.ln || '')); });
+    document.getElementById('wx-liste-' + seite).innerHTML = kader.length === 0
+      ? '<div class="wx-leer">Kein Spieler in diesem Kader</div>'
+      : kader.map(function(p) { return wxKarte(p, seite, ziel); }).join('');
+    document.getElementById('wx-anz-' + seite).textContent = kader.length + ' Spieler';
+  });
+  wxBindeZiehen();
+}
+
+function wxVerschiebe(id, ziel) {
+  var p = PL.find(function(x) { return x.id === id; });
+  if (!p || !ziel) return;
+  if (whvIstHalle(ziel)) { p.halle = ziel; } else { p.team = ziel; }
+  plSave();
+  plUpsert(p);
+  wxRender();
+}
+
+function wxBindeZiehen() {
+  Array.prototype.forEach.call(document.querySelectorAll('.wx-sp-karte'), function(el) {
+    el.addEventListener('dragstart', function(ev) {
+      WX_ZIEHT = el.getAttribute('data-id');
+      el.classList.add('zieht');
+      if (ev.dataTransfer) {
+        ev.dataTransfer.setData('text/plain', WX_ZIEHT);
+        ev.dataTransfer.effectAllowed = 'move';
+      }
+    });
+    el.addEventListener('dragend', function() { WX_ZIEHT = null; el.classList.remove('zieht'); });
+  });
+  ['a','b'].forEach(function(seite) {
+    var sp = document.getElementById('wx-sp-' + seite);
+    if (!sp || sp.getAttribute('data-gebunden')) return;
+    sp.setAttribute('data-gebunden', '1');
+    sp.addEventListener('dragover', function(ev) { ev.preventDefault(); sp.classList.add('ziel'); });
+    sp.addEventListener('dragleave', function() { sp.classList.remove('ziel'); });
+    sp.addEventListener('drop', function(ev) {
+      ev.preventDefault();
+      sp.classList.remove('ziel');
+      var id = WX_ZIEHT || (ev.dataTransfer && ev.dataTransfer.getData('text/plain'));
+      if (id) wxVerschiebe(id, wxSeite(seite));
+    });
+  });
+}
+
+function wxInit() {
+  if (!PL || PL.length === 0) {
+    fetch('/api/players').then(function(r){ return r.json(); }).then(function(d){
+      PL = (d && d.players) ? d.players : [];
+      plSave();
+      wxRender();
+    }).catch(function(){ wxRender(); });
+  } else { wxRender(); }
+}
+
 function whvToggleTeams(b) {
   var box = document.getElementById('whv-teams');
   if (!box) return;
@@ -1939,7 +2084,7 @@ function whvTeam(code) {
   PL_PENDING = null;
   TM_CUR = code;
   window.location.hash = 'team-' + code;
-  ['home','wissen','profile','diagnostik','app','trainingsdoku','einheiten'].forEach(function(s) {
+  ['home','wissen','profile','diagnostik','app','trainingsdoku','einheiten','wechsel'].forEach(function(s) {
     var el = document.getElementById(s + '-screen');
     if (el) el.style.display = 'none';
   });
@@ -2079,6 +2224,7 @@ function goHome() {
   document.getElementById('trainingsdoku-screen').style.display = 'none';
   var _t = document.getElementById('team-screen'); if (_t) _t.style.display = 'none';
   var _e = document.getElementById('einheiten-screen'); if (_e) _e.style.display = 'none';
+  var _w = document.getElementById('wechsel-screen'); if (_w) _w.style.display = 'none';
   if (window.whvHomeCounts) whvHomeCounts();
   PL_PENDING = null;
 }
@@ -2086,7 +2232,7 @@ function goHome() {
 // Hash router - on load and on hash change
 function handleHash() {
   var hash = window.location.hash.replace('#','');
-  var valid = ['wissen','generator','profile','diagnostik','trainingsdoku','einheiten'];
+  var valid = ['wissen','generator','profile','diagnostik','trainingsdoku','einheiten','wechsel'];
   if (hash.indexOf('team-') === 0) { whvTeam(hash.slice(5)); return; }
   if(hash && valid.indexOf(hash) > -1) {
     goTo(hash);
