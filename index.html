@@ -1008,8 +1008,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sp-kopf{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;}
 .sp-kopf h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin:0;}
 .sp-kopf span{font-size:12px;color:#6B7A6E;}
-.sp-body{display:grid;grid-template-columns:236px minmax(0,1fr);gap:24px;align-items:center;}
-.sp-body svg{display:block;width:100%;max-width:236px;height:auto;}
+.sp-body{display:grid;grid-template-columns:230px minmax(0,1fr);gap:26px;align-items:center;}
+.sp-body svg{display:block;}
 .sp-werte{display:flex;flex-direction:column;gap:2px;}
 .sp-z{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-top:1px solid #F0F4EE;}
 .sp-z:first-child{border-top:0;}
@@ -4085,8 +4085,8 @@ var SPINNE = [
   { k: 'speed',    l: 'Max Speed',       quellen: ['s30'],       klein: true  },
   { k: 'explosiv', l: 'Explosivkraft',   quellen: ['sw'],        klein: false },
   { k: 'ausdauer', l: 'Ausdauer',        quellen: ['ift'],       klein: false },
-  { k: 'rwechsel', l: 'Richtungswechsel',quellen: ['cr','cl'],   klein: true  },
-  { k: 'rotation', l: 'Rumpfrotation',   quellen: ['mr','ml'],   klein: false }
+  { k: 'rwechsel', l: 'Richtungsw.',    quellen: ['cr','cl'],   klein: true  },
+  { k: 'rotation', l: 'Rumpfrot.',      quellen: ['mr','ml'],   klein: false }
 ];
 
 // Mittelwert der Quellen eines Tests, null wenn keine Angabe
@@ -4155,7 +4155,7 @@ function plRenderProfil(p) {
     achsen.push({ a: a, punkte: punkte, wert: eigenWert, mittel: mittel });
   });
 
-  var mitte = 150, r = 92, n = achsen.length;
+  var mitte = 150, r = 84, n = achsen.length;
   function pos(idx, anteil) {
     var w = (-90 + idx * (360 / n)) * Math.PI / 180;
     return [mitte + Math.cos(w) * r * anteil, mitte + Math.sin(w) * r * anteil];
@@ -4189,12 +4189,12 @@ function plRenderProfil(p) {
 
   var schrift = '';
   achsen.forEach(function(x, idx) {
-    var c = pos(idx, 1.2);
+    var c = pos(idx, 1.26);
     var anker = 'middle';
     if (c[0] > mitte + 12) anker = 'start';
     if (c[0] < mitte - 12) anker = 'end';
     schrift += '<text x="' + c[0].toFixed(1) + '" y="' + (c[1] + 4).toFixed(1)
-      + '" text-anchor="' + anker + '" font-size="10.5" fill="#6B7A6E"'
+      + '" text-anchor="' + anker + '" font-size="13" fill="#6B7A6E"'
       + ' font-family="IBM Plex Sans, sans-serif">' + x.a.l + '</text>';
   });
 
@@ -4215,7 +4215,7 @@ function plRenderProfil(p) {
     + '<span>50 = Schnitt Jahrgang ' + jahr + ', ' + (plSex(p) === 'w' ? 'weiblich' : 'm\u00e4nnlich')
     + ' (n=' + gruppe.length + ')</span></div>'
     + '<div class="sp-body">'
-    + '<svg viewBox="0 0 300 300" role="img">'
+    + '<svg viewBox="0 0 300 300" width="210" height="210" role="img" style="width:210px;height:210px;max-width:100%;display:block;overflow:visible;">'
     + netz
     + '<polygon points="' + flaeche.join(' ') + '" fill="rgba(87,184,74,.22)" stroke="#0E6B36" stroke-width="2" stroke-linejoin="round"/>'
     + punkte + schrift
