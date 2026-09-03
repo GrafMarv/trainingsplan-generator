@@ -1015,8 +1015,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sp-z:first-child{border-top:0;}
 .sp-z b{font-size:12.5px;font-weight:600;flex:1;color:#3F5145;}
 .sp-z i{font-style:normal;font-size:12px;color:#8B978C;font-variant-numeric:tabular-nums;}
-.sp-z u{text-decoration:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;
-  font-variant-numeric:tabular-nums;min-width:30px;text-align:right;}
+.sp-z u{text-decoration:none;font-family:'Archivo',sans-serif;font-weight:700;font-size:13.5px;
+  font-variant-numeric:tabular-nums;min-width:84px;text-align:right;white-space:nowrap;}
 .sp-z u.hoch{color:#1E9E52;} .sp-z u.mitte{color:#6B7A6E;} .sp-z u.tief{color:#D93025;}
 .sp-leer{padding:24px 18px;text-align:center;color:#6B7A6E;font-size:13.5px;
   border:1px dashed #DCE3D6;border-radius:10px;line-height:1.55;}
@@ -4090,12 +4090,12 @@ var DIAG_KLEINER_BESSER = { s10:1, s30:1, cr:1, cl:1 };
 // Sechs Faehigkeiten aus der Testbatterie.
 // klein: kleinerer Messwert ist die bessere Leistung
 var SPINNE = [
-  { k: 'antritt',  l: 'Antritt',         quellen: ['s10'],       klein: true  },
-  { k: 'speed',    l: 'Max Speed',       quellen: ['s30'],       klein: true  },
-  { k: 'explosiv', l: 'Explosivkraft',   quellen: ['sw'],        klein: false },
-  { k: 'ausdauer', l: 'Ausdauer',        quellen: ['ift'],       klein: false },
-  { k: 'rwechsel', l: 'Richtungsw.',    quellen: ['cr','cl'],   klein: true  },
-  { k: 'rotation', l: 'Rumpfrot.',      quellen: ['mr','ml'],   klein: false }
+  { k: 'antritt',  l: 'Antritt',      quellen: ['s10'],     klein: true,  e: 's',    n: 2 },
+  { k: 'speed',    l: 'Max Speed',    quellen: ['s30'],     klein: true,  e: 's',    n: 2 },
+  { k: 'explosiv', l: 'Explosivkraft',quellen: ['sw'],      klein: false, e: 'm',    n: 2 },
+  { k: 'ausdauer', l: 'Ausdauer',     quellen: ['ift'],     klein: false, e: 'km/h', n: 1 },
+  { k: 'rwechsel', l: 'Richtungsw.',  quellen: ['cr','cl'], klein: true,  e: 's',    n: 2 },
+  { k: 'rotation', l: 'Rumpfrot.',    quellen: ['mr','ml'], klein: false, e: 'm',    n: 1 }
 ];
 
 // Mittelwert der Quellen eines Tests, null wenn keine Angabe
@@ -4129,6 +4129,12 @@ function spGruppe(p) {
     if (t) raus.push(t);
   });
   return raus;
+}
+
+function spAbstand(x) {
+  var diff = x.wert - x.mittel;
+  var vorz = diff > 0 ? '+' : (diff < 0 ? '\u2212' : '');
+  return vorz + Math.abs(diff).toFixed(x.a.n) + ' ' + x.a.e;
 }
 
 function plRenderProfil(p) {
@@ -4212,10 +4218,9 @@ function plRenderProfil(p) {
       return '<div class="sp-z"><b>' + x.a.l + '</b><i>kein Wert</i><u class="mitte">-</u></div>';
     }
     var stufe = x.punkte >= 60 ? 'hoch' : (x.punkte <= 40 ? 'tief' : 'mitte');
-    var stellen = x.a.klein ? 2 : 1;
     return '<div class="sp-z"><b>' + x.a.l + '</b>'
-      + '<i>' + x.wert.toFixed(stellen) + ' | \u00d8 ' + x.mittel.toFixed(stellen) + '</i>'
-      + '<u class="' + stufe + '">' + Math.round(x.punkte) + '</u></div>';
+      + '<i>' + x.wert.toFixed(x.a.n) + ' | \u00d8 ' + x.mittel.toFixed(x.a.n) + '</i>'
+      + '<u class="' + stufe + '">' + spAbstand(x) + '</u></div>';
   }).join('');
 
   var jahr = String(p.dob).slice(0, 4);
@@ -4247,7 +4252,7 @@ function spFazit(achsen) {
       return '<span class="sp-tag neutral">nichts auff\u00e4llig</span>';
     }
     return liste.map(function(x) {
-      return '<span class="sp-tag ' + art + '">' + x.a.l + ' ' + Math.round(x.punkte) + '</span>';
+      return '<span class="sp-tag ' + art + '">' + x.a.l + ' ' + spAbstand(x) + '</span>';
     }).join('');
   }
 
