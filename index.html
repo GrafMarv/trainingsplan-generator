@@ -1003,6 +1003,24 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .wx-leer{color:#8B978C;font-size:13px;text-align:center;padding:34px 12px;border:1px dashed #DCE3D6;border-radius:10px;}
 .wx-hinweis{background:#fff;border:1px solid #E4EADE;border-left:3px solid #8FC63D;border-radius:11px;padding:13px 16px;margin-bottom:16px;font-size:13px;color:#3F5145;line-height:1.55;}
 @media(max-width:760px){.wx-spalten{grid-template-columns:1fr;}}
+
+.sp-karte{background:#fff;border:1px solid #E4EADE;border-radius:14px;padding:20px;margin-bottom:16px;}
+.sp-kopf{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;}
+.sp-kopf h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin:0;}
+.sp-kopf span{font-size:12px;color:#6B7A6E;}
+.sp-body{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:20px;align-items:center;}
+.sp-body svg{display:block;width:100%;height:auto;}
+.sp-werte{display:flex;flex-direction:column;gap:2px;}
+.sp-z{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-top:1px solid #F0F4EE;}
+.sp-z:first-child{border-top:0;}
+.sp-z b{font-size:12.5px;font-weight:600;flex:1;color:#3F5145;}
+.sp-z i{font-style:normal;font-size:12px;color:#8B978C;font-variant-numeric:tabular-nums;}
+.sp-z u{text-decoration:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;
+  font-variant-numeric:tabular-nums;min-width:30px;text-align:right;}
+.sp-z u.hoch{color:#1E9E52;} .sp-z u.mitte{color:#6B7A6E;} .sp-z u.tief{color:#D93025;}
+.sp-leer{padding:24px 18px;text-align:center;color:#6B7A6E;font-size:13.5px;
+  border:1px dashed #DCE3D6;border-radius:10px;line-height:1.55;}
+@media(max-width:820px){.sp-body{grid-template-columns:1fr;}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1440,6 +1458,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <div id="ptc-diagnostik">
+      <div id="pv-profil"></div>
       <div id="pv-verlauf"></div>
       <div class="pd-sec">
         <h3>Diagnostikwerte</h3>
@@ -4013,6 +4032,7 @@ function plOpen(id) {
     + (p.team ? ' | ' + (WHV_LABEL[p.team] || p.team) : '');
   document.getElementById('pv-notes').value = p.notes || '';
   peRender(p);
+  plRenderProfil(p);
   plRenderVerlauf(p);
   plRenderStammdaten(p);
   plRenderStatus(p);
@@ -4056,6 +4076,152 @@ function plJahrgangSchnitt(p, key) {
 
 // Bei diesen Werten ist weniger besser
 var DIAG_KLEINER_BESSER = { s10:1, s30:1, cr:1, cl:1 };
+
+// Sechs Faehigkeiten aus der Testbatterie.
+// klein: kleinerer Messwert ist die bessere Leistung
+var SPINNE = [
+  { k: 'antritt',  l: 'Antritt',         quellen: ['s10'],       klein: true  },
+  { k: 'speed',    l: 'Max Speed',       quellen: ['s30'],       klein: true  },
+  { k: 'explosiv', l: 'Explosivkraft',   quellen: ['sw'],        klein: false },
+  { k: 'ausdauer', l: 'Ausdauer',        quellen: ['ift'],       klein: false },
+  { k: 'rwechsel', l: 'Richtungswechsel',quellen: ['cr','cl'],   klein: true  },
+  { k: 'rotation', l: 'Rumpfrotation',   quellen: ['mr','ml'],   klein: false }
+];
+
+// Mittelwert der Quellen eines Tests, null wenn keine Angabe
+function spWert(test, quellen) {
+  var w = [];
+  quellen.forEach(function(q) {
+    var v = parseFloat(test[q]);
+    if (!isNaN(v)) w.push(v);
+  });
+  if (w.length === 0) return null;
+  var s = 0; w.forEach(function(v){ s += v; });
+  return s / w.length;
+}
+
+function spLetzterTest(p) {
+  var d = (p.diag || []).slice().sort(function(a, b) {
+    return String(a.date).localeCompare(String(b.date));
+  });
+  return d.length ? d[d.length - 1] : null;
+}
+
+// Vergleichsgruppe: gleicher Jahrgang, gleiches Geschlecht, je Spieler sein letzter Test
+function spGruppe(p) {
+  if (!p.dob) return [];
+  var jahr = String(p.dob).slice(0, 4), sex = plSex(p);
+  var raus = [];
+  PL.forEach(function(x) {
+    if (!x.dob || String(x.dob).slice(0, 4) !== jahr) return;
+    if (plSex(x) !== sex) return;
+    var t = spLetzterTest(x);
+    if (t) raus.push(t);
+  });
+  return raus;
+}
+
+function plRenderProfil(p) {
+  var box = document.getElementById('pv-profil');
+  if (!box) return;
+  var eigen = spLetzterTest(p);
+  var gruppe = spGruppe(p);
+
+  if (!eigen) { box.innerHTML = ''; return; }
+  if (gruppe.length < 3) {
+    box.innerHTML = '<div class="sp-karte"><div class="sp-kopf"><h4>St\u00e4rkenprofil</h4></div>'
+      + '<div class="sp-leer">Zum Vergleich fehlen noch Spieler des gleichen Jahrgangs.<br>'
+      + 'Ab drei getesteten Spielern wird das Profil berechnet.</div></div>';
+    return;
+  }
+
+  var achsen = [];
+  SPINNE.forEach(function(a) {
+    var eigenWert = spWert(eigen, a.quellen);
+    var werte = [];
+    gruppe.forEach(function(t) {
+      var v = spWert(t, a.quellen);
+      if (v !== null) werte.push(v);
+    });
+    if (eigenWert === null || werte.length < 3) { achsen.push({ a: a, punkte: null }); return; }
+    var summe = 0; werte.forEach(function(v){ summe += v; });
+    var mittel = summe / werte.length;
+    var varianz = 0; werte.forEach(function(v){ varianz += (v - mittel) * (v - mittel); });
+    var streuung = Math.sqrt(varianz / werte.length);
+    var z = streuung > 0 ? (eigenWert - mittel) / streuung : 0;
+    if (a.klein) z = -z;
+    var punkte = Math.max(8, Math.min(96, 50 + z * 16));
+    achsen.push({ a: a, punkte: punkte, wert: eigenWert, mittel: mittel });
+  });
+
+  var mitte = 150, r = 92, n = achsen.length;
+  function pos(idx, anteil) {
+    var w = (-90 + idx * (360 / n)) * Math.PI / 180;
+    return [mitte + Math.cos(w) * r * anteil, mitte + Math.sin(w) * r * anteil];
+  }
+
+  var netz = '';
+  [0.25, 0.5, 0.75, 1].forEach(function(stufe) {
+    var pts = [];
+    for (var i = 0; i < n; i++) { var c = pos(i, stufe); pts.push(c[0].toFixed(1) + ',' + c[1].toFixed(1)); }
+    var jahrgangsring = (stufe === 0.5);
+    netz += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="'
+      + (jahrgangsring ? '#8FC63D' : '#E4EADE') + '" stroke-width="' + (jahrgangsring ? 1.4 : 1) + '"'
+      + (jahrgangsring ? ' stroke-dasharray="3 3"' : '') + '/>';
+  });
+  for (var i = 0; i < n; i++) {
+    var c = pos(i, 1);
+    netz += '<line x1="' + mitte + '" y1="' + mitte + '" x2="' + c[0].toFixed(1)
+      + '" y2="' + c[1].toFixed(1) + '" stroke="#E4EADE" stroke-width="1"/>';
+  }
+
+  var flaeche = [], punkte = '';
+  achsen.forEach(function(x, idx) {
+    var anteil = (x.punkte === null ? 0 : x.punkte / 100);
+    var c = pos(idx, anteil);
+    flaeche.push(c[0].toFixed(1) + ',' + c[1].toFixed(1));
+    if (x.punkte !== null) {
+      punkte += '<circle cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1)
+        + '" r="3.2" fill="#0E6B36"/>';
+    }
+  });
+
+  var schrift = '';
+  achsen.forEach(function(x, idx) {
+    var c = pos(idx, 1.2);
+    var anker = 'middle';
+    if (c[0] > mitte + 12) anker = 'start';
+    if (c[0] < mitte - 12) anker = 'end';
+    schrift += '<text x="' + c[0].toFixed(1) + '" y="' + (c[1] + 4).toFixed(1)
+      + '" text-anchor="' + anker + '" font-size="10.5" fill="#6B7A6E"'
+      + ' font-family="IBM Plex Sans, sans-serif">' + x.a.l + '</text>';
+  });
+
+  var liste = achsen.map(function(x) {
+    if (x.punkte === null) {
+      return '<div class="sp-z"><b>' + x.a.l + '</b><i>kein Wert</i><u class="mitte">-</u></div>';
+    }
+    var stufe = x.punkte >= 60 ? 'hoch' : (x.punkte <= 40 ? 'tief' : 'mitte');
+    var stellen = x.a.klein ? 2 : 1;
+    return '<div class="sp-z"><b>' + x.a.l + '</b>'
+      + '<i>' + x.wert.toFixed(stellen) + ' | \u00d8 ' + x.mittel.toFixed(stellen) + '</i>'
+      + '<u class="' + stufe + '">' + Math.round(x.punkte) + '</u></div>';
+  }).join('');
+
+  var jahr = String(p.dob).slice(0, 4);
+  box.innerHTML = '<div class="sp-karte">'
+    + '<div class="sp-kopf"><h4>St\u00e4rkenprofil</h4>'
+    + '<span>50 = Schnitt Jahrgang ' + jahr + ', ' + (plSex(p) === 'w' ? 'weiblich' : 'm\u00e4nnlich')
+    + ' (n=' + gruppe.length + ')</span></div>'
+    + '<div class="sp-body">'
+    + '<svg viewBox="0 0 300 300" role="img">'
+    + netz
+    + '<polygon points="' + flaeche.join(' ') + '" fill="rgba(87,184,74,.22)" stroke="#0E6B36" stroke-width="2" stroke-linejoin="round"/>'
+    + punkte + schrift
+    + '</svg>'
+    + '<div class="sp-werte">' + liste + '</div>'
+    + '</div></div>';
+}
 
 function plRenderVerlauf(p) {
   var box = document.getElementById('pv-verlauf');
