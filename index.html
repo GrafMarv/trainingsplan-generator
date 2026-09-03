@@ -1008,7 +1008,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sp-kopf{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:0 auto 10px;max-width:1090px;}
 .sp-kopf h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin:0;}
 .sp-kopf span{font-size:12px;color:#6B7A6E;}
-.sp-body{display:grid;grid-template-columns:320px minmax(300px,400px) minmax(190px,250px);gap:34px;align-items:center;justify-content:center;}
+.sp-body{display:grid;grid-template-columns:430px minmax(290px,380px) minmax(190px,240px);gap:30px;align-items:center;justify-content:center;}
 .sp-body svg{display:block;}
 .sp-werte{display:flex;flex-direction:column;gap:2px;}
 .sp-z{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-top:1px solid #F0F4EE;}
@@ -1020,7 +1020,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sp-z u.hoch{color:#1E9E52;} .sp-z u.mitte{color:#6B7A6E;} .sp-z u.tief{color:#D93025;}
 .sp-leer{padding:24px 18px;text-align:center;color:#6B7A6E;font-size:13.5px;
   border:1px dashed #DCE3D6;border-radius:10px;line-height:1.55;}
-@media(max-width:1240px){.sp-body{grid-template-columns:330px minmax(0,1fr);}
+@media(max-width:1340px){.sp-body{grid-template-columns:430px minmax(0,1fr);}
 .sp-fazit{grid-column:1/-1;}}
 @media(max-width:900px){.sp-body{grid-template-columns:1fr;justify-items:center;}
 .sp-body svg{max-width:250px;} .sp-werte{width:100%;}}
@@ -4229,7 +4229,7 @@ function plRenderProfil(p) {
     + '<span>50 = Schnitt Jahrgang ' + jahr + ', ' + (plSex(p) === 'w' ? 'weiblich' : 'm\u00e4nnlich')
     + ' (n=' + gruppe.length + ')</span></div>'
     + '<div class="sp-body">'
-    + '<svg viewBox="0 0 300 300" width="320" height="320" role="img" style="width:320px;height:320px;max-width:100%;display:block;overflow:visible;">'
+    + '<svg viewBox="0 0 300 300" width="430" height="430" role="img" style="width:430px;height:430px;max-width:100%;display:block;overflow:visible;">'
     + netz
     + '<polygon points="' + flaeche.join(' ') + '" fill="rgba(87,184,74,.22)" stroke="#0E6B36" stroke-width="2" stroke-linejoin="round"/>'
     + punkte + schrift
