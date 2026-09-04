@@ -1148,6 +1148,64 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .vl-fuss{padding:16px 22px;border-top:1px solid #E4EADE;display:flex;gap:10px;justify-content:flex-end;}
 .vl-abbr{background:none;border:1px solid #DCE3D6;border-radius:9px;padding:11px 18px;font-family:inherit;font-size:13.5px;cursor:pointer;color:#3F5145;}
 @media(max-width:860px){.vl-body{grid-template-columns:1fr;}}
+
+/* ===== Verletzungsdialog ===== */
+.vl-dialog{max-width:980px;border-radius:18px;}
+.vl-dkopf{padding:26px 30px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.vl-dkopf h4{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.02em;margin:0;color:#12301F;}
+.vl-dkopf p{margin:6px 0 0;font-size:14px;color:#8B978C;}
+.vl-x{background:none;border:0;cursor:pointer;padding:4px;color:#6B7A6E;line-height:0;}
+.vl-x svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.vl-body{padding:0 30px 24px;grid-template-columns:minmax(0,1fr) 400px;gap:22px;align-items:start;}
+.vl-box{border:1px solid #E4EADE;border-radius:14px;padding:22px 24px;}
+.vl-box>h5{font-family:'Archivo',sans-serif;font-weight:700;font-size:19px;margin:0;color:#12301F;}
+.vl-box>p.hint{margin:5px 0 18px;font-size:13.5px;color:#8B978C;}
+
+.vl-feld{margin-bottom:20px;}
+.vl-feld:last-child{margin-bottom:0;}
+.vl-feld label{font-size:13.5px;font-weight:600;color:#12301F;margin-bottom:9px;}
+.vl-eing{position:relative;}
+.vl-eing>svg{position:absolute;left:14px;top:14px;width:17px;height:17px;stroke:#9AA79C;fill:none;stroke-width:1.7;}
+.vl-feld input[type=text],.vl-feld textarea{background:#F7F9F6;border:1px solid #E4EADE;border-radius:11px;
+  padding:13px 14px 13px 42px;font-size:14px;}
+.vl-feld textarea{min-height:104px;padding-top:13px;}
+.vl-feld input::placeholder,.vl-feld textarea::placeholder{color:#9AA79C;}
+
+.vl-zwei{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.vl-opt{display:flex;align-items:center;gap:12px;padding:16px 18px;border:1px solid #E4EADE;border-radius:12px;
+  background:#F7F9F6;font-family:inherit;font-size:14.5px;color:#3F5145;cursor:pointer;text-align:left;}
+.vl-opt svg{width:20px;height:20px;flex:0 0 20px;stroke:#9AA79C;fill:none;stroke-width:1.7;}
+.vl-opt:hover{border-color:#B9D4B2;}
+.vl-opt.an{background:#F0F8EE;border-color:#57B84A;color:#0E6B36;font-weight:600;}
+.vl-opt.an svg{stroke:#0E6B36;}
+
+.vl-w{display:inline-flex;align-items:center;gap:8px;padding:11px 19px;border:1px solid #E4EADE;border-radius:24px;
+  background:#fff;font-size:14px;}
+.vl-w .hk{display:none;width:17px;height:17px;}
+.vl-w.an{background:#0E6B36;border-color:#0E6B36;}
+.vl-w.an .hk{display:block;}
+
+.vl-koerper{gap:18px;margin-top:4px;}
+.vl-fig small{font-size:13px;color:#3F5145;margin-top:10px;}
+.vl-z{fill:#E7EDE4;stroke:none;cursor:pointer;transition:fill .12s ease;}
+.vl-z:hover{fill:#C4DEBC;}
+.vl-z.an{fill:#0E6B36;}
+.vl-neutral{fill:#F1F5EF;stroke:none;}
+
+.vl-info{margin-top:20px;background:#F5F8F3;border-radius:12px;padding:16px 18px;display:flex;gap:12px;}
+.vl-info>svg{width:19px;height:19px;flex:0 0 19px;stroke:#8B978C;fill:none;stroke-width:1.7;margin-top:1px;}
+.vl-info b{display:block;font-size:14px;font-weight:600;color:#12301F;}
+.vl-info p{margin:5px 0 0;font-size:13px;color:#8B978C;line-height:1.5;}
+.vl-gewaehlt{margin-top:0;gap:7px;}
+.vl-g{padding:6px 12px;border-radius:20px;font-size:12.5px;background:#EDF4EA;color:#0E6B36;font-weight:600;cursor:pointer;}
+
+.vl-fuss{padding:20px 30px;border-top:1px solid #EEF2EB;background:#FBFCFA;}
+.vl-abbr{border-radius:11px;padding:13px 26px;font-size:14.5px;background:#fff;}
+.vl-speichern{display:inline-flex;align-items:center;gap:9px;background:#0E6B36;color:#fff;border:0;border-radius:11px;
+  padding:13px 26px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;}
+.vl-speichern:hover{background:#0A5A2C;}
+.vl-speichern svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2.2;}
+@media(max-width:900px){.vl-body{grid-template-columns:1fr;padding:0 18px 18px;}.vl-dkopf{padding:20px 18px 14px;}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -4623,20 +4681,20 @@ var VL_REGION = {
   kopf:'Kopf', hals:'Hals', rumpf:'Rumpf',
   oberarm_l:'Oberarm links', oberarm_r:'Oberarm rechts',
   unterarm_l:'Unterarm links', unterarm_r:'Unterarm rechts',
-  huefte_l:'Huefte links', huefte_r:'Huefte rechts',
+  huefte_l:'H\u00fcfte links', huefte_r:'H\u00fcfte rechts',
   os_vorne_l:'Oberschenkel vorne links', os_vorne_r:'Oberschenkel vorne rechts',
   os_innen_l:'Oberschenkel innen links', os_innen_r:'Oberschenkel innen rechts',
-  os_aussen_l:'Oberschenkel aussen links', os_aussen_r:'Oberschenkel aussen rechts',
+  os_aussen_l:'Oberschenkel au\u00dfen links', os_aussen_r:'Oberschenkel au\u00dfen rechts',
   os_hinten_l:'Oberschenkel hinten links', os_hinten_r:'Oberschenkel hinten rechts',
   knie_l:'Knie links', knie_r:'Knie rechts',
   wade_l:'Wade links', wade_r:'Wade rechts',
   sprung_l:'Sprunggelenk links', sprung_r:'Sprunggelenk rechts',
   zehen_l:'Zehen links', zehen_r:'Zehen rechts',
-  ruecken_oben_l:'Ruecken oben links', ruecken_oben_r:'Ruecken oben rechts',
-  ruecken_mitte_l:'Ruecken Mitte links', ruecken_mitte_r:'Ruecken Mitte rechts',
-  ruecken_unten_l:'Ruecken unten links', ruecken_unten_r:'Ruecken unten rechts'
+  ruecken_oben_l:'R\u00fccken oben links', ruecken_oben_r:'R\u00fccken oben rechts',
+  ruecken_mitte_l:'R\u00fccken Mitte links', ruecken_mitte_r:'R\u00fccken Mitte rechts',
+  ruecken_unten_l:'R\u00fccken unten links', ruecken_unten_r:'R\u00fccken unten rechts'
 };
-var VL_GEWEBE = { muskulaer:'Muskulaer', sehne:'Sehne', band:'Band', neuronal:'Neuronal' };
+var VL_GEWEBE = { muskulaer:'Muskul\u00e4r', sehne:'Sehne', band:'Band', neuronal:'Neuronal' };
 var VL_WAHL = { kontakt:'', regionen:[], gewebe:[] };
 
 function vlZone(id, form) {
@@ -4644,7 +4702,7 @@ function vlZone(id, form) {
     + ' onclick="vlRegion(\'' + id + '\')"><title>' + VL_REGION[id] + '</title></' + form.t + '>';
 }
 function r(x, y, w, hh, rx) {
-  return { t: 'rect', a: 'x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="' + (rx || 3) + '"' };
+  return { t: 'rect', a: 'x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="' + (rx || 3) * 2 + '"' };
 }
 function c(cx, cy, rr) { return { t: 'circle', a: 'cx="' + cx + '" cy="' + cy + '" r="' + rr + '"' }; }
 
@@ -4718,12 +4776,14 @@ function vlMarkiere() {
     el.setAttribute('class', 'vl-z' + (an ? ' an' : ''));
   });
   var box = document.getElementById('vl-gewaehlt');
+  var hin = document.getElementById('vl-hinweis');
+  var leer = VL_WAHL.regionen.length === 0;
+  if (hin) hin.style.display = leer ? 'flex' : 'none';
   if (box) {
-    box.innerHTML = VL_WAHL.regionen.length === 0
-      ? '<span style="font-size:12px;color:#8B978C;">Noch keine Region gewaehlt</span>'
-      : VL_WAHL.regionen.map(function(x) {
-          return '<span class="vl-g" onclick="vlRegion(\'' + x + '\')">' + VL_REGION[x] + ' &times;</span>';
-        }).join('');
+    box.style.marginTop = leer ? '0' : '20px';
+    box.innerHTML = leer ? '' : VL_WAHL.regionen.map(function(x) {
+      return '<span class="vl-g" onclick="vlRegion(\'' + x + '\')">' + VL_REGION[x] + ' &times;</span>';
+    }).join('');
   }
 }
 
@@ -4735,7 +4795,7 @@ function vlGewebe(w) {
 }
 function vlKnoepfe() {
   Array.prototype.forEach.call(document.querySelectorAll('[data-k]'), function(b) {
-    b.className = 'vl-w' + (VL_WAHL.kontakt === b.getAttribute('data-k') ? ' an' : '');
+    b.className = 'vl-opt' + (VL_WAHL.kontakt === b.getAttribute('data-k') ? ' an' : '');
   });
   Array.prototype.forEach.call(document.querySelectorAll('[data-g]'), function(b) {
     b.className = 'vl-w' + (VL_WAHL.gewebe.indexOf(b.getAttribute('data-g')) > -1 ? ' an' : '');
@@ -4745,47 +4805,80 @@ function vlKnoepfe() {
 function vlNeu() {
   VL_WAHL = { kontakt: '', regionen: [], gewebe: [] };
   peSchliessen();
+
+  var IK = {
+    x:    '<path d="M18 6L6 18M6 6l12 12"/>',
+    text: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/>',
+    kal:  '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    duo:  '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>',
+    stop: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+    arzt: '<path d="M6 3v6a5 5 0 0 0 10 0V3"/><path d="M6 3H4M16 3h2"/><circle cx="19" cy="16" r="2.5"/><path d="M11 14v.5a5.5 5.5 0 0 0 5.5 5.5"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+    hk:   '<path d="M4 12l5 5L20 6"/>'
+  };
+  function sv(p, kl) {
+    return '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"'
+      + (kl ? ' class="' + kl + '"' : '') + '>' + p + '</svg>';
+  }
+
   var o = document.createElement('div');
   o.id = 'pe-overlay';
   o.className = 'pe-overlay';
   var heute = new Date().toISOString().slice(0, 10);
+
   o.innerHTML = '<div class="vl-dialog">'
-    + '<div class="pe-dkopf"><h4>Verletzung eintragen</h4><button onclick="peSchliessen()">&times;</button></div>'
+    + '<div class="vl-dkopf"><div><h4>Verletzung eintragen</h4>'
+      + '<p>Alle relevanten Informationen zur Verletzung dokumentieren.</p></div>'
+      + '<button class="vl-x" onclick="peSchliessen()">' + sv(IK.x) + '</button></div>'
+
     + '<div class="vl-body">'
-      + '<div>'
-        + '<div class="vl-feld"><label>Bezeichnung (optional)</label>'
-        + '<input type="text" id="vl-name" placeholder="z.B. Zerrung hinterer Oberschenkel"></div>'
-        + '<div class="vl-feld"><label>Datum</label>'
-        + '<input type="text" id="vl-datum" value="' + heute + '" style="max-width:180px;"></div>'
-        + '<div class="vl-feld"><label>Entstehung</label><div class="vl-wahl">'
-          + '<button class="vl-w" data-k="mit" onclick="vlKontakt(\'mit\')">Mit Gegnerkontakt</button>'
-          + '<button class="vl-w" data-k="ohne" onclick="vlKontakt(\'ohne\')">Ohne Gegnerkontakt</button>'
+      + '<div class="vl-box">'
+        + '<div class="vl-feld"><label>Bezeichnung (optional)</label><div class="vl-eing">' + sv(IK.text)
+          + '<input type="text" id="vl-name" placeholder="z.B. Zerrung hinterer Oberschenkel"></div></div>'
+
+        + '<div class="vl-feld"><label>Datum</label><div class="vl-eing" style="max-width:230px;">' + sv(IK.kal)
+          + '<input type="text" id="vl-datum" value="' + heute + '"></div></div>'
+
+        + '<div class="vl-feld"><label>Entstehung</label><div class="vl-zwei">'
+          + '<button class="vl-opt" data-k="mit" onclick="vlKontakt(\'mit\')">' + sv(IK.duo)
+            + '<span>Mit Gegnerkontakt</span></button>'
+          + '<button class="vl-opt" data-k="ohne" onclick="vlKontakt(\'ohne\')">' + sv(IK.stop)
+            + '<span>Ohne Gegnerkontakt</span></button>'
         + '</div></div>'
-        + '<div class="vl-feld"><label>Art (mehrere moeglich)</label><div class="vl-wahl">'
+
+        + '<div class="vl-feld"><label>Art (mehrere m\u00f6glich)</label><div class="vl-wahl">'
           + Object.keys(VL_GEWEBE).map(function(k) {
               return '<button class="vl-w" data-g="' + k + '" onclick="vlGewebe(\'' + k + '\')">'
-                + VL_GEWEBE[k] + '</button>';
+                + sv(IK.hk, 'hk') + '<span>' + VL_GEWEBE[k] + '</span></button>';
             }).join('')
         + '</div></div>'
-        + '<div class="vl-feld"><label>Aerztliche Diagnose (optional)</label>'
-        + '<input type="text" id="vl-diagnose" placeholder="Befund, Arzt, Datum"></div>'
-        + '<div class="vl-feld"><label>Notizen</label><textarea id="vl-notiz"></textarea></div>'
+
+        + '<div class="vl-feld"><label>\u00c4rztliche Diagnose (optional)</label><div class="vl-eing">' + sv(IK.arzt)
+          + '<input type="text" id="vl-diagnose" placeholder="Befund, Arzt, Datum"></div></div>'
+
+        + '<div class="vl-feld"><label>Notizen</label><div class="vl-eing">' + sv(IK.text)
+          + '<textarea id="vl-notiz" placeholder="Weitere Hinweise, Reha, Einschr\u00e4nkungen ..."></textarea></div></div>'
       + '</div>'
-      + '<div>'
-        + '<label style="display:block;font-size:12px;font-weight:600;color:#3F5145;margin-bottom:10px;">'
-        + 'Koerperregion (mehrere moeglich)</label>'
+
+      + '<div class="vl-box">'
+        + '<h5>K\u00f6rperregion</h5><p class="hint">Eine oder mehrere Regionen markieren.</p>'
         + '<div class="vl-koerper">'
-          + '<div class="vl-fig"><svg viewBox="0 0 160 280" width="150" height="262">' + vlVorne()
+          + '<div class="vl-fig"><svg viewBox="0 0 160 280" width="158" height="277">' + vlVorne()
           + '</svg><small>Vorne</small></div>'
-          + '<div class="vl-fig"><svg viewBox="0 0 160 280" width="150" height="262">' + vlHinten()
+          + '<div class="vl-fig"><svg viewBox="0 0 160 280" width="158" height="277">' + vlHinten()
           + '</svg><small>Hinten</small></div>'
         + '</div>'
+        + '<div id="vl-hinweis" class="vl-info">' + sv(IK.info)
+          + '<div><b>Noch keine Region gew\u00e4hlt</b>'
+          + '<p>Klicke auf die K\u00f6rperbereiche, um eine oder mehrere Regionen zu markieren.</p></div></div>'
         + '<div class="vl-gewaehlt" id="vl-gewaehlt"></div>'
       + '</div>'
     + '</div>'
+
     + '<div class="vl-fuss"><button class="vl-abbr" onclick="peSchliessen()">Abbrechen</button>'
-    + '<button class="pd-neu" onclick="vlSpeichern()">Verletzung speichern</button></div>'
+    + '<button class="vl-speichern" onclick="vlSpeichern()">' + sv(IK.hk) + 'Verletzung speichern</button></div>'
     + '</div>';
+
   o.addEventListener('click', function(ev) { if (ev.target === o) peSchliessen(); });
   document.body.appendChild(o);
   vlMarkiere();
@@ -4794,7 +4887,7 @@ function vlNeu() {
 function vlSpeichern() {
   var p = PL.find(function(x) { return x.id === PL_CUR; });
   if (!p) return;
-  if (VL_WAHL.regionen.length === 0) { alert('Bitte mindestens eine Koerperregion waehlen.'); return; }
+  if (VL_WAHL.regionen.length === 0) { alert('Bitte mindestens eine K\u00f6rperregion w\u00e4hlen.'); return; }
   var e = {
     id: 'v_' + Date.now(),
     datum: document.getElementById('vl-datum').value || new Date().toISOString().slice(0, 10),
