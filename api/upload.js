@@ -15,25 +15,40 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Kein Bildinhalt' });
     }
 
-    const response = await fetch(
-      `https://api.github.com/repos/GrafMarv/trainingsplan-generator/contents/exercises/${filename}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: `neue übung: ${filename}`,
-          content: imageBase64
-        })
-      }
-    );
+    const url = `https://api.github.com/repos/GrafMarv/trainingsplan-generator/contents/exercises/${filename}`;
+    const ghHeaders = {
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'coaching-brain'
+    };
+
+    // Beim Ersetzen verlangt GitHub die aktuelle SHA der Datei.
+    let sha = null;
+    const vorhanden = await fetch(url + '?ref=main', { headers: ghHeaders });
+    if (vorhanden.ok) {
+      const info = await vorhanden.json();
+      sha = info.sha || null;
+    }
+
+    const nutzlast = {
+      message: sha ? `bild ersetzt: ${filename}` : `neue uebung: ${filename}`,
+      content: imageBase64,
+      branch: 'main'
+    };
+    if (sha) nutzlast.sha = sha;
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: ghHeaders,
+      body: JSON.stringify(nutzlast)
+    });
 
     if (!response.ok) {
-      const err = await response.json();
-      return res.status(500).json({ error: err.message });
+      let text = '';
+      try { const err = await response.json(); text = err.message || JSON.stringify(err); }
+      catch (e) { text = await response.text(); }
+      return res.status(500).json({ error: 'GitHub ' + response.status + ': ' + text, ersetzt: !!sha });
     }
 
     const result = await response.json();
