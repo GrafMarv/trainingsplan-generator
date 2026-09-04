@@ -1206,6 +1206,29 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .vl-speichern:hover{background:#0A5A2C;}
 .vl-speichern svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2.2;}
 @media(max-width:900px){.vl-body{grid-template-columns:1fr;padding:0 18px 18px;}.vl-dkopf{padding:20px 18px 14px;}}
+
+.eh-ue{cursor:pointer;transition:border-color .12s ease;}
+.eh-ue:hover{border-color:#0E6B36;}
+.ub-dialog{background:#fff;border-radius:18px;width:100%;max-width:720px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+.ub-body{overflow-y:auto;padding:0 28px 22px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:24px;align-items:start;}
+.ub-bild{border:1px solid #E4EADE;border-radius:13px;overflow:hidden;background:#F5F8F3;}
+.ub-bild img{width:100%;height:186px;object-fit:contain;display:block;}
+.ub-kein{height:186px;display:flex;align-items:center;justify-content:center;color:#9AA79C;font-size:13px;}
+.ub-tausch{width:100%;margin-top:10px;padding:11px;border:1px solid #DCE3D6;border-radius:10px;background:#fff;
+  font-family:inherit;font-size:13.5px;font-weight:600;color:#12301F;cursor:pointer;}
+.ub-tausch:hover{border-color:#57B84A;}
+.ub-quelle{font-size:11.5px;color:#8B978C;margin-top:8px;word-break:break-all;line-height:1.4;}
+.ub-wahl{display:flex;gap:8px;margin-top:10px;}
+.ub-wahl button{flex:1;padding:10px;border:1px solid #DCE3D6;border-radius:9px;background:#fff;
+  font-family:inherit;font-size:12.5px;cursor:pointer;color:#3F5145;}
+.ub-wahl button:hover{border-color:#57B84A;}
+.ub-galerie{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;
+  max-height:320px;overflow-y:auto;margin-top:12px;padding:2px;}
+.ub-gz{border:1px solid #E4EADE;border-radius:9px;overflow:hidden;cursor:pointer;background:#F5F8F3;}
+.ub-gz:hover{border-color:#0E6B36;}
+.ub-gz img{width:100%;height:64px;object-fit:contain;display:block;}
+.ub-gz span{display:block;padding:5px 6px;font-size:10px;color:#6B7A6E;line-height:1.25;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2154,12 +2177,181 @@ function ehTags(id) {
   return String(id).split('_').slice(1);
 }
 
+var EH_META = {};
+var UB_AKTUELL = null;
+
+function ehLadeMeta(fertig) {
+  fetch('/api/library?collection=exercises').then(function(r){ return r.json(); }).then(function(d){
+    EH_META = {};
+    ((d && d.items) || []).forEach(function(x) { EH_META[x.ex_id] = x; });
+    if (fertig) fertig();
+  }).catch(function(){ if (fertig) fertig(); });
+}
+
+function ehAnzeige(id) {
+  var m = EH_META[id] || {};
+  return {
+    name: m.name || ehName(id),
+    kategorie: m.kategorie || (ehTags(id)[0] || ''),
+    bild: m.image_key || id
+  };
+}
+
+function ubOeffnen(id) {
+  UB_AKTUELL = id;
+  var a = ehAnzeige(id);
+  peSchliessen();
+  var o = document.createElement('div');
+  o.id = 'pe-overlay';
+  o.className = 'pe-overlay';
+  o.innerHTML = '<div class="ub-dialog">'
+    + '<div class="vl-dkopf"><div><h4>' + a.name + '</h4>'
+      + '<p>Name, Kategorie und Bild dieser \u00dcbung anpassen.</p></div>'
+      + '<button class="vl-x" onclick="peSchliessen()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'
+    + '<div class="ub-body">'
+      + '<div>'
+        + '<div class="ub-bild" id="ub-vorschau"></div>'
+        + '<button class="ub-tausch" onclick="ubTauschen()">Bild austauschen</button>'
+        + '<div class="ub-quelle" id="ub-quelle"></div>'
+        + '<div id="ub-tauschbereich"></div>'
+      + '</div>'
+      + '<div>'
+        + '<div class="vl-feld"><label>Name</label>'
+          + '<input type="text" id="ub-name" value="' + a.name.replace(/"/g, '&quot;') + '"'
+          + ' style="padding-left:14px;"></div>'
+        + '<div class="vl-feld"><label>Kategorie</label>'
+          + '<input type="text" id="ub-kat" value="' + a.kategorie + '" list="ub-katliste"'
+          + ' style="padding-left:14px;">'
+          + '<datalist id="ub-katliste">'
+          + ['strength','mobility','sprint','jump','agility','misc'].map(function(k) {
+              return '<option value="' + k + '">'; }).join('')
+          + '</datalist></div>'
+        + '<div class="vl-feld"><label>Dateischl\u00fcssel</label>'
+          + '<input type="text" value="' + id + '" disabled'
+          + ' style="padding-left:14px;background:#F1F4EF;color:#8B978C;"></div>'
+        + '<p style="font-size:12.5px;color:#8B978C;line-height:1.5;margin:0;">'
+          + 'Der Dateischl\u00fcssel bleibt unver\u00e4ndert, damit gespeicherte Pl\u00e4ne '
+          + 'diese \u00dcbung weiterhin finden. Name und Kategorie sind nur die Anzeige.</p>'
+      + '</div>'
+    + '</div>'
+    + '<div class="vl-fuss">'
+      + '<button class="vl-abbr" onclick="ubZuruecksetzen()">Auf Standard zur\u00fccksetzen</button>'
+      + '<button class="vl-speichern" onclick="ubSpeichern()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>Speichern</button>'
+    + '</div></div>';
+  o.addEventListener('click', function(ev) { if (ev.target === o) peSchliessen(); });
+  document.body.appendChild(o);
+  ubVorschau(a.bild);
+}
+
+function ubVorschau(key) {
+  var v = document.getElementById('ub-vorschau');
+  var q = document.getElementById('ub-quelle');
+  if (!v) return;
+  v.setAttribute('data-key', key || '');
+  v.innerHTML = key
+    ? '<img src="/exercises/' + key + '.png" alt="" onerror="this.parentNode.innerHTML=\'<div class=&quot;ub-kein&quot;>Kein Bild vorhanden</div>\'">'
+    : '<div class="ub-kein">Kein Bild vorhanden</div>';
+  if (q) q.textContent = key && key !== UB_AKTUELL ? 'Bild von: ' + key : '';
+}
+
+function ubTauschen() {
+  var box = document.getElementById('ub-tauschbereich');
+  if (!box) return;
+  if (box.innerHTML) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div class="ub-wahl">'
+    + '<button onclick="ubDatei()">Neues Bild hochladen</button>'
+    + '<button onclick="ubGalerie()">Vorhandenes w\u00e4hlen</button></div>'
+    + '<input type="file" id="ub-datei" accept="image/png,image/jpeg" style="display:none;">'
+    + '<div id="ub-galerie"></div>';
+  var f = document.getElementById('ub-datei');
+  f.addEventListener('change', function() {
+    var d = f.files && f.files[0];
+    if (!d) return;
+    var leser = new FileReader();
+    leser.onload = function() {
+      var b64 = String(leser.result).split(',')[1];
+      var btn = document.querySelector('.ub-tausch');
+      if (btn) btn.textContent = 'Wird hochgeladen ...';
+      fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: UB_AKTUELL + '.png', imageBase64: b64 })
+      }).then(function(r){ return r.json(); }).then(function(res) {
+        if (btn) btn.textContent = 'Bild austauschen';
+        if (res.error) { alert('Upload fehlgeschlagen: ' + res.error); return; }
+        ubVorschau(UB_AKTUELL + '?v=' + Date.now());
+        ubVorschau(UB_AKTUELL);
+        alert('Bild hochgeladen. Es kann eine Minute dauern, bis es \u00fcberall erscheint.');
+        document.getElementById('ub-tauschbereich').innerHTML = '';
+      }).catch(function(e) {
+        if (btn) btn.textContent = 'Bild austauschen';
+        alert('Upload fehlgeschlagen: ' + e);
+      });
+    };
+    leser.readAsDataURL(d);
+  });
+}
+
+function ubDatei() { document.getElementById('ub-datei').click(); }
+
+function ubGalerie() {
+  var g = document.getElementById('ub-galerie');
+  if (!g) return;
+  if (g.innerHTML) { g.innerHTML = ''; return; }
+  g.innerHTML = '<div class="ub-galerie">' + EH_UEBUNGEN.map(function(x) {
+    return '<div class="ub-gz" onclick="ubBildWaehlen(\'' + x + '\')">'
+      + '<img src="/exercises/' + x + '.png" alt="" loading="lazy">'
+      + '<span>' + ehName(x) + '</span></div>';
+  }).join('') + '</div>';
+}
+
+function ubBildWaehlen(key) {
+  ubVorschau(key);
+  var g = document.getElementById('ub-galerie');
+  if (g) g.innerHTML = '';
+  var b = document.getElementById('ub-tauschbereich');
+  if (b) b.innerHTML = '';
+}
+
+function ubSpeichern() {
+  var v = document.getElementById('ub-vorschau');
+  var koerper = {
+    ex_id: UB_AKTUELL,
+    name: document.getElementById('ub-name').value.trim(),
+    kategorie: document.getElementById('ub-kat').value.trim(),
+    image_key: v ? (v.getAttribute('data-key') || '') : ''
+  };
+  fetch('/api/library?collection=exercises', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(koerper)
+  }).then(function(r){ return r.json(); }).then(function(res) {
+    if (res.error) { alert('Speichern fehlgeschlagen: ' + res.error); return; }
+    EH_META[UB_AKTUELL] = { ex_id: UB_AKTUELL, name: koerper.name,
+      kategorie: koerper.kategorie, image_key: koerper.image_key };
+    peSchliessen();
+    ehChips(); ehRenderUebungen();
+  }).catch(function(e) { alert('Speichern fehlgeschlagen: ' + e); });
+}
+
+function ubZuruecksetzen() {
+  if (!confirm('Name, Kategorie und Bildzuordnung auf den Standard zur\u00fccksetzen?')) return;
+  fetch('/api/library?collection=exercises&id=' + encodeURIComponent(UB_AKTUELL), { method: 'DELETE' })
+    .then(function(){
+      delete EH_META[UB_AKTUELL];
+      peSchliessen();
+      ehChips(); ehRenderUebungen();
+    }).catch(function(e){ alert('Fehlgeschlagen: ' + e); });
+}
+
 function ehLadeUebungen() {
-  if (EH_UEBUNGEN.length > 0) { ehChips(); ehRenderUebungen(); return; }
+  if (EH_UEBUNGEN.length > 0) { ehLadeMeta(function(){ ehChips(); ehRenderUebungen(); }); return; }
   document.getElementById('eh-uegrid').innerHTML = '<div class="eh-leer" style="grid-column:1/-1;">Wird geladen...</div>';
   fetch('/api/exercises').then(function(r){ return r.json(); }).then(function(d){
     EH_UEBUNGEN = (d && d.exercises) ? d.exercises : [];
-    ehChips(); ehRenderUebungen();
+    ehLadeMeta(function(){ ehChips(); ehRenderUebungen(); });
   }).catch(function(){
     document.getElementById('eh-uegrid').innerHTML =
       '<div class="eh-leer" style="grid-column:1/-1;">\u00dcbungen konnten nicht geladen werden.</div>';
@@ -2169,8 +2361,8 @@ function ehLadeUebungen() {
 function ehChips() {
   var kat = {};
   EH_UEBUNGEN.forEach(function(id) {
-    var t = ehTags(id);
-    if (t[0]) kat[t[0]] = (kat[t[0]] || 0) + 1;
+    var k2 = ehAnzeige(id).kategorie;
+    if (k2) kat[k2] = (kat[k2] || 0) + 1;
   });
   var keys = Object.keys(kat).sort();
   document.getElementById('eh-chips').innerHTML =
@@ -2191,7 +2383,7 @@ function ehSetKat(k) {
 function ehRenderUebungen() {
   var q = (document.getElementById('eh-q').value || '').toLowerCase().trim();
   var liste = EH_UEBUNGEN.filter(function(id) {
-    if (EH_KAT && ehTags(id)[0] !== EH_KAT) return false;
+    if (EH_KAT && ehAnzeige(id).kategorie !== EH_KAT) return false;
     if (q && id.indexOf(q.replace(/ /g, '-')) === -1 && id.indexOf(q) === -1) return false;
     return true;
   });
@@ -2201,9 +2393,12 @@ function ehRenderUebungen() {
     return;
   }
   g.innerHTML = liste.map(function(id) {
-    return '<div class="eh-ue">'
-      + '<img src="/exercises/' + id + '.png" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
-      + '<div class="eh-ue-t"><b>' + ehName(id) + '</b><span>' + ehTags(id).join(' \u00b7 ') + '</span></div>'
+    var a = ehAnzeige(id);
+    var geaendert = !!EH_META[id];
+    return '<div class="eh-ue" onclick="ubOeffnen(\'' + id + '\')">'
+      + '<img src="/exercises/' + a.bild + '.png" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+      + '<div class="eh-ue-t"><b>' + a.name + '</b><span>' + a.kategorie
+      + (geaendert ? ' \u00b7 angepasst' : '') + '</span></div>'
       + '</div>';
   }).join('');
 }
