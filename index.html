@@ -1229,6 +1229,39 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .ub-gz img{width:100%;height:64px;object-fit:contain;display:block;}
 .ub-gz span{display:block;padding:5px 6px;font-size:10px;color:#6B7A6E;line-height:1.25;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.eh-plan{display:block;padding:0;overflow:hidden;}
+.eh-pkopf{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;}
+.eh-pkopf:hover{background:#FAFCF9;}
+.eh-pnr{width:34px;height:34px;flex:0 0 34px;border-radius:9px;background:#EDF4EA;display:flex;
+  align-items:center;justify-content:center;color:#0E6B36;}
+.eh-pnr svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.eh-pt{flex:1;min-width:0;}
+.eh-pt b{font-size:14.5px;font-weight:600;display:block;}
+.eh-pt span{font-size:12.5px;color:#6B7A6E;display:block;margin-top:2px;}
+.eh-pchev{color:#0E6B36;font-size:15px;transition:transform .15s ease;}
+.eh-plan.auf .eh-pchev{transform:rotate(90deg);}
+.eh-pinhalt{display:none;border-top:1px solid #EEF2EB;padding:16px 18px 18px;background:#FBFCFA;}
+.eh-plan.auf .eh-pinhalt{display:block;}
+.eh-block{margin-bottom:18px;}
+.eh-block:last-child{margin-bottom:0;}
+.eh-bl{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.eh-bl b{font-size:13px;font-weight:600;}
+.eh-bl i{font-style:normal;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:20px;
+  background:#EDF4EA;color:#0E6B36;}
+.eh-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:9px;}
+.eh-slot{background:#fff;border:1px solid #E4EADE;border-radius:10px;overflow:hidden;}
+.eh-slot img{width:100%;height:74px;object-fit:contain;background:#F5F8F3;display:block;}
+.eh-st{padding:9px 11px;}
+.eh-st b{display:block;font-size:12.5px;font-weight:600;line-height:1.3;}
+.eh-st u{text-decoration:none;display:block;margin-top:4px;font-size:11.5px;color:#0E6B36;font-weight:600;
+  font-variant-numeric:tabular-nums;}
+.eh-st span{display:block;margin-top:3px;font-size:11px;color:#8B978C;line-height:1.4;}
+.eh-pakt{display:flex;gap:9px;margin-top:16px;padding-top:14px;border-top:1px solid #EEF2EB;}
+.eh-pakt button{padding:9px 15px;border:1px solid #DCE3D6;border-radius:9px;background:#fff;
+  font-family:inherit;font-size:12.5px;cursor:pointer;color:#3F5145;}
+.eh-pakt button:hover{border-color:#57B84A;}
+.eh-pakt .weg{color:#D93025;margin-left:auto;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2175,6 +2208,12 @@ function ehBasisplaene() {
 }
 
 function ehLadePlaene() {
+  if (EH_UEBUNGEN.length === 0) {
+    fetch('/api/exercises').then(function(r){ return r.json(); }).then(function(d){
+      EH_UEBUNGEN = (d && d.exercises) ? d.exercises : [];
+      ehLadeMeta(function(){});
+    }).catch(function(){});
+  }
   var box = document.getElementById('eh-planliste');
   box.innerHTML = '<div class="eh-leer">Wird geladen...</div>';
   fetch('/api/library?collection=plans').then(function(r){ return r.json(); }).then(function(d){
@@ -2184,14 +2223,85 @@ function ehLadePlaene() {
         + 'Beim Bauen einer Einheit kannst du sie in der Bibliothek ablegen.</div>';
       return;
     }
-    box.innerHTML = items.map(function(it) {
+    EH_PLAENE = items;
+    box.innerHTML = items.map(function(it, idx) {
       var dt = it.created_at ? new Date(it.created_at).toLocaleDateString('de-DE') : '';
-      return '<div class="eh-plan"><div><b>' + (it.name || 'Ohne Namen') + '</b>'
-        + '<span>' + dt + '</span></div></div>';
+      var bl = (it.data && it.data.blocks) ? it.data.blocks : [];
+      var anz = 0;
+      bl.forEach(function(b) { anz += (b.slots || []).length; });
+      return '<div class="eh-plan" id="ehp-' + idx + '">'
+        + '<div class="eh-pkopf" onclick="ehPlanAuf(' + idx + ')">'
+          + '<span class="eh-pnr"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">'
+          + '<path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M9 3v18"/></svg></span>'
+          + '<span class="eh-pt"><b>' + (it.name || 'Ohne Namen') + '</b>'
+          + '<span>' + bl.length + ' Bl\u00f6cke, ' + anz + ' \u00dcbungen'
+          + (dt ? ' \u00b7 ' + dt : '') + '</span></span>'
+          + '<span class="eh-pchev">&#8250;</span>'
+        + '</div>'
+        + '<div class="eh-pinhalt" id="ehpi-' + idx + '"></div>'
+        + '</div>';
     }).join('');
   }).catch(function(){
     box.innerHTML = '<div class="eh-leer">Bibliothek konnte nicht geladen werden.</div>';
   });
+}
+
+var EH_PLAENE = [];
+
+function ehMasseinheit(sl) {
+  var m = sl.metric;
+  if (m === 'time') return sl.sets + ' x ' + sl.reps + ' min';
+  if (m === 'dist') return sl.sets + ' x ' + sl.reps + ' m';
+  return sl.sets + ' x ' + sl.reps + ' Wdh.';
+}
+
+function ehPlanAuf(idx) {
+  var el = document.getElementById('ehp-' + idx);
+  if (!el) return;
+  var offen = el.classList.toggle('auf');
+  if (!offen) return;
+  var it = EH_PLAENE[idx];
+  var ziel = document.getElementById('ehpi-' + idx);
+  var bl = (it.data && it.data.blocks) ? it.data.blocks : [];
+  if (bl.length === 0) {
+    ziel.innerHTML = '<div class="eh-leer">Dieser Plan enth\u00e4lt keine Bl\u00f6cke.</div>';
+    return;
+  }
+  ziel.innerHTML = bl.map(function(b) {
+    var slots = (b.slots || []).map(function(sl) {
+      var key = sl.imageKey || '';
+      var a = key ? ehAnzeige(key) : null;
+      var bild = (a && a.bild) ? a.bild : key;
+      return '<div class="eh-slot">'
+        + (key ? '<img src="/exercises/' + bild + '.png" alt="" loading="lazy"'
+            + ' onerror="this.style.display=\'none\'">' : '')
+        + '<div class="eh-st"><b>' + (a ? a.name : (key || 'Pause / Hinweis')) + '</b>'
+        + '<u>' + ehMasseinheit(sl) + (sl.rest ? '  |  ' + sl.rest + ' s Pause' : '') + '</u>'
+        + (sl.note ? '<span>' + sl.note + '</span>' : '')
+        + '</div></div>';
+    }).join('');
+    return '<div class="eh-block"><div class="eh-bl"><b>' + (b.label || 'Block') + '</b>'
+      + '<i>' + (b.type === 'warmup' ? 'Aufw\u00e4rmen' : 'Hauptteil') + '</i></div>'
+      + '<div class="eh-slots">' + slots + '</div></div>';
+  }).join('')
+  + '<div class="eh-pakt">'
+    + '<button onclick="ehPlanLaden(\'' + (it.id || '') + '\')">Im Plan-Builder \u00f6ffnen</button>'
+    + '<button class="weg" onclick="ehPlanLoeschen(\'' + (it.id || '') + '\', \''
+    + String(it.name || '').replace(/'/g, "") + '\')">L\u00f6schen</button>'
+  + '</div>';
+}
+
+function ehPlanLaden(id) {
+  if (!id) return;
+  goTo('generator');
+  setTimeout(function(){ if (window.libLoadPlan) libLoadPlan(id); }, 400);
+}
+
+function ehPlanLoeschen(id, name) {
+  if (!id || !confirm('"' + name + '" wirklich l\u00f6schen?')) return;
+  fetch('/api/library?collection=plans&id=' + encodeURIComponent(id), { method: 'DELETE' })
+    .then(function(){ ehLadePlaene(); })
+    .catch(function(){ alert('L\u00f6schen fehlgeschlagen.'); });
 }
 
 function ehName(id) {
