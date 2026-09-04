@@ -4318,8 +4318,9 @@ function plRenderProfil(p) {
     if (c[0] > mitte + 12) anker = 'start';
     if (c[0] < mitte - 12) anker = 'end';
     schrift += '<text x="' + c[0].toFixed(1) + '" y="' + (c[1] + 4).toFixed(1)
-      + '" text-anchor="' + anker + '" font-size="8.6" fill="#6B7A6E"'
-      + ' font-family="IBM Plex Sans, sans-serif">' + x.a.l + '</text>';
+      + '" text-anchor="' + anker + '" font-size="8.6" fill="#12301F"'
+      + ' font-weight="700" letter-spacing="0.15"'
+      + ' font-family="Archivo, IBM Plex Sans, sans-serif">' + x.a.l + '</text>';
   });
 
   var zeilen = achsen.map(function(x) {
