@@ -1276,6 +1276,42 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sf-trn{flex:1;min-width:0;font-size:14px;font-weight:600;}
 .sf-trn em{display:block;font-style:normal;font-size:11.5px;color:#6B7A6E;font-weight:400;margin-top:1px;}
 .sf-trleer{padding:16px 14px;font-size:13px;color:#8B978C;}
+
+.pd-sk.klick{cursor:pointer;}
+.pd-sk.klick:hover{border-color:#0E6B36;}
+.pd-sk .pfeil{margin-left:auto;color:#B4BFB6;font-size:15px;}
+.pd-sk.klick:hover .pfeil{color:#0E6B36;}
+
+.ma-dialog{background:#fff;border-radius:18px;width:100%;max-width:620px;max-height:88vh;
+  display:flex;flex-direction:column;overflow:hidden;}
+.ma-body{overflow-y:auto;padding:0 28px 20px;}
+.ma-neu{display:grid;grid-template-columns:150px 1fr 1fr auto;gap:10px;align-items:end;
+  background:#F7F9F6;border:1px solid #E4EADE;border-radius:12px;padding:14px 16px;margin-bottom:20px;}
+.ma-neu label{display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:6px;}
+.ma-neu input{width:100%;padding:10px 12px;border:1px solid #DCE3D6;border-radius:9px;
+  font-family:inherit;font-size:14px;color:#12301F;outline:none;box-sizing:border-box;}
+.ma-neu input:focus{border-color:#57B84A;box-shadow:0 0 0 3px rgba(87,184,74,.16);}
+.ma-neu button{padding:11px 18px;border:0;border-radius:9px;background:#0E6B36;color:#fff;
+  font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.ma-neu button:hover{background:#0A5A2C;}
+
+.ma-kurve{background:#fff;border:1px solid #E4EADE;border-radius:12px;padding:16px 18px;margin-bottom:18px;}
+.ma-kurve h5{font-size:12.5px;font-weight:600;color:#3F5145;margin:0 0 10px;}
+.ma-kurve svg{display:block;width:100%;height:64px;overflow:visible;}
+
+.ma-tab{width:100%;border-collapse:collapse;font-size:13.5px;}
+.ma-tab th{text-align:left;font-weight:500;font-size:11.5px;color:#6B7A6E;padding:9px 10px;background:#F5F8F3;}
+.ma-tab th:first-child{border-radius:8px 0 0 8px;}
+.ma-tab th:last-child{border-radius:0 8px 8px 0;text-align:right;}
+.ma-tab td{padding:11px 10px;border-bottom:1px solid #F0F4EE;font-variant-numeric:tabular-nums;}
+.ma-tab td:last-child{text-align:right;}
+.ma-tab tr:last-child td{border-bottom:0;}
+.ma-tab .dp{font-size:12px;color:#1E9E52;margin-left:7px;font-weight:600;}
+.ma-tab .weg{background:none;border:0;color:#D93025;font-size:12.5px;cursor:pointer;
+  font-family:inherit;padding:0;}
+.ma-leer{padding:28px 18px;text-align:center;color:#6B7A6E;font-size:13.5px;
+  border:1px dashed #DCE3D6;border-radius:11px;}
+@media(max-width:620px){.ma-neu{grid-template-columns:1fr 1fr;}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -4482,6 +4518,149 @@ function plQuartal(dob) {
   return 'Q' + Math.ceil(m / 3);
 }
 
+// Verlauf von Groesse und Gewicht. p.masse ist die Historie,
+// p.hgt und p.wgt bleiben der jeweils aktuelle Wert.
+function maListe(p) {
+  var l = (p.masse || []).slice();
+  if (l.length === 0 && (p.hgt || p.wgt)) {
+    l.push({ datum: '', hgt: p.hgt || '', wgt: p.wgt || '', erst: true });
+  }
+  return l.sort(function(a, b) { return String(b.datum).localeCompare(String(a.datum)); });
+}
+
+function maAktualisiere(p) {
+  var l = (p.masse || []).slice().sort(function(a, b) {
+    return String(a.datum).localeCompare(String(b.datum));
+  });
+  for (var i = l.length - 1; i >= 0; i--) {
+    if (l[i].hgt) { p.hgt = l[i].hgt; break; }
+  }
+  for (var j = l.length - 1; j >= 0; j--) {
+    if (l[j].wgt) { p.wgt = l[j].wgt; break; }
+  }
+}
+
+function maKurve(werte, farbe, einheit) {
+  if (werte.length < 2) return '';
+  var w = werte.map(function(x) { return x.v; });
+  var min = Math.min.apply(null, w), max = Math.max.apply(null, w);
+  var spanne = (max - min) || 1;
+  var schritt = 100 / (werte.length - 1);
+  var punkte = werte.map(function(x, i) {
+    var y = 26 - ((x.v - min) / spanne) * 22;
+    return (i * schritt).toFixed(1) + ',' + y.toFixed(1);
+  });
+  var kreise = werte.map(function(x, i) {
+    var y = 26 - ((x.v - min) / spanne) * 22;
+    return '<circle cx="' + (i * schritt).toFixed(1) + '" cy="' + y.toFixed(1)
+      + '" r="' + (i === werte.length - 1 ? 2.6 : 1.8) + '" fill="'
+      + (i === werte.length - 1 ? farbe : '#fff') + '" stroke="' + farbe + '" stroke-width="1.2"/>';
+  }).join('');
+  return '<svg viewBox="0 0 100 30" preserveAspectRatio="none">'
+    + '<polyline points="' + punkte.join(' ') + '" fill="none" stroke="' + farbe
+    + '" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>'
+    + kreise + '</svg>'
+    + '<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:#8B978C;">'
+    + '<span>' + w[0].toFixed(1) + ' ' + einheit + '</span>'
+    + '<span>' + w[w.length - 1].toFixed(1) + ' ' + einheit + '</span></div>';
+}
+
+function maOeffnen() {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  peSchliessen();
+  var o = document.createElement('div');
+  o.id = 'pe-overlay';
+  o.className = 'pe-overlay';
+  o.innerHTML = '<div class="ma-dialog">'
+    + '<div class="vl-dkopf"><div><h4>Gr\u00f6\u00dfe und Gewicht</h4>'
+      + '<p>Verlauf von ' + p.fn + ' ' + p.ln + '</p></div>'
+      + '<button class="vl-x" onclick="peSchliessen()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'
+    + '<div class="ma-body" id="ma-body"></div></div>';
+  o.addEventListener('click', function(ev) { if (ev.target === o) peSchliessen(); });
+  document.body.appendChild(o);
+  maRender(p);
+}
+
+function maRender(p) {
+  var box = document.getElementById('ma-body');
+  if (!box) return;
+  var l = maListe(p);
+  var heute = new Date().toISOString().slice(0, 10);
+
+  var formular = '<div class="ma-neu">'
+    + '<div><label>Datum</label><input type="text" id="ma-datum" value="' + heute + '"></div>'
+    + '<div><label>Gr\u00f6\u00dfe (cm)</label><input type="number" id="ma-hgt" step="0.5" min="100" max="230"></div>'
+    + '<div><label>Gewicht (kg)</label><input type="number" id="ma-wgt" step="0.1" min="20" max="150"></div>'
+    + '<button onclick="maSpeichern()">Eintragen</button></div>';
+
+  if (l.length === 0) {
+    box.innerHTML = formular + '<div class="ma-leer">Noch keine Messung erfasst.</div>';
+    return;
+  }
+
+  var auf = l.slice().reverse();
+  var hw = auf.filter(function(x) { return x.hgt; }).map(function(x) { return { v: parseFloat(x.hgt) }; });
+  var gw = auf.filter(function(x) { return x.wgt; }).map(function(x) { return { v: parseFloat(x.wgt) }; });
+  var kurven = '';
+  if (hw.length > 1) kurven += '<div class="ma-kurve"><h5>Gr\u00f6\u00dfe</h5>' + maKurve(hw, '#0E6B36', 'cm') + '</div>';
+  if (gw.length > 1) kurven += '<div class="ma-kurve"><h5>Gewicht</h5>' + maKurve(gw, '#8FC63D', 'kg') + '</div>';
+
+  var zeilen = l.map(function(e, i) {
+    var vorher = l[i + 1];
+    function delta(jetzt, alt, einheit) {
+      if (!jetzt) return '-';
+      var t = parseFloat(jetzt);
+      if (!vorher || !alt) return t.toFixed(1) + ' ' + einheit;
+      var d = t - parseFloat(alt);
+      if (Math.abs(d) < 0.05) return t.toFixed(1) + ' ' + einheit;
+      return t.toFixed(1) + ' ' + einheit + '<span class="dp">'
+        + (d > 0 ? '+' : '\u2212') + Math.abs(d).toFixed(1) + '</span>';
+    }
+    var dat = e.erst ? 'ohne Datum'
+      : (e.datum ? new Date(e.datum).toLocaleDateString('de-DE') : '-');
+    return '<tr><td>' + dat + '</td>'
+      + '<td>' + delta(e.hgt, vorher ? vorher.hgt : null, 'cm') + '</td>'
+      + '<td>' + delta(e.wgt, vorher ? vorher.wgt : null, 'kg') + '</td>'
+      + '<td>' + (e.erst ? '' : '<button class="weg" onclick="maLoeschen(\'' + e.datum
+        + '\')">Entfernen</button>') + '</td></tr>';
+  }).join('');
+
+  box.innerHTML = formular + kurven
+    + '<table class="ma-tab"><thead><tr><th>Datum</th><th>Gr\u00f6\u00dfe</th>'
+    + '<th>Gewicht</th><th></th></tr></thead><tbody>' + zeilen + '</tbody></table>';
+}
+
+function maSpeichern() {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  var datum = document.getElementById('ma-datum').value.trim();
+  var hgt = document.getElementById('ma-hgt').value.trim();
+  var wgt = document.getElementById('ma-wgt').value.trim();
+  if (!hgt && !wgt) { alert('Bitte Gr\u00f6\u00dfe oder Gewicht eintragen.'); return; }
+  if (!datum) { alert('Bitte ein Datum angeben.'); return; }
+
+  p.masse = (p.masse || []).filter(function(x) { return x.datum !== datum; });
+  p.masse.push({ datum: datum, hgt: hgt, wgt: wgt });
+  maAktualisiere(p);
+  plSave();
+  plUpsert(p);
+  maRender(p);
+  plRenderStammdaten(p);
+}
+
+function maLoeschen(datum) {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p || !confirm('Messung entfernen?')) return;
+  p.masse = (p.masse || []).filter(function(x) { return x.datum !== datum; });
+  maAktualisiere(p);
+  plSave();
+  plUpsert(p);
+  maRender(p);
+  plRenderStammdaten(p);
+}
+
 function plRenderStammdaten(p) {
   var box = document.getElementById('pv-stamm');
   if (!box) return;
@@ -4502,9 +4681,12 @@ function plRenderStammdaten(p) {
       ? '<b class="leer">-</b>'
       : '<b>' + wert + (einheit ? '<em>' + einheit + '</em>' : '') + '</b>';
     var p2 = PD_ICO[titel] || '';
-    return '<div class="pd-sk"><div class="pd-sk-ico">'
+    var mass = (titel === 'Gr\u00f6\u00dfe' || titel === 'Gewicht');
+    return '<div class="pd-sk' + (mass ? ' klick" onclick="maOeffnen()' : '') + '">'
+      + '<div class="pd-sk-ico">'
       + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">' + p2 + '</svg></div>'
-      + '<div class="pd-sk-txt"><span>' + titel + '</span>' + inhalt + '</div></div>';
+      + '<div class="pd-sk-txt"><span>' + titel + '</span>' + inhalt + '</div>'
+      + (mass ? '<span class="pfeil">&#8250;</span>' : '') + '</div>';
   }
   box.innerHTML =
       feld('Geburtstag', dt)
@@ -5913,6 +6095,9 @@ function plSaveNew() {
     var ex = PL.find(function(x) { return x.id === PL_EDIT_ID; });
     if (!ex) { plHideModal(); return; }
     ex.fn = fn; ex.ln = ln; ex.dob = dob; ex.pos = PL_POS; ex.club = club; ex.team = team; ex.sex = PL_SEX; ex.hgt = hgt; ex.wgt = wgt; ex.verein = verein; ex.halle = halle;
+    if ((hgt || wgt) && (!ex.masse || ex.masse.length === 0)) {
+      ex.masse = [{ datum: new Date().toISOString().slice(0, 10), hgt: hgt, wgt: wgt }];
+    }
     plSave();
     plUpsert(ex);
     plHideModal();
