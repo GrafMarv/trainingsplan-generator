@@ -2644,6 +2644,12 @@ function wxRender() {
 function wxVerschiebe(id, ziel) {
   var p = PL.find(function(x) { return x.id === id; });
   if (!p || !ziel) return;
+  var pre = (plSex(p) === 'w') ? 'W' : 'M';
+  if (ziel.charAt(0) !== pre) {
+    alert(p.fn + ' ' + p.ln + ' ist ' + (pre === 'W' ? 'weiblich' : 'm\u00e4nnlich')
+      + ' und kann nicht in ' + (WHV_LABEL[ziel] || ziel) + ' verschoben werden.');
+    return;
+  }
   if (whvIstHalle(ziel)) { p.halle = ziel; } else { p.team = ziel; }
   plSave();
   plUpsert(p);
@@ -4356,6 +4362,12 @@ var WHV_TEAMS = ["W13", "W14", "W16", "M13", "M14", "M16", "WP", "W15", "MP", "M
 var WHV_LABEL = {"W13": "U13 weiblich", "W14": "U14 weiblich", "W16": "U16 weiblich", "M13": "U13 m&auml;nnlich", "M14": "U14 m&auml;nnlich", "M16": "U16 m&auml;nnlich", "WP": "P-Kader weiblich", "W15": "U15 weiblich", "MP": "P-Kader m&auml;nnlich", "M15": "U15 m&auml;nnlich"};
 var WHV_FELD  = ['W13','W14','W16','M13','M14','M16'];
 var WHV_HALLE = ['WP','W15','MP','M15'];
+// Kader passend zum Geschlecht. W-Codes fuer weiblich, M-Codes fuer maennlich.
+function whvKaderFuer(sex, liste) {
+  var pre = (sex === 'w') ? 'W' : 'M';
+  return liste.filter(function(c) { return c.charAt(0) === pre; });
+}
+
 function whvIstHalle(code) { return WHV_HALLE.indexOf(code) > -1; }
 var TEAM_OPTIONS = { 'WHV': WHV_TEAMS };
 var ALL_TEAM_CODES = WHV_TEAMS;
@@ -4730,7 +4742,7 @@ function kaderFeld(p) {
     + ((p.phv === undefined || p.phv === null || p.phv === '')
         ? '<b class="leer">-</b>' : '<b>' + p.phv + '</b>')
     + '</div></div>';
-  return kaderAuswahl('Mannschaft', WHV_FELD, p.team, 'plSetTeam', 'Keine', plKaderHinweis(p))
+  return kaderAuswahl('Mannschaft', whvKaderFuer(plSex(p), WHV_FELD), p.team, 'plSetTeam', 'Keine', plKaderHinweis(p))
        + phv;
 }
 
@@ -6051,6 +6063,27 @@ function npUpdateTeamList() {
   else hint.textContent = 'Geburtsdatum eintragen, dann wird automatisch zugeordnet';
 }
 
+function npKaderListen() {
+  var t = document.getElementById('np-team');
+  var ha = document.getElementById('np-halle');
+  if (t) {
+    var alt = t.value;
+    t.innerHTML = '<option value="">Automatisch nach Geburtsdatum</option>'
+      + whvKaderFuer(PL_SEX, WHV_FELD).map(function(c) {
+          return '<option value="' + c + '">' + (WHV_LABEL[c] || c) + '</option>';
+        }).join('');
+    t.value = (alt && alt.charAt(0) === (PL_SEX === 'w' ? 'W' : 'M')) ? alt : '';
+  }
+  if (ha) {
+    var alt2 = ha.value;
+    ha.innerHTML = '<option value="">Keiner</option>'
+      + whvKaderFuer(PL_SEX, WHV_HALLE).map(function(c) {
+          return '<option value="' + c + '">' + (WHV_LABEL[c] || c) + '</option>';
+        }).join('');
+    ha.value = (alt2 && alt2.charAt(0) === (PL_SEX === 'w' ? 'W' : 'M')) ? alt2 : '';
+  }
+}
+
 function plSetSex(sex) {
   PL_SEX = sex;
   var m = document.getElementById('sex-m');
@@ -6062,6 +6095,7 @@ function plSetSex(sex) {
   w.style.background = sex === 'w' ? '#1c1c1e' : '#fff';
   w.style.color = sex === 'w' ? '#fff' : '#1c1c1e';
   w.style.borderColor = sex === 'w' ? '#1c1c1e' : '#e5e5ea';
+  npKaderListen();
   npUpdateTeamList();
 }
 
