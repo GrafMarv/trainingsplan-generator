@@ -22,10 +22,14 @@ export default async function handler(req, res) {
   };
 
   const collection = (req.query.collection || '').toLowerCase();
-  if (collection !== 'plans' && collection !== 'blocks' && collection !== 'trainingdocs') {
-    return res.status(400).json({ error: 'collection must be plans, blocks, or trainingdocs' });
+  const erlaubt = ['plans', 'blocks', 'trainingdocs', 'exercises'];
+  if (erlaubt.indexOf(collection) === -1) {
+    return res.status(400).json({ error: 'collection must be one of ' + erlaubt.join(', ') });
   }
-  const table = collection === 'plans' ? 'cb_saved_plans' : collection === 'blocks' ? 'cb_saved_blocks' : 'cb_training_docs';
+  const table = collection === 'plans' ? 'cb_saved_plans'
+    : collection === 'blocks' ? 'cb_saved_blocks'
+    : collection === 'trainingdocs' ? 'cb_training_docs'
+    : 'cb_exercise_meta';
 
   try {
     await fetch(SUPABASE_URL + '/rest/v1/rpc/exec_sql', {
@@ -34,12 +38,51 @@ export default async function handler(req, res) {
         "create table if not exists cb_saved_plans (id uuid primary key default gen_random_uuid(), name text not null, data jsonb not null, created_at timestamptz not null default now()); " +
         "create table if not exists cb_saved_blocks (id uuid primary key default gen_random_uuid(), name text not null, type text not null default 'main', data jsonb not null, created_at timestamptz not null default now()); " +
         "create table if not exists cb_training_docs (id uuid primary key default gen_random_uuid(), name text not null, data jsonb not null, created_at timestamptz not null default now()); " +
+        "create table if not exists cb_exercise_meta (ex_id text primary key, name text, kategorie text, image_key text, updated_at timestamptz not null default now()); " +
         "notify pgrst, 'reload schema';"
       })
     });
   } catch(e) {}
 
   const base = SUPABASE_URL + '/rest/v1/' + table;
+
+  // ---- Uebungs-Aenderungen: ein Datensatz je Uebung, Schluessel ist die Uebungs-ID ----
+  if (collection === 'exercises') {
+    try {
+      if (req.method === 'GET') {
+        const r = await fetch(base + '?select=*', { headers });
+        const rows = await r.json();
+        return res.status(200).json({ items: Array.isArray(rows) ? rows : [] });
+      }
+      if (req.method === 'POST') {
+        const { ex_id, name, kategorie, image_key } = req.body || {};
+        if (!ex_id) return res.status(400).json({ error: 'ex_id fehlt' });
+        const r = await fetch(base, {
+          method: 'POST',
+          headers: Object.assign({}, headers, { 'Prefer': 'resolution=merge-duplicates,return=representation' }),
+          body: JSON.stringify({
+            ex_id: ex_id,
+            name: name || null,
+            kategorie: kategorie || null,
+            image_key: image_key || null,
+            updated_at: new Date().toISOString()
+          })
+        });
+        const out = await r.json();
+        if (!r.ok) return res.status(500).json({ error: out.message || 'Speichern fehlgeschlagen' });
+        return res.status(200).json({ ok: true, item: Array.isArray(out) ? out[0] : out });
+      }
+      if (req.method === 'DELETE') {
+        const id = req.query.id;
+        if (!id) return res.status(400).json({ error: 'id fehlt' });
+        await fetch(base + '?ex_id=eq.' + encodeURIComponent(id), { method: 'DELETE', headers });
+        return res.status(200).json({ ok: true });
+      }
+      return res.status(405).json({ error: 'Method not allowed' });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
 
   try {
     // SEED: GET /api/library?collection=plans&seed=1
