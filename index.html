@@ -1059,9 +1059,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .pd-sk select{font-size:14px;}
 
 /* Obere Reihe: Profil links, Einordnung rechts */
-.pd-oben{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);gap:16px;align-items:start;margin-bottom:16px;}
-.sp-karte{margin-bottom:0;height:100%;}
-.sp-body{grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;justify-content:start;}
+.pd-oben{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,400px);gap:16px;align-items:stretch;margin-bottom:16px;}
+.sp-karte{margin-bottom:0;height:100%;display:flex;flex-direction:column;justify-content:center;}
+.sp-body{grid-template-columns:470px minmax(0,1fr);gap:24px;justify-content:start;align-items:center;}
 .sp-fazit{display:none;}
 
 /* Werte als Tabelle */
@@ -1081,14 +1081,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sp-strich{width:16px;height:0;border-top:2px dashed #8FC63D;display:inline-block;}
 
 /* Einordnung und Entwicklung */
-.pe-eo{background:#fff;border:1px solid #E4EADE;border-radius:14px;padding:20px 22px;height:100%;}
+.pe-eo{background:#fff;border:1px solid #E4EADE;border-radius:14px;padding:20px 22px;height:100%;display:flex;flex-direction:column;box-sizing:border-box;}
 .pe-eo-kopf{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px;}
 .pe-eo-kopf h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin:0;}
 .pe-eo-kopf span{font-size:11.5px;color:#6B7A6E;text-align:right;}
 .pe-zwei{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 .pe-zwei h5{font-size:13px;font-weight:600;margin:0 0 10px;}
 .pe-zwei>div+div{border-left:1px solid #EEF2EB;padding-left:20px;}
-.pe-fazit{margin-top:20px;background:#F5F8F3;border-radius:11px;padding:15px 16px;display:flex;gap:12px;}
+.pe-fazit{margin-top:auto;background:#F5F8F3;border-radius:11px;padding:15px 16px;display:flex;gap:12px;}
 .pe-fazit svg{width:18px;height:18px;flex:0 0 18px;stroke:#0E6B36;fill:none;stroke-width:1.7;margin-top:1px;}
 .pe-fazit b{display:block;font-size:13.5px;font-weight:600;margin-bottom:5px;}
 .pe-fazit p{font-size:13px;color:#3F5145;line-height:1.55;margin:0;}
@@ -1096,7 +1096,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 /* Verlauf schmaler, damit acht nebeneinander passen */
 .pd-vgrid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;}
 
-@media(max-width:1300px){.pd-oben{grid-template-columns:1fr;}}
+@media(max-width:1400px){.pd-oben{grid-template-columns:1fr;}}
+@media(max-width:1000px){.sp-body{grid-template-columns:1fr;}
+.sp-body svg{width:100%!important;height:auto!important;max-width:420px;margin:0 auto;}}
 @media(max-width:900px){
   .pd-banner{flex-wrap:wrap;}
   .pd-photo{width:64px;height:64px;flex:0 0 64px;font-size:22px;}
@@ -4277,7 +4279,7 @@ function plRenderProfil(p) {
     achsen.push({ a: a, punkte: punkte, wert: eigenWert, mittel: mittel });
   });
 
-  var mitte = 150, r = 84, n = achsen.length;
+  var mitte = 150, r = 112, n = achsen.length;
   function pos(idx, anteil) {
     var w = (-90 + idx * (360 / n)) * Math.PI / 180;
     return [mitte + Math.cos(w) * r * anteil, mitte + Math.sin(w) * r * anteil];
@@ -4311,12 +4313,12 @@ function plRenderProfil(p) {
 
   var schrift = '';
   achsen.forEach(function(x, idx) {
-    var c = pos(idx, 1.26);
+    var c = pos(idx, 1.17);
     var anker = 'middle';
     if (c[0] > mitte + 12) anker = 'start';
     if (c[0] < mitte - 12) anker = 'end';
     schrift += '<text x="' + c[0].toFixed(1) + '" y="' + (c[1] + 4).toFixed(1)
-      + '" text-anchor="' + anker + '" font-size="13" fill="#6B7A6E"'
+      + '" text-anchor="' + anker + '" font-size="8.6" fill="#6B7A6E"'
       + ' font-family="IBM Plex Sans, sans-serif">' + x.a.l + '</text>';
   });
 
@@ -4337,7 +4339,7 @@ function plRenderProfil(p) {
   box.innerHTML = '<div class="sp-karte">'
     + '<div class="sp-kopf"><h4>St\u00e4rkenprofil</h4></div>'
     + '<div class="sp-body">'
-    + '<div><svg viewBox="0 0 300 300" width="430" height="430" role="img" style="width:430px;height:430px;max-width:100%;display:block;overflow:visible;">'
+    + '<div><svg viewBox="0 0 300 300" width="470" height="470" role="img" style="width:470px;height:470px;max-width:100%;display:block;overflow:visible;">'
     + netz
     + '<polygon points="' + flaeche.join(' ') + '" fill="rgba(87,184,74,.22)" stroke="#0E6B36" stroke-width="2" stroke-linejoin="round"/>'
     + punkte + schrift
