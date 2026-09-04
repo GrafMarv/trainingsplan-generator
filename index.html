@@ -4313,12 +4313,12 @@ function plRenderProfil(p) {
 
   var schrift = '';
   achsen.forEach(function(x, idx) {
-    var c = pos(idx, 1.17);
+    var c = pos(idx, 1.14);
     var anker = 'middle';
     if (c[0] > mitte + 12) anker = 'start';
     if (c[0] < mitte - 12) anker = 'end';
     schrift += '<text x="' + c[0].toFixed(1) + '" y="' + (c[1] + 4).toFixed(1)
-      + '" text-anchor="' + anker + '" font-size="8.6" fill="#12301F"'
+      + '" text-anchor="' + anker + '" font-size="11.6" fill="#12301F"'
       + ' font-weight="700" letter-spacing="0.15"'
       + ' font-family="Archivo, IBM Plex Sans, sans-serif">' + x.a.l + '</text>';
   });
@@ -4340,7 +4340,7 @@ function plRenderProfil(p) {
   box.innerHTML = '<div class="sp-karte">'
     + '<div class="sp-kopf"><h4>St\u00e4rkenprofil</h4></div>'
     + '<div class="sp-body">'
-    + '<div><svg viewBox="0 0 300 300" width="470" height="470" role="img" style="width:470px;height:470px;max-width:100%;display:block;overflow:visible;">'
+    + '<div><svg viewBox="-58 -6 416 312" width="470" height="352" role="img" style="width:470px;height:352px;max-width:100%;display:block;overflow:hidden;">'
     + netz
     + '<polygon points="' + flaeche.join(' ') + '" fill="rgba(87,184,74,.22)" stroke="#0E6B36" stroke-width="2" stroke-linejoin="round"/>'
     + punkte + schrift
