@@ -1031,6 +1031,79 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .sp-tag.plus{background:#EAF5E9;color:#1E7A3E;}
 .sp-tag.minus{background:#FBEDEC;color:#C0392B;}
 .sp-tag.neutral{background:#F1F4EF;color:#6B7A6E;font-weight:400;}
+
+/* ===== Spielerlayout v3 ===== */
+.pd-banner{display:flex;align-items:center;gap:24px;padding:24px 28px;}
+.pd-photo{position:static;transform:none;width:96px;height:96px;flex:0 0 96px;font-size:30px;
+  background:#fff;color:#0E6B36;z-index:2;}
+.pd-in{max-width:none;flex:1;min-width:0;}
+.pd-actions{margin-left:auto;}
+.pd-row{margin-top:14px;}
+
+.pd-tabzeile{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.pd-tabs{background:none;border:0;padding:0;gap:9px;margin:0;}
+.pd-tab{background:#fff;border:1px solid #E4EADE;border-radius:11px;padding:11px 18px;}
+.pd-tab.an{background:#0E6B36;border-color:#0E6B36;color:#fff;}
+.pd-letzter{font-size:12.5px;color:#6B7A6E;white-space:nowrap;}
+
+/* Grunddaten wieder als Karten mit Symbol */
+.pd-stamm{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.pd-sk{background:#fff;border:1px solid #E4EADE;border-radius:12px;padding:14px 15px;
+  display:flex;align-items:center;gap:12px;}
+.pd-sk-ico{width:34px;height:34px;flex:0 0 34px;border-radius:9px;background:#EDF4EA;
+  display:flex;align-items:center;justify-content:center;}
+.pd-sk-ico svg{width:17px;height:17px;stroke:#0E6B36;fill:none;stroke-width:1.8;}
+.pd-sk-txt{min-width:0;}
+.pd-sk span{font-size:11.5px;color:#6B7A6E;display:block;}
+.pd-sk b{font-size:15px;display:block;margin-top:2px;}
+.pd-sk select{font-size:14px;}
+
+/* Obere Reihe: Profil links, Einordnung rechts */
+.pd-oben{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);gap:16px;align-items:start;margin-bottom:16px;}
+.sp-karte{margin-bottom:0;height:100%;}
+.sp-body{grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;justify-content:start;}
+.sp-fazit{display:none;}
+
+/* Werte als Tabelle */
+.sp-tab{width:100%;border-collapse:collapse;font-size:13px;}
+.sp-tab th{text-align:left;font-weight:500;font-size:11.5px;color:#6B7A6E;padding:9px 10px;background:#F5F8F3;}
+.sp-tab th:last-child,.sp-tab td:last-child{text-align:right;}
+.sp-tab th:first-child{border-radius:8px 0 0 8px;}
+.sp-tab th:last-child{border-radius:0 8px 8px 0;}
+.sp-tab td{padding:10px;border-bottom:1px solid #F0F4EE;font-variant-numeric:tabular-nums;}
+.sp-tab tr:last-child td{border-bottom:0;}
+.sp-tab td.bez{font-weight:500;font-variant-numeric:normal;}
+.sp-tab td.d{font-weight:700;font-family:'Archivo',sans-serif;}
+.sp-tab td.hoch{color:#1E9E52;} .sp-tab td.tief{color:#D93025;} .sp-tab td.mitte{color:#6B7A6E;}
+.sp-legende{display:flex;gap:16px;margin-top:12px;font-size:11.5px;color:#6B7A6E;flex-wrap:wrap;}
+.sp-legende i{font-style:normal;display:inline-flex;align-items:center;gap:6px;}
+.sp-punkt{width:9px;height:9px;border-radius:50%;background:#0E6B36;display:inline-block;}
+.sp-strich{width:16px;height:0;border-top:2px dashed #8FC63D;display:inline-block;}
+
+/* Einordnung und Entwicklung */
+.pe-eo{background:#fff;border:1px solid #E4EADE;border-radius:14px;padding:20px 22px;height:100%;}
+.pe-eo-kopf{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px;}
+.pe-eo-kopf h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin:0;}
+.pe-eo-kopf span{font-size:11.5px;color:#6B7A6E;text-align:right;}
+.pe-zwei{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.pe-zwei h5{font-size:13px;font-weight:600;margin:0 0 10px;}
+.pe-zwei>div+div{border-left:1px solid #EEF2EB;padding-left:20px;}
+.pe-fazit{margin-top:20px;background:#F5F8F3;border-radius:11px;padding:15px 16px;display:flex;gap:12px;}
+.pe-fazit svg{width:18px;height:18px;flex:0 0 18px;stroke:#0E6B36;fill:none;stroke-width:1.7;margin-top:1px;}
+.pe-fazit b{display:block;font-size:13.5px;font-weight:600;margin-bottom:5px;}
+.pe-fazit p{font-size:13px;color:#3F5145;line-height:1.55;margin:0;}
+
+/* Verlauf schmaler, damit acht nebeneinander passen */
+.pd-vgrid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;}
+
+@media(max-width:1300px){.pd-oben{grid-template-columns:1fr;}}
+@media(max-width:900px){
+  .pd-banner{flex-wrap:wrap;}
+  .pd-photo{width:64px;height:64px;flex:0 0 64px;font-size:22px;}
+  .sp-body{grid-template-columns:1fr;}
+  .pe-zwei{grid-template-columns:1fr;}
+  .pe-zwei>div+div{border-left:0;padding-left:0;border-top:1px solid #EEF2EB;padding-top:16px;}
+}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1443,6 +1516,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   <!-- Detail-Ansicht -->
   <div id="pv-detail" style="display:none;">
     <div class="pd-banner">
+      <div id="pv-photo" class="pd-photo"></div>
       <div class="pd-in">
         <button id="btn-back-list" class="pd-back">&#8592; Zur&uuml;ck</button>
         <h1 id="pv-name" class="pd-h1"></h1>
@@ -1455,20 +1529,22 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           </div>
         </div>
       </div>
-      <div id="pv-photo" class="pd-photo"></div>
     </div>
 
     <div class="pd-stamm" id="pv-stamm"></div>
 
+    <div class="pd-tabzeile">
     <div class="pd-tabs">
       <button id="ptab-diagnostik" class="pd-tab an"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg> Diagnostik</button>
       <button id="ptab-verletzungen" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5a4.9 4.9 0 0 1-7-7l6-6a4.9 4.9 0 0 1 7 7z"/><path d="M8.5 8.5l7 7"/></svg> Verletzungen</button>
       <button id="ptab-notizen" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg> Notizen</button>
       <button id="ptab-einheiten" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Einheiten</button>
     </div>
+    <span class="pd-letzter" id="pv-letzter"></span>
+    </div>
 
     <div id="ptc-diagnostik">
-      <div id="pv-profil"></div>
+      <div class="pd-oben"><div id="pv-profil"></div><div id="pv-fazit"></div></div>
       <div id="pv-verlauf"></div>
       <div class="pd-sec">
         <h3>Diagnostikwerte</h3>
