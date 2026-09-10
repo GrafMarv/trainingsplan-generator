@@ -20,11 +20,12 @@ export default async function handler(req, res) {
       const KEY = process.env.ANTHROPIC_API_KEY;
       if (!KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY fehlt' });
 
-      let { text, uebungen, dateiname } = req.body || {};
-      if (typeof text !== 'string' || !text.trim()) {
-        return res.status(400).json({ error: 'Kein Text uebergeben' });
+      let { text, pdfBase64, uebungen, dateiname } = req.body || {};
+      const hatPdf = typeof pdfBase64 === 'string' && pdfBase64.length > 100;
+      if (!hatPdf && (typeof text !== 'string' || !text.trim())) {
+        return res.status(400).json({ error: 'Weder PDF noch Text uebergeben' });
       }
-      text = text.slice(0, 24000);
+      text = (typeof text === 'string') ? text.slice(0, 24000) : '';
       const liste = Array.isArray(uebungen) ? uebungen.slice(0, 400) : [];
 
       const bestand = liste.map(function (id) {
@@ -55,8 +56,9 @@ export default async function handler(req, res) {
         'BESTAND (Dateischluessel = Name [Merkmale])',
         bestand || '(leer)',
         '',
-        'PLANTEXT',
-        text,
+        hatPdf
+          ? 'Der Plan liegt als PDF bei. Lies ihn wie ein Mensch: Uebungsnamen stehen oft als Grafik und nicht als Text. Werte Bilder, Nummerierung, Zeitangaben und Randnotizen mit aus. Wiederholt sich der ganze Plan mehrfach (z.B. \"4 Runden\"), setze das als Saetze.'
+          : 'PLANTEXT\n' + text,
         '',
         'Antworte AUSSCHLIESSLICH mit JSON in genau dieser Form, ohne Vor- oder Nachtext:',
         '{',
@@ -83,7 +85,16 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           model: 'claude-opus-4-5',
           max_tokens: 8000,
-          messages: [{ role: 'user', content: prompt }]
+          messages: [{
+            role: 'user',
+            content: hatPdf
+              ? [
+                  { type: 'document',
+                    source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
+                  { type: 'text', text: prompt }
+                ]
+              : prompt
+          }]
         })
       });
 
