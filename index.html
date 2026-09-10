@@ -1405,6 +1405,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .ub-warn{background:#FBEDEC;border:1px solid #F3C9C4;border-radius:10px;padding:13px 15px;
   font-size:13px;color:#8C2E24;line-height:1.5;margin-top:14px;}
 .ub-warn b{display:block;margin-bottom:4px;}
+
+.eh-pweg{background:none;border:0;color:#B4BFB6;font-size:17px;cursor:pointer;padding:4px 8px;line-height:1;}
+.eh-pweg:hover{color:#D93025;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2820,6 +2823,9 @@ function ehLadePlaene() {
           + (istPdf ? '<span class="eh-pdf">PDF</span>' : '')
           + '<span class="eh-pchev">&#8250;</span>'
         + '</div>'
+        .replace('</div>', '')
+        + '<button class="eh-pweg" title="Plan l\u00f6schen" onclick="event.stopPropagation();ehPlanLoeschen(\''
+          + (it.id || '') + '\',\'' + String(it.name || '').replace(/'/g, '') + '\')">&times;</button></div>'
         + '<div class="eh-pinhalt" id="ehpi-' + idx + '"></div>'
         + '</div>';
     }).join('');
@@ -2899,10 +2905,15 @@ function ehPlanLaden(id) {
 }
 
 function ehPlanLoeschen(id, name) {
-  if (!id || !confirm('"' + name + '" wirklich l\u00f6schen?')) return;
+  if (!id) { alert('Dieser Eintrag hat keine Kennung und kann nicht geloescht werden.'); return; }
+  if (!confirm('"' + name + '" wirklich l\u00f6schen?\n\nDas laesst sich nicht rueckgaengig machen.')) return;
   fetch('/api/library?collection=plans&id=' + encodeURIComponent(id), { method: 'DELETE' })
-    .then(function(){ ehLadePlaene(); })
-    .catch(function(){ alert('L\u00f6schen fehlgeschlagen.'); });
+    .then(function (r) { return r.json().catch(function () { return {}; }); })
+    .then(function (d) {
+      if (d && d.error) { alert('L\u00f6schen fehlgeschlagen: ' + d.error); return; }
+      ehLadePlaene();
+    })
+    .catch(function (e) { alert('L\u00f6schen fehlgeschlagen: ' + e); });
 }
 
 function ehName(id) {
