@@ -2606,6 +2606,7 @@ function naSpeichern() {
   }).then(function (r) { return r.json(); }).then(function (res) {
     if (res.error) { alert('Anlegen fehlgeschlagen: ' + res.error); return; }
     EH_META[key] = { ex_id: key, name: name, kategorie: kat, image_key: '' };
+    window.EX_NAMEN[key] = name;
     var s = IM_PLAN.blocks[NA_ZIEL.bi].slots[NA_ZIEL.si];
     s.neu = false;
     s.frischAngelegt = true;
@@ -2814,13 +2815,26 @@ function ehTags(id) {
 var EH_META = {};
 var UB_AKTUELL = null;
 
-function ehLadeMeta(fertig) {
-  fetch('/api/library?collection=exercises').then(function(r){ return r.json(); }).then(function(d){
-    EH_META = {};
-    ((d && d.items) || []).forEach(function(x) { EH_META[x.ex_id] = x; });
-    if (fertig) fertig();
-  }).catch(function(){ if (fertig) fertig(); });
+window.EX_NAMEN = window.EX_NAMEN || {};
+
+function exNamenSetzen(eintraege) {
+  window.EX_NAMEN = {};
+  (eintraege || []).forEach(function (x) {
+    if (x.ex_id && x.name) window.EX_NAMEN[x.ex_id] = x.name;
+  });
 }
+
+function exNamenLaden(fertig) {
+  fetch('/api/library?collection=exercises').then(function (r) { return r.json(); }).then(function (d) {
+    var items = (d && d.items) ? d.items : [];
+    EH_META = {};
+    items.forEach(function (x) { EH_META[x.ex_id] = x; });
+    exNamenSetzen(items);
+    if (fertig) fertig();
+  }).catch(function () { if (fertig) fertig(); });
+}
+
+function ehLadeMeta(fertig) { exNamenLaden(fertig); }
 
 // Alle Uebungen: Bilder im Ordner plus Eintraege, die nur in der Datenbank stehen
 function ehAlleUebungen() {
@@ -2980,6 +2994,7 @@ function ubSpeichern() {
     if (res.error) { alert('Speichern fehlgeschlagen: ' + res.error); return; }
     EH_META[UB_AKTUELL] = { ex_id: UB_AKTUELL, name: koerper.name,
       kategorie: koerper.kategorie, image_key: koerper.image_key };
+    if (koerper.name) window.EX_NAMEN[UB_AKTUELL] = koerper.name;
     peSchliessen();
     ehChips(); ehRenderUebungen();
   }).catch(function(e) { alert('Speichern fehlgeschlagen: ' + e); });
@@ -2990,6 +3005,7 @@ function ubZuruecksetzen() {
   fetch('/api/library?collection=exercises&id=' + encodeURIComponent(UB_AKTUELL), { method: 'DELETE' })
     .then(function(){
       delete EH_META[UB_AKTUELL];
+      delete window.EX_NAMEN[UB_AKTUELL];
       peSchliessen();
       ehChips(); ehRenderUebungen();
     }).catch(function(e){ alert('Fehlgeschlagen: ' + e); });
@@ -6001,6 +6017,7 @@ function onId(id, ev, fn) {
 
 document.addEventListener('DOMContentLoaded', function() {
   whvSideInit();
+  if (window.exNamenLaden) exNamenLaden();
   // Back buttons
   onId('btn-back-list', 'click', function() { plShowList(); });
 
@@ -6719,6 +6736,8 @@ function plSaveDiag() {
   function exList(){ return (typeof EXERCISES!=='undefined' && EXERCISES.length) ? EXERCISES : (typeof _FALLBACK!=='undefined'?_FALLBACK:[]); }
   function prettify(slug){
     if(!slug) return '';
+    // Eigene Bezeichnung aus der Uebungsbibliothek hat Vorrang vor dem Dateischluessel
+    if (window.EX_NAMEN && window.EX_NAMEN[slug]) return window.EX_NAMEN[slug];
     var name = String(slug).split('_')[0] || '';
     name = name.replace(/-/g,' ').trim();
     return name.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
