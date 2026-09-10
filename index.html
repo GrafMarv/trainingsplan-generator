@@ -1355,7 +1355,6 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 <!-- HOME SCREEN -->
@@ -2375,45 +2374,36 @@ function imInit() {
 }
 
 function imLies(datei) {
-  imStatus('Datei wird gelesen ...');
   if (/\.txt$/i.test(datei.name)) {
+    imStatus('Datei wird gelesen ...');
     var leser = new FileReader();
-    leser.onload = function () { imAnalyse(String(leser.result), datei.name); };
+    leser.onload = function () { imAnalyse({ text: String(leser.result) }, datei.name); };
     leser.readAsText(datei);
     return;
   }
-  if (!window.pdfjsLib) { imStatus('PDF-Leser nicht geladen. Seite neu laden.'); return; }
-  var fr = new FileReader();
-  fr.onload = function () {
-    pdfjsLib.getDocument({ data: new Uint8Array(fr.result) }).promise.then(function (pdf) {
-      var seiten = [];
-      for (var i = 1; i <= pdf.numPages; i++) seiten.push(i);
-      return Promise.all(seiten.map(function (n) {
-        return pdf.getPage(n).then(function (s) {
-          return s.getTextContent().then(function (tc) {
-            return tc.items.map(function (x) { return x.str; }).join(' ');
-          });
-        });
-      }));
-    }).then(function (teile) {
-      imAnalyse(teile.join('\n\n'), datei.name);
-    }).catch(function (e) {
-      imStatus('PDF konnte nicht gelesen werden: ' + e);
-    });
-  };
-  fr.readAsArrayBuffer(datei);
-}
-
-function imAnalyse(text, dateiname) {
-  if (!text || text.trim().length < 40) {
-    imStatus('Im Dokument wurde kaum Text gefunden. Gescannte PDFs ohne Textebene gehen nicht.');
+  if (datei.size > 9000000) {
+    imStatus('Die Datei ist zu gross. Bitte unter 9 MB.');
     return;
   }
-  imStatus('Plan wird analysiert, das dauert etwa 20 Sekunden ...');
+  imStatus('PDF wird vorbereitet ...');
+  var fr = new FileReader();
+  fr.onload = function () {
+    var b64 = String(fr.result).split(',')[1];
+    imAnalyse({ pdfBase64: b64 }, datei.name);
+  };
+  fr.onerror = function () { imStatus('Datei konnte nicht gelesen werden.'); };
+  fr.readAsDataURL(datei);
+}
+
+function imAnalyse(quelle, dateiname) {
+  imStatus('Plan wird gelesen und analysiert, das dauert etwa 30 Sekunden ...');
+  var koerper = { modus: 'plan', dateiname: dateiname, uebungen: EH_UEBUNGEN };
+  if (quelle.pdfBase64) koerper.pdfBase64 = quelle.pdfBase64;
+  if (quelle.text) koerper.text = quelle.text;
   fetch('/api/distill', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ modus: 'plan', text: text, dateiname: dateiname, uebungen: EH_UEBUNGEN })
+    body: JSON.stringify(koerper)
   }).then(function (r) { return r.json(); }).then(function (d) {
     if (d.error) { imStatus('Fehlgeschlagen: ' + d.error); return; }
     IM_PLAN = d.plan;
