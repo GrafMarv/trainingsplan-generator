@@ -1312,9 +1312,50 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .ma-leer{padding:28px 18px;text-align:center;color:#6B7A6E;font-size:13.5px;
   border:1px dashed #DCE3D6;border-radius:11px;}
 @media(max-width:620px){.ma-neu{grid-template-columns:1fr 1fr;}}
+
+/* ===== Planimport ===== */
+.im-ablage{border:2px dashed #CFE0C8;border-radius:14px;background:#fff;padding:38px 24px;text-align:center;cursor:pointer;}
+.im-ablage:hover,.im-ablage.drueber{border-color:#0E6B36;background:#F7FBF5;}
+.im-ablage svg{width:34px;height:34px;stroke:#0E6B36;fill:none;stroke-width:1.6;margin-bottom:12px;}
+.im-ablage b{display:block;font-size:15px;font-weight:600;}
+.im-ablage span{display:block;margin-top:6px;font-size:13px;color:#6B7A6E;}
+.im-status{margin-top:14px;font-size:13.5px;color:#6B7A6E;text-align:center;}
+
+.im-kopf{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.im-kopf input{flex:1;min-width:220px;padding:11px 14px;border:1px solid #DCE3D6;border-radius:10px;
+  font-family:inherit;font-size:15px;font-weight:600;color:#12301F;outline:none;}
+.im-zahl{font-size:12.5px;color:#6B7A6E;}
+.im-block{background:#fff;border:1px solid #E4EADE;border-radius:13px;margin-bottom:12px;overflow:hidden;}
+.im-bl{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #EEF2EB;background:#FAFCF9;}
+.im-bl input{flex:1;border:0;background:none;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;
+  color:#12301F;outline:none;}
+.im-bl select{border:1px solid #DCE3D6;border-radius:7px;padding:5px 9px;font-family:inherit;font-size:11.5px;
+  background:#fff;color:#3F5145;}
+.im-z{display:grid;grid-template-columns:1fr 1.2fr 132px 40px;gap:12px;align-items:center;
+  padding:12px 16px;border-bottom:1px solid #F4F7F2;}
+.im-z:last-child{border-bottom:0;}
+.im-roh{font-size:13px;color:#3F5145;line-height:1.4;}
+.im-roh em{display:block;font-style:normal;font-size:11.5px;color:#9AA79C;margin-top:3px;}
+.im-zu{display:flex;align-items:center;gap:9px;min-width:0;}
+.im-zu img{width:34px;height:34px;object-fit:contain;background:#F5F8F3;border-radius:7px;flex:0 0 34px;}
+.im-zu select{flex:1;min-width:0;padding:8px 10px;border:1px solid #DCE3D6;border-radius:8px;
+  font-family:inherit;font-size:12.5px;background:#fff;color:#12301F;}
+.im-neu{background:#FFF6E8;border:1px solid #F5D9AC;border-radius:8px;padding:8px 10px;font-size:12px;color:#B26B00;flex:1;}
+.im-neu b{display:block;font-weight:600;font-size:12.5px;color:#8A5200;}
+.im-vorgabe{display:flex;gap:5px;}
+.im-vorgabe input{width:44px;padding:7px 5px;border:1px solid #DCE3D6;border-radius:7px;font-family:inherit;
+  font-size:12.5px;text-align:center;color:#12301F;}
+.im-vorgabe select{padding:7px 4px;border:1px solid #DCE3D6;border-radius:7px;font-family:inherit;font-size:11.5px;}
+.im-weg{background:none;border:0;color:#C0392B;font-size:16px;cursor:pointer;padding:0;}
+.im-sicher{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+.im-hoch{background:#1E9E52;} .im-mittel{background:#E8A33D;} .im-niedrig{background:#D93025;}
+.im-fuss{display:flex;gap:10px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid #E4EADE;}
+.im-fuss .rechts{margin-left:auto;display:flex;gap:10px;}
+@media(max-width:900px){.im-z{grid-template-columns:1fr;gap:8px;}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 <!-- HOME SCREEN -->
@@ -1485,7 +1526,14 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <small id="eh-anz-plaene">Gespeicherte Pl&auml;ne und Bl&ouml;cke wiederverwenden</small>
           <i>&Ouml;ffnen</i>
         </button>
-        <button class="eh-k" onclick="ehZeige('uebungen')">
+        <button class="eh-k" onclick="ehZeige('import')">
+        <div class="eh-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+        <b>Plan importieren</b>
+        <small>Alten Trainingsplan als PDF hochladen und umwandeln</small>
+        <i>&Ouml;ffnen</i>
+      </button>
+      <button class="eh-k" onclick="ehZeige('uebungen')">
           <div class="eh-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
           <b>&Uuml;bungsbibliothek</b>
           <small id="eh-anz-uebungen">Alle &Uuml;bungen mit Grafik</small>
@@ -1496,6 +1544,21 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     <div id="eh-bibliothek" style="display:none;">
       <div class="eh-liste" id="eh-planliste"></div>
+    </div>
+
+    <div id="eh-import" style="display:none;">
+      <div id="im-schritt1">
+        <div class="im-ablage" id="im-ablage" onclick="document.getElementById('im-datei').click()">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 16V4"/><path d="M7 9l5-5 5 5"/>
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <b>PDF hierher ziehen oder klicken</b>
+          <span>Der Plan wird gelesen, in Bl&ouml;cke zerlegt und mit deiner &Uuml;bungsbibliothek abgeglichen.</span>
+        </div>
+        <input type="file" id="im-datei" accept="application/pdf,.txt" style="display:none;">
+        <div class="im-status" id="im-status"></div>
+      </div>
+      <div id="im-schritt2" style="display:none;"></div>
     </div>
 
     <div id="eh-uebungen" style="display:none;">
@@ -2238,7 +2301,7 @@ var EH_UEBUNGEN = [];
 var EH_KAT = '';
 
 function ehZeige(was) {
-  ['start','bibliothek','uebungen'].forEach(function(x) {
+  ['start','bibliothek','uebungen','import'].forEach(function(x) {
     var el = document.getElementById('eh-' + x);
     if (el) el.style.display = (x === was ? 'block' : 'none');
   });
@@ -2256,6 +2319,13 @@ function ehZeige(was) {
     b.setAttribute('onclick', "ehZeige('start')");
     b.innerHTML = '&#8592; Einheiten';
     ehLadePlaene();
+  } else if (was === 'import') {
+    t.textContent = 'Plan importieren';
+    u.textContent = 'Alten Trainingsplan hochladen und in die Bibliothek \u00fcbernehmen';
+    b.setAttribute('onclick', "ehZeige('start')");
+    b.innerHTML = '&#8592; Einheiten';
+    if (EH_UEBUNGEN.length === 0) ehLadeUebungen();
+    imInit();
   } else {
     t.textContent = '\u00dcbungsbibliothek';
     u.textContent = 'Alle \u00dcbungen mit Grafik';
@@ -2278,6 +2348,213 @@ function ehInit() {
     if (el) el.textContent = n === 0 ? 'Noch keine Pl\u00e4ne gespeichert'
       : n + (n === 1 ? ' gespeicherter Plan' : ' gespeicherte Pl\u00e4ne');
   }).catch(function(){});
+}
+
+var IM_PLAN = null;
+
+function imStatus(t) {
+  var el = document.getElementById('im-status');
+  if (el) el.textContent = t || '';
+}
+
+function imInit() {
+  var f = document.getElementById('im-datei');
+  var a = document.getElementById('im-ablage');
+  if (!f || f.getAttribute('data-bereit')) return;
+  f.setAttribute('data-bereit', '1');
+  f.addEventListener('change', function () { if (f.files[0]) imLies(f.files[0]); });
+  ['dragenter', 'dragover'].forEach(function (e) {
+    a.addEventListener(e, function (ev) { ev.preventDefault(); a.classList.add('drueber'); });
+  });
+  ['dragleave', 'drop'].forEach(function (e) {
+    a.addEventListener(e, function (ev) { ev.preventDefault(); a.classList.remove('drueber'); });
+  });
+  a.addEventListener('drop', function (ev) {
+    if (ev.dataTransfer && ev.dataTransfer.files[0]) imLies(ev.dataTransfer.files[0]);
+  });
+}
+
+function imLies(datei) {
+  imStatus('Datei wird gelesen ...');
+  if (/\.txt$/i.test(datei.name)) {
+    var leser = new FileReader();
+    leser.onload = function () { imAnalyse(String(leser.result), datei.name); };
+    leser.readAsText(datei);
+    return;
+  }
+  if (!window.pdfjsLib) { imStatus('PDF-Leser nicht geladen. Seite neu laden.'); return; }
+  var fr = new FileReader();
+  fr.onload = function () {
+    pdfjsLib.getDocument({ data: new Uint8Array(fr.result) }).promise.then(function (pdf) {
+      var seiten = [];
+      for (var i = 1; i <= pdf.numPages; i++) seiten.push(i);
+      return Promise.all(seiten.map(function (n) {
+        return pdf.getPage(n).then(function (s) {
+          return s.getTextContent().then(function (tc) {
+            return tc.items.map(function (x) { return x.str; }).join(' ');
+          });
+        });
+      }));
+    }).then(function (teile) {
+      imAnalyse(teile.join('\n\n'), datei.name);
+    }).catch(function (e) {
+      imStatus('PDF konnte nicht gelesen werden: ' + e);
+    });
+  };
+  fr.readAsArrayBuffer(datei);
+}
+
+function imAnalyse(text, dateiname) {
+  if (!text || text.trim().length < 40) {
+    imStatus('Im Dokument wurde kaum Text gefunden. Gescannte PDFs ohne Textebene gehen nicht.');
+    return;
+  }
+  imStatus('Plan wird analysiert, das dauert etwa 20 Sekunden ...');
+  fetch('/api/distill', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ modus: 'plan', text: text, dateiname: dateiname, uebungen: EH_UEBUNGEN })
+  }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d.error) { imStatus('Fehlgeschlagen: ' + d.error); return; }
+    IM_PLAN = d.plan;
+    imStatus('');
+    document.getElementById('im-schritt1').style.display = 'none';
+    document.getElementById('im-schritt2').style.display = 'block';
+    imRender();
+  }).catch(function (e) { imStatus('Fehlgeschlagen: ' + e); });
+}
+
+function imOptionen(gewaehlt) {
+  return '<option value="">-- keine Zuordnung --</option>'
+    + EH_UEBUNGEN.map(function (id) {
+        return '<option value="' + id + '"' + (id === gewaehlt ? ' selected' : '') + '>'
+          + ehAnzeige(id).name + '</option>';
+      }).join('');
+}
+
+function imRender() {
+  var box = document.getElementById('im-schritt2');
+  var anzNeu = 0, anzGes = 0;
+  IM_PLAN.blocks.forEach(function (b) {
+    (b.slots || []).forEach(function (s) { anzGes++; if (s.neu) anzNeu++; });
+  });
+
+  var bloecke = IM_PLAN.blocks.map(function (b, bi) {
+    var zeilen = (b.slots || []).map(function (s, si) {
+      var zu;
+      if (s.neu) {
+        zu = '<div class="im-neu"><b>Neu anlegen: ' + (s.vorschlagName || s.roh) + '</b>'
+          + (s.vorschlagKey || '') + '</div>';
+      } else {
+        var a = s.imageKey ? ehAnzeige(s.imageKey) : null;
+        zu = '<div class="im-zu">'
+          + (a ? '<img src="/exercises/' + a.bild + '.png" alt="" onerror="this.style.visibility=\'hidden\'">' : '')
+          + '<select onchange="imSetzeKey(' + bi + ',' + si + ',this.value)">'
+          + imOptionen(s.imageKey) + '</select></div>';
+      }
+      var stufe = s.sicherheit === 'hoch' ? 'hoch' : (s.sicherheit === 'niedrig' ? 'niedrig' : 'mittel');
+      return '<div class="im-z">'
+        + '<div class="im-roh"><span class="im-sicher im-' + stufe + '"></span>' + (s.roh || '')
+        + (s.note ? '<em>' + s.note + '</em>' : '') + '</div>'
+        + zu
+        + '<div class="im-vorgabe">'
+          + '<input type="number" value="' + (s.sets || 3) + '" onchange="imSetze(' + bi + ',' + si + ',\'sets\',this.value)">'
+          + '<input type="number" value="' + (s.reps || 8) + '" onchange="imSetze(' + bi + ',' + si + ',\'reps\',this.value)">'
+          + '<select onchange="imSetze(' + bi + ',' + si + ',\'metric\',this.value)">'
+            + '<option value="reps"' + (s.metric === 'reps' ? ' selected' : '') + '>Wdh</option>'
+            + '<option value="dist"' + (s.metric === 'dist' ? ' selected' : '') + '>m</option>'
+            + '<option value="time"' + (s.metric === 'time' ? ' selected' : '') + '>min</option>'
+          + '</select></div>'
+        + '<button class="im-weg" onclick="imEntferne(' + bi + ',' + si + ')">&times;</button>'
+        + '</div>';
+    }).join('');
+
+    return '<div class="im-block"><div class="im-bl">'
+      + '<input value="' + (b.label || 'Block') + '" onchange="imBlock(' + bi + ',this.value)">'
+      + '<select onchange="imBlockTyp(' + bi + ',this.value)">'
+        + '<option value="warmup"' + (b.type === 'warmup' ? ' selected' : '') + '>Aufw\u00e4rmen</option>'
+        + '<option value="main"' + (b.type !== 'warmup' ? ' selected' : '') + '>Hauptteil</option>'
+      + '</select></div>' + zeilen + '</div>';
+  }).join('');
+
+  box.innerHTML = '<div class="im-kopf">'
+    + '<input id="im-name" value="' + String(IM_PLAN.name || 'Importierter Plan').replace(/"/g, '&quot;') + '">'
+    + '<span class="im-zahl">' + anzGes + ' \u00dcbungen, davon <b>' + anzNeu + ' neu</b></span></div>'
+    + bloecke
+    + '<div class="im-fuss">'
+      + '<span class="im-zahl">Gr\u00fcner Punkt heisst sichere Zuordnung, roter unsichere.</span>'
+      + '<span class="rechts">'
+      + '<button class="vl-abbr" onclick="imAbbruch()">Verwerfen</button>'
+      + '<button class="vl-speichern" onclick="imSpeichern()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>'
+      + 'Plan \u00fcbernehmen</button></span></div>';
+}
+
+function imSetze(bi, si, feld, wert) { IM_PLAN.blocks[bi].slots[si][feld] = wert; }
+function imSetzeKey(bi, si, wert) {
+  IM_PLAN.blocks[bi].slots[si].imageKey = wert;
+  imRender();
+}
+function imBlock(bi, wert) { IM_PLAN.blocks[bi].label = wert; }
+function imBlockTyp(bi, wert) { IM_PLAN.blocks[bi].type = wert; }
+function imEntferne(bi, si) {
+  IM_PLAN.blocks[bi].slots.splice(si, 1);
+  if (IM_PLAN.blocks[bi].slots.length === 0) IM_PLAN.blocks.splice(bi, 1);
+  imRender();
+}
+function imAbbruch() {
+  IM_PLAN = null;
+  document.getElementById('im-schritt2').style.display = 'none';
+  document.getElementById('im-schritt1').style.display = 'block';
+  document.getElementById('im-datei').value = '';
+  imStatus('');
+}
+
+function imSpeichern() {
+  if (!IM_PLAN) return;
+  var name = document.getElementById('im-name').value.trim() || 'Importierter Plan';
+  var neue = [];
+  IM_PLAN.blocks.forEach(function (b) {
+    (b.slots || []).forEach(function (s) {
+      if (s.neu && s.vorschlagKey) {
+        s.imageKey = s.vorschlagKey;
+        neue.push({ ex_id: s.vorschlagKey, name: s.vorschlagName || s.roh,
+                    kategorie: String(s.vorschlagKey).split('_')[1] || 'misc', image_key: '' });
+      }
+    });
+  });
+
+  var daten = { blocks: IM_PLAN.blocks.map(function (b) {
+    return { type: b.type === 'warmup' ? 'warmup' : 'main', label: b.label || 'Block',
+      slots: (b.slots || []).map(function (s) {
+        return { imageKey: s.imageKey || '', sets: Number(s.sets) || 3, reps: Number(s.reps) || 8,
+                 metric: s.metric || 'reps', intensity: '', rest: s.rest || '', group: '-', note: s.note || '' };
+      }) };
+  }) };
+
+  imStatus('');
+  var offen = neue.length;
+  function planSpeichern() {
+    fetch('/api/library?collection=plans', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, data: daten })
+    }).then(function (r) { return r.json(); }).then(function () {
+      alert('Plan gespeichert.' + (neue.length ? '\n' + neue.length
+        + ' neue \u00dcbungen angelegt. Sie stehen in der \u00dcbungsbibliothek unter \"ohne Bild\".' : ''));
+      imAbbruch();
+      ehLadeMeta(function () { ehZeige('bibliothek'); });
+    }).catch(function (e) { alert('Speichern fehlgeschlagen: ' + e); });
+  }
+
+  if (offen === 0) { planSpeichern(); return; }
+  neue.forEach(function (n) {
+    fetch('/api/library?collection=exercises', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(n)
+    }).catch(function () {}).then(function () {
+      offen--;
+      if (offen === 0) planSpeichern();
+    });
+  });
 }
 
 function ehLadePlaene() {
