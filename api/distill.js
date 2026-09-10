@@ -49,7 +49,7 @@ export default async function handler(req, res) {
         'REGELN',
         '- Ordne nur zu, wenn es wirklich dieselbe Uebung ist. Im Zweifel lieber als neu markieren.',
         '- Gib je Zuordnung an, wie sicher du bist: hoch, mittel oder niedrig.',
-        '- metric ist "reps" fuer Wiederholungen, "time" fuer Minuten, "dist" fuer Meter.',
+        '- metric ist "reps" fuer Wiederholungen, "time" fuer SEKUNDEN, "distance" fuer Meter.\n- Zeitangaben wie "30sek", "60 s" oder ein Uhrensymbol sind Sekunden: metric "time", reps = 30 bzw. 60.\n- Nur ausdrueckliche Minutenangaben umrechnen, 5 min wird zu reps 300.',
         '- Fehlt eine Angabe, setze einen plausiblen Wert und schreib den Grund in note.',
         '- Uebernimm Hinweise aus dem Original moeglichst woertlich in note.',
         '',
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
         '        { "roh": "so stand es im Original", "imageKey": "vorhandener-schluessel oder null",',
         '          "neu": true/false, "vorschlagKey": "nur wenn neu", "vorschlagName": "nur wenn neu",',
         '          "sicherheit": "hoch|mittel|niedrig",',
-        '          "sets": 3, "reps": 8, "metric": "reps", "rest": "60", "note": "" }',
+        '          "sets": 3, "reps": 8, "metric": "reps oder time oder distance", "rest": "60", "note": "" }',
         '      ] }',
         '  ]',
         '}'
