@@ -1352,6 +1352,13 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .im-fuss{display:flex;gap:10px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid #E4EADE;}
 .im-fuss .rechts{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:900px){.im-z{grid-template-columns:1fr;gap:8px;}}
+
+.im-zirkel{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:600;background:#EDF4EA;color:#0E6B36;white-space:nowrap;}
+.im-zirkel input[type=number]{width:38px;border:1px solid #CFE0C8;border-radius:6px;padding:2px 4px;
+  font-family:inherit;font-size:11px;text-align:center;background:#fff;color:#0E6B36;}
+.eh-zirkel{display:inline-block;margin-left:8px;padding:3px 9px;border-radius:20px;font-size:10.5px;
+  font-weight:600;background:#EDF4EA;color:#0E6B36;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2464,7 +2471,12 @@ function imRender() {
       + '<select onchange="imBlockTyp(' + bi + ',this.value)">'
         + '<option value="warmup"' + (b.type === 'warmup' ? ' selected' : '') + '>Aufw\u00e4rmen</option>'
         + '<option value="main"' + (b.type !== 'warmup' ? ' selected' : '') + '>Hauptteil</option>'
-      + '</select></div>' + zeilen + '</div>';
+      + '</select>'
+      + '<label class="im-zirkel"><input type="checkbox"' + (b.zirkel ? ' checked' : '')
+        + ' onchange="imZirkel(' + bi + ',this.checked)">Zirkel'
+        + (b.zirkel ? ' <input type="number" value="' + (b.runden || 4) + '" min="1" max="12"'
+            + ' onchange="imRunden(' + bi + ',this.value)"> Runden' : '') + '</label>'
+      + '</div>' + zeilen + '</div>';
   }).join('');
 
   box.innerHTML = '<div class="im-kopf">'
@@ -2487,6 +2499,21 @@ function imSetzeKey(bi, si, wert) {
 }
 function imBlock(bi, wert) { IM_PLAN.blocks[bi].label = wert; }
 function imBlockTyp(bi, wert) { IM_PLAN.blocks[bi].type = wert; }
+function imZirkel(bi, an) {
+  var b = IM_PLAN.blocks[bi];
+  b.zirkel = an;
+  if (an) {
+    b.runden = b.runden || Number(b.slots[0] && b.slots[0].sets) || 4;
+    b.slots.forEach(function (s) { s.sets = b.runden; });
+  }
+  imRender();
+}
+function imRunden(bi, wert) {
+  var b = IM_PLAN.blocks[bi];
+  b.runden = Number(wert) || 1;
+  b.slots.forEach(function (s) { s.sets = b.runden; });
+  imRender();
+}
 function imEntferne(bi, si) {
   IM_PLAN.blocks[bi].slots.splice(si, 1);
   if (IM_PLAN.blocks[bi].slots.length === 0) IM_PLAN.blocks.splice(bi, 1);
@@ -2514,11 +2541,14 @@ function imSpeichern() {
     });
   });
 
+  var buchstabe = 0;
   var daten = { blocks: IM_PLAN.blocks.map(function (b) {
+    var gruppe = '-';
+    if (b.zirkel) { gruppe = String.fromCharCode(65 + buchstabe); buchstabe++; }
     return { type: b.type === 'warmup' ? 'warmup' : 'main', label: b.label || 'Block',
       slots: (b.slots || []).map(function (s) {
         return { imageKey: s.imageKey || '', sets: Number(s.sets) || 3, reps: Number(s.reps) || 8,
-                 metric: s.metric || 'reps', intensity: '', rest: s.rest || '', group: '-', note: s.note || '' };
+                 metric: s.metric || 'reps', intensity: '', rest: s.rest || '', group: gruppe, note: s.note || '' };
       }) };
   }) };
 
@@ -2620,8 +2650,13 @@ function ehPlanAuf(idx) {
         + (sl.note ? '<span>' + sl.note + '</span>' : '')
         + '</div></div>';
     }).join('');
+    var g0 = (b.slots && b.slots[0]) ? (b.slots[0].group || '-') : '-';
+    var istZirkel = g0 !== '-' && (b.slots || []).length > 1
+      && (b.slots || []).every(function (s) { return (s.group || '-') === g0; });
     return '<div class="eh-block"><div class="eh-bl"><b>' + (b.label || 'Block') + '</b>'
-      + '<i>' + (b.type === 'warmup' ? 'Aufw\u00e4rmen' : 'Hauptteil') + '</i></div>'
+      + '<i>' + (b.type === 'warmup' ? 'Aufw\u00e4rmen' : 'Hauptteil') + '</i>'
+      + (istZirkel ? '<span class="eh-zirkel">Zirkel, ' + (b.slots[0].sets || '')
+          + ' Runden</span>' : '') + '</div>'
       + '<div class="eh-slots">' + slots + '</div></div>';
   }).join('')
   + '<div class="eh-pakt">'
