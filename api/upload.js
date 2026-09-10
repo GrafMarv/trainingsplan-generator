@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
   try {
-    const { filename, imageBase64, ordner } = req.body;
+    const { filename, imageBase64, ordner, loeschen } = req.body;
     const zielOrdner = (ordner === 'plaene') ? 'plaene' : 'exercises';
     const token = process.env.GITHUB_TOKEN;
     if (!token) return res.status(500).json({ error: 'GitHub Token fehlt' });
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     if (typeof filename !== 'string' || !muster.test(filename) || filename.includes('..')) {
       return res.status(400).json({ error: 'Ungueltiger Dateiname' });
     }
-    if (typeof imageBase64 !== 'string' || imageBase64.length === 0) {
+    if (!loeschen && (typeof imageBase64 !== 'string' || imageBase64.length === 0)) {
       return res.status(400).json({ error: 'Kein Bildinhalt' });
     }
 
@@ -33,6 +33,20 @@ export default async function handler(req, res) {
     if (vorhanden.ok) {
       const info = await vorhanden.json();
       sha = info.sha || null;
+    }
+
+    if (loeschen) {
+      if (!sha) return res.status(200).json({ ok: true, hinweis: 'Datei existierte nicht' });
+      const weg = await fetch(url, {
+        method: 'DELETE',
+        headers: ghHeaders,
+        body: JSON.stringify({ message: `datei entfernt: ${filename}`, sha: sha, branch: 'main' })
+      });
+      if (!weg.ok) {
+        const e2 = await weg.json();
+        return res.status(500).json({ error: 'GitHub ' + weg.status + ': ' + (e2.message || '') });
+      }
+      return res.status(200).json({ ok: true, geloescht: true });
     }
 
     const nutzlast = {
