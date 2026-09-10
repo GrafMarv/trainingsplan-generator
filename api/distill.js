@@ -14,6 +14,104 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // ---- Modus "plan": aus einem alten Trainingsplan Bloecke und Uebungen herauslesen ----
+  if ((req.body || {}).modus === 'plan') {
+    try {
+      const KEY = process.env.ANTHROPIC_API_KEY;
+      if (!KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY fehlt' });
+
+      let { text, uebungen, dateiname } = req.body || {};
+      if (typeof text !== 'string' || !text.trim()) {
+        return res.status(400).json({ error: 'Kein Text uebergeben' });
+      }
+      text = text.slice(0, 24000);
+      const liste = Array.isArray(uebungen) ? uebungen.slice(0, 400) : [];
+
+      const bestand = liste.map(function (id) {
+        const teile = String(id).split('_');
+        const name = teile[0].replace(/-/g, ' ');
+        return id + '  =  ' + name + (teile[1] ? '  [' + teile.slice(1).join(', ') + ']' : '');
+      }).join('\n');
+
+      const prompt = [
+        'Du bekommst den Text eines alten Trainingsplans aus dem Nachwuchsleistungssport Hockey.',
+        'Wandle ihn in ein strukturiertes Format um.',
+        '',
+        'AUFGABE',
+        '1. Erkenne die Bloecke des Plans (z.B. Aufwaermen, Lauf-ABC, Hauptteil, Ausklang).',
+        '2. Erkenne je Block die einzelnen Uebungen mit Saetzen, Wiederholungen bzw. Zeit oder Distanz.',
+        '3. Ordne jede Uebung einer vorhandenen Uebung aus dem BESTAND zu, wenn es eine passende gibt.',
+        '4. Gibt es keine passende, markiere sie als neu und schlage einen Dateischluessel im Schema vor:',
+        '   name-mit-bindestrichen_kategorie_subkategorie_merkmal_dynamik',
+        '   Kategorien: strength, mobility, sprint, jump, agility, misc',
+        '',
+        'REGELN',
+        '- Ordne nur zu, wenn es wirklich dieselbe Uebung ist. Im Zweifel lieber als neu markieren.',
+        '- Gib je Zuordnung an, wie sicher du bist: hoch, mittel oder niedrig.',
+        '- metric ist "reps" fuer Wiederholungen, "time" fuer Minuten, "dist" fuer Meter.',
+        '- Fehlt eine Angabe, setze einen plausiblen Wert und schreib den Grund in note.',
+        '- Uebernimm Hinweise aus dem Original moeglichst woertlich in note.',
+        '',
+        'BESTAND (Dateischluessel = Name [Merkmale])',
+        bestand || '(leer)',
+        '',
+        'PLANTEXT',
+        text,
+        '',
+        'Antworte AUSSCHLIESSLICH mit JSON in genau dieser Form, ohne Vor- oder Nachtext:',
+        '{',
+        '  "name": "Kurzer Name des Plans",',
+        '  "blocks": [',
+        '    { "type": "warmup" oder "main", "label": "Blockname",',
+        '      "slots": [',
+        '        { "roh": "so stand es im Original", "imageKey": "vorhandener-schluessel oder null",',
+        '          "neu": true/false, "vorschlagKey": "nur wenn neu", "vorschlagName": "nur wenn neu",',
+        '          "sicherheit": "hoch|mittel|niedrig",',
+        '          "sets": 3, "reps": 8, "metric": "reps", "rest": "60", "note": "" }',
+        '      ] }',
+        '  ]',
+        '}'
+      ].join('\n');
+
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-5',
+          max_tokens: 8000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const daten = await r.json();
+      if (!r.ok) {
+        return res.status(500).json({ error: (daten.error && daten.error.message) || 'Analyse fehlgeschlagen' });
+      }
+
+      let roh = (daten.content || []).map(function (c) { return c.text || ''; }).join('').trim();
+      roh = roh.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '').trim();
+
+      let plan;
+      try {
+        plan = JSON.parse(roh);
+      } catch (e) {
+        const a = roh.indexOf('{'), b = roh.lastIndexOf('}');
+        if (a < 0 || b < 0) return res.status(500).json({ error: 'Antwort war kein JSON', roh: roh.slice(0, 400) });
+        plan = JSON.parse(roh.slice(a, b + 1));
+      }
+
+      if (dateiname && !plan.name) plan.name = String(dateiname).replace(/\.pdf$/i, '');
+      return res.status(200).json({ plan: plan });
+
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
   try {
     const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
     if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY fehlt' });
