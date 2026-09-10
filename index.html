@@ -1359,6 +1359,30 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   font-family:inherit;font-size:11px;text-align:center;background:#fff;color:#0E6B36;}
 .eh-zirkel{display:inline-block;margin-left:8px;padding:3px 9px;border-radius:20px;font-size:10.5px;
   font-weight:600;background:#EDF4EA;color:#0E6B36;}
+
+.im-neu{display:flex;align-items:center;gap:10px;}
+.im-neu-txt{flex:1;min-width:0;background:#FFF6E8;border:1px solid #F5D9AC;border-radius:8px;
+  padding:8px 10px;font-size:12px;color:#B26B00;}
+.im-neu-txt b{display:block;font-weight:600;font-size:12.5px;color:#8A5200;}
+.im-anlegen{padding:9px 13px;border:1px solid #0E6B36;border-radius:8px;background:#0E6B36;color:#fff;
+  font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.im-anlegen:hover{background:#0A5A2C;}
+.im-fertig{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#1E7A3E;font-weight:600;}
+.im-fertig svg{width:15px;height:15px;stroke:#1E7A3E;fill:none;stroke-width:2.2;}
+
+.na-dialog{background:#fff;border-radius:18px;width:100%;max-width:520px;display:flex;flex-direction:column;}
+.na-body{padding:0 28px 22px;}
+.na-f{margin-bottom:16px;}
+.na-f label{display:block;font-size:12.5px;font-weight:600;color:#12301F;margin-bottom:7px;}
+.na-f input,.na-f select{width:100%;padding:11px 13px;border:1px solid #DCE3D6;border-radius:10px;
+  font-family:inherit;font-size:14px;color:#12301F;outline:none;box-sizing:border-box;background:#fff;}
+.na-f input:focus,.na-f select:focus{border-color:#57B84A;box-shadow:0 0 0 3px rgba(87,184,74,.16);}
+.na-f small{display:block;margin-top:6px;font-size:11.5px;color:#8B978C;line-height:1.45;}
+.na-key{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:#F5F8F3;}
+
+.eh-ue.ohnebild .eh-platz{width:100%;height:128px;background:#F5F8F3;display:flex;align-items:center;
+  justify-content:center;color:#B4BFB6;font-size:12px;}
+.eh-ue.ohnebild{border-style:dashed;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2423,9 +2447,9 @@ function imAnalyse(quelle, dateiname) {
 
 function imOptionen(gewaehlt) {
   return '<option value="">-- keine Zuordnung --</option>'
-    + EH_UEBUNGEN.map(function (id) {
+    + ehAlleUebungen().map(function (id) {
         return '<option value="' + id + '"' + (id === gewaehlt ? ' selected' : '') + '>'
-          + ehAnzeige(id).name + '</option>';
+          + ehAnzeige(id).name + (ehHatBild(id) ? '' : '  (ohne Bild)') + '</option>';
       }).join('');
 }
 
@@ -2440,8 +2464,14 @@ function imRender() {
     var zeilen = (b.slots || []).map(function (s, si) {
       var zu;
       if (s.neu) {
-        zu = '<div class="im-neu"><b>Neu anlegen: ' + (s.vorschlagName || s.roh) + '</b>'
-          + (s.vorschlagKey || '') + '</div>';
+        zu = '<div class="im-neu"><div class="im-neu-txt"><b>'
+          + (s.vorschlagName || s.roh) + '</b>noch nicht in der Bibliothek</div>'
+          + '<button class="im-anlegen" onclick="naOeffnen(' + bi + ',' + si + ')">Anlegen</button></div>';
+      } else if (s.frischAngelegt) {
+        var af = ehAnzeige(s.imageKey);
+        zu = '<div class="im-fertig">'
+          + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>'
+          + 'Angelegt: ' + af.name + '</div>';
       } else {
         var a = s.imageKey ? ehAnzeige(s.imageKey) : null;
         zu = '<div class="im-zu">'
@@ -2490,6 +2520,99 @@ function imRender() {
       + '<button class="vl-speichern" onclick="imSpeichern()">'
       + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>'
       + 'Plan \u00fcbernehmen</button></span></div>';
+}
+
+var NA_ZIEL = null;
+
+function naSchluessel(name, kat, sub) {
+  var basis = String(name).toLowerCase()
+    .replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue').replace(/\u00df/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return basis + '_' + (kat || 'misc') + (sub ? '_' + sub : '');
+}
+
+function naOeffnen(bi, si) {
+  NA_ZIEL = { bi: bi, si: si };
+  var s = IM_PLAN.blocks[bi].slots[si];
+  var vName = s.vorschlagName || s.roh || '';
+  var vKey = s.vorschlagKey || '';
+  var teile = vKey.split('_');
+  var vKat = teile[1] || 'misc';
+  var vSub = teile.slice(2).join('_');
+
+  peSchliessen();
+  var o = document.createElement('div');
+  o.id = 'pe-overlay';
+  o.className = 'pe-overlay';
+  o.innerHTML = '<div class="na-dialog">'
+    + '<div class="vl-dkopf"><div><h4>\u00dcbung anlegen</h4>'
+      + '<p>Sie wird sofort in der Bibliothek gespeichert, das Bild kannst du sp\u00e4ter erg\u00e4nzen.</p></div>'
+      + '<button class="vl-x" onclick="peSchliessen()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'
+    + '<div class="na-body">'
+      + '<div class="na-f"><label>Name</label>'
+        + '<input type="text" id="na-name" value="' + vName.replace(/"/g, '&quot;') + '"'
+        + ' oninput="naKeyNeu()"><small>So steht die \u00dcbung sp\u00e4ter in der Bibliothek und im Plan.</small></div>'
+      + '<div class="na-f"><label>Kategorie</label><select id="na-kat" onchange="naKeyNeu()">'
+        + ['strength','mobility','sprint','jump','agility','misc'].map(function (k) {
+            return '<option value="' + k + '"' + (k === vKat ? ' selected' : '') + '>' + k + '</option>';
+          }).join('')
+      + '</select></div>'
+      + '<div class="na-f"><label>Merkmale (optional)</label>'
+        + '<input type="text" id="na-sub" value="' + vSub + '" oninput="naKeyNeu()"'
+        + ' placeholder="z.B. core_antirotation_sta_bi">'
+        + '<small>Mit Unterstrich getrennt. Bestimmt sp\u00e4ter die Filterung.</small></div>'
+      + '<div class="na-f"><label>Dateischl\u00fcssel</label>'
+        + '<input type="text" id="na-key" class="na-key" value="' + vKey + '">'
+        + '<small id="na-warn">Unter diesem Namen muss sp\u00e4ter das Bild abgelegt werden.</small></div>'
+    + '</div>'
+    + '<div class="vl-fuss"><button class="vl-abbr" onclick="peSchliessen()">Abbrechen</button>'
+      + '<button class="vl-speichern" onclick="naSpeichern()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>'
+      + 'In Bibliothek anlegen</button></div></div>';
+  o.addEventListener('click', function (ev) { if (ev.target === o) peSchliessen(); });
+  document.body.appendChild(o);
+  naKeyNeu();
+}
+
+function naKeyNeu() {
+  var n = document.getElementById('na-name');
+  var k = document.getElementById('na-kat');
+  var s = document.getElementById('na-sub');
+  var f = document.getElementById('na-key');
+  var w = document.getElementById('na-warn');
+  if (!n || !f) return;
+  f.value = naSchluessel(n.value, k.value, s.value.trim());
+  if (w) {
+    var da = ehAlleUebungen().indexOf(f.value) > -1;
+    w.textContent = da
+      ? 'Achtung: Diesen Schluessel gibt es bereits. Beim Speichern wird der vorhandene Eintrag ueberschrieben.'
+      : 'Unter diesem Namen muss spaeter das Bild abgelegt werden.';
+    w.style.color = da ? '#C0392B' : '#8B978C';
+  }
+}
+
+function naSpeichern() {
+  if (!NA_ZIEL) return;
+  var name = document.getElementById('na-name').value.trim();
+  var kat = document.getElementById('na-kat').value;
+  var key = document.getElementById('na-key').value.trim();
+  if (!name || !key) { alert('Name und Dateischluessel duerfen nicht leer sein.'); return; }
+
+  fetch('/api/library?collection=exercises', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ex_id: key, name: name, kategorie: kat, image_key: '' })
+  }).then(function (r) { return r.json(); }).then(function (res) {
+    if (res.error) { alert('Anlegen fehlgeschlagen: ' + res.error); return; }
+    EH_META[key] = { ex_id: key, name: name, kategorie: kat, image_key: '' };
+    var s = IM_PLAN.blocks[NA_ZIEL.bi].slots[NA_ZIEL.si];
+    s.neu = false;
+    s.frischAngelegt = true;
+    s.imageKey = key;
+    peSchliessen();
+    imRender();
+  }).catch(function (e) { alert('Anlegen fehlgeschlagen: ' + e); });
 }
 
 function imSetze(bi, si, feld, wert) { IM_PLAN.blocks[bi].slots[si][feld] = wert; }
@@ -2699,6 +2822,21 @@ function ehLadeMeta(fertig) {
   }).catch(function(){ if (fertig) fertig(); });
 }
 
+// Alle Uebungen: Bilder im Ordner plus Eintraege, die nur in der Datenbank stehen
+function ehAlleUebungen() {
+  var alle = EH_UEBUNGEN.slice();
+  Object.keys(EH_META).forEach(function (k) {
+    if (alle.indexOf(k) === -1) alle.push(k);
+  });
+  return alle;
+}
+
+function ehHatBild(id) {
+  if (EH_UEBUNGEN.indexOf(id) > -1) return true;
+  var m = EH_META[id];
+  return !!(m && m.image_key);
+}
+
 function ehAnzeige(id) {
   var m = EH_META[id] || {};
   return {
@@ -2871,14 +3009,19 @@ function ehLadeUebungen() {
 
 function ehChips() {
   var kat = {};
-  EH_UEBUNGEN.forEach(function(id) {
+  var alle = ehAlleUebungen();
+  var ohne = 0;
+  alle.forEach(function(id) {
     var k2 = ehAnzeige(id).kategorie;
     if (k2) kat[k2] = (kat[k2] || 0) + 1;
+    if (!ehHatBild(id)) ohne++;
   });
   var keys = Object.keys(kat).sort();
   document.getElementById('eh-chips').innerHTML =
     '<button class="eh-chip' + (EH_KAT === '' ? ' an' : '') + '" onclick="ehSetKat(\'\')">Alle ('
-    + EH_UEBUNGEN.length + ')</button>'
+    + alle.length + ')</button>'
+    + (ohne ? '<button class="eh-chip' + (EH_KAT === '_ohnebild' ? ' an' : '')
+        + '" onclick="ehSetKat(\'_ohnebild\')">Ohne Bild (' + ohne + ')</button>' : '')
     + keys.map(function(k) {
         return '<button class="eh-chip' + (EH_KAT === k ? ' an' : '') + '" onclick="ehSetKat(\'' + k + '\')">'
           + k.charAt(0).toUpperCase() + k.slice(1) + ' (' + kat[k] + ')</button>';
@@ -2893,8 +3036,9 @@ function ehSetKat(k) {
 
 function ehRenderUebungen() {
   var q = (document.getElementById('eh-q').value || '').toLowerCase().trim();
-  var liste = EH_UEBUNGEN.filter(function(id) {
-    if (EH_KAT && ehAnzeige(id).kategorie !== EH_KAT) return false;
+  var liste = ehAlleUebungen().filter(function(id) {
+    if (EH_KAT === '_ohnebild') { if (ehHatBild(id)) return false; }
+    else if (EH_KAT && ehAnzeige(id).kategorie !== EH_KAT) return false;
     if (q && id.indexOf(q.replace(/ /g, '-')) === -1 && id.indexOf(q) === -1) return false;
     return true;
   });
@@ -2905,11 +3049,13 @@ function ehRenderUebungen() {
   }
   g.innerHTML = liste.map(function(id) {
     var a = ehAnzeige(id);
+    var hat = ehHatBild(id);
     var geaendert = !!EH_META[id];
-    return '<div class="eh-ue" onclick="ubOeffnen(\'' + id + '\')">'
-      + '<img src="/exercises/' + a.bild + '.png" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+    return '<div class="eh-ue' + (hat ? '' : ' ohnebild') + '" onclick="ubOeffnen(\'' + id + '\')">'
+      + (hat ? '<img src="/exercises/' + a.bild + '.png" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+             : '<div class="eh-platz">Bild fehlt</div>')
       + '<div class="eh-ue-t"><b>' + a.name + '</b><span>' + a.kategorie
-      + (geaendert ? ' \u00b7 angepasst' : '') + '</span></div>'
+      + (hat ? (geaendert ? ' \u00b7 angepasst' : '') : ' \u00b7 ohne Bild') + '</span></div>'
       + '</div>';
   }).join('');
 }
