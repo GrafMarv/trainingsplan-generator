@@ -3,19 +3,23 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
   try {
-    const { filename, imageBase64 } = req.body;
+    const { filename, imageBase64, ordner } = req.body;
+    const zielOrdner = (ordner === 'plaene') ? 'plaene' : 'exercises';
     const token = process.env.GITHUB_TOKEN;
     if (!token) return res.status(500).json({ error: 'GitHub Token fehlt' });
 
     // Validierung: nur einfache Bilddateinamen, keine Pfade oder Sonderzeichen
-    if (typeof filename !== 'string' || !/^[a-z0-9._-]+\.(png|jpg|jpeg|webp)$/i.test(filename) || filename.includes('..')) {
+    const muster = zielOrdner === 'plaene'
+      ? /^[a-z0-9._-]+\.pdf$/i
+      : /^[a-z0-9._-]+\.(png|jpg|jpeg|webp)$/i;
+    if (typeof filename !== 'string' || !muster.test(filename) || filename.includes('..')) {
       return res.status(400).json({ error: 'Ungueltiger Dateiname' });
     }
     if (typeof imageBase64 !== 'string' || imageBase64.length === 0) {
       return res.status(400).json({ error: 'Kein Bildinhalt' });
     }
 
-    const url = `https://api.github.com/repos/GrafMarv/trainingsplan-generator/contents/exercises/${filename}`;
+    const url = `https://api.github.com/repos/GrafMarv/trainingsplan-generator/contents/${zielOrdner}/${filename}`;
     const ghHeaders = {
       'Authorization': `token ${token}`,
       'Accept': 'application/vnd.github.v3+json',
