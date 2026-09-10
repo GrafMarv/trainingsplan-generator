@@ -1398,6 +1398,13 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   border-radius:9px;background:#fff;color:#0E6B36;text-decoration:none;font-size:13.5px;font-weight:600;}
 .eh-pdfk a:hover{border-color:#0E6B36;}
 @media(max-width:700px){.im-wahl{grid-template-columns:1fr;}}
+
+.ub-loeschen{background:none;border:0;color:#D93025;font-family:inherit;font-size:13px;
+  font-weight:600;cursor:pointer;padding:0;margin-right:auto;}
+.ub-loeschen:hover{text-decoration:underline;}
+.ub-warn{background:#FBEDEC;border:1px solid #F3C9C4;border-radius:10px;padding:13px 15px;
+  font-size:13px;color:#8C2E24;line-height:1.5;margin-top:14px;}
+.ub-warn b{display:block;margin-bottom:4px;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2994,6 +3001,7 @@ function ubOeffnen(id) {
       + '</div>'
     + '</div>'
     + '<div class="vl-fuss">'
+      + '<button class="ub-loeschen" onclick="ubLoeschen()">\u00dcbung l\u00f6schen</button>'
       + '<button class="vl-abbr" onclick="ubZuruecksetzen()">Auf Standard zur\u00fccksetzen</button>'
       + '<button class="vl-speichern" onclick="ubSpeichern()">'
       + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>Speichern</button>'
@@ -3071,6 +3079,67 @@ function ubBildWaehlen(key) {
   if (g) g.innerHTML = '';
   var b = document.getElementById('ub-tauschbereich');
   if (b) b.innerHTML = '';
+}
+
+function ubVerwendung(key, fertig) {
+  fetch('/api/library?collection=plans').then(function (r) { return r.json(); }).then(function (d) {
+    var namen = [];
+    ((d && d.items) || []).forEach(function (it) {
+      var bl = (it.data && it.data.blocks) ? it.data.blocks : [];
+      var drin = bl.some(function (b) {
+        return (b.slots || []).some(function (s) { return s.imageKey === key; });
+      });
+      if (drin) namen.push(it.name || 'Ohne Namen');
+    });
+    fertig(namen);
+  }).catch(function () { fertig(null); });
+}
+
+function ubLoeschen() {
+  var key = UB_AKTUELL;
+  var a = ehAnzeige(key);
+  var hatBild = ehHatBild(key) && EH_UEBUNGEN.indexOf(key) > -1;
+
+  ubVerwendung(key, function (plaene) {
+    var text = '\u00dcbung "' + a.name + '" endgueltig loeschen?\n\n';
+    if (plaene === null) {
+      text += 'Die Plaene konnten nicht geprueft werden.\n\n';
+    } else if (plaene.length > 0) {
+      text += 'ACHTUNG: Sie wird in ' + plaene.length + ' Plan'
+        + (plaene.length === 1 ? '' : 'en') + ' verwendet:\n'
+        + plaene.slice(0, 8).map(function (n) { return '- ' + n; }).join('\n')
+        + (plaene.length > 8 ? '\n- ...' : '')
+        + '\n\nDort bleibt die Zeile stehen, verliert aber Bild und Bezeichnung.\n\n';
+    } else {
+      text += 'Sie wird in keinem gespeicherten Plan verwendet.\n\n';
+    }
+    if (hatBild) text += 'Das Bild wird ebenfalls aus dem Ordner entfernt.\n\n';
+    text += 'Das laesst sich nicht rueckgaengig machen.';
+
+    if (!confirm(text)) return;
+
+    function fertig() {
+      delete EH_META[key];
+      if (window.EX_NAMEN) delete window.EX_NAMEN[key];
+      var i2 = EH_UEBUNGEN.indexOf(key);
+      if (i2 > -1) EH_UEBUNGEN.splice(i2, 1);
+      peSchliessen();
+      ehChips(); ehRenderUebungen();
+    }
+
+    fetch('/api/library?collection=exercises&id=' + encodeURIComponent(key), { method: 'DELETE' })
+      .catch(function () {})
+      .then(function () {
+        if (!hatBild) { fertig(); return; }
+        fetch('/api/upload', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: key + '.png', ordner: 'exercises', loeschen: true })
+        }).then(function (r) { return r.json(); }).then(function (res) {
+          if (res.error) alert('Eintrag entfernt, das Bild konnte nicht geloescht werden: ' + res.error);
+          fertig();
+        }).catch(function () { fertig(); });
+      });
+  });
 }
 
 function ubSpeichern() {
