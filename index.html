@@ -1463,6 +1463,56 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .pv-w.leer{color:#C3CCC5;}
 .pv-diff{font-size:11px;color:#C0392B;font-weight:600;display:block;margin-top:3px;}
 @media(max-width:760px){.pv-test{grid-template-columns:1fr;gap:8px;}}
+
+/* ===== Praeventionsseite ===== */
+#praev-screen{display:none;min-height:100vh;background:#F7F8F4;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#12301F;}
+.px-banner{position:relative;overflow:hidden;border-radius:18px;background:#0B4A28;padding:26px 28px 28px;margin-bottom:18px;}
+.px-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(112deg,transparent 0%,transparent 56%,#1C7A3E 56%,#1C7A3E 70%,#57B84A 70%,#57B84A 86%,#8FC63D 86%);opacity:.95;}
+.px-in{position:relative;z-index:2;display:flex;align-items:flex-end;gap:20px;}
+.px-back{background:none;border:0;color:#9FD4A8;font-family:inherit;font-size:13px;cursor:pointer;padding:0;margin-bottom:14px;}
+.cb-light .px-h1,.px-h1{font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;
+  font-size:clamp(28px,3.8vw,40px);line-height:1;letter-spacing:-.03em;color:#fff;margin:0;}
+.px-sub{margin-top:9px;font-size:14px;color:rgba(255,255,255,.78);}
+.px-neu{position:relative;z-index:2;margin-left:auto;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);
+  color:#fff;border-radius:10px;padding:10px 16px;font-family:inherit;font-size:13px;cursor:pointer;}
+.px-neu:hover{background:rgba(255,255,255,.24);}
+
+.px-cols{display:grid;grid-template-columns:430px minmax(0,1fr);gap:18px;align-items:start;}
+.px-karte{background:#fff;border:1px solid #E4EADE;border-radius:14px;padding:20px 22px;}
+.px-karte h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin:0 0 4px;}
+.px-karte p.hint{margin:0 0 16px;font-size:12.5px;color:#8B978C;}
+.px-figs{display:flex;gap:12px;justify-content:center;}
+.px-fig{text-align:center;}
+.px-fig small{display:block;margin-top:8px;font-size:12px;color:#6B7A6E;}
+.px-z{stroke:#fff;stroke-width:1;cursor:pointer;transition:opacity .12s ease;}
+.px-z:hover{opacity:.75;}
+.px-z.gut{fill:#4CAF50;}
+.px-z.schlecht{fill:#E04A3F;}
+.px-z.leer{fill:#E4EAE0;}
+.px-neutral{fill:#F1F5EF;stroke:#fff;stroke-width:1;}
+.px-leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid #EEF2EB;
+  font-size:11.5px;color:#6B7A6E;}
+.px-leg i{font-style:normal;display:inline-flex;align-items:center;gap:6px;}
+.px-pt{width:10px;height:10px;border-radius:3px;display:inline-block;}
+
+.px-info{margin-top:14px;background:#F5F8F3;border-radius:11px;padding:14px 16px;min-height:52px;}
+.px-info b{display:block;font-size:13.5px;font-weight:600;}
+.px-info span{display:block;margin-top:4px;font-size:12.5px;color:#6B7A6E;line-height:1.5;}
+
+.px-tab{width:100%;border-collapse:collapse;font-size:13px;}
+.px-tab th{text-align:center;font-weight:500;font-size:11px;color:#6B7A6E;padding:9px 6px;background:#F5F8F3;}
+.px-tab th:first-child{text-align:left;border-radius:8px 0 0 8px;padding-left:12px;}
+.px-tab th:last-child{border-radius:0 8px 8px 0;}
+.px-tab td{padding:10px 6px;border-bottom:1px solid #F0F4EE;text-align:center;font-variant-numeric:tabular-nums;}
+.px-tab td:first-child{text-align:left;padding-left:12px;}
+.px-tab tr:last-child td{border-bottom:0;}
+.px-tab tr.grp td{background:#FAFCF9;font-weight:600;font-size:11.5px;color:#3F5145;padding:8px 12px;}
+.px-w{display:inline-block;min-width:42px;padding:4px 9px;border-radius:7px;font-weight:600;font-size:12.5px;}
+.px-w.gut{background:#EAF5E9;color:#1E7A3E;}
+.px-w.schlecht{background:#FBEDEC;color:#C0392B;}
+.px-w.leer{color:#C3CCC5;}
+.px-diff{display:block;margin-top:3px;font-size:10.5px;color:#C0392B;font-weight:600;}
+@media(max-width:1150px){.px-cols{grid-template-columns:1fr;}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1733,6 +1783,46 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
  </div>
 </div>
 
+<!-- PRAEVENTIONS-SCREEN -->
+<div id="praev-screen">
+ <div class="tv">
+  <aside class="tv-side" id="side-praev"></aside>
+  <main class="tv-main">
+    <div class="px-banner">
+      <div class="px-in">
+        <div>
+          <button class="px-back" id="px-back">&#8592; Zum Spieler</button>
+          <h1 class="px-h1">Pr&auml;ventionsdiagnostik</h1>
+          <p class="px-sub" id="px-sub"></p>
+        </div>
+      </div>
+      <button class="px-neu" onclick="pvOeffnen()" style="position:absolute;right:28px;bottom:28px;">
+        Neue Erhebung</button>
+    </div>
+
+    <div class="px-cols">
+      <div class="px-karte">
+        <h4>K&ouml;rperkarte</h4>
+        <p class="hint">Farbe zeigt die letzte Erhebung. Zone anklicken f&uuml;r Details.</p>
+        <div class="px-figs" id="px-figs"></div>
+        <div class="px-info" id="px-info"><b>Zone w&auml;hlen</b>
+          <span>Tippe auf einen eingef&auml;rbten Bereich, um Test und Wert zu sehen.</span></div>
+        <div class="px-leg">
+          <i><span class="px-pt" style="background:#4CAF50;"></span>unauff&auml;llig</i>
+          <i><span class="px-pt" style="background:#E04A3F;"></span>auff&auml;llig</i>
+          <i><span class="px-pt" style="background:#E4EAE0;"></span>nicht erfasst</i>
+        </div>
+      </div>
+      <div class="px-karte">
+        <h4>Werte im Verlauf</h4>
+        <p class="hint">Neueste Erhebung links.</p>
+        <div id="px-tabelle"></div>
+      </div>
+    </div>
+  </main>
+ </div>
+</div>
+
 <!-- WISSEN SCREEN -->
 <div id="wissen-screen" class="cb-dark" style="display:none;">
   <div style="max-width:960px;margin:0 auto;padding:20px 32px 0;display:flex;align-items:center;justify-content:space-between;">
@@ -1928,7 +2018,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
     <div class="pd-stamm" id="pv-stamm"></div>
 
-    <button class="pv-bar" id="pv-praev-bar" onclick="pvOeffnen()">
+    <button class="pv-bar" id="pv-praev-bar" onclick="pxOeffnen()">
       <span class="pv-bico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
       <span class="pv-btxt"><b>Pr&auml;ventionsdiagnostik</b>
@@ -2222,6 +2312,7 @@ function goTo(screen) {
   var _ts = document.getElementById('team-screen'); if (_ts) _ts.style.display = 'none';
   var _es = document.getElementById('einheiten-screen'); if (_es) _es.style.display = 'none';
   var _ws = document.getElementById('wechsel-screen'); if (_ws) _ws.style.display = 'none';
+  var _ps = document.getElementById('praev-screen'); if (_ps) _ps.style.display = 'none';
   if (screen === 'generator' || screen === 'umbenenner') {
     const app = document.getElementById('app-screen');
     app.style.display = 'block';
@@ -2393,6 +2484,8 @@ function whvSideInit() {
   var e = document.getElementById('side-einheiten');
   var w = document.getElementById('side-wechsel');
   if (w) w.innerHTML = whvSide('', false);
+  var px = document.getElementById('side-praev');
+  if (px) px.innerHTML = whvSide('profile', false);
   if (t) t.innerHTML = whvSide('team', true);
   if (p) p.innerHTML = whvSide('profile', false);
   if (d) d.innerHTML = whvSide('diagnostik', false);
@@ -3616,6 +3709,7 @@ function goHome() {
   var _t = document.getElementById('team-screen'); if (_t) _t.style.display = 'none';
   var _e = document.getElementById('einheiten-screen'); if (_e) _e.style.display = 'none';
   var _w = document.getElementById('wechsel-screen'); if (_w) _w.style.display = 'none';
+  var _p2 = document.getElementById('praev-screen'); if (_p2) _p2.style.display = 'none';
   if (window.whvHomeCounts) whvHomeCounts();
   PL_PENDING = null;
 }
@@ -5516,6 +5610,187 @@ function pvRenderBar(p) {
     : '<span class="pv-zahl warn">' + z.auffaellig + ' auff\u00e4llig</span>';
 }
 
+// Zuordnung Test -> Koerperzone
+var PX_ZONEN = {
+  ktw:    { zone: 'sprung',   l: 'Sprunggelenk' },
+  aslr:   { zone: 'ospost',   l: 'Oberschenkel hinten' },
+  couch:  { zone: 'osant',    l: 'Oberschenkel vorne' },
+  n9090:  { zone: 'huefte',   l: 'H\u00fcfte' },
+  fersen: { zone: 'knie',     l: 'Knie' },
+  mtp:    { zone: 'zehen',    l: 'Gro\u00dfzehe' },
+  ob:     { zone: 'ruecken',  l: 'BWS / LWS' },
+  toe:    { zone: 'kette',    l: 'Hintere Kette' }
+};
+
+function pxTestZu(zone) {
+  for (var k in PX_ZONEN) { if (PX_ZONEN[k].zone === zone) return k; }
+  return null;
+}
+
+function pxStatus(e, testK, seite) {
+  var t = null;
+  PRAEV.forEach(function (x) { if (x.k === testK) t = x; });
+  if (!t || !e) return { klasse: 'leer', wert: null, t: t };
+  var feld = t.seiten ? (testK + '_' + seite) : testK;
+  var v = e[feld];
+  var b = pvBewerte(t, v);
+  if (b === null) return { klasse: 'leer', wert: null, t: t };
+  return { klasse: b ? 'gut' : 'schlecht', wert: v, t: t };
+}
+
+function pxZone(id, zone, seite, form, e) {
+  var k = pxTestZu(zone);
+  var st = pxStatus(e, k, seite);
+  return '<' + form.t + ' class="px-z ' + st.klasse + '" ' + form.a
+    + ' onclick="pxWaehle(\'' + zone + '\',\'' + seite + '\')"><title>'
+    + PX_ZONEN[k].l + (seite ? ' ' + seite.toUpperCase() : '') + '</title></' + form.t + '>';
+}
+
+function pxR(x, y, w, hh, rx) {
+  return { t: 'rect', a: 'x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="' + (rx || 5) + '"' };
+}
+function pxC(cx, cy, rr) { return { t: 'circle', a: 'cx="' + cx + '" cy="' + cy + '" r="' + rr + '"' }; }
+
+function pxVorne(e) {
+  var s = '';
+  s += '<circle class="px-neutral" cx="80" cy="26" r="17"/>';
+  s += '<rect class="px-neutral" x="72" y="44" width="16" height="9" rx="3"/>';
+  s += '<rect class="px-neutral" x="55" y="54" width="50" height="62" rx="12"/>';
+  s += '<rect class="px-neutral" x="36" y="60" width="15" height="76" rx="7"/>';
+  s += '<rect class="px-neutral" x="109" y="60" width="15" height="76" rx="7"/>';
+  s += pxZone('', 'huefte', 'r', pxR(55, 118, 24, 20), e);
+  s += pxZone('', 'huefte', 'l', pxR(81, 118, 24, 20), e);
+  s += pxZone('', 'osant', 'r', pxR(57, 140, 22, 52), e);
+  s += pxZone('', 'osant', 'l', pxR(81, 140, 22, 52), e);
+  s += pxZone('', 'knie', 'r', pxR(58, 194, 20, 15), e);
+  s += pxZone('', 'knie', 'l', pxR(82, 194, 20, 15), e);
+  s += '<rect class="px-neutral" x="60" y="211" width="16" height="36" rx="6"/>';
+  s += '<rect class="px-neutral" x="84" y="211" width="16" height="36" rx="6"/>';
+  s += pxZone('', 'sprung', 'r', pxR(59, 249, 18, 12), e);
+  s += pxZone('', 'sprung', 'l', pxR(83, 249, 18, 12), e);
+  s += pxZone('', 'zehen', 'r', pxR(57, 263, 22, 10), e);
+  s += pxZone('', 'zehen', 'l', pxR(81, 263, 22, 10), e);
+  return s;
+}
+
+function pxHinten(e) {
+  var s = '';
+  s += '<circle class="px-neutral" cx="80" cy="26" r="17"/>';
+  s += '<rect class="px-neutral" x="72" y="44" width="16" height="9" rx="3"/>';
+  s += pxZone('', 'ruecken', 'r', pxR(55, 54, 24, 30), e);
+  s += pxZone('', 'ruecken', 'l', pxR(81, 54, 24, 30), e);
+  s += '<rect class="px-neutral" x="55" y="86" width="50" height="30" rx="8"/>';
+  s += '<rect class="px-neutral" x="36" y="60" width="15" height="76" rx="7"/>';
+  s += '<rect class="px-neutral" x="109" y="60" width="15" height="76" rx="7"/>';
+  s += pxZone('', 'huefte', 'l', pxR(55, 118, 24, 20), e);
+  s += pxZone('', 'huefte', 'r', pxR(81, 118, 24, 20), e);
+  s += pxZone('', 'ospost', 'l', pxR(57, 140, 22, 52), e);
+  s += pxZone('', 'ospost', 'r', pxR(81, 140, 22, 52), e);
+  s += '<rect class="px-neutral" x="58" y="194" width="20" height="15" rx="5"/>';
+  s += '<rect class="px-neutral" x="82" y="194" width="20" height="15" rx="5"/>';
+  s += pxZone('', 'kette', 'l', pxR(59, 211, 18, 36), e);
+  s += pxZone('', 'kette', 'r', pxR(83, 211, 18, 36), e);
+  s += pxZone('', 'sprung', 'l', pxR(59, 249, 18, 12), e);
+  s += pxZone('', 'sprung', 'r', pxR(83, 249, 18, 12), e);
+  return s;
+}
+
+function pxWaehle(zone, seite) {
+  var p = PL.find(function (x) { return x.id === PL_CUR; });
+  var e = pvLetzte(p);
+  var k = pxTestZu(zone);
+  var st = pxStatus(e, k, seite);
+  var box = document.getElementById('px-info');
+  if (!box || !st.t) return;
+  var wert = st.wert === null ? 'nicht erfasst'
+    : (st.t.typ === 'cm' ? st.wert + ' ' + st.t.einheit : (st.wert === 'ja' ? 'Ja' : 'Nein'));
+  var farbe = st.klasse === 'gut' ? '#1E7A3E' : (st.klasse === 'schlecht' ? '#C0392B' : '#8B978C');
+  box.innerHTML = '<b>' + PX_ZONEN[k].l + (seite ? ' ' + seite.toUpperCase() : '') + '</b>'
+    + '<span>' + st.t.l + ': <b style="display:inline;color:' + farbe + ';">' + wert + '</b><br>'
+    + st.t.e + '</span>';
+}
+
+function pxOeffnen(id) {
+  if (id) PL_CUR = id;
+  var p = PL.find(function (x) { return x.id === PL_CUR; });
+  if (!p) return;
+  ['home','wissen','profile','diagnostik','app','trainingsdoku','einheiten','wechsel'].forEach(function (s) {
+    var el = document.getElementById(s + '-screen');
+    if (el) el.style.display = 'none';
+  });
+  var ps = document.getElementById('praev-screen');
+  ps.style.display = 'block';
+  window.scrollTo(0, 0);
+  document.getElementById('px-sub').textContent = p.fn + ' ' + p.ln
+    + (p.team ? ', ' + (WHV_LABEL[p.team] || p.team) : '');
+  document.getElementById('px-back').onclick = function () {
+    ps.style.display = 'none';
+    PL_PENDING = p.id;
+    goTo('profile');
+    plOpen(p.id);
+  };
+  pxRender(p);
+}
+
+function pxRender(p) {
+  var e = pvLetzte(p);
+  document.getElementById('px-figs').innerHTML =
+      '<div class="px-fig"><svg viewBox="0 0 160 280" width="196" height="343">' + pxVorne(e)
+    + '</svg><small>Vorne</small></div>'
+    + '<div class="px-fig"><svg viewBox="0 0 160 280" width="196" height="343">' + pxHinten(e)
+    + '</svg><small>Hinten</small></div>';
+
+  var liste = (p.praevention || []).slice().sort(function (a, b) {
+    return String(b.datum).localeCompare(String(a.datum));
+  }).slice(0, 5);
+
+  var box = document.getElementById('px-tabelle');
+  if (liste.length === 0) {
+    box.innerHTML = '<div class="pd-leer">Noch keine Erhebung gespeichert.</div>';
+    return;
+  }
+
+  function zelle(t, e2, feld) {
+    var v = e2[feld];
+    if (v === undefined || v === null || v === '') return '<span class="px-w leer">-</span>';
+    var b = pvBewerte(t, v);
+    var txt = (t.typ === 'cm') ? v : (v === 'ja' ? 'Ja' : 'Nein');
+    return '<span class="px-w ' + (b ? 'gut' : 'schlecht') + '">' + txt + '</span>';
+  }
+
+  var kopf = '<th>Test</th>' + liste.map(function (e2) {
+    return '<th>' + new Date(e2.datum).toLocaleDateString('de-DE',
+      { day: '2-digit', month: '2-digit', year: '2-digit' }) + '</th>';
+  }).join('');
+
+  var koerper = PRAEV.map(function (t) {
+    var zone = PX_ZONEN[t.k] ? PX_ZONEN[t.k].l : '';
+    var titel = '<tr class="grp"><td colspan="' + (liste.length + 1) + '">'
+      + t.l + ' <span style="font-weight:400;color:#8B978C;">&middot; ' + zone + '</span></td></tr>';
+    if (!t.seiten) {
+      return titel + '<tr><td>Wert</td>' + liste.map(function (e2) {
+        return '<td>' + zelle(t, e2, t.k) + '</td>';
+      }).join('') + '</tr>';
+    }
+    return titel + ['r', 'l'].map(function (s) {
+      return '<tr><td>' + (s === 'r' ? 'Rechts' : 'Links') + '</td>'
+        + liste.map(function (e2) {
+            var inhalt = zelle(t, e2, t.k + '_' + s);
+            if (t.typ === 'cm' && t.diff && s === 'l') {
+              var a = parseFloat(e2[t.k + '_r']), b2 = parseFloat(e2[t.k + '_l']);
+              if (!isNaN(a) && !isNaN(b2) && Math.abs(a - b2) >= t.diff) {
+                inhalt += '<span class="px-diff">Diff. ' + Math.abs(a - b2).toFixed(1) + ' cm</span>';
+              }
+            }
+            return '<td>' + inhalt + '</td>';
+          }).join('') + '</tr>';
+    }).join('');
+  }).join('');
+
+  box.innerHTML = '<table class="px-tab"><thead><tr>' + kopf + '</tr></thead><tbody>'
+    + koerper + '</tbody></table>';
+}
+
 function pvOeffnen() {
   var p = PL.find(function (x) { return x.id === PL_CUR; });
   if (!p) return;
@@ -5644,6 +5919,8 @@ function pvSpeichern() {
   PV_NEU = { datum: new Date().toISOString().slice(0, 10) };
   pvRenderDialog(p);
   pvRenderBar(p);
+  var ps = document.getElementById('praev-screen');
+  if (ps && ps.style.display === 'block') pxRender(p);
 }
 
 function plRenderStammdaten(p) {
