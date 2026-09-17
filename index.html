@@ -1514,7 +1514,11 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .px-diff{display:block;margin-top:3px;font-size:10.5px;color:#C0392B;font-weight:600;}
 @media(max-width:1150px){.px-cols{grid-template-columns:1fr;}}
 
-.px-emp{margin-top:16px;}
+.px-links{display:flex;flex-direction:column;gap:16px;}
+.px-emp{margin-top:0;}
+.px-emp h4{font-size:14px;}
+.px-emp .hint{font-size:12px;margin-bottom:12px;}
+.px-emp .px-eleer{padding:16px 14px;font-size:12.5px;}
 .px-emp h4{margin-bottom:4px;}
 .px-eleer{border:1px dashed #DCE3D6;border-radius:11px;padding:22px 18px;text-align:center;
   color:#8B978C;font-size:13px;line-height:1.55;}
@@ -1812,6 +1816,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <div class="px-cols">
+      <div class="px-links">
       <div class="px-karte">
         <h4>K&ouml;rperkarte</h4>
         <p class="hint">Farbe zeigt die letzte Erhebung. Zone anklicken f&uuml;r Details.</p>
@@ -1829,6 +1834,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <h4>Empfohlene Pr&auml;ventionspl&auml;ne</h4>
         <p class="hint">Auf Basis der auff&auml;lligen Befunde.</p>
         <div id="px-empf"></div>
+      </div>
       </div>
       <div class="px-karte">
         <h4>Werte im Verlauf</h4>
