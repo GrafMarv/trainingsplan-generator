@@ -1513,6 +1513,17 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .px-w.leer{color:#C3CCC5;}
 .px-diff{display:block;margin-top:3px;font-size:10.5px;color:#C0392B;font-weight:600;}
 @media(max-width:1150px){.px-cols{grid-template-columns:1fr;}}
+
+.px-emp{margin-top:16px;}
+.px-emp h4{margin-bottom:4px;}
+.px-eleer{border:1px dashed #DCE3D6;border-radius:11px;padding:22px 18px;text-align:center;
+  color:#8B978C;font-size:13px;line-height:1.55;}
+.px-ziele{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.px-ziel{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;background:#FBEDEC;color:#C0392B;}
+.px-eliste{display:flex;flex-direction:column;gap:9px;}
+.px-eplan{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#F5F8F3;
+  border-radius:10px;font-size:13.5px;}
+.px-eplan b{flex:1;font-weight:600;}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1812,6 +1823,12 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <i><span class="px-pt" style="background:#E04A3F;"></span>auff&auml;llig</i>
           <i><span class="px-pt" style="background:#E4EAE0;"></span>nicht erfasst</i>
         </div>
+      </div>
+
+      <div class="px-karte px-emp">
+        <h4>Empfohlene Pr&auml;ventionspl&auml;ne</h4>
+        <p class="hint">Auf Basis der auff&auml;lligen Befunde.</p>
+        <div id="px-empf"></div>
       </div>
       <div class="px-karte">
         <h4>Werte im Verlauf</h4>
@@ -5732,6 +5749,45 @@ function pxOeffnen(id) {
   pxRender(p);
 }
 
+function pxEmpfehlung(p) {
+  var box = document.getElementById('px-empf');
+  if (!box) return;
+  var e = pvLetzte(p);
+
+  if (!e) {
+    box.innerHTML = '<div class="px-eleer">Noch keine Erhebung vorhanden.<br>'
+      + 'Sobald Werte erfasst sind, erscheinen hier passende Plaene.</div>';
+    return;
+  }
+
+  var ziele = [];
+  PRAEV.forEach(function (t) {
+    var felder = t.seiten ? [t.k + '_r', t.k + '_l'] : [t.k];
+    var betroffen = [];
+    felder.forEach(function (f) {
+      var b = pvBewerte(t, e[f]);
+      if (b === false) betroffen.push(f.slice(-1) === 'r' ? 'rechts' : (f.slice(-1) === 'l' ? 'links' : ''));
+    });
+    if (betroffen.length) {
+      var zone = PX_ZONEN[t.k] ? PX_ZONEN[t.k].l : t.l;
+      var zusatz = (t.seiten && betroffen.length === 1) ? ' ' + betroffen[0] : '';
+      ziele.push(zone + zusatz);
+    }
+  });
+
+  if (ziele.length === 0) {
+    box.innerHTML = '<div class="px-eleer">Alle erfassten Tests sind unauff\u00e4llig.<br>'
+      + 'Kein Pr\u00e4ventionsplan n\u00f6tig.</div>';
+    return;
+  }
+
+  box.innerHTML = '<div class="px-eleer">Noch keine Pr\u00e4ventionspl\u00e4ne hinterlegt.<br>'
+    + 'Sobald welche in der Bibliothek liegen, werden sie hier nach Befund vorgeschlagen.</div>'
+    + '<div class="px-ziele">' + ziele.map(function (z) {
+        return '<span class="px-ziel">' + z + '</span>';
+      }).join('') + '</div>';
+}
+
 function pxRender(p) {
   var e = pvLetzte(p);
   document.getElementById('px-figs').innerHTML =
@@ -5739,6 +5795,8 @@ function pxRender(p) {
     + '</svg><small>Vorne</small></div>'
     + '<div class="px-fig"><svg viewBox="0 0 160 280" width="196" height="343">' + pxHinten(e)
     + '</svg><small>Hinten</small></div>';
+
+  pxEmpfehlung(p);
 
   var liste = (p.praevention || []).slice().sort(function (a, b) {
     return String(b.datum).localeCompare(String(a.datum));
