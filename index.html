@@ -1535,6 +1535,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <span style="display:block;margin-top:10px;font-size:12px;color:#9AA79C;">Testdaten:
         <a onclick="whvTestdatenLaden()">30 Spieler anlegen</a>
         <a onclick="whvTestdatenEntfernen()">wieder entfernen</a>
+        <br>Pr&auml;vention:
+        <a onclick="whvPraevTestdaten()">Erhebungen erzeugen</a>
+        <a onclick="whvPraevEntfernen()">wieder entfernen</a>
       </span>
     </p>
   </div>
@@ -2410,6 +2413,71 @@ function whvTestdatenLaden() {
     alert('30 Testspieler angelegt.');
     location.reload();
   }).catch(function(e){ alert('Fehler beim Schreiben: ' + e); });
+}
+
+function whvPraevTestdaten() {
+  if (!PL || PL.length === 0) { alert('Es sind keine Spieler geladen.'); return; }
+  if (!confirm('Fuer alle ' + PL.length + ' Spieler Praeventionsdaten erzeugen?\n\n'
+    + 'Spieler, die schon Erhebungen haben, bleiben unberuehrt.')) return;
+
+  // Pseudozufall mit fester Saat, damit die Werte reproduzierbar sind
+  function saat(s) {
+    var x = 0;
+    for (var i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) % 100000;
+    return function () { x = (x * 1103515245 + 12345) % 2147483648; return x / 2147483648; };
+  }
+
+  function erhebung(id, datum, welle) {
+    var z = saat(id + datum);
+    function jn(chanceGut) { return z() < chanceGut ? 'ja' : 'nein'; }
+    function cm(mitte, streu) { return Math.round((mitte + (z() - 0.5) * streu) * 2) / 2; }
+    // spaetere Erhebung faellt im Schnitt etwas besser aus
+    var b = welle * 0.6;
+    return {
+      datum: datum,
+      ktw_r: cm(10.5 + b, 5),
+      ktw_l: cm(10.0 + b, 5),
+      toe:   cm(-2 - b, 8),
+      n9090_r: jn(0.70 + welle * 0.08), n9090_l: jn(0.66 + welle * 0.08),
+      ob_r:    jn(0.78 + welle * 0.06), ob_l:    jn(0.74 + welle * 0.06),
+      mtp_r:   jn(0.12), mtp_l: jn(0.10),
+      fersen_r: jn(0.16), fersen_l: jn(0.14),
+      couch_r: jn(0.62 + welle * 0.10), couch_l: jn(0.58 + welle * 0.10),
+      aslr_r:  jn(0.72 + welle * 0.08), aslr_l:  jn(0.68 + welle * 0.08)
+    };
+  }
+
+  var geaendert = [];
+  PL.forEach(function (p) {
+    if (p.praevention && p.praevention.length > 0) return;
+    p.praevention = [erhebung(p.id, '2026-03-18', 0), erhebung(p.id, '2026-08-26', 1)];
+    geaendert.push(p);
+  });
+
+  if (geaendert.length === 0) { alert('Alle Spieler haben bereits Erhebungen.'); return; }
+
+  plSave();
+  fetch('/api/players', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ players: geaendert })
+  }).then(function (r) { return r.text(); }).then(function () {
+    alert(geaendert.length + ' Spieler mit Praeventionsdaten versehen.');
+    location.reload();
+  }).catch(function (e) { alert('Fehlgeschlagen: ' + e); });
+}
+
+function whvPraevEntfernen() {
+  var mit = PL.filter(function (p) { return p.praevention && p.praevention.length; });
+  if (mit.length === 0) { alert('Keine Praeventionsdaten vorhanden.'); return; }
+  if (!confirm('Praeventionsdaten von ' + mit.length + ' Spielern entfernen?')) return;
+  mit.forEach(function (p) { p.praevention = []; });
+  plSave();
+  fetch('/api/players', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ players: mit })
+  }).then(function () { alert('Entfernt.'); location.reload(); })
+    .catch(function (e) { alert('Fehlgeschlagen: ' + e); });
 }
 
 function whvTestdatenEntfernen() {
