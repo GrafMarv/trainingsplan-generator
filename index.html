@@ -1408,6 +1408,61 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
 .eh-pweg{background:none;border:0;color:#B4BFB6;font-size:17px;cursor:pointer;padding:4px 8px;line-height:1;}
 .eh-pweg:hover{color:#D93025;}
+
+/* ===== Praeventionsdiagnostik ===== */
+.pv-bar{display:flex;align-items:center;gap:16px;width:100%;margin-bottom:20px;padding:18px 22px;
+  background:#fff;border:1px solid #E4EADE;border-left:4px solid #8FC63D;border-radius:13px;
+  font-family:inherit;text-align:left;cursor:pointer;color:#12301F;}
+.pv-bar:hover{border-color:#0E6B36;border-left-color:#0E6B36;}
+.pv-bico{width:44px;height:44px;flex:0 0 44px;border-radius:11px;background:#EDF4EA;
+  display:flex;align-items:center;justify-content:center;}
+.pv-bico svg{width:22px;height:22px;stroke:#0E6B36;fill:none;stroke-width:1.8;}
+.pv-btxt b{display:block;font-size:16px;font-weight:600;}
+.pv-btxt small{display:block;margin-top:4px;font-size:13px;color:#6B7A6E;}
+.pv-ampel{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.pv-zahl{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;
+  font-size:13px;font-weight:600;}
+.pv-zahl.gut{background:#EAF5E9;color:#1E7A3E;}
+.pv-zahl.warn{background:#FBEDEC;color:#C0392B;}
+.pv-zahl.leer{background:#F1F4EF;color:#8B978C;}
+.pv-bar .pf{color:#0E6B36;font-size:19px;}
+
+.pv-dialog{background:#fff;border-radius:18px;width:100%;max-width:880px;max-height:90vh;
+  display:flex;flex-direction:column;overflow:hidden;}
+.pv-body{overflow-y:auto;padding:0 28px 22px;}
+.pv-eingabe{background:#F7F9F6;border:1px solid #E4EADE;border-radius:13px;padding:18px 20px;margin-bottom:20px;}
+.pv-datum{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.pv-datum label{font-size:12.5px;font-weight:600;color:#3F5145;}
+.pv-datum input{padding:9px 12px;border:1px solid #DCE3D6;border-radius:9px;font-family:inherit;
+  font-size:14px;color:#12301F;outline:none;}
+.pv-test{display:grid;grid-template-columns:1fr 132px 132px;gap:12px;align-items:center;
+  padding:11px 0;border-top:1px solid #EAEFE6;}
+.pv-test:first-of-type{border-top:0;}
+.pv-tn{font-size:13.5px;font-weight:600;}
+.pv-tn em{display:block;font-style:normal;font-size:11.5px;color:#8B978C;font-weight:400;margin-top:2px;}
+.pv-seite{display:flex;align-items:center;gap:7px;}
+.pv-seite span{font-size:11px;color:#8B978C;width:12px;}
+.pv-seite input{width:100%;padding:8px 10px;border:1px solid #DCE3D6;border-radius:8px;
+  font-family:inherit;font-size:13.5px;text-align:center;color:#12301F;outline:none;}
+.pv-jn{display:flex;gap:4px;flex:1;}
+.pv-jn button{flex:1;padding:8px 4px;border:1px solid #DCE3D6;border-radius:8px;background:#fff;
+  font-family:inherit;font-size:12px;cursor:pointer;color:#6B7A6E;}
+.pv-jn button.an-gut{background:#1E9E52;border-color:#1E9E52;color:#fff;font-weight:600;}
+.pv-jn button.an-schlecht{background:#D93025;border-color:#D93025;color:#fff;font-weight:600;}
+
+.pv-tab{width:100%;border-collapse:collapse;font-size:13px;}
+.pv-tab th{text-align:center;font-weight:500;font-size:11px;color:#6B7A6E;padding:9px 6px;background:#F5F8F3;}
+.pv-tab th:first-child{text-align:left;border-radius:8px 0 0 8px;padding-left:12px;}
+.pv-tab th:last-child{border-radius:0 8px 8px 0;}
+.pv-tab td{padding:10px 6px;border-bottom:1px solid #F0F4EE;text-align:center;font-variant-numeric:tabular-nums;}
+.pv-tab td:first-child{text-align:left;font-weight:500;padding-left:12px;}
+.pv-tab tr:last-child td{border-bottom:0;}
+.pv-w{display:inline-block;min-width:44px;padding:4px 9px;border-radius:7px;font-weight:600;font-size:12.5px;}
+.pv-w.gut{background:#EAF5E9;color:#1E7A3E;}
+.pv-w.schlecht{background:#FBEDEC;color:#C0392B;}
+.pv-w.leer{color:#C3CCC5;}
+.pv-diff{font-size:11px;color:#C0392B;font-weight:600;display:block;margin-top:3px;}
+@media(max-width:760px){.pv-test{grid-template-columns:1fr;gap:8px;}}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1869,6 +1924,15 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <div class="pd-stamm" id="pv-stamm"></div>
+
+    <button class="pv-bar" id="pv-praev-bar" onclick="pvOeffnen()">
+      <span class="pv-bico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+      <span class="pv-btxt"><b>Pr&auml;ventionsdiagnostik</b>
+        <small id="pv-praev-sub">Beweglichkeit und Belastungstoleranz</small></span>
+      <span class="pv-ampel" id="pv-praev-ampel"></span>
+      <span class="pf">&#8250;</span>
+    </button>
 
     <div class="pd-tabzeile">
     <div class="pd-tabs">
@@ -5312,6 +5376,208 @@ function maLoeschen(datum) {
   plRenderStammdaten(p);
 }
 
+// Praeventionsbatterie. gut sagt, welcher Wert unauffaellig ist.
+var PRAEV = [
+  { k: 'ktw',    l: 'Knee to Wall',            e: 'Abstand Zehe zur Wand in cm, mindestens 10',
+    typ: 'cm', seiten: true,  gut: function (v) { return v >= 10; }, einheit: 'cm', diff: 2 },
+  { k: 'toe',    l: 'Toe Touch',               e: 'Fingerspitzen zum Boden in cm, negativ ist gut',
+    typ: 'cm', seiten: false, gut: function (v) { return v < 0; },  einheit: 'cm' },
+  { k: 'n9090',  l: '90/90 H\u00fcfte',        e: 'Position wird erreicht',
+    typ: 'jn', seiten: true,  gut: 'ja' },
+  { k: 'ob',     l: 'Open Book, BWS/LWS',      e: 'Rotation frei',
+    typ: 'jn', seiten: true,  gut: 'ja' },
+  { k: 'mtp',    l: 'Gro\u00dfzehengrundgelenk', e: 'Schmerzen',
+    typ: 'jn', seiten: true,  gut: 'nein' },
+  { k: 'fersen', l: 'Fersensitz',              e: 'Knieschmerz',
+    typ: 'jn', seiten: true,  gut: 'nein' },
+  { k: 'couch',  l: 'Couch Stretch',           e: 'Position wird erreicht',
+    typ: 'jn', seiten: true,  gut: 'ja' },
+  { k: 'aslr',   l: 'Active Straight Leg Raise', e: 'Bein wird frei angehoben',
+    typ: 'jn', seiten: true,  gut: 'ja' }
+];
+
+var PV_NEU = {};
+
+function pvBewerte(t, wert) {
+  if (wert === undefined || wert === null || wert === '') return null;
+  if (t.typ === 'cm') {
+    var z = parseFloat(wert);
+    if (isNaN(z)) return null;
+    return t.gut(z);
+  }
+  return wert === t.gut;
+}
+
+function pvLetzte(p) {
+  var l = (p.praevention || []).slice().sort(function (a, b) {
+    return String(b.datum).localeCompare(String(a.datum));
+  });
+  return l.length ? l[0] : null;
+}
+
+function pvAuffaellig(e) {
+  if (!e) return null;
+  var n = 0, g = 0;
+  PRAEV.forEach(function (t) {
+    var felder = t.seiten ? [t.k + '_r', t.k + '_l'] : [t.k];
+    felder.forEach(function (f) {
+      var b = pvBewerte(t, e[f]);
+      if (b === null) return;
+      g++;
+      if (!b) n++;
+    });
+  });
+  return { auffaellig: n, gesamt: g };
+}
+
+function pvRenderBar(p) {
+  var sub = document.getElementById('pv-praev-sub');
+  var amp = document.getElementById('pv-praev-ampel');
+  if (!sub || !amp) return;
+  var e = pvLetzte(p);
+  if (!e) {
+    sub.textContent = 'Noch nicht erhoben';
+    amp.innerHTML = '<span class="pv-zahl leer">keine Daten</span>';
+    return;
+  }
+  var z = pvAuffaellig(e);
+  sub.textContent = 'Letzte Erhebung: ' + new Date(e.datum).toLocaleDateString('de-DE')
+    + ' \u00b7 ' + z.gesamt + ' Tests erfasst';
+  amp.innerHTML = z.auffaellig === 0
+    ? '<span class="pv-zahl gut">alles unauff\u00e4llig</span>'
+    : '<span class="pv-zahl warn">' + z.auffaellig + ' auff\u00e4llig</span>';
+}
+
+function pvOeffnen() {
+  var p = PL.find(function (x) { return x.id === PL_CUR; });
+  if (!p) return;
+  PV_NEU = { datum: new Date().toISOString().slice(0, 10) };
+  peSchliessen();
+  var o = document.createElement('div');
+  o.id = 'pe-overlay';
+  o.className = 'pe-overlay';
+  o.innerHTML = '<div class="pv-dialog">'
+    + '<div class="vl-dkopf"><div><h4>Pr\u00e4ventionsdiagnostik</h4>'
+      + '<p>' + p.fn + ' ' + p.ln + '</p></div>'
+      + '<button class="vl-x" onclick="peSchliessen()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'
+    + '<div class="pv-body" id="pv-body"></div></div>';
+  o.addEventListener('click', function (ev) { if (ev.target === o) peSchliessen(); });
+  document.body.appendChild(o);
+  pvRenderDialog(p);
+}
+
+function pvSetzeJN(feld, wert) {
+  PV_NEU[feld] = (PV_NEU[feld] === wert) ? '' : wert;
+  var p = PL.find(function (x) { return x.id === PL_CUR; });
+  pvRenderDialog(p);
+}
+
+function pvSetzeCM(feld, wert) { PV_NEU[feld] = wert; }
+function pvDatum(wert) { PV_NEU.datum = wert; }
+
+function pvFeld(t, feld, kuerzel) {
+  if (t.typ === 'cm') {
+    return '<div class="pv-seite">' + (kuerzel ? '<span>' + kuerzel + '</span>' : '')
+      + '<input type="number" step="0.5" value="' + (PV_NEU[feld] === undefined ? '' : PV_NEU[feld]) + '"'
+      + ' placeholder="' + t.einheit + '" onchange="pvSetzeCM(\'' + feld + '\',this.value)"></div>';
+  }
+  var w = PV_NEU[feld];
+  function knopf(v) {
+    var an = (w === v);
+    var kl = an ? (v === t.gut ? ' an-gut' : ' an-schlecht') : '';
+    return '<button class="' + kl.trim() + '" onclick="pvSetzeJN(\'' + feld + '\',\'' + v + '\')">'
+      + (v === 'ja' ? 'Ja' : 'Nein') + '</button>';
+  }
+  return '<div class="pv-seite">' + (kuerzel ? '<span>' + kuerzel + '</span>' : '')
+    + '<div class="pv-jn">' + knopf('ja') + knopf('nein') + '</div></div>';
+}
+
+function pvRenderDialog(p) {
+  var box = document.getElementById('pv-body');
+  if (!box) return;
+
+  var zeilen = PRAEV.map(function (t) {
+    if (t.seiten) {
+      return '<div class="pv-test"><div class="pv-tn">' + t.l + '<em>' + t.e + '</em></div>'
+        + pvFeld(t, t.k + '_r', 'R') + pvFeld(t, t.k + '_l', 'L') + '</div>';
+    }
+    return '<div class="pv-test"><div class="pv-tn">' + t.l + '<em>' + t.e + '</em></div>'
+      + pvFeld(t, t.k, '') + '<div></div></div>';
+  }).join('');
+
+  var eingabe = '<div class="pv-eingabe">'
+    + '<div class="pv-datum"><label>Erhebung vom</label>'
+    + '<input type="text" value="' + PV_NEU.datum + '" onchange="pvDatum(this.value)">'
+    + '<button class="vl-speichern" style="margin-left:auto;" onclick="pvSpeichern()">'
+    + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>'
+    + 'Erhebung speichern</button></div>'
+    + zeilen + '</div>';
+
+  var verlauf = (p.praevention || []).slice().sort(function (a, b) {
+    return String(b.datum).localeCompare(String(a.datum));
+  }).slice(0, 6);
+
+  if (verlauf.length === 0) {
+    box.innerHTML = eingabe + '<div class="pd-leer">Noch keine Erhebung gespeichert.</div>';
+    return;
+  }
+
+  function zelle(t, e, feld) {
+    var v = e[feld];
+    if (v === undefined || v === null || v === '') return '<span class="pv-w leer">-</span>';
+    var b = pvBewerte(t, v);
+    var txt = (t.typ === 'cm') ? v : (v === 'ja' ? 'Ja' : 'Nein');
+    return '<span class="pv-w ' + (b ? 'gut' : 'schlecht') + '">' + txt + '</span>';
+  }
+
+  var kopf = '<th>Test</th>' + verlauf.map(function (e) {
+    return '<th>' + new Date(e.datum).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + '</th>';
+  }).join('');
+
+  var koerper = PRAEV.map(function (t) {
+    if (!t.seiten) {
+      return '<tr><td>' + t.l + '</td>' + verlauf.map(function (e) {
+        return '<td>' + zelle(t, e, t.k) + '</td>';
+      }).join('') + '</tr>';
+    }
+    return ['r', 'l'].map(function (s) {
+      return '<tr><td>' + t.l + ' <span style="color:#8B978C;">' + s.toUpperCase() + '</span></td>'
+        + verlauf.map(function (e) {
+            var inhalt = zelle(t, e, t.k + '_' + s);
+            if (t.typ === 'cm' && t.diff && s === 'l') {
+              var a = parseFloat(e[t.k + '_r']), b2 = parseFloat(e[t.k + '_l']);
+              if (!isNaN(a) && !isNaN(b2) && Math.abs(a - b2) >= t.diff) {
+                inhalt += '<span class="pv-diff">Seitendiff. ' + Math.abs(a - b2).toFixed(1) + ' cm</span>';
+              }
+            }
+            return '<td>' + inhalt + '</td>';
+          }).join('') + '</tr>';
+    }).join('');
+  }).join('');
+
+  box.innerHTML = eingabe
+    + '<table class="pv-tab"><thead><tr>' + kopf + '</tr></thead><tbody>' + koerper + '</tbody></table>';
+}
+
+function pvSpeichern() {
+  var p = PL.find(function (x) { return x.id === PL_CUR; });
+  if (!p) return;
+  var gefuellt = Object.keys(PV_NEU).some(function (k) {
+    return k !== 'datum' && PV_NEU[k] !== '' && PV_NEU[k] !== undefined;
+  });
+  if (!gefuellt) { alert('Bitte mindestens einen Wert erfassen.'); return; }
+  if (!PV_NEU.datum) { alert('Bitte ein Datum angeben.'); return; }
+
+  p.praevention = (p.praevention || []).filter(function (x) { return x.datum !== PV_NEU.datum; });
+  p.praevention.push(JSON.parse(JSON.stringify(PV_NEU)));
+  plSave();
+  plUpsert(p);
+  PV_NEU = { datum: new Date().toISOString().slice(0, 10) };
+  pvRenderDialog(p);
+  pvRenderBar(p);
+}
+
 function plRenderStammdaten(p) {
   var box = document.getElementById('pv-stamm');
   if (!box) return;
@@ -5446,6 +5712,7 @@ function plOpen(id) {
   document.getElementById('pv-notes').value = p.notes || '';
   peRender(p);
   vlRender(p);
+  pvRenderBar(p);
   var lt = document.getElementById('pv-letzter');
   if (lt) {
     var t = spLetzterTest(p);
