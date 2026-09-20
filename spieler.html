@@ -124,6 +124,23 @@
     font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0}
   .stand .grund{display:block;font-size:12.5px;color:#6B7A6E;font-weight:400;margin-top:1px}
 
+  /* ---------- Aufklappbare Abschnitte ---------- */
+  .ak{background:#fff;border:1px solid #DCE3D6;border-radius:16px;margin-top:12px;overflow:hidden}
+  .ak-kopf{display:flex;align-items:center;gap:12px;width:100%;padding:17px 18px;
+    background:none;border:0;font:inherit;text-align:left;cursor:pointer;color:#12301F}
+  .ak-kopf:hover{background:#FAFCF9}
+  .ak-t{flex:1;min-width:0}
+  .ak-t b{display:block;font-family:'Archivo',sans-serif;font-weight:800;font-size:16.5px;
+    letter-spacing:-0.01em}
+  .ak-t small{display:block;font-size:12.5px;color:#6B7A6E;margin-top:2px;font-weight:400}
+  .ak-merk{flex:none;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:#0E6B36;
+    color:#fff;font-size:12px;font-weight:600;display:none;align-items:center;justify-content:center}
+  .ak-merk.da{display:flex}
+  .ak-pf{flex:none;color:#6B7A6E;font-size:20px;line-height:1;transition:transform .18s}
+  .ak.auf .ak-pf{transform:rotate(90deg)}
+  .ak-body{display:none;padding:0 18px 20px}
+  .ak.auf .ak-body{display:block}
+
   .fuss{text-align:center;font-size:12px;color:#8B978C;padding:26px 0 30px}
   .mitte{max-width:420px;margin:0 auto;padding-top:34px}
   @media(max-width:480px){.karte{padding:16px}.wrap{padding:0 12px}}
@@ -181,22 +198,38 @@
   </div></div>
   <div class="wrap">
 
-    <div class="karte">
-      <h2>Deine Trainings</h2>
-      <p class="unter">Sag uns bitte rechtzeitig Bescheid, ob du dabei bist.</p>
-      <div id="box-termine"><div class="leer">Wird geladen&hellip;</div></div>
+    <div class="ak" id="ak-termine">
+      <button class="ak-kopf" data-ak="termine">
+        <span class="ak-t"><b>Trainings</b><small id="sum-termine">Wird geladen&hellip;</small></span>
+        <span class="ak-merk" id="merk-termine"></span>
+        <span class="ak-pf">&#8250;</span>
+      </button>
+      <div class="ak-body">
+        <p class="unter">Sag bitte rechtzeitig Bescheid, ob du dabei bist.</p>
+        <div id="box-termine"><div class="leer">Wird geladen&hellip;</div></div>
+      </div>
     </div>
 
-    <div class="karte">
-      <h2>Leistungsdiagnostik</h2>
-      <p class="unter" id="diag-datum">Deine Werte aus der letzten Testung.</p>
-      <div id="box-diag"><div class="leer">Wird geladen&hellip;</div></div>
+    <div class="ak" id="ak-diag">
+      <button class="ak-kopf" data-ak="diag">
+        <span class="ak-t"><b>Leistungsdiagnostik</b><small id="sum-diag">Wird geladen&hellip;</small></span>
+        <span class="ak-pf">&#8250;</span>
+      </button>
+      <div class="ak-body">
+        <p class="unter" id="diag-datum">Deine Werte aus der letzten Testung.</p>
+        <div id="box-diag"><div class="leer">Wird geladen&hellip;</div></div>
+      </div>
     </div>
 
-    <div class="karte">
-      <h2>Pr&auml;ventionsdiagnostik</h2>
-      <p class="unter" id="praev-datum">Beweglichkeit und Belastbarkeit.</p>
-      <div id="box-praev"><div class="leer">Wird geladen&hellip;</div></div>
+    <div class="ak" id="ak-praev">
+      <button class="ak-kopf" data-ak="praev">
+        <span class="ak-t"><b>Pr&auml;ventionsdiagnostik</b><small id="sum-praev">Wird geladen&hellip;</small></span>
+        <span class="ak-pf">&#8250;</span>
+      </button>
+      <div class="ak-body">
+        <p class="unter" id="praev-datum">Beweglichkeit und Belastbarkeit.</p>
+        <div id="box-praev"><div class="leer">Wird geladen&hellip;</div></div>
+      </div>
     </div>
 
     <div class="fuss">Coaching Brain &middot; WHV</div>
@@ -464,12 +497,14 @@ function zeichneDiagnostik(liste, gruppe){
   var sortiert = (liste || []).slice().sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); });
   if(!sortiert.length){
     el('diag-datum').textContent = 'Noch keine Testung erfasst.';
+    setzeSummary('diag', 'Noch keine Testung');
     box.innerHTML = '<div class="leer">Sobald du getestet wurdest, stehen deine Werte hier.</div>';
     return;
   }
   var jetzt = sortiert[0], vorher = sortiert[1];
   el('diag-datum').textContent = 'Testung vom ' + datumDe(jetzt.date)
     + (vorher ? ' \u00b7 Vergleich mit ' + datumDe(vorher.date) : '');
+  setzeSummary('diag', 'Testung vom ' + datumDe(jetzt.date));
 
   var html = '';
   var spinne = zeichneSpinne(jetzt, gruppe || []);
@@ -528,6 +563,7 @@ function zeichnePraevention(liste){
   var sortiert = (liste || []).slice().sort(function(a,b){ return String(b.datum).localeCompare(String(a.datum)); });
   if(!sortiert.length){
     el('praev-datum').textContent = 'Noch kein Screening erfasst.';
+    setzeSummary('praev', 'Noch kein Screening');
     box.innerHTML = '<div class="leer">Sobald du gescreent wurdest, stehen deine Ergebnisse hier.</div>';
     return;
   }
@@ -553,10 +589,12 @@ function zeichnePraevention(liste){
   });
 
   if(!gesamt){
+    setzeSummary('praev', 'Screening ohne Werte');
     box.innerHTML = '<div class="leer">In diesem Screening wurden keine Werte eingetragen.</div>';
     return;
   }
 
+  setzeSummary('praev', (gesamt - auff) + ' von ' + gesamt + ' Tests in Ordnung');
   var bilanz = '<div class="bilanz' + (auff ? ' achtung' : '') + '">'
     + '<span class="zahl">' + (gesamt - auff) + '/' + gesamt + '</span><p>'
     + (auff === 0
@@ -616,13 +654,36 @@ function terminKarte(t){
     + '</div>';
 }
 
+function setzeSummary(welche, text, merk){
+  var n = el('sum-' + welche);
+  if(n) n.textContent = text;
+  var m = el('merk-' + welche);
+  if(m){
+    if(merk){ m.textContent = merk; m.className = 'ak-merk da'; }
+    else { m.textContent = ''; m.className = 'ak-merk'; }
+  }
+}
+
+function klapp(welche){
+  var k = el('ak-' + welche);
+  if(k) k.classList.toggle('auf');
+}
+
 function zeichneTermine(termine){
   var box = el('box-termine');
   T_TERMINE = termine || [];
   if(!T_TERMINE.length){
+    setzeSummary('termine', 'Aktuell kein Training angesetzt', 0);
     box.innerHTML = '<div class="leer">Aktuell ist kein Training f\u00fcr dich angesetzt.</div>';
     return;
   }
+  var offenZahl = T_TERMINE.filter(function(t){ return t.offen && !t.antwort; }).length;
+  var naechstes = T_TERMINE[0];
+  setzeSummary('termine',
+    offenZahl
+      ? (offenZahl === 1 ? 'Ein Training wartet auf deine Antwort' : offenZahl + ' Trainings warten auf deine Antwort')
+      : ('N\u00e4chstes: ' + wochentag(naechstes.datum) + ', ' + datumDe(naechstes.datum)),
+    offenZahl);
   box.innerHTML = T_TERMINE.map(function(t){
     return '<div class="termin" data-id="' + sicher(t.id) + '">' + terminKarte(t) + '</div>';
   }).join('');
@@ -693,6 +754,9 @@ document.addEventListener('DOMContentLoaded', function(){
   el('b-login').addEventListener('click', anmelden);
   el('b-setzen').addEventListener('click', passwortSetzen);
   el('b-logout').addEventListener('click', abmelden);
+  document.querySelectorAll('.ak-kopf').forEach(function(b){
+    b.addEventListener('click', function(){ klapp(b.getAttribute('data-ak')); });
+  });
   ['i-user','i-pw'].forEach(function(id){
     el(id).addEventListener('keydown', function(ev){ if(ev.key === 'Enter') anmelden(); });
   });
