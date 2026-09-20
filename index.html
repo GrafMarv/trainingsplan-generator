@@ -1556,7 +1556,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <div class="sf-tr" id="whv-treffer"></div>
     </div>
 
-    <div class="sf-titel"><h2>Mannschaften Feld</h2><span>Kader und Termine</span><a onclick="goTo('wechsel')" style="margin-left:auto;font-size:12.5px;color:#0E6B36;cursor:pointer;font-weight:600;">Spieler verschieben</a></div>
+    <div class="sf-titel"><h2>Mannschaften Feld</h2><span>Kader und Trainings</span><a onclick="goTo('wechsel')" style="margin-left:auto;font-size:12.5px;color:#0E6B36;cursor:pointer;font-weight:600;">Spieler verschieben</a></div>
     <div class="sf-teams">
         <button class="sf-team" onclick="whvTeam('W13')"><span class="sf-tnr sf-tw">13</span><span><span class="sf-tname">U13 weiblich</span><span class="sf-tsub" id="sfc-W13">Kader</span></span><span class="sf-tpf"></span></button>
         <button class="sf-team" onclick="whvTeam('W14')"><span class="sf-tnr sf-tw">14</span><span><span class="sf-tname">U14 weiblich</span><span class="sf-tsub" id="sfc-W14">Kader</span></span><span class="sf-tpf"></span></button>
@@ -1645,7 +1645,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <div id="tmc-spieler"><div class="tv-grid" id="tm-grid"></div></div>
           <div id="tmc-trainings" style="display:none;">
             <div id="tr-form" style="display:none;background:#F5F8F3;border:1px solid #E4EADE;border-radius:12px;padding:14px;margin-bottom:14px;">
-              <b id="tr-form-titel" style="display:block;font-size:14px;color:#1c1c1e;margin-bottom:12px;">Neuer Termin</b>
+              <b id="tr-form-titel" style="display:block;font-size:14px;color:#1c1c1e;margin-bottom:12px;">Neues Training</b>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
                 <div><label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Datum</label>
                   <input type="date" id="tr-datum" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
@@ -1659,7 +1659,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
                   <input type="text" id="tr-ort" placeholder="Sporthalle" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
               </div>
               <div style="display:flex;gap:8px;">
-                <button class="tv-btn" id="tr-speichern">Termin speichern</button>
+                <button class="tv-btn" id="tr-speichern">Training anlegen</button>
                 <button id="tr-abbruch" style="padding:9px 14px;background:#fff;color:#6B7A6E;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:13px;cursor:pointer;">Abbrechen</button>
               </div>
             </div>
@@ -1673,7 +1673,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       </div>
 
       <div class="tv-card">
-        <div class="tv-r-head"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> N&auml;chste Einheit</div>
+        <div class="tv-r-head"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> N&auml;chstes Training</div>
         <div class="tv-termin">
           <div><small id="tv-wtag"></small><b id="tv-datum"></b></div>
           <div id="tv-zeit"></div>
@@ -7167,15 +7167,15 @@ function trRender() {
   var kader = tmKader().length;
 
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
-    + '<div><b style="font-size:14px;color:#1c1c1e;">Termine</b>'
-    + '<div style="font-size:11.5px;color:#8e8e93;">Wann und wo trainiert wird. Der Trainingsinhalt haengt nicht daran.</div></div>'
-    + '<button class="tv-btn" id="tr-neu">+ Neuer Termin</button></div>';
+    + '<div><b style="font-size:14px;color:#1c1c1e;">Trainings</b>'
+    + '<div style="font-size:11.5px;color:#8e8e93;">Nur Datum, Uhrzeit und Ort. Welche Uebungen ihr macht, steht unter Einheiten.</div></div>'
+    + '<button class="tv-btn" id="tr-neu">+ Training anlegen</button></div>';
 
   if (!TR_LISTE.length) {
     html += '<div class="tv-leer"><div class="tv-leer-ico">'
       + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'
-      + '</div><b>Noch kein Termin angelegt.</b>'
-      + '<p>Sobald einer steht, sehen die Spieler ihn in ihrer App und koennen ab sieben Tagen vorher zusagen.</p></div>';
+      + '</div><b>Noch kein Training angelegt.</b>'
+      + '<p>Sobald eines steht, sehen es die Spieler in ihrer App und koennen ab sieben Tagen vorher zusagen.</p></div>';
     box.innerHTML = html;
     onId('tr-neu', 'click', function() { trFormZeigen(null); });
     return;
@@ -7211,8 +7211,8 @@ function trRender() {
     if (auf) {
       html += '<div style="border-top:0.5px solid #f2f2f7;padding:12px 14px;">'
         + '<div style="display:flex;gap:10px;margin-bottom:10px;">'
-        +   '<button onclick="trFormZeigen(\'' + t.id + '\')" style="padding:7px 12px;background:#fff;color:#1c1c1e;border:1px solid #e5e5ea;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer;">Termin bearbeiten</button>'
-        +   '<button onclick="trLoeschen(\'' + t.id + '\')" style="padding:7px 12px;background:#fff;color:#D93025;border:1px solid #F5C6C2;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer;">Termin loeschen</button>'
+        +   '<button onclick="trFormZeigen(\'' + t.id + '\')" style="padding:7px 12px;background:#fff;color:#1c1c1e;border:1px solid #e5e5ea;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer;">Training bearbeiten</button>'
+        +   '<button onclick="trLoeschen(\'' + t.id + '\')" style="padding:7px 12px;background:#fff;color:#D93025;border:1px solid #F5C6C2;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer;">Training loeschen</button>'
         + '</div>'
         + '<div id="tr-rueck-' + t.id + '">Wird geladen&hellip;</div></div>';
     }
@@ -7289,8 +7289,8 @@ function trFormZeigen(id) {
   TR_EDIT = id || null;
   var t = id ? TR_LISTE.filter(function(x) { return String(x.id) === String(id); })[0] : null;
 
-  document.getElementById('tr-form-titel').textContent = t ? 'Termin bearbeiten' : 'Neuer Termin';
-  document.getElementById('tr-speichern').textContent = t ? 'Aenderungen speichern' : 'Termin speichern';
+  document.getElementById('tr-form-titel').textContent = t ? 'Training bearbeiten' : 'Neues Training';
+  document.getElementById('tr-speichern').textContent = t ? 'Aenderungen speichern' : 'Training anlegen';
 
   var d = document.getElementById('tr-datum');
   var z = document.getElementById('tr-zeit');
@@ -7346,7 +7346,7 @@ function trSpeichern() {
 
 function trLoeschen(id) {
   var t = TR_LISTE.filter(function(x) { return String(x.id) === String(id); })[0];
-  if (!confirm('Termin ' + (t ? trDatum(t.datum) : '') + ' loeschen? Die Rueckmeldungen gehen mit weg.')) return;
+  if (!confirm('Training am ' + (t ? trDatum(t.datum) : '') + ' loeschen? Die Rueckmeldungen gehen mit weg.')) return;
   trRuf({ aktion: 'loeschen', id: id }).then(function() {
     if (String(TR_OFFEN) === String(id)) TR_OFFEN = null;
     trLaden();
@@ -7384,9 +7384,9 @@ function anRender() {
     kopf.innerHTML = '';
     box.innerHTML = '<div class="tv-leer"><div class="tv-leer-ico">'
       + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>'
-      + '</div><b>Noch kein Termin vorbei.</b>'
-      + '<p>Sobald Einheiten stattgefunden haben, steht hier die Bilanz je Spieler.'
-      + ' Die Rueckmeldungen zu den kommenden Einheiten stehen unter Trainings.</p></div>';
+      + '</div><b>Noch kein Training vorbei.</b>'
+      + '<p>Sobald Trainings stattgefunden haben, steht hier die Bilanz je Spieler.'
+      + ' Die Rueckmeldungen zu den kommenden Trainings stehen unter Trainings.</p></div>';
     return;
   }
 
@@ -7412,7 +7412,7 @@ function anRender() {
 
   kopf.innerHTML = '<b style="font-size:14px;color:#1c1c1e;">Bilanz</b>'
     + '<div style="font-size:11.5px;color:#8e8e93;">Ueber ' + gewesen.length
-    + (gewesen.length === 1 ? ' vergangene Einheit' : ' vergangene Einheiten')
+    + (gewesen.length === 1 ? ' vergangenes Training' : ' vergangene Trainings')
     + ' &middot; wer am meisten gefehlt hat, steht oben</div>';
 
   if (!kader.length) {

@@ -182,7 +182,7 @@
   <div class="wrap">
 
     <div class="karte">
-      <h2>Trainingseinheiten</h2>
+      <h2>Deine Trainings</h2>
       <p class="unter">Sag uns bitte rechtzeitig Bescheid, ob du dabei bist.</p>
       <div id="box-termine"><div class="leer">Wird geladen&hellip;</div></div>
     </div>
@@ -620,7 +620,7 @@ function zeichneTermine(termine){
   var box = el('box-termine');
   T_TERMINE = termine || [];
   if(!T_TERMINE.length){
-    box.innerHTML = '<div class="leer">Aktuell ist keine Einheit f\u00fcr dich angesetzt.</div>';
+    box.innerHTML = '<div class="leer">Aktuell ist kein Training f\u00fcr dich angesetzt.</div>';
     return;
   }
   box.innerHTML = T_TERMINE.map(function(t){
