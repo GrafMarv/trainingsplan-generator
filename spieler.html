@@ -58,15 +58,41 @@
   .wert .delta{font-size:11.5px;margin-top:4px;font-weight:600}
   .besser{color:#1C7A3E}.schlechter{color:#D93025}
 
+  /* ---------- Staerkenprofil ---------- */
+  .spinne{display:block;width:100%;max-width:420px;margin:0 auto 4px;height:auto}
+  .legende{display:flex;justify-content:center;gap:16px;font-size:11.5px;color:#6B7A6E;margin-bottom:14px;flex-wrap:wrap}
+  .legende i{font-style:normal;display:flex;align-items:center;gap:6px}
+  .lpunkt{width:9px;height:9px;border-radius:50%;background:#0E6B36;display:inline-block}
+  .lstrich{width:14px;height:0;border-top:1.4px dashed #8FC63D;display:inline-block}
+  .sptab{width:100%;border-collapse:collapse;font-size:13px}
+  .sptab th{text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;
+    letter-spacing:.05em;color:#8B978C;padding:0 0 7px;border-bottom:1px solid #E4EADE}
+  .sptab th:last-child,.sptab td:last-child{text-align:right}
+  .sptab td{padding:9px 0;border-bottom:1px solid #EDF4EA}
+  .sptab tr:last-child td{border-bottom:0}
+  .sptab .bez{font-weight:600;color:#12301F}
+  .sptab .ref{color:#6B7A6E;font-size:12.5px}
+  .sptab .d{font-weight:600;white-space:nowrap}
+  .hoch{color:#1C7A3E}.tief{color:#D93025}.mitte{color:#6B7A6E}
+
   /* ---------- Praevention ---------- */
-  .pv{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #EDF4EA}
+  .bilanz{display:flex;align-items:center;gap:12px;padding:13px;border-radius:12px;
+    background:#EDF4EA;border:1px solid #C9DCC3;margin-bottom:14px}
+  .bilanz.achtung{background:#FFF4E5;border-color:#F5DDB8}
+  .bilanz .zahl{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;
+    line-height:1;color:#0E6B36;flex:none}
+  .bilanz.achtung .zahl{color:#B25E02}
+  .bilanz p{font-size:13px;line-height:1.4;color:#3F5145}
+  .pv{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid #EDF4EA}
   .pv:last-child{border-bottom:0}
+  .pv .ampel{margin-top:4px}
   .pv .nm{flex:1;min-width:0}
   .pv .nm b{display:block;font-weight:600;font-size:14px}
-  .pv .nm i{font-style:normal;font-size:12px;color:#6B7A6E}
+  .pv .nm i{font-style:normal;font-size:12px;color:#6B7A6E;display:block;margin-top:1px}
   .ampel{width:11px;height:11px;border-radius:50%;flex:none}
-  .gruen{background:#57B84A}.rot{background:#D93025}.grau{background:#D2D8CE}
-  .seite{font-size:12.5px;color:#3F5145;text-align:right;white-space:nowrap;min-width:92px}
+  .gruen{background:#57B84A}.rot{background:#E8940C}.grau{background:#D2D8CE}
+  .seite{font-size:12.5px;color:#3F5145;text-align:right;white-space:nowrap;padding-top:1px}
+  .seite em{font-style:normal;color:#B25E02;font-weight:600}
 
   /* ---------- Termine ---------- */
   .termin{border:1px solid #E4EADE;border-radius:13px;padding:14px;margin-bottom:12px;background:#fff}
@@ -276,15 +302,32 @@ var DIAG_FELDER = [
 ];
 
 var PRAEV_FELDER = [
-  { k:'ktw',   l:'Knee to Wall',              e:'Sprunggelenk',             typ:'cm', seiten:true,  gut:function(v){ return v >= 10; }, einheit:'cm' },
-  { k:'toe',   l:'Toe Touch',                 e:'Hintere Kette',            typ:'cm', seiten:false, gut:function(v){ return v < 0; },   einheit:'cm' },
-  { k:'n9090', l:'90/90 H\u00fcfte',          e:'H\u00fcftrotation',        typ:'jn', seiten:true,  gut:'ja' },
-  { k:'ob',    l:'Open Book',                 e:'BWS und LWS',              typ:'jn', seiten:true,  gut:'ja' },
-  { k:'mtp',   l:'Gro\u00dfzehengrundgelenk', e:'Schmerzen',                typ:'jn', seiten:true,  gut:'nein' },
-  { k:'fersen',l:'Fersensitz',                e:'Knieschmerz',              typ:'jn', seiten:true,  gut:'nein' },
-  { k:'couch', l:'Couch Stretch',             e:'Oberschenkel Vorderseite', typ:'jn', seiten:true,  gut:'ja' },
-  { k:'aslr',  l:'Active Straight Leg Raise', e:'Oberschenkel R\u00fcckseite', typ:'jn', seiten:true, gut:'ja' }
+  { k:'ktw',   l:'Sprunggelenk',              e:'Knee to Wall',
+    sagt:'Dein Sprunggelenk gibt zu wenig nach. Das bremst dich beim Abdruck und beim Landen.',
+    typ:'cm', seiten:true,  gut:function(v){ return v >= 10; }, einheit:'cm' },
+  { k:'toe',   l:'Hintere Kette',             e:'Toe Touch',
+    sagt:'Von der Wade bis zum unteren R\u00fccken ist alles zu straff, um locker zum Boden zu kommen.',
+    typ:'cm', seiten:false, gut:function(v){ return v < 0; },   einheit:'cm' },
+  { k:'n9090', l:'H\u00fcftrotation',         e:'90/90',
+    sagt:'Deine H\u00fcfte dreht nicht frei. Das holt sich der R\u00fccken zur\u00fcck.',
+    typ:'jn', seiten:true,  gut:'ja' },
+  { k:'ob',    l:'Brustwirbels\u00e4ule',     e:'Open Book',
+    sagt:'Der Oberk\u00f6rper dreht nicht frei. Beim Wurf arbeitet dann die Schulter allein.',
+    typ:'jn', seiten:true,  gut:'ja' },
+  { k:'mtp',   l:'Gro\u00dfzehengrundgelenk', e:'Schmerztest',
+    sagt:'Die Gro\u00dfzehe tut weh. Sag deinem Trainer Bescheid, bevor daraus mehr wird.',
+    typ:'jn', seiten:true,  gut:'nein' },
+  { k:'fersen',l:'Knie',                      e:'Fersensitz',
+    sagt:'Im Fersensitz meldet sich dein Knie. Das geh\u00f6rt angeschaut.',
+    typ:'jn', seiten:true,  gut:'nein' },
+  { k:'couch', l:'Oberschenkel vorne',        e:'Couch Stretch',
+    sagt:'Die Vorderseite ist verk\u00fcrzt. Typisch bei viel Sitzen, gut in den Griff zu kriegen.',
+    typ:'jn', seiten:true,  gut:'ja' },
+  { k:'aslr',  l:'Oberschenkel hinten',       e:'Active Straight Leg Raise',
+    sagt:'Die R\u00fcckseite l\u00e4sst das Bein nicht frei nach oben. H\u00e4ufiger Grund f\u00fcr Zerrungen.',
+    typ:'jn', seiten:true,  gut:'ja' }
 ];
+
 
 var KADER = {"W13":"U13 weiblich","W14":"U14 weiblich","W16":"U16 weiblich",
   "M13":"U13 m\u00e4nnlich","M14":"U14 m\u00e4nnlich","M16":"U16 m\u00e4nnlich",
@@ -306,7 +349,103 @@ function sicher(s){
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function zeichneDiagnostik(liste){
+var SPINNE = [
+  { l:'Antritt',       q:['s10'],     klein:true,  e:'s',    n:2 },
+  { l:'Max Speed',     q:['s30'],     klein:true,  e:'s',    n:2 },
+  { l:'Explosivkraft', q:['sw'],      klein:false, e:'m',    n:2 },
+  { l:'Ausdauer',      q:['ift'],     klein:false, e:'km/h', n:1 },
+  { l:'Richtungsw.',   q:['cr','cl'], klein:true,  e:'s',    n:2 },
+  { l:'Rumpfrot.',     q:['mr','ml'], klein:false, e:'m',    n:1 }
+];
+
+function spWert(test, quellen){
+  var w = [];
+  quellen.forEach(function(q){ var v = parseFloat(test[q]); if(!isNaN(v)) w.push(v); });
+  if(!w.length) return null;
+  var su = 0; w.forEach(function(v){ su += v; });
+  return su / w.length;
+}
+
+function spAbstand(x){
+  var diff = x.wert - x.mittel;
+  var vorz = diff > 0 ? '+' : (diff < 0 ? '\u2212' : '');
+  return vorz + Math.abs(diff).toFixed(x.a.n) + ' ' + x.a.e;
+}
+
+function zeichneSpinne(eigen, gruppe){
+  var achsen = [];
+  SPINNE.forEach(function(a){
+    var eigenWert = spWert(eigen, a.q);
+    var werte = [];
+    gruppe.forEach(function(t){ var v = spWert(t, a.q); if(v !== null) werte.push(v); });
+    if(eigenWert === null || werte.length < 3){ achsen.push({ a:a, punkte:null }); return; }
+    var su = 0; werte.forEach(function(v){ su += v; });
+    var mittel = su / werte.length;
+    var varianz = 0; werte.forEach(function(v){ varianz += (v - mittel) * (v - mittel); });
+    var streuung = Math.sqrt(varianz / werte.length);
+    var z = streuung > 0 ? (eigenWert - mittel) / streuung : 0;
+    if(a.klein) z = -z;
+    achsen.push({ a:a, punkte: Math.max(8, Math.min(96, 50 + z * 16)), wert:eigenWert, mittel:mittel });
+  });
+  if(!achsen.some(function(x){ return x.punkte !== null; })) return null;
+
+  var mitte = 150, r = 112, n = achsen.length;
+  function pos(idx, anteil){
+    var w = (-90 + idx * (360 / n)) * Math.PI / 180;
+    return [mitte + Math.cos(w) * r * anteil, mitte + Math.sin(w) * r * anteil];
+  }
+
+  var netz = '';
+  [0.25, 0.5, 0.75, 1].forEach(function(stufe){
+    var pts = [];
+    for(var i = 0; i < n; i++){ var c = pos(i, stufe); pts.push(c[0].toFixed(1) + ',' + c[1].toFixed(1)); }
+    var ring = (stufe === 0.5);
+    netz += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="'
+      + (ring ? '#8FC63D' : '#E4EADE') + '" stroke-width="' + (ring ? 1.4 : 1) + '"'
+      + (ring ? ' stroke-dasharray="3 3"' : '') + '/>';
+  });
+  for(var i = 0; i < n; i++){
+    var c = pos(i, 1);
+    netz += '<line x1="' + mitte + '" y1="' + mitte + '" x2="' + c[0].toFixed(1)
+      + '" y2="' + c[1].toFixed(1) + '" stroke="#E4EADE" stroke-width="1"/>';
+  }
+
+  var flaeche = [], punkte = '', schrift = '';
+  achsen.forEach(function(x, idx){
+    var c = pos(idx, x.punkte === null ? 0 : x.punkte / 100);
+    flaeche.push(c[0].toFixed(1) + ',' + c[1].toFixed(1));
+    if(x.punkte !== null){
+      punkte += '<circle cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1) + '" r="3.2" fill="#0E6B36"/>';
+    }
+    var t = pos(idx, 1.14);
+    var anker = 'middle';
+    if(t[0] > mitte + 12) anker = 'start';
+    if(t[0] < mitte - 12) anker = 'end';
+    schrift += '<text x="' + t[0].toFixed(1) + '" y="' + (t[1] + 4).toFixed(1)
+      + '" text-anchor="' + anker + '" font-size="11.6" fill="#12301F" font-weight="700"'
+      + ' letter-spacing="0.15" font-family="Archivo, IBM Plex Sans, sans-serif">' + x.a.l + '</text>';
+  });
+
+  var zeilen = achsen.map(function(x){
+    if(x.punkte === null){
+      return '<tr><td class="bez">' + x.a.l + '</td><td class="ref">\u2013</td><td class="d mitte">\u2013</td></tr>';
+    }
+    var stufe = x.punkte >= 60 ? 'hoch' : (x.punkte <= 40 ? 'tief' : 'mitte');
+    return '<tr><td class="bez">' + x.a.l + '</td>'
+      + '<td class="ref">' + x.wert.toFixed(x.a.n) + ' | ' + x.mittel.toFixed(x.a.n) + '</td>'
+      + '<td class="d ' + stufe + '">' + spAbstand(x) + '</td></tr>';
+  }).join('');
+
+  return '<svg class="spinne" viewBox="-58 -6 416 312" role="img">' + netz
+    + '<polygon points="' + flaeche.join(' ') + '" fill="rgba(87,184,74,.22)" stroke="#0E6B36"'
+    + ' stroke-width="2" stroke-linejoin="round"/>' + punkte + schrift + '</svg>'
+    + '<div class="legende"><i><span class="lpunkt"></span>Dein Wert</i>'
+    + '<i><span class="lstrich"></span>Schnitt deines Jahrgangs</i></div>'
+    + '<table class="sptab"><thead><tr><th>Bereich</th><th>Du | Schnitt</th><th>\u0394</th></tr></thead>'
+    + '<tbody>' + zeilen + '</tbody></table>';
+}
+
+function zeichneDiagnostik(liste, gruppe){
   var box = el('box-diag');
   var sortiert = (liste || []).slice().sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); });
   if(!sortiert.length){
@@ -318,81 +457,100 @@ function zeichneDiagnostik(liste){
   el('diag-datum').textContent = 'Testung vom ' + datumDe(jetzt.date)
     + (vorher ? ' \u00b7 Vergleich mit ' + datumDe(vorher.date) : '');
 
-  var html = '<div class="werte">', anzahl = 0;
+  var html = '';
+  var spinne = zeichneSpinne(jetzt, gruppe || []);
+  if(spinne){
+    html += spinne;
+  } else {
+    html += '<div class="leer" style="padding:14px 0 18px">Dein St\u00e4rkenprofil erscheint, sobald mindestens'
+      + ' drei Spieler deines Jahrgangs getestet sind.</div>';
+  }
+
+  var kacheln = '';
   DIAG_FELDER.forEach(function(f){
     var v = jetzt[f.k];
     if(v === undefined || v === null || v === '') return;
-    anzahl++;
     var delta = '';
     if(vorher && vorher[f.k] !== undefined && vorher[f.k] !== null && vorher[f.k] !== ''){
-      var d = Math.round((parseFloat(v) - parseFloat(vorher[f.k])) * 100) / 100;
-      if(d !== 0){
-        var gut = (f.besser === 'min') ? d < 0 : d > 0;
+      var dd = Math.round((parseFloat(v) - parseFloat(vorher[f.k])) * 100) / 100;
+      if(dd !== 0){
+        var gut = (f.besser === 'min') ? dd < 0 : dd > 0;
         delta = '<div class="delta ' + (gut ? 'besser' : 'schlechter') + '">'
-          + (d > 0 ? '+' : '\u2212') + Math.abs(d) + ' ' + f.e + (gut ? ' besser' : '') + '</div>';
+          + (dd > 0 ? '+' : '\u2212') + Math.abs(dd) + ' ' + f.e + (gut ? ' besser' : '') + '</div>';
       }
     }
-    html += '<div class="wert"><div class="lab">' + sicher(f.l) + '</div>'
+    kacheln += '<div class="wert"><div class="lab">' + sicher(f.l) + '</div>'
       + '<b>' + sicher(v) + ' <span class="ein">' + f.e + '</span></b>' + delta + '</div>';
   });
-  html += '</div>';
 
   if(jetzt.s10 && jetzt.s30){
     var dt = parseFloat(jetzt.s30) - parseFloat(jetzt.s10);
     if(dt > 0){
-      html += '<div class="wert" style="margin-top:10px"><div class="lab">Gesch&auml;tzte H&ouml;chstgeschwindigkeit</div>'
-        + '<b>' + (Math.round((20 / dt) * 3.6 * 10) / 10) + ' <span class="ein">km/h</span></b></div>';
+      kacheln += '<div class="wert"><div class="lab">H\u00f6chstgeschwindigkeit</div><b>'
+        + (Math.round((20 / dt) * 3.6 * 10) / 10) + ' <span class="ein">km/h</span></b></div>';
     }
   }
-  box.innerHTML = anzahl ? html : '<div class="leer">In dieser Testung wurden keine Werte eingetragen.</div>';
+  if(kacheln){
+    html += '<h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#6B7A6E;'
+      + 'font-family:\'IBM Plex Sans\',sans-serif;font-weight:600;margin:20px 0 9px">Einzelwerte</h3>'
+      + '<div class="werte">' + kacheln + '</div>';
+  }
+  box.innerHTML = html;
+}
+
+function pvBewerte(f, wert){
+  if(wert === undefined || wert === null || wert === '') return null;
+  if(f.typ === 'cm'){ var z = parseFloat(wert); return isNaN(z) ? null : f.gut(z); }
+  return wert === f.gut;
+}
+function pvAnzeige(f, wert, schlecht){
+  if(wert === undefined || wert === null || wert === '') return '\u2013';
+  var t = f.typ === 'cm' ? (sicher(wert) + ' ' + f.einheit) : sicher(wert);
+  return schlecht ? '<em>' + t + '</em>' : t;
 }
 
 function zeichnePraevention(liste){
   var box = el('box-praev');
   var sortiert = (liste || []).slice().sort(function(a,b){ return String(b.datum).localeCompare(String(a.datum)); });
   if(!sortiert.length){
-    el('praev-datum').textContent = 'Noch keine Pr\u00e4ventionsdiagnostik erfasst.';
+    el('praev-datum').textContent = 'Noch kein Screening erfasst.';
     box.innerHTML = '<div class="leer">Sobald du gescreent wurdest, stehen deine Ergebnisse hier.</div>';
     return;
   }
   var e = sortiert[0];
   el('praev-datum').textContent = 'Screening vom ' + datumDe(e.datum);
 
-  function bewerte(f, wert){
-    if(wert === undefined || wert === null || wert === '') return null;
-    if(f.typ === 'cm'){ var z = parseFloat(wert); return isNaN(z) ? null : f.gut(z); }
-    return wert === f.gut;
-  }
-  function anzeige(f, wert){
-    if(wert === undefined || wert === null || wert === '') return '&ndash;';
-    return f.typ === 'cm' ? (sicher(wert) + ' ' + f.einheit) : sicher(wert);
-  }
-
-  var html = '', auff = 0, gesamt = 0;
+  var zeilen = '', gesamt = 0, auff = 0;
   PRAEV_FELDER.forEach(function(f){
     var felder = f.seiten ? [f.k + '_r', f.k + '_l'] : [f.k];
-    var teile = [], schlecht = false, hat = false;
+    var teile = [], hat = false, schlecht = false;
     felder.forEach(function(name, i){
-      var w = e[name], b = bewerte(f, w);
-      if(b !== null){ hat = true; gesamt++; if(!b) schlecht = true; }
-      teile.push((f.seiten ? (i === 0 ? 'R ' : 'L ') : '') + anzeige(f, w));
+      var w = e[name], b = pvBewerte(f, w);
+      if(b !== null){ hat = true; if(!b) schlecht = true; }
+      teile.push((f.seiten ? (i === 0 ? 'R ' : 'L ') : '') + pvAnzeige(f, w, b === false));
     });
+    if(!hat) return;
+    gesamt++;
     if(schlecht) auff++;
-    var farbe = !hat ? 'grau' : (schlecht ? 'rot' : 'gruen');
-    html += '<div class="pv"><div class="ampel ' + farbe + '"></div>'
-      + '<div class="nm"><b>' + sicher(f.l) + '</b><i>' + sicher(f.e) + '</i></div>'
-      + '<div class="seite">' + teile.join(' &nbsp;&middot;&nbsp; ') + '</div></div>';
+    zeilen += '<div class="pv"><span class="ampel ' + (schlecht ? 'rot' : 'gruen') + '"></span>'
+      + '<span class="nm"><b>' + sicher(f.l) + '</b><i>' + sicher(f.e)
+      + (schlecht ? ' \u00b7 ' + sicher(f.sagt) : '') + '</i></span>'
+      + '<span class="seite">' + teile.join('<br>') + '</span></div>';
   });
 
-  if(gesamt){
-    html = '<p class="unter" style="margin:-6px 0 12px">'
-      + (auff === 0
-        ? 'Alles im gr&uuml;nen Bereich.'
-        : auff + (auff === 1 ? ' Test ist auff&auml;llig' : ' Tests sind auff&auml;llig')
-          + ' \u2013 sprich deinen Trainer darauf an.')
-      + '</p>' + html;
+  if(!gesamt){
+    box.innerHTML = '<div class="leer">In diesem Screening wurden keine Werte eingetragen.</div>';
+    return;
   }
-  box.innerHTML = html;
+
+  var bilanz = '<div class="bilanz' + (auff ? ' achtung' : '') + '">'
+    + '<span class="zahl">' + (gesamt - auff) + '/' + gesamt + '</span><p>'
+    + (auff === 0
+        ? 'Alles in Ordnung. Nichts, worum du dich gerade k\u00fcmmern musst.'
+        : (auff === 1 ? 'Ein Bereich' : auff + ' Bereiche')
+          + ', auf die du achten solltest. Sprich deinen Trainer darauf an.')
+    + '</p></div>';
+  box.innerHTML = bilanz + zeilen;
 }
 
 function zeichneTermine(termine){
@@ -447,7 +605,7 @@ function start(){
     zeige('seite-app');
     el('app-name').innerHTML = sicher(s.name || 'WHV Athletik')
       + '<span id="app-kader">' + sicher([s.team, s.halle].filter(Boolean).map(function(c){ return KADER[c] || c; }).join(' \u00b7 ') || 'WHV') + '</span>';
-    zeichneDiagnostik(s.diag);
+    zeichneDiagnostik(s.diag, d.gruppe || []);
     zeichnePraevention(s.praevention);
     return ruf('me', { session: t, was:'termine' });
   }).then(function(d){

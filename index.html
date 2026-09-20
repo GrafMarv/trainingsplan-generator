@@ -1644,19 +1644,29 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <div class="tv-body">
           <div id="tmc-spieler"><div class="tv-grid" id="tm-grid"></div></div>
           <div id="tmc-trainings" style="display:none;">
-            <div class="tv-leer">
-              <div class="tv-leer-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-              <b>Noch keine Trainings erfasst.</b>
-              <p>Hier erscheinen die gehaltenen Einheiten mit Plan.</p>
-              <button class="tv-btn" onclick="goTo('generator')">Einheit planen</button>
+            <div id="tr-form" style="display:none;background:#F5F8F3;border:1px solid #E4EADE;border-radius:12px;padding:14px;margin-bottom:14px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <div><label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Datum</label>
+                  <input type="date" id="tr-datum" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
+                <div><label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Uhrzeit</label>
+                  <input type="time" id="tr-zeit" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div><label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Titel</label>
+                  <input type="text" id="tr-titel" placeholder="Athletik" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
+                <div><label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Ort</label>
+                  <input type="text" id="tr-ort" placeholder="Sporthalle" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="tv-btn" id="tr-speichern">Einheit ansetzen</button>
+                <button id="tr-abbruch" style="padding:9px 14px;background:#fff;color:#6B7A6E;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:13px;cursor:pointer;">Abbrechen</button>
+              </div>
             </div>
+            <div id="tr-liste"></div>
           </div>
           <div id="tmc-anwesenheit" style="display:none;">
-            <div class="tv-leer">
-              <div class="tv-leer-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg></div>
-              <b>Anwesenheit ist noch nicht eingerichtet.</b>
-              <p>N&auml;chster Schritt: R&uuml;ckmeldelink f&uuml;r die Spieler.</p>
-            </div>
+            <div id="an-wahl" style="margin-bottom:14px;"></div>
+            <div id="an-liste"></div>
           </div>
         </div>
       </div>
@@ -3657,6 +3667,8 @@ function tmKader() {
 
 function tmTab(t) {
   TM_TAB = t;
+  if (t === 'trainings' && window.trLaden) trLaden();
+  if (t === 'anwesenheit' && window.anRender) anLaden();
   ['spieler','trainings','anwesenheit'].forEach(function(x) {
     var b = document.getElementById('tmt-' + x);
     var n = null;
@@ -7049,6 +7061,233 @@ function zgStatus(aktion) {
     .catch(function(e) { alert(e.message); });
 }
 
+
+/* =====================================================================
+   TRAININGSEINHEITEN (Trainersicht)
+   Ansetzen, loeschen und die Rueckmeldungen der Spieler sehen.
+   Nutzt /api/library?collection=termine, abgesichert ueber zgRuf.
+   ===================================================================== */
+
+var TR_LISTE = [];
+var AN_CUR = null;
+
+function trRuf(koerper) {
+  var b = Object.assign({}, koerper);
+  var k = zgKey();
+  if (k) b.trainerkey = k;
+  return fetch('/api/library?collection=termine', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(b)
+  }).then(function(r) {
+    return r.json().catch(function() { return {}; }).then(function(d) {
+      if (r.status === 401) {
+        var eingabe = prompt('Trainer-Schluessel eingeben:');
+        if (eingabe) { zgKeySetze(eingabe.trim()); return trRuf(koerper); }
+      }
+      if (!r.ok) throw new Error((d && d.error) || ('Fehler ' + r.status));
+      return d;
+    });
+  });
+}
+
+function trTag(datum) {
+  var d = new Date(String(datum).slice(0, 10) + 'T12:00:00');
+  if (isNaN(d.getTime())) return '';
+  return ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'][d.getDay()];
+}
+function trDatum(datum) {
+  var t = String(datum).slice(0, 10).split('-');
+  return t.length === 3 ? t[2] + '.' + t[1] + '.' + t[0] : String(datum);
+}
+function trVergangen(datum) {
+  return String(datum).slice(0, 10) < new Date().toISOString().slice(0, 10);
+}
+
+function trLaden() {
+  var box = document.getElementById('tr-liste');
+  if (!box || !TM_CUR) return;
+  box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">Wird geladen&hellip;</p>';
+  trRuf({ aktion: 'liste', team: TM_CUR }).then(function(d) {
+    TR_LISTE = d.items || [];
+    trRender();
+  }).catch(function(e) {
+    box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:10px 0;">' + e.message + '</p>';
+  });
+}
+
+function trRender() {
+  var box = document.getElementById('tr-liste');
+  if (!box) return;
+  var kader = tmKader().length;
+
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+    + '<b style="font-size:14px;color:#1c1c1e;">Angesetzte Einheiten</b>'
+    + '<button class="tv-btn" id="tr-neu">+ Einheit ansetzen</button></div>';
+
+  if (!TR_LISTE.length) {
+    html += '<div class="tv-leer"><div class="tv-leer-ico">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'
+      + '</div><b>Noch keine Einheit angesetzt.</b>'
+      + '<p>Sobald du eine ansetzt, sehen die Spieler sie in ihrer App und k&ouml;nnen zusagen.</p></div>';
+    box.innerHTML = html;
+    onId('tr-neu', 'click', trFormZeigen);
+    return;
+  }
+
+  TR_LISTE.forEach(function(t) {
+    var alt = trVergangen(t.datum);
+    var offen = Math.max(0, kader - (t.zu + t.ab + t.verletzt));
+    html += '<div style="border:1px solid #e5e5ea;border-radius:12px;padding:13px 14px;margin-bottom:10px;'
+      + (alt ? 'opacity:.55;' : '') + '">'
+      + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">'
+      +   '<b style="font-size:14.5px;color:#1c1c1e;">' + (t.titel || 'Training') + '</b>'
+      +   '<span style="font-size:12.5px;color:#8e8e93;white-space:nowrap;">' + trTag(t.datum) + ', ' + trDatum(t.datum)
+      +     (t.zeit ? ' &middot; ' + t.zeit : '') + '</span></div>'
+      + (t.ort ? '<div style="font-size:12.5px;color:#8e8e93;margin-top:2px;">' + t.ort + '</div>' : '')
+      + '<div style="display:flex;gap:14px;margin-top:9px;font-size:12.5px;align-items:center;">'
+      +   '<span style="color:#1C7A3E;font-weight:600;">' + t.zu + ' dabei</span>'
+      +   '<span style="color:#8e8e93;">' + t.ab + ' ab</span>'
+      +   '<span style="color:#D93025;">' + t.verletzt + ' verletzt</span>'
+      +   (offen ? '<span style="color:#aeaeb2;">' + offen + ' ohne Antwort</span>' : '')
+      +   '<button onclick="trLoeschen(\'' + t.id + '\')" style="margin-left:auto;background:none;border:0;color:#D93025;font:inherit;font-size:12.5px;cursor:pointer;">Loeschen</button>'
+      + '</div></div>';
+  });
+
+  box.innerHTML = html;
+  onId('tr-neu', 'click', trFormZeigen);
+}
+
+function trFormZeigen() {
+  var f = document.getElementById('tr-form');
+  if (!f) return;
+  f.style.display = 'block';
+  var d = document.getElementById('tr-datum');
+  if (d && !d.value) {
+    var ziel = TM_TRAININGSTAG[TM_CUR.slice(1)];
+    var n = new Date(); n.setHours(12,0,0,0);
+    if (ziel !== undefined) n.setDate(n.getDate() + ((ziel - n.getDay() + 7) % 7));
+    d.value = n.toISOString().slice(0, 10);
+  }
+  var z = document.getElementById('tr-zeit');
+  if (z && !z.value) z.value = '17:30';
+  if (d) d.focus();
+}
+
+function trFormVerstecken() {
+  var f = document.getElementById('tr-form');
+  if (f) f.style.display = 'none';
+}
+
+function trSpeichern() {
+  var datum = (document.getElementById('tr-datum') || {}).value;
+  if (!datum) { alert('Bitte ein Datum waehlen.'); return; }
+  var b = document.getElementById('tr-speichern');
+  if (b) { b.disabled = true; b.textContent = 'Wird gespeichert...'; }
+  trRuf({
+    aktion: 'anlegen',
+    team: TM_CUR,
+    datum: datum,
+    zeit: (document.getElementById('tr-zeit') || {}).value || '',
+    titel: (document.getElementById('tr-titel') || {}).value || 'Training',
+    ort: (document.getElementById('tr-ort') || {}).value || ''
+  }).then(function() {
+    if (b) { b.disabled = false; b.textContent = 'Einheit ansetzen'; }
+    ['tr-titel','tr-ort'].forEach(function(id) { var n = document.getElementById(id); if (n) n.value = ''; });
+    trFormVerstecken();
+    trLaden();
+  }).catch(function(e) {
+    if (b) { b.disabled = false; b.textContent = 'Einheit ansetzen'; }
+    alert('Hat nicht geklappt: ' + e.message);
+  });
+}
+
+function trLoeschen(id) {
+  var t = TR_LISTE.filter(function(x) { return String(x.id) === String(id); })[0];
+  if (!confirm('Einheit ' + (t ? trDatum(t.datum) : '') + ' loeschen? Die Rueckmeldungen gehen mit weg.')) return;
+  trRuf({ aktion: 'loeschen', id: id }).then(trLaden).catch(function(e) { alert(e.message); });
+}
+
+/* ---------------- Anwesenheit ---------------- */
+
+function anLaden() {
+  var wahl = document.getElementById('an-wahl');
+  var box = document.getElementById('an-liste');
+  if (!wahl || !box || !TM_CUR) return;
+  box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">Wird geladen&hellip;</p>';
+  trRuf({ aktion: 'liste', team: TM_CUR }).then(function(d) {
+    TR_LISTE = d.items || [];
+    if (!TR_LISTE.length) {
+      wahl.innerHTML = '';
+      box.innerHTML = '<div class="tv-leer"><div class="tv-leer-ico">'
+        + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>'
+        + '</div><b>Noch keine Einheit angesetzt.</b>'
+        + '<p>Setze unter Trainings eine Einheit an, dann k&ouml;nnen die Spieler zusagen.</p></div>';
+      return;
+    }
+    var opts = TR_LISTE.map(function(t) {
+      return '<option value="' + t.id + '"' + (String(AN_CUR) === String(t.id) ? ' selected' : '') + '>'
+        + trDatum(t.datum) + (t.zeit ? ', ' + t.zeit : '') + ' \u2013 ' + (t.titel || 'Training') + '</option>';
+    }).join('');
+    wahl.innerHTML = '<label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Einheit</label>'
+      + '<select id="an-select" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;background:#fff;">'
+      + opts + '</select>';
+    if (!AN_CUR || !TR_LISTE.some(function(t) { return String(t.id) === String(AN_CUR); })) AN_CUR = TR_LISTE[0].id;
+    onId('an-select', 'change', function(ev) { AN_CUR = ev.target.value; anRender(); });
+    anRender();
+  }).catch(function(e) {
+    box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:10px 0;">' + e.message + '</p>';
+  });
+}
+
+function anRender() {
+  var box = document.getElementById('an-liste');
+  if (!box || !AN_CUR) return;
+  box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">Wird geladen&hellip;</p>';
+  trRuf({ aktion: 'rueckmeldungen', termin_id: AN_CUR }).then(function(d) {
+    var karte = {};
+    (d.items || []).forEach(function(r) { karte[String(r.player_id)] = r; });
+    var kader = tmKader().slice().sort(function(a, b) {
+      return (a.ln || '').toLowerCase().localeCompare((b.ln || '').toLowerCase());
+    });
+    if (!kader.length) {
+      box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">In diesem Kader ist noch kein Spieler.</p>';
+      return;
+    }
+    var farbe = { zu:'#1C7A3E', ab:'#8e8e93', verletzt:'#D93025' };
+    var text  = { zu:'dabei', ab:'nicht dabei', verletzt:'verletzt' };
+    var z = { zu:0, ab:0, verletzt:0, offen:0 };
+    var html = '';
+    kader.forEach(function(p) {
+      var r = karte[String(p.id)];
+      var st = r ? r.status : 'offen';
+      z[st] = (z[st] || 0) + 1;
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #f2f2f7;">'
+        + '<span style="width:9px;height:9px;border-radius:50%;background:' + (farbe[st] || '#d2d2d7') + ';flex:none;"></span>'
+        + '<span style="flex:1;font-size:14px;color:#1c1c1e;">' + p.fn + ' ' + p.ln + '</span>'
+        + '<select onchange="anSetzen(\'' + p.id + '\', this.value)" style="padding:5px 8px;border:1px solid #e5e5ea;border-radius:7px;font:inherit;font-size:12.5px;background:#fff;color:' + (farbe[st] || '#8e8e93') + ';">'
+        +   ['offen','zu','ab','verletzt'].map(function(o) {
+              return '<option value="' + o + '"' + (o === st ? ' selected' : '') + '>'
+                + (o === 'offen' ? 'keine Antwort' : text[o]) + '</option>';
+            }).join('')
+        + '</select></div>';
+    });
+    box.innerHTML = '<div style="display:flex;gap:14px;font-size:12.5px;margin-bottom:10px;">'
+      + '<span style="color:#1C7A3E;font-weight:600;">' + z.zu + ' dabei</span>'
+      + '<span style="color:#8e8e93;">' + z.ab + ' ab</span>'
+      + '<span style="color:#D93025;">' + z.verletzt + ' verletzt</span>'
+      + '<span style="color:#aeaeb2;">' + z.offen + ' ohne Antwort</span></div>' + html;
+  }).catch(function(e) {
+    box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:10px 0;">' + e.message + '</p>';
+  });
+}
+
+function anSetzen(playerId, status) {
+  trRuf({ aktion: 'setzen', termin_id: AN_CUR, player_id: playerId, status: status })
+    .then(anRender)
+    .catch(function(e) { alert(e.message); anRender(); });
+}
+
 function onId(id, ev, fn) {
   var el = document.getElementById(id);
   if (el) el.addEventListener(ev, fn);
@@ -7104,6 +7343,8 @@ document.addEventListener('DOMContentLoaded', function() {
     zgLaden(PL.find(function(x) { return x.id === PL_CUR; }));
   });
   onId('zg-einladen', 'click', zgEinladen);
+  onId('tr-speichern', 'click', trSpeichern);
+  onId('tr-abbruch', 'click', trFormVerstecken);
 
   // Delete player
   onId('btn-delete-player', 'click', function() {
