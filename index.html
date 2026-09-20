@@ -2482,7 +2482,7 @@ function whvHomeCounts() {
   }
   mal();
   fetch('/api/players').then(function(r){ return r.json(); }).then(function(d){
-    if (d && Array.isArray(d.players)) { PL = d.players; plSave(); mal(); }
+    if (d && Array.isArray(d.players)) { plUebernehmen(d.players); mal(); }
   }).catch(function(){});
 }
 
@@ -3597,8 +3597,7 @@ function wxBindeZiehen() {
 function wxInit() {
   if (!PL || PL.length === 0) {
     fetch('/api/players').then(function(r){ return r.json(); }).then(function(d){
-      PL = (d && d.players) ? d.players : [];
-      plSave();
+      plUebernehmen((d && d.players) ? d.players : []);
       wxRender();
     }).catch(function(){ wxRender(); });
   } else { wxRender(); }
@@ -3638,8 +3637,7 @@ function whvTeam(code) {
   tmRender();
   if (!PL || PL.length === 0) {
     fetch('/api/players').then(function(r){ return r.json(); }).then(function(d){
-      PL = (d && d.players) ? d.players : [];
-      plSave();
+      plUebernehmen((d && d.players) ? d.players : []);
       tmRender();
     }).catch(function(){});
   }
@@ -5292,13 +5290,42 @@ function plSave() { try { localStorage.setItem('cb_pl', JSON.stringify(PL)); } c
 
 var PL_NOTE_TIMER = null;
 
-function plUpsert(p) {
+// Spieler, deren letzte Aenderung der Server noch nicht bestaetigt hat.
+// Solange ein Spieler hier steht, darf ihn ein spaeter eintreffender
+// Serverstand nicht ueberschreiben.
+var PL_OFFEN = {};
+
+function plUebernehmen(liste) {
+  if (!Array.isArray(liste)) return;
+  var lokal = {};
+  PL.forEach(function(p) { if (p && PL_OFFEN[p.id]) lokal[p.id] = p; });
+  var raus = liste.map(function(p) { return lokal[p.id] || p; });
+  Object.keys(lokal).forEach(function(id) {
+    var drin = raus.some(function(p) { return String(p.id) === String(id); });
+    if (!drin) raus.push(lokal[id]);
+  });
+  PL = raus;
+  plSave();
+}
+
+function plUpsert(p, fertig) {
   if (!p) return;
+  PL_OFFEN[p.id] = Date.now();
   fetch('/api/players', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(p)
-  }).catch(function(){});
+  }).then(function(r) {
+    return r.json().catch(function() { return {}; }).then(function(d) {
+      if (!r.ok || !d.ok) throw new Error((d && d.error) || ('Server antwortet mit ' + r.status));
+      delete PL_OFFEN[p.id];
+      if (fertig) fertig(true);
+    });
+  }).catch(function(e) {
+    if (fertig) { fertig(false, e); return; }
+    alert('Konnte nicht gespeichert werden: ' + e.message
+      + '\n\nDie Aenderung steht bisher nur auf diesem Geraet. Bitte die Seite neu laden und noch einmal versuchen.');
+  });
 }
 
 function plRemoteDelete(id) {
@@ -7423,8 +7450,7 @@ function diagInitScreen() {
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d && Array.isArray(d.players)) {
-        PL = d.players;
-        plSave();
+        plUebernehmen(d.players);
         diagRenderTeamOverview();
       }
     })
@@ -7884,9 +7910,13 @@ function plSaveNew() {
       ex.masse = [{ datum: new Date().toISOString().slice(0, 10), hgt: hgt, wgt: wgt }];
     }
     plSave();
-    plUpsert(ex);
     plHideModal();
     plOpen(ex.id);
+    plUpsert(ex, function(ok, e) {
+      if (ok) { plOpen(ex.id); return; }
+      alert('Konnte nicht gespeichert werden: ' + (e ? e.message : 'unbekannter Fehler')
+        + '\n\nDie Aenderung steht bisher nur auf diesem Geraet.');
+    });
     return;
   }
   var np = {
