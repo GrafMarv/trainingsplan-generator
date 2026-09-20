@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 // api/library.js
 // GET    /api/library?collection=plans          -> { items: [...] }
 // GET    /api/library?collection=blocks         -> { items: [...] }
@@ -22,6 +23,14 @@ export default async function handler(req, res) {
   };
 
   const collection = (req.query.collection || '').toLowerCase();
+
+  // ================= SPIELER-ZUGANG =================
+  // collection=auth : Einladung, Passwort setzen, Login, Session  (Trainer + Spieler)
+  // collection=me   : Daten des eingeloggten Spielers             (nur Spieler)
+  if (collection === 'auth' || collection === 'me') {
+    return await zugang(req, res, SUPABASE_URL, headers, collection);
+  }
+
   const erlaubt = ['plans', 'blocks', 'trainingdocs', 'exercises'];
   if (erlaubt.indexOf(collection) === -1) {
     return res.status(400).json({ error: 'collection must be one of ' + erlaubt.join(', ') });
@@ -180,6 +189,385 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method not allowed' });
 
   } catch(e) {
+    return res.status(500).json({ error: e.message });
+  }
+}
+
+// ======================================================================
+//  SPIELER-ZUGANG
+//  Portabel gehalten: keine Vercel-spezifischen Aufrufe, nur fetch +
+//  node:crypto. Laesst sich spaeter unveraendert auf einen Verbands-
+//  Server oder eine Supabase Edge Function umziehen.
+// ======================================================================
+
+function zgZufall(n) { return crypto.randomBytes(n || 24).toString('hex'); }
+function zgHash(passwort, salt) {
+  return crypto.pbkdf2Sync(String(passwort), String(salt), 120000, 32, 'sha256').toString('hex');
+}
+function zgGleich(a, b) {
+  const x = Buffer.from(String(a || ''), 'utf8');
+  const y = Buffer.from(String(b || ''), 'utf8');
+  if (x.length !== y.length) return false;
+  return crypto.timingSafeEqual(x, y);
+}
+function zgInStunden(h) { return new Date(Date.now() + h * 3600 * 1000).toISOString(); }
+function zgInTagen(t) { return new Date(Date.now() + t * 86400 * 1000).toISOString(); }
+function zgAbgelaufen(ts) { return !ts || new Date(ts).getTime() < Date.now(); }
+
+function zgBenutzername(p) {
+  const roh = ((p && p.fn) || '') + '.' + ((p && p.ln) || '');
+  return roh.toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9.]/g, '')
+    .replace(/\.+/g, '.').replace(/^\.|\.$/g, '');
+}
+
+function zgBasis(req) {
+  const host = (req.headers && (req.headers['x-forwarded-host'] || req.headers.host)) || '';
+  const proto = (req.headers && req.headers['x-forwarded-proto']) || 'https';
+  return host ? proto + '://' + host : '';
+}
+
+async function zugang(req, res, SUPABASE_URL, headers, collection) {
+  const rest = (pfad) => SUPABASE_URL + '/rest/v1/' + pfad;
+
+  async function hole(pfad) {
+    const r = await fetch(rest(pfad), { headers });
+    if (!r.ok) return [];
+    const j = await r.json().catch(function () { return []; });
+    return Array.isArray(j) ? j : [];
+  }
+  async function schreibe(tabelle, zeile, merge) {
+    const h = Object.assign({}, headers, {
+      'Prefer': (merge ? 'resolution=merge-duplicates,' : '') + 'return=representation'
+    });
+    const r = await fetch(rest(tabelle), { method: 'POST', headers: h, body: JSON.stringify(zeile) });
+    const j = await r.json().catch(function () { return null; });
+    return { ok: r.ok, daten: Array.isArray(j) ? j[0] : j };
+  }
+  async function aendere(tabelle, filter, zeile) {
+    const r = await fetch(rest(tabelle + '?' + filter), {
+      method: 'PATCH',
+      headers: Object.assign({}, headers, { 'Prefer': 'return=representation' }),
+      body: JSON.stringify(zeile)
+    });
+    const j = await r.json().catch(function () { return null; });
+    return { ok: r.ok, daten: Array.isArray(j) ? j[0] : j };
+  }
+  async function entferne(tabelle, filter) {
+    await fetch(rest(tabelle + '?' + filter), { method: 'DELETE', headers });
+  }
+
+  // Tabellen anlegen bzw. fehlende Spalten ergaenzen. Laeuft bei jedem Aufruf,
+  // ist aber idempotent und damit unkritisch.
+  try {
+    await fetch(SUPABASE_URL + '/rest/v1/rpc/exec_sql', {
+      method: 'POST', headers,
+      body: JSON.stringify({ sql:
+        "create table if not exists cb_player_auth (player_id text primary key); " +
+        "alter table cb_player_auth add column if not exists username text; " +
+        "alter table cb_player_auth add column if not exists pw_hash text; " +
+        "alter table cb_player_auth add column if not exists pw_salt text; " +
+        "alter table cb_player_auth add column if not exists invite_token text; " +
+        "alter table cb_player_auth add column if not exists invite_expires timestamptz; " +
+        "alter table cb_player_auth add column if not exists status text default 'neu'; " +
+        "alter table cb_player_auth add column if not exists last_login timestamptz; " +
+        "alter table cb_player_auth add column if not exists created_at timestamptz default now(); " +
+        "create unique index if not exists cb_auth_user_idx on cb_player_auth (lower(username)) where username is not null; " +
+        "create index if not exists cb_auth_token_idx on cb_player_auth (invite_token); " +
+        "create table if not exists cb_player_session (token text primary key); " +
+        "alter table cb_player_session add column if not exists player_id text; " +
+        "alter table cb_player_session add column if not exists expires timestamptz; " +
+        "alter table cb_player_session add column if not exists created_at timestamptz default now(); " +
+        "create table if not exists cb_termine (id uuid primary key default gen_random_uuid()); " +
+        "alter table cb_termine add column if not exists team text; " +
+        "alter table cb_termine add column if not exists datum date; " +
+        "alter table cb_termine add column if not exists zeit text; " +
+        "alter table cb_termine add column if not exists titel text; " +
+        "alter table cb_termine add column if not exists ort text; " +
+        "alter table cb_termine add column if not exists created_at timestamptz default now(); " +
+        "create table if not exists cb_anwesenheit (id uuid primary key default gen_random_uuid()); " +
+        "alter table cb_anwesenheit add column if not exists termin_id text; " +
+        "alter table cb_anwesenheit add column if not exists player_id text; " +
+        "alter table cb_anwesenheit add column if not exists status text; " +
+        "alter table cb_anwesenheit add column if not exists grund text; " +
+        "alter table cb_anwesenheit add column if not exists updated_at timestamptz default now(); " +
+        "create index if not exists cb_anw_idx on cb_anwesenheit (termin_id, player_id); " +
+        "notify pgrst, 'reload schema';"
+      })
+    });
+  } catch (e) { /* Tabellen existieren bereits */ }
+
+  let body = req.body;
+  if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
+  body = body || {};
+  const aktion = String(body.aktion || req.query.aktion || '').toLowerCase();
+
+  // --- Trainerseite absichern, sobald TRAINER_KEY in den Env-Vars gesetzt ist ---
+  function trainerOk() {
+    const soll = process.env.TRAINER_KEY;
+    if (!soll) return true;
+    const ist = body.trainerkey || (req.headers && req.headers['x-trainer-key']) || '';
+    return zgGleich(ist, soll);
+  }
+
+  async function spielerDaten(pid) {
+    const rows = await hole('cb_players?id=eq.' + encodeURIComponent(pid) + '&select=data');
+    return rows.length ? rows[0].data : null;
+  }
+
+  async function sessionPruefen(tok) {
+    if (!tok) return null;
+    const s = await hole('cb_player_session?token=eq.' + encodeURIComponent(tok) + '&select=*');
+    if (!s.length) return null;
+    if (zgAbgelaufen(s[0].expires)) { await entferne('cb_player_session', 'token=eq.' + encodeURIComponent(tok)); return null; }
+    const a = await hole('cb_player_auth?player_id=eq.' + encodeURIComponent(s[0].player_id) + '&select=*');
+    if (!a.length || a[0].status === 'gesperrt') return null;
+    return a[0];
+  }
+
+  async function sessionAnlegen(pid) {
+    const tok = zgZufall(32);
+    await schreibe('cb_player_session', { token: tok, player_id: String(pid), expires: zgInTagen(30) });
+    return tok;
+  }
+
+  try {
+    // ================= collection=auth =================
+    if (collection === 'auth') {
+
+      // ---- Trainer: Übersicht aller Zugänge ----
+      if (aktion === 'liste' || (req.method === 'GET' && !aktion)) {
+        if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+        const rows = await hole('cb_player_auth?select=player_id,username,status,invite_expires,last_login,pw_hash');
+        return res.status(200).json({ items: rows.map(function (r) {
+          return {
+            player_id: r.player_id,
+            username: r.username,
+            status: r.status || 'neu',
+            invite_expires: r.invite_expires,
+            invite_offen: !!(r.invite_expires && !zgAbgelaufen(r.invite_expires)),
+            hat_passwort: !!r.pw_hash,
+            last_login: r.last_login
+          };
+        }) });
+      }
+
+      // ---- Trainer: Einladungslink erzeugen (48 Stunden gültig) ----
+      if (aktion === 'einladen') {
+        if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+        const pid = String(body.player_id || '');
+        if (!pid) return res.status(400).json({ error: 'player_id fehlt' });
+        const sp = await spielerDaten(pid);
+        if (!sp) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+
+        const vorhanden = await hole('cb_player_auth?player_id=eq.' + encodeURIComponent(pid) + '&select=*');
+        let user = String(body.username || (vorhanden[0] && vorhanden[0].username) || zgBenutzername(sp) || '').trim().toLowerCase();
+        if (!user) user = 'spieler.' + pid.slice(-4);
+
+        // Benutzername muss eindeutig sein
+        const kollision = await hole('cb_player_auth?username=eq.' + encodeURIComponent(user) + '&select=player_id');
+        if (kollision.length && kollision[0].player_id !== pid) user = user + '.' + pid.slice(-3);
+
+        const token = zgZufall(24);
+        const zeile = {
+          player_id: pid,
+          username: user,
+          invite_token: token,
+          invite_expires: zgInStunden(48),
+          status: (vorhanden[0] && vorhanden[0].pw_hash) ? (vorhanden[0].status || 'aktiv') : 'eingeladen'
+        };
+        if (vorhanden.length) await aendere('cb_player_auth', 'player_id=eq.' + encodeURIComponent(pid), zeile);
+        else await schreibe('cb_player_auth', zeile);
+
+        return res.status(200).json({
+          ok: true,
+          username: user,
+          token: token,
+          laeuft_ab: zeile.invite_expires,
+          link: zgBasis(req) + '/spieler.html?einladung=' + token
+        });
+      }
+
+      // ---- Trainer: Benutzername ändern ----
+      if (aktion === 'username') {
+        if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+        const pid = String(body.player_id || '');
+        const user = String(body.username || '').trim().toLowerCase();
+        if (!pid || !user) return res.status(400).json({ error: 'player_id und username noetig' });
+        const kollision = await hole('cb_player_auth?username=eq.' + encodeURIComponent(user) + '&select=player_id');
+        if (kollision.length && kollision[0].player_id !== pid) return res.status(409).json({ error: 'Benutzername ist schon vergeben' });
+        const vorhanden = await hole('cb_player_auth?player_id=eq.' + encodeURIComponent(pid) + '&select=player_id');
+        if (vorhanden.length) await aendere('cb_player_auth', 'player_id=eq.' + encodeURIComponent(pid), { username: user });
+        else await schreibe('cb_player_auth', { player_id: pid, username: user, status: 'neu' });
+        return res.status(200).json({ ok: true, username: user });
+      }
+
+      // ---- Trainer: sperren / entsperren / Zugang löschen ----
+      if (aktion === 'sperren' || aktion === 'entsperren' || aktion === 'loeschen') {
+        if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+        const pid = String(body.player_id || '');
+        if (!pid) return res.status(400).json({ error: 'player_id fehlt' });
+        await entferne('cb_player_session', 'player_id=eq.' + encodeURIComponent(pid));
+        if (aktion === 'loeschen') {
+          await entferne('cb_player_auth', 'player_id=eq.' + encodeURIComponent(pid));
+          return res.status(200).json({ ok: true, status: 'geloescht' });
+        }
+        const neu = aktion === 'sperren' ? 'gesperrt' : 'aktiv';
+        await aendere('cb_player_auth', 'player_id=eq.' + encodeURIComponent(pid), { status: neu });
+        return res.status(200).json({ ok: true, status: neu });
+      }
+
+      // ---- Spieler: Einladungslink prüfen ----
+      if (aktion === 'pruefe') {
+        const token = String(body.token || '');
+        if (!token) return res.status(400).json({ error: 'token fehlt' });
+        const rows = await hole('cb_player_auth?invite_token=eq.' + encodeURIComponent(token) + '&select=*');
+        if (!rows.length) return res.status(404).json({ error: 'Link ist ungueltig' });
+        if (zgAbgelaufen(rows[0].invite_expires)) return res.status(410).json({ error: 'Link ist abgelaufen' });
+        if (rows[0].status === 'gesperrt') return res.status(403).json({ error: 'Zugang ist gesperrt' });
+        const sp = await spielerDaten(rows[0].player_id);
+        return res.status(200).json({
+          ok: true,
+          username: rows[0].username,
+          name: sp ? ((sp.fn || '') + ' ' + (sp.ln || '')).trim() : ''
+        });
+      }
+
+      // ---- Spieler: Passwort über Einladungslink setzen ----
+      if (aktion === 'setzen') {
+        const token = String(body.token || '');
+        const passwort = String(body.passwort || '');
+        if (!token) return res.status(400).json({ error: 'token fehlt' });
+        if (passwort.length < 8) return res.status(400).json({ error: 'Passwort muss mindestens 8 Zeichen haben' });
+        const rows = await hole('cb_player_auth?invite_token=eq.' + encodeURIComponent(token) + '&select=*');
+        if (!rows.length) return res.status(404).json({ error: 'Link ist ungueltig' });
+        if (zgAbgelaufen(rows[0].invite_expires)) return res.status(410).json({ error: 'Link ist abgelaufen' });
+        if (rows[0].status === 'gesperrt') return res.status(403).json({ error: 'Zugang ist gesperrt' });
+
+        const salt = zgZufall(16);
+        await aendere('cb_player_auth', 'player_id=eq.' + encodeURIComponent(rows[0].player_id), {
+          pw_salt: salt,
+          pw_hash: zgHash(passwort, salt),
+          invite_token: null,
+          invite_expires: null,
+          status: 'aktiv',
+          last_login: new Date().toISOString()
+        });
+        await entferne('cb_player_session', 'player_id=eq.' + encodeURIComponent(rows[0].player_id));
+        const sess = await sessionAnlegen(rows[0].player_id);
+        return res.status(200).json({ ok: true, session: sess, username: rows[0].username });
+      }
+
+      // ---- Spieler: Login ----
+      if (aktion === 'login') {
+        const user = String(body.username || '').trim().toLowerCase();
+        const passwort = String(body.passwort || '');
+        if (!user || !passwort) return res.status(400).json({ error: 'Benutzername und Passwort noetig' });
+        const rows = await hole('cb_player_auth?username=eq.' + encodeURIComponent(user) + '&select=*');
+        if (!rows.length || !rows[0].pw_hash) return res.status(401).json({ error: 'Benutzername oder Passwort stimmt nicht' });
+        if (rows[0].status === 'gesperrt') return res.status(403).json({ error: 'Zugang ist gesperrt' });
+        if (!zgGleich(zgHash(passwort, rows[0].pw_salt), rows[0].pw_hash)) {
+          return res.status(401).json({ error: 'Benutzername oder Passwort stimmt nicht' });
+        }
+        await aendere('cb_player_auth', 'player_id=eq.' + encodeURIComponent(rows[0].player_id), { last_login: new Date().toISOString() });
+        const sess = await sessionAnlegen(rows[0].player_id);
+        return res.status(200).json({ ok: true, session: sess, username: rows[0].username });
+      }
+
+      // ---- Spieler: Passwort ändern (eingeloggt) ----
+      if (aktion === 'passwort') {
+        const a = await sessionPruefen(body.session);
+        if (!a) return res.status(401).json({ error: 'Nicht angemeldet' });
+        const alt = String(body.alt || ''), neu = String(body.neu || '');
+        if (neu.length < 8) return res.status(400).json({ error: 'Neues Passwort muss mindestens 8 Zeichen haben' });
+        if (!zgGleich(zgHash(alt, a.pw_salt), a.pw_hash)) return res.status(401).json({ error: 'Altes Passwort stimmt nicht' });
+        const salt = zgZufall(16);
+        await aendere('cb_player_auth', 'player_id=eq.' + encodeURIComponent(a.player_id), { pw_salt: salt, pw_hash: zgHash(neu, salt) });
+        return res.status(200).json({ ok: true });
+      }
+
+      if (aktion === 'session') {
+        const a = await sessionPruefen(body.session);
+        if (!a) return res.status(401).json({ error: 'Nicht angemeldet' });
+        const sp = await spielerDaten(a.player_id);
+        return res.status(200).json({ ok: true, username: a.username, name: sp ? ((sp.fn || '') + ' ' + (sp.ln || '')).trim() : '' });
+      }
+
+      if (aktion === 'logout') {
+        if (body.session) await entferne('cb_player_session', 'token=eq.' + encodeURIComponent(String(body.session)));
+        return res.status(200).json({ ok: true });
+      }
+
+      return res.status(400).json({ error: 'Unbekannte Aktion: ' + (aktion || '(leer)') });
+    }
+
+    // ================= collection=me =================
+    const a = await sessionPruefen(body.session);
+    if (!a) return res.status(401).json({ error: 'Nicht angemeldet' });
+    const sp = await spielerDaten(a.player_id);
+    if (!sp) return res.status(404).json({ error: 'Spielerprofil nicht gefunden' });
+    const was = String(body.was || 'profil').toLowerCase();
+
+    if (was === 'profil') {
+      return res.status(200).json({
+        ok: true,
+        spieler: {
+          id: sp.id,
+          name: ((sp.fn || '') + ' ' + (sp.ln || '')).trim(),
+          team: sp.team || '',
+          halle: sp.halle || '',
+          pos: sp.pos || '',
+          verein: sp.verein || '',
+          status: sp.status || '',
+          diag: Array.isArray(sp.diag) ? sp.diag : [],
+          praevention: Array.isArray(sp.praevention) ? sp.praevention : []
+        }
+      });
+    }
+
+    if (was === 'termine') {
+      const kader = [sp.team, sp.halle].filter(Boolean);
+      if (!kader.length) return res.status(200).json({ ok: true, termine: [] });
+      const heute = new Date(Date.now() - 86400 * 1000).toISOString().slice(0, 10);
+      const filter = 'cb_termine?team=in.(' + kader.map(encodeURIComponent).join(',') + ')'
+        + '&datum=gte.' + heute + '&order=datum.asc&select=*';
+      const termine = await hole(filter);
+      if (!termine.length) return res.status(200).json({ ok: true, termine: [] });
+      const antworten = await hole('cb_anwesenheit?player_id=eq.' + encodeURIComponent(a.player_id) + '&select=termin_id,status,grund');
+      const karte = {};
+      antworten.forEach(function (r) { karte[String(r.termin_id)] = r; });
+      return res.status(200).json({ ok: true, termine: termine.map(function (t) {
+        const m = karte[String(t.id)];
+        return {
+          id: t.id, team: t.team, datum: t.datum, zeit: t.zeit || '',
+          titel: t.titel || 'Training', ort: t.ort || '',
+          antwort: m ? m.status : null, grund: m ? (m.grund || '') : ''
+        };
+      }) });
+    }
+
+    if (was === 'abstimmen') {
+      const tid = String(body.termin_id || '');
+      const st = String(body.status || '').toLowerCase();
+      if (!tid) return res.status(400).json({ error: 'termin_id fehlt' });
+      if (['zu', 'ab', 'verletzt'].indexOf(st) === -1) return res.status(400).json({ error: 'status muss zu, ab oder verletzt sein' });
+      const gehoert = await hole('cb_termine?id=eq.' + encodeURIComponent(tid) + '&select=team');
+      if (!gehoert.length) return res.status(404).json({ error: 'Termin nicht gefunden' });
+      if ([sp.team, sp.halle].indexOf(gehoert[0].team) === -1) return res.status(403).json({ error: 'Termin gehoert nicht zu deinem Kader' });
+      await entferne('cb_anwesenheit', 'termin_id=eq.' + encodeURIComponent(tid) + '&player_id=eq.' + encodeURIComponent(a.player_id));
+      await schreibe('cb_anwesenheit', {
+        termin_id: tid, player_id: String(a.player_id), status: st,
+        grund: String(body.grund || '').slice(0, 300), updated_at: new Date().toISOString()
+      });
+      return res.status(200).json({ ok: true, status: st });
+    }
+
+    return res.status(400).json({ error: 'Unbekannter Bereich: ' + was });
+
+  } catch (e) {
     return res.status(500).json({ error: e.message });
   }
 }
