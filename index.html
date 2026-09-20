@@ -1674,12 +1674,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
       <div class="tv-card">
         <div class="tv-r-head"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> N&auml;chstes Training</div>
-        <div class="tv-termin">
-          <div><small id="tv-wtag"></small><b id="tv-datum"></b></div>
-          <div id="tv-zeit"></div>
-        </div>
-        <div class="tv-zeile"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> <span id="tv-ort"><em>Ort noch nicht hinterlegt</em></span></div>
-        <div class="tv-zeile"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg> <span id="tv-art"><em>Inhalt noch nicht hinterlegt</em></span></div>
+        <div id="tv-naechstes"></div>
         <button class="tv-plan" onclick="goTo('generator')">Einheit planen <span>&#8250;</span></button>
       </div>
     </div>
@@ -3623,23 +3618,18 @@ function whvTeam(code) {
   ts.style.display = 'block';
   if (window.playScreenEnter) playScreenEnter(ts);
   document.getElementById('tm-title').textContent = tmLabel(code);
-  document.getElementById('tm-next').textContent = tmNaechsterTermin(code);
+  document.getElementById('tm-next').textContent = '';
   var nr = document.getElementById('tv-nr'); if (nr) nr.textContent = code.slice(1);
   var hallenTeam = (code.slice(1) === 'P' || code.slice(1) === '15');
   var sw = document.getElementById('tv-switch'); if (sw) sw.value = code;
-  var ziel = TM_TRAININGSTAG[code.slice(1)];
-  if (ziel !== undefined) {
-    var d = new Date(); d.setHours(0,0,0,0);
-    d.setDate(d.getDate() + ((ziel - d.getDay() + 7) % 7));
-    document.getElementById('tv-wtag').textContent = TM_WOCHENTAG[ziel];
-    document.getElementById('tv-datum').textContent = d.getDate() + '. ' + TM_MONAT[d.getMonth()];
-  }
   tmTab('spieler');
+  trLaden();
   tmRender();
   if (!PL || PL.length === 0) {
     fetch('/api/players').then(function(r){ return r.json(); }).then(function(d){
       plUebernehmen((d && d.players) ? d.players : []);
       tmRender();
+      tvNaechstes();
     }).catch(function(){});
   }
 }
@@ -7156,9 +7146,73 @@ function trLaden() {
     TR_LISTE = d.items || [];
     TR_ANTWORTEN = d.antworten || [];
     trRender();
+    tvNaechstes();
   }).catch(function(e) {
     box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:10px 0;">' + e.message + '</p>';
+    tvNaechstes();
   });
+}
+
+// Die Karte rechts: echtes naechstes Training aus der Datenbank.
+// Klick darauf springt in den Trainings-Tab und klappt es auf.
+function tvNaechstes() {
+  var box = document.getElementById('tv-naechstes');
+  if (!box) return;
+  var kader = tmKader().length;
+  var kommend = TR_LISTE.filter(function(t) {
+    var tage = trTageBis(t.datum);
+    return tage !== null && tage >= 0;
+  });
+  var kopf = document.getElementById('tm-next');
+
+  if (!kommend.length) {
+    if (kopf) kopf.textContent = 'Noch kein Training angesetzt';
+    box.innerHTML = '<div style="padding:16px 19px 4px;font-size:13.5px;color:#6B7A6E;">'
+      + 'Noch kein Training angesetzt.</div>'
+      + '<div style="padding:0 19px 16px;">'
+      + '<button onclick="tvNeuesTraining()" style="width:100%;padding:11px;background:#0E6B36;color:#fff;border:0;border-radius:9px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;">+ Training anlegen</button>'
+      + '</div>';
+    return;
+  }
+
+  var t = kommend[0];
+  var tage = trTageBis(t.datum);
+  var ohne = Math.max(0, kader - (t.zu + t.ab + t.verletzt));
+  var wann = tage === 0 ? 'heute' : (tage === 1 ? 'morgen' : 'in ' + tage + ' Tagen');
+
+  if (kopf) kopf.textContent = 'N\u00e4chstes Training: ' + trTag(t.datum) + ', ' + trDatum(t.datum);
+
+  box.innerHTML =
+      '<div class="tv-termin" onclick="tvOeffne(\'' + t.id + '\')" style="cursor:pointer;">'
+    +   '<div><small>' + trTag(t.datum) + ' &middot; ' + wann + '</small><b>' + trDatum(t.datum) + '</b></div>'
+    +   '<div>' + (t.zeit || '') + '</div>'
+    + '</div>'
+    + '<div class="tv-zeile"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> '
+    +   '<span>' + (t.ort ? t.ort : '<em>Ort noch nicht hinterlegt</em>') + '</span></div>'
+    + '<div class="tv-zeile" onclick="tvOeffne(\'' + t.id + '\')" style="cursor:pointer;">'
+    +   '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> '
+    +   '<span><b style="color:#1C7A3E;">' + t.zu + ' dabei</b>'
+    +   (t.verletzt ? ', <b style="color:#D93025;">' + t.verletzt + ' verletzt</b>' : '')
+    +   (t.ab ? ', ' + t.ab + ' abgesagt' : '')
+    +   (ohne ? ', <em>' + ohne + ' offen</em>' : '')
+    +   '</span><span style="margin-left:auto;color:#0E6B36;font-weight:600;">&#8250;</span></div>'
+    + '<div style="padding:12px 19px;border-top:1px solid #EEF2EB;">'
+    +   '<button onclick="tvNeuesTraining()" style="width:100%;padding:10px;background:#fff;color:#0E6B36;border:1px solid #C9DCC3;border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;">+ Weiteres Training anlegen</button>'
+    + '</div>';
+}
+
+// Trainings-Tab oeffnen und ein bestimmtes Training aufklappen
+function tvOeffne(id) {
+  tmTab('trainings');
+  TR_OFFEN = id;
+  trRender();
+  var el = document.getElementById('tr-rueck-' + id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function tvNeuesTraining() {
+  tmTab('trainings');
+  trFormZeigen(null);
 }
 
 function trRender() {
