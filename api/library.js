@@ -317,6 +317,16 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
         "alter table cb_anwesenheit add column if not exists grund text; " +
         "alter table cb_anwesenheit add column if not exists updated_at timestamptz default now(); " +
         "create index if not exists cb_anw_idx on cb_anwesenheit (termin_id, player_id); " +
+        // Die Tabellen koennen aus einer aelteren SQL stammen und Pflichtspalten
+        // haben, die wir gar nicht kennen. Alles ausser unseren eigenen Spalten
+        // wird optional gemacht, sonst scheitert jedes Insert.
+        "do $$ declare r record; begin " +
+        "  for r in select table_name, column_name from information_schema.columns " +
+        "    where table_schema='public' and table_name in ('cb_anwesenheit','cb_termine') " +
+        "      and is_nullable='NO' and column_default is null " +
+        "      and column_name not in ('id','termin_id','player_id','status','team','datum') " +
+        "  loop execute format('alter table %I alter column %I drop not null', r.table_name, r.column_name); " +
+        "  end loop; end $$; " +
         "notify pgrst, 'reload schema';"
       })
     });
@@ -592,11 +602,16 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
         if (!tid || !pid) return res.status(400).json({ error: 'termin_id und player_id noetig' });
         await entferne('cb_anwesenheit', 'termin_id=eq.' + encodeURIComponent(tid) + '&player_id=eq.' + encodeURIComponent(pid));
         if (st && st !== 'offen') {
-          if (['zu', 'ab', 'verletzt'].indexOf(st) === -1) return res.status(400).json({ error: 'Unbekannter Status' });
-          await schreibe('cb_anwesenheit', {
+            if (['zu', 'ab', 'verletzt'].indexOf(st) === -1) return res.status(400).json({ error: 'Unbekannter Status' });
+          const out2 = await schreibe('cb_anwesenheit', {
             termin_id: tid, player_id: pid, status: st,
             grund: 'vom Trainer eingetragen', updated_at: new Date().toISOString()
           });
+          if (!out2.ok) {
+            return res.status(500).json({
+              error: 'Konnte nicht gespeichert werden: ' + ((out2.daten && (out2.daten.message || out2.daten.details)) || 'unbekannt')
+            });
+          }
         }
         return res.status(200).json({ ok: true, status: st || 'offen' });
       }
@@ -689,10 +704,15 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
         return res.status(409).json({ error: 'Diese Einheit war schon' });
       }
       await entferne('cb_anwesenheit', 'termin_id=eq.' + encodeURIComponent(tid) + '&player_id=eq.' + encodeURIComponent(a.player_id));
-      await schreibe('cb_anwesenheit', {
+      const out = await schreibe('cb_anwesenheit', {
         termin_id: tid, player_id: String(a.player_id), status: st,
         grund: String(body.grund || '').slice(0, 300), updated_at: new Date().toISOString()
       });
+      if (!out.ok) {
+        return res.status(500).json({
+          error: 'Konnte nicht gespeichert werden: ' + ((out.daten && (out.daten.message || out.daten.details)) || 'unbekannt')
+        });
+      }
       return res.status(200).json({ ok: true, status: st });
     }
 
