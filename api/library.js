@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   // ================= SPIELER-ZUGANG =================
   // collection=auth : Einladung, Passwort setzen, Login, Session  (Trainer + Spieler)
   // collection=me   : Daten des eingeloggten Spielers             (nur Spieler)
-  if (collection === 'auth' || collection === 'me') {
+  if (collection === 'auth' || collection === 'me' || collection === 'termine') {
     return await zugang(req, res, SUPABASE_URL, headers, collection);
   }
 
@@ -504,6 +504,81 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
       return res.status(400).json({ error: 'Unbekannte Aktion: ' + (aktion || '(leer)') });
     }
 
+    // ================= collection=termine (Trainersicht) =================
+    if (collection === 'termine') {
+      if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+
+      if (aktion === 'liste' || (req.method === 'GET' && !aktion)) {
+        const team = String(body.team || req.query.team || '');
+        const filter = team ? '&team=eq.' + encodeURIComponent(team) : '';
+        const termine = await hole('cb_termine?select=*' + filter + '&order=datum.asc');
+        if (!termine.length) return res.status(200).json({ items: [] });
+        const ids = termine.map(function (t) { return String(t.id); });
+        const antworten = await hole('cb_anwesenheit?termin_id=in.(' + ids.map(encodeURIComponent).join(',') + ')&select=termin_id,player_id,status');
+        return res.status(200).json({ items: termine.map(function (t) {
+          const mein = antworten.filter(function (a2) { return String(a2.termin_id) === String(t.id); });
+          return Object.assign({}, t, {
+            zu: mein.filter(function (a2) { return a2.status === 'zu'; }).length,
+            ab: mein.filter(function (a2) { return a2.status === 'ab'; }).length,
+            verletzt: mein.filter(function (a2) { return a2.status === 'verletzt'; }).length
+          });
+        }) });
+      }
+
+      if (aktion === 'anlegen' || aktion === 'aendern') {
+        const zeile = {
+          team: String(body.team || ''),
+          datum: String(body.datum || ''),
+          zeit: String(body.zeit || ''),
+          titel: String(body.titel || 'Training'),
+          ort: String(body.ort || '')
+        };
+        if (!zeile.team || !zeile.datum) return res.status(400).json({ error: 'Kader und Datum noetig' });
+        if (aktion === 'aendern') {
+          const id = String(body.id || '');
+          if (!id) return res.status(400).json({ error: 'id fehlt' });
+          const out = await aendere('cb_termine', 'id=eq.' + encodeURIComponent(id), zeile);
+          return res.status(200).json({ ok: true, termin: out.daten });
+        }
+        const out = await schreibe('cb_termine', zeile);
+        if (!out.ok) return res.status(500).json({ error: 'Anlegen fehlgeschlagen' });
+        return res.status(200).json({ ok: true, termin: out.daten });
+      }
+
+      if (aktion === 'loeschen') {
+        const id = String(body.id || '');
+        if (!id) return res.status(400).json({ error: 'id fehlt' });
+        await entferne('cb_anwesenheit', 'termin_id=eq.' + encodeURIComponent(id));
+        await entferne('cb_termine', 'id=eq.' + encodeURIComponent(id));
+        return res.status(200).json({ ok: true });
+      }
+
+      if (aktion === 'rueckmeldungen') {
+        const tid = String(body.termin_id || '');
+        if (!tid) return res.status(400).json({ error: 'termin_id fehlt' });
+        const rows = await hole('cb_anwesenheit?termin_id=eq.' + encodeURIComponent(tid) + '&select=player_id,status,grund,updated_at');
+        return res.status(200).json({ items: rows });
+      }
+
+      // Trainer traegt fuer einen Spieler nach
+      if (aktion === 'setzen') {
+        const tid = String(body.termin_id || ''), pid = String(body.player_id || '');
+        const st = String(body.status || '').toLowerCase();
+        if (!tid || !pid) return res.status(400).json({ error: 'termin_id und player_id noetig' });
+        await entferne('cb_anwesenheit', 'termin_id=eq.' + encodeURIComponent(tid) + '&player_id=eq.' + encodeURIComponent(pid));
+        if (st && st !== 'offen') {
+          if (['zu', 'ab', 'verletzt'].indexOf(st) === -1) return res.status(400).json({ error: 'Unbekannter Status' });
+          await schreibe('cb_anwesenheit', {
+            termin_id: tid, player_id: pid, status: st,
+            grund: 'vom Trainer eingetragen', updated_at: new Date().toISOString()
+          });
+        }
+        return res.status(200).json({ ok: true, status: st || 'offen' });
+      }
+
+      return res.status(400).json({ error: 'Unbekannte Aktion: ' + (aktion || '(leer)') });
+    }
+
     // ================= collection=me =================
     const a = await sessionPruefen(body.session);
     if (!a) return res.status(401).json({ error: 'Nicht angemeldet' });
@@ -512,8 +587,28 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
     const was = String(body.was || 'profil').toLowerCase();
 
     if (was === 'profil') {
+      // Vergleichsgruppe: gleicher Jahrgang, gleiches Geschlecht, je Spieler sein
+      // letzter Test. Es gehen nur die nackten Messwerte raus, keine Namen.
+      let gruppe = [];
+      const jahr = String(sp.dob || '').slice(0, 4);
+      if (jahr) {
+        const sex = sp.sex || (String(sp.team || '').charAt(0) === 'W' ? 'w' : 'm');
+        const alle = await hole('cb_players?select=data');
+        alle.forEach(function (row) {
+          const x = row.data;
+          if (!x || !x.dob || String(x.dob).slice(0, 4) !== jahr) return;
+          const xsex = x.sex || (String(x.team || '').charAt(0) === 'W' ? 'w' : 'm');
+          if (xsex !== sex) return;
+          const tests = Array.isArray(x.diag) ? x.diag.slice() : [];
+          if (!tests.length) return;
+          tests.sort(function (a2, b2) { return String(a2.date).localeCompare(String(b2.date)); });
+          gruppe.push(tests[tests.length - 1]);
+        });
+      }
       return res.status(200).json({
         ok: true,
+        jahrgang: jahr,
+        gruppe: gruppe,
         spieler: {
           id: sp.id,
           name: ((sp.fn || '') + ' ' + (sp.ln || '')).trim(),
@@ -521,6 +616,7 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
           halle: sp.halle || '',
           pos: sp.pos || '',
           verein: sp.verein || '',
+          sex: sp.sex || '',
           status: sp.status || '',
           diag: Array.isArray(sp.diag) ? sp.diag : [],
           praevention: Array.isArray(sp.praevention) ? sp.praevention : []
