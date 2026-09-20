@@ -678,6 +678,38 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .tv-plan{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 19px;background:#F2F7EF;border:0;border-top:1px solid #EEF2EB;font-family:inherit;font-size:13.5px;font-weight:600;color:#12301F;cursor:pointer;border-radius:0 0 12px 12px;}
 .tv-plan:hover{background:#EAF2E5;}
 .tv-warn{margin-top:14px;background:#fff;border:1px solid #E4EADE;border-left:3px solid #ff9500;border-radius:12px;padding:15px 18px;font-size:13.5px;}
+/* ===== Trainings: Liste und Rueckmeldungen ===== */
+.tg-kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.tg-kopf b{font-size:14px;color:#1c1c1e;}
+.tg-kopf small{display:block;font-size:11.5px;color:#8e8e93;margin-top:1px;}
+.tg-karte{border:1px solid #e5e5ea;border-radius:12px;margin-bottom:10px;background:#fff;}
+.tg-karte.auf{border-color:#0E6B36;}
+.tg-karte.alt{opacity:.55;}
+.tg-zeile{padding:12px 14px;cursor:pointer;}
+.tg-titel{display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.tg-titel b{font-size:14.5px;color:#1c1c1e;}
+.tg-titel span{font-size:12.5px;color:#8e8e93;white-space:nowrap;}
+.tg-ort{font-size:12.5px;color:#8e8e93;margin-top:2px;}
+.tg-zahlen{display:flex;gap:13px;margin-top:8px;font-size:12.5px;align-items:center;flex-wrap:wrap;}
+.tg-zahlen .k{color:#c7c7cc;}
+.tg-zahlen .auf{margin-left:auto;color:#0E6B36;font-weight:600;}
+.tg-panel{border-top:0.5px solid #f2f2f7;padding:12px 14px;}
+.tg-akt{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.tg-akt button{padding:6px 11px;background:#fff;border:1px solid #e5e5ea;border-radius:8px;
+  font-family:inherit;font-size:12.5px;color:#1c1c1e;cursor:pointer;}
+.tg-akt button:hover{border-color:#c7c7cc;}
+.tg-akt button.weg{color:#D93025;border-color:#F5C6C2;}
+.tg-gruppe{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  color:#8e8e93;margin:13px 0 2px;}
+.tg-rm{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:0.5px solid #f7f7fa;}
+.tg-rm:last-child{border-bottom:0;}
+.tg-punkt{width:8px;height:8px;border-radius:50%;flex:0 0 8px;}
+.tg-nm{flex:1;min-width:0;font-size:13.5px;color:#1c1c1e;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tg-nm i{font-style:normal;display:block;font-size:11.5px;color:#8e8e93;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tg-rm select{width:auto;flex:0 0 auto;min-width:112px;padding:4px 22px 4px 8px;
+  font-size:12px;border-radius:7px;background:#fff;border:1px solid #e5e5ea;}
 .tv-warn p{margin:3px 0;}
 
 @media(max-width:1100px){.tv-cols{grid-template-columns:1fr;}.tv-stats{grid-template-columns:repeat(2,1fr);}}
@@ -5315,7 +5347,7 @@ function plUpsert(p, fertig) {
   }).catch(function(e) {
     if (fertig) { fertig(false, e); return; }
     alert('Konnte nicht gespeichert werden: ' + e.message
-      + '\n\nDie Aenderung steht bisher nur auf diesem Geraet. Bitte die Seite neu laden und noch einmal versuchen.');
+      + '\n\nDie \u00c4nderung steht bisher nur auf diesem Ger\u00e4t. Bitte die Seite neu laden und noch einmal versuchen.');
   });
 }
 
@@ -7220,16 +7252,15 @@ function trRender() {
   if (!box) return;
   var kader = tmKader().length;
 
-  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
-    + '<div><b style="font-size:14px;color:#1c1c1e;">Trainings</b>'
-    + '<div style="font-size:11.5px;color:#8e8e93;">Nur Datum, Uhrzeit und Ort. Welche Uebungen ihr macht, steht unter Einheiten.</div></div>'
+  var html = '<div class="tg-kopf"><div><b>Trainings</b>'
+    + '<small>Nur Datum, Uhrzeit und Ort. Welche \u00dcbungen ihr macht, steht unter Einheiten.</small></div>'
     + '<button class="tv-btn" id="tr-neu">+ Training anlegen</button></div>';
 
   if (!TR_LISTE.length) {
     html += '<div class="tv-leer"><div class="tv-leer-ico">'
       + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'
       + '</div><b>Noch kein Training angelegt.</b>'
-      + '<p>Sobald eines steht, sehen es die Spieler in ihrer App und koennen ab sieben Tagen vorher zusagen.</p></div>';
+      + '<p>Sobald eines steht, sehen es die Spieler in ihrer App und k\u00f6nnen ab sieben Tagen vorher zusagen.</p></div>';
     box.innerHTML = html;
     onId('tr-neu', 'click', function() { trFormZeigen(null); });
     return;
@@ -7239,36 +7270,32 @@ function trRender() {
     var alt = trVergangen(t.datum);
     var ohne = Math.max(0, kader - (t.zu + t.ab + t.verletzt));
     var tage = trTageBis(t.datum);
-    var fenster = alt ? 'War am ' + trDatum(t.datum)
-      : (tage !== null && tage > 7)
-        ? 'Anmeldung ab ' + trDatum(trMinusTage(t.datum, 7))
-        : 'Anmeldung laeuft';
+    var fenster = alt ? 'vorbei'
+      : (tage !== null && tage > 7) ? 'Anmeldung ab ' + trDatum(trMinusTage(t.datum, 7))
+      : 'Anmeldung l\u00e4uft';
     var auf = String(TR_OFFEN) === String(t.id);
 
-    html += '<div style="border:1px solid ' + (auf ? '#0E6B36' : '#e5e5ea') + ';border-radius:12px;margin-bottom:10px;'
-      + (alt ? 'opacity:.6;' : '') + '">'
-      + '<div onclick="trAufklappen(\'' + t.id + '\')" style="padding:13px 14px;cursor:pointer;">'
-      +   '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">'
-      +     '<b style="font-size:14.5px;color:#1c1c1e;">' + (t.titel || 'Training') + '</b>'
-      +     '<span style="font-size:12.5px;color:#8e8e93;white-space:nowrap;">' + trTag(t.datum) + ', ' + trDatum(t.datum)
-      +       (t.zeit ? ' &middot; ' + t.zeit : '') + '</span></div>'
-      +   (t.ort ? '<div style="font-size:12.5px;color:#8e8e93;margin-top:2px;">' + t.ort + '</div>' : '')
-      +   '<div style="display:flex;gap:14px;margin-top:9px;font-size:12.5px;align-items:center;flex-wrap:wrap;">'
+    html += '<div class="tg-karte' + (auf ? ' auf' : '') + (alt ? ' alt' : '') + '">'
+      + '<div class="tg-zeile" onclick="trAufklappen(\'' + t.id + '\')">'
+      +   '<div class="tg-titel"><b>' + (t.titel || 'Training') + '</b>'
+      +     '<span>' + trTag(t.datum) + ', ' + trDatum(t.datum) + (t.zeit ? ' &middot; ' + t.zeit : '') + '</span></div>'
+      +   (t.ort ? '<div class="tg-ort">' + t.ort + '</div>' : '')
+      +   '<div class="tg-zahlen">'
       +     '<span style="color:#1C7A3E;font-weight:600;">' + t.zu + ' dabei</span>'
       +     '<span style="color:#8e8e93;">' + t.ab + ' abgesagt</span>'
       +     '<span style="color:#D93025;">' + t.verletzt + ' verletzt</span>'
       +     (ohne ? '<span style="color:#aeaeb2;">' + ohne + ' offen</span>' : '')
-      +     '<span style="color:#c7c7cc;">' + fenster + '</span>'
-      +     '<span style="margin-left:auto;color:#0E6B36;font-weight:600;">' + (auf ? 'zuklappen' : 'Rueckmeldungen') + ' ' + (auf ? '&#9652;' : '&#9662;') + '</span>'
+      +     '<span class="k">' + fenster + '</span>'
+      +     '<span class="auf">' + (auf ? 'zuklappen &#9652;' : 'R\u00fcckmeldungen &#9662;') + '</span>'
       +   '</div></div>';
 
     if (auf) {
-      html += '<div style="border-top:0.5px solid #f2f2f7;padding:12px 14px;">'
-        + '<div style="display:flex;gap:10px;margin-bottom:10px;">'
-        +   '<button onclick="trFormZeigen(\'' + t.id + '\')" style="padding:7px 12px;background:#fff;color:#1c1c1e;border:1px solid #e5e5ea;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer;">Training bearbeiten</button>'
-        +   '<button onclick="trLoeschen(\'' + t.id + '\')" style="padding:7px 12px;background:#fff;color:#D93025;border:1px solid #F5C6C2;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer;">Training loeschen</button>'
+      html += '<div class="tg-panel">'
+        + '<div class="tg-akt">'
+        +   '<button onclick="trFormZeigen(\'' + t.id + '\')">Bearbeiten</button>'
+        +   '<button class="weg" onclick="trLoeschen(\'' + t.id + '\')">L\u00f6schen</button>'
         + '</div>'
-        + '<div id="tr-rueck-' + t.id + '">Wird geladen&hellip;</div></div>';
+        + '<div id="tr-rueck-' + t.id + '"></div></div>';
     }
     html += '</div>';
   });
@@ -7295,7 +7322,7 @@ function trRueckRender(id) {
     return (a.ln || '').toLowerCase().localeCompare((b.ln || '').toLowerCase());
   });
   if (!kader.length) {
-    ziel.innerHTML = '<p style="font-size:13px;color:#8e8e93;">In diesem Kader ist noch kein Spieler.</p>';
+    ziel.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:8px 0;">In diesem Kader ist noch kein Spieler.</p>';
     return;
   }
   var farbe = { zu:'#1C7A3E', ab:'#8e8e93', verletzt:'#D93025' };
@@ -7311,16 +7338,15 @@ function trRueckRender(id) {
   [['zu','Dabei'],['verletzt','Verletzt'],['ab','Abgesagt'],['offen','Noch keine Antwort']].forEach(function(g) {
     var liste = gruppen[g[0]];
     if (!liste.length) return;
-    html += '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8e8e93;margin:12px 0 6px;">'
-      + g[1] + ' (' + liste.length + ')</div>';
+    html += '<div class="tg-gruppe">' + g[1] + ' (' + liste.length + ')</div>';
     liste.forEach(function(x) {
       var grund = (x.r && x.r.grund && x.r.grund !== 'vom Trainer eingetragen') ? x.r.grund : '';
-      html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #f2f2f7;">'
-        + '<span style="width:9px;height:9px;border-radius:50%;background:' + (farbe[x.st] || '#d2d2d7') + ';flex:none;"></span>'
-        + '<span style="flex:1;min-width:0;font-size:13.5px;color:#1c1c1e;">' + x.p.fn + ' ' + x.p.ln
-        +   (grund ? '<span style="display:block;font-size:12px;color:#8e8e93;">' + grund + '</span>' : '')
+      html += '<div class="tg-rm">'
+        + '<span class="tg-punkt" style="background:' + (farbe[x.st] || '#d2d2d7') + ';"></span>'
+        + '<span class="tg-nm">' + x.p.fn + ' ' + x.p.ln
+        +   (grund ? '<i>' + grund + '</i>' : '')
         + '</span>'
-        + '<select onchange="trSetzen(\'' + id + '\',\'' + x.p.id + '\', this.value)" style="padding:4px 7px;border:1px solid #e5e5ea;border-radius:7px;font:inherit;font-size:12px;background:#fff;color:' + (farbe[x.st] || '#8e8e93') + ';">'
+        + '<select onchange="trSetzen(\'' + id + '\',\'' + x.p.id + '\', this.value)" style="color:' + (farbe[x.st] || '#8e8e93') + ';">'
         +   ['offen','zu','ab','verletzt'].map(function(o) {
               return '<option value="' + o + '"' + (o === x.st ? ' selected' : '') + '>'
                 + (o === 'offen' ? 'keine Antwort' : text[o]) + '</option>';
@@ -7344,7 +7370,7 @@ function trFormZeigen(id) {
   var t = id ? TR_LISTE.filter(function(x) { return String(x.id) === String(id); })[0] : null;
 
   document.getElementById('tr-form-titel').textContent = t ? 'Training bearbeiten' : 'Neues Training';
-  document.getElementById('tr-speichern').textContent = t ? 'Aenderungen speichern' : 'Training anlegen';
+  document.getElementById('tr-speichern').textContent = t ? '\u00c4nderungen speichern' : 'Training anlegen';
 
   var d = document.getElementById('tr-datum');
   var z = document.getElementById('tr-zeit');
@@ -7375,7 +7401,7 @@ function trFormVerstecken() {
 
 function trSpeichern() {
   var datum = (document.getElementById('tr-datum') || {}).value;
-  if (!datum) { alert('Bitte ein Datum waehlen.'); return; }
+  if (!datum) { alert('Bitte ein Datum w\u00e4hlen.'); return; }
   var b = document.getElementById('tr-speichern');
   var beschriftung = b ? b.textContent : '';
   if (b) { b.disabled = true; b.textContent = 'Wird gespeichert...'; }
@@ -7400,7 +7426,7 @@ function trSpeichern() {
 
 function trLoeschen(id) {
   var t = TR_LISTE.filter(function(x) { return String(x.id) === String(id); })[0];
-  if (!confirm('Training am ' + (t ? trDatum(t.datum) : '') + ' loeschen? Die Rueckmeldungen gehen mit weg.')) return;
+  if (!confirm('Training am ' + (t ? trDatum(t.datum) : '') + ' l\u00f6schen? Die R\u00fcckmeldungen gehen mit weg.')) return;
   trRuf({ aktion: 'loeschen', id: id }).then(function() {
     if (String(TR_OFFEN) === String(id)) TR_OFFEN = null;
     trLaden();
@@ -7440,7 +7466,7 @@ function anRender() {
       + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>'
       + '</div><b>Noch kein Training vorbei.</b>'
       + '<p>Sobald Trainings stattgefunden haben, steht hier die Bilanz je Spieler.'
-      + ' Die Rueckmeldungen zu den kommenden Trainings stehen unter Trainings.</p></div>';
+      + ' Die R\u00fcckmeldungen zu den kommenden Trainings stehen unter Trainings.</p></div>';
     return;
   }
 
@@ -7465,7 +7491,7 @@ function anRender() {
   });
 
   kopf.innerHTML = '<b style="font-size:14px;color:#1c1c1e;">Bilanz</b>'
-    + '<div style="font-size:11.5px;color:#8e8e93;">Ueber ' + gewesen.length
+    + '<div style="font-size:11.5px;color:#8e8e93;">\u00dcber ' + gewesen.length
     + (gewesen.length === 1 ? ' vergangenes Training' : ' vergangene Trainings')
     + ' &middot; wer am meisten gefehlt hat, steht oben</div>';
 
@@ -8088,7 +8114,7 @@ function plSaveNew() {
     plUpsert(ex, function(ok, e) {
       if (ok) { plOpen(ex.id); return; }
       alert('Konnte nicht gespeichert werden: ' + (e ? e.message : 'unbekannter Fehler')
-        + '\n\nDie Aenderung steht bisher nur auf diesem Geraet.');
+        + '\n\nDie \u00c4nderung steht bisher nur auf diesem Ger\u00e4t.');
     });
     return;
   }
