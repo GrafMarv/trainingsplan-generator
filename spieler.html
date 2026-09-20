@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>WHV Athletik</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;0,800;1,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    background:#F5F8F3;color:#12301F;
+    min-height:100vh;font-size:15px;line-height:1.5;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  h1,h2,h3{font-family:'Archivo',sans-serif;font-weight:800;letter-spacing:-0.01em}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px}
+
+  /* ---------- Kopf ---------- */
+  .kopf{background:#0E6B36;color:#fff;padding:18px 0 20px}
+  .kopf .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .marke{font-family:'Archivo',sans-serif;font-weight:800;font-size:17px;letter-spacing:0.02em}
+  .marke span{display:block;font-family:'IBM Plex Sans',sans-serif;font-weight:400;font-size:12px;opacity:.75;letter-spacing:0}
+  .abmelden{background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:8px;
+    padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
+  .abmelden:hover{background:rgba(255,255,255,.24)}
+
+  /* ---------- Karten ---------- */
+  .karte{background:#fff;border:1px solid #DCE3D6;border-radius:16px;padding:20px;margin-top:16px}
+  .karte > h2{font-size:17px;margin-bottom:2px}
+  .unter{font-size:12.5px;color:#6B7A6E;margin-bottom:16px}
+  .leer{color:#8B978C;font-size:14px;padding:22px 0;text-align:center}
+
+  /* ---------- Formular ---------- */
+  label{display:block;font-size:12.5px;font-weight:600;color:#3F5145;margin-bottom:6px}
+  input[type=text],input[type=password]{
+    width:100%;padding:12px 14px;font:inherit;font-size:16px;
+    border:1px solid #DCE3D6;border-radius:10px;background:#fff;color:#12301F}
+  input:focus{outline:none;border-color:#0E6B36;box-shadow:0 0 0 3px rgba(14,107,54,.12)}
+  .feld{margin-bottom:14px}
+  button.haupt{
+    width:100%;padding:13px;background:#0E6B36;color:#fff;border:0;border-radius:10px;
+    font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+  button.haupt:hover{background:#1C7A3E}
+  button.haupt:disabled{background:#8B978C;cursor:default}
+  .hinweis{font-size:13px;margin-top:12px;padding:11px 13px;border-radius:9px;display:none}
+  .hinweis.fehler{display:block;background:#FDECEA;color:#D93025;border:1px solid #F5C6C2}
+  .hinweis.ok{display:block;background:#EDF4EA;color:#0E6B36;border:1px solid #C9DCC3}
+
+  /* ---------- Diagnostik ---------- */
+  .werte{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .wert{background:#F5F8F3;border:1px solid #E4EADE;border-radius:12px;padding:12px 13px}
+  .wert b{display:block;font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;line-height:1.1;color:#12301F}
+  .wert .lab{font-size:11.5px;color:#6B7A6E;margin-bottom:5px}
+  .wert .ein{font-size:12px;color:#6B7A6E;font-weight:400}
+  .wert .delta{font-size:11.5px;margin-top:4px;font-weight:600}
+  .besser{color:#1C7A3E}.schlechter{color:#D93025}
+
+  /* ---------- Praevention ---------- */
+  .pv{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #EDF4EA}
+  .pv:last-child{border-bottom:0}
+  .pv .nm{flex:1;min-width:0}
+  .pv .nm b{display:block;font-weight:600;font-size:14px}
+  .pv .nm i{font-style:normal;font-size:12px;color:#6B7A6E}
+  .ampel{width:11px;height:11px;border-radius:50%;flex:none}
+  .gruen{background:#57B84A}.rot{background:#D93025}.grau{background:#D2D8CE}
+  .seite{font-size:12.5px;color:#3F5145;text-align:right;white-space:nowrap;min-width:92px}
+
+  /* ---------- Termine ---------- */
+  .termin{border:1px solid #E4EADE;border-radius:13px;padding:14px;margin-bottom:12px;background:#fff}
+  .termin:last-child{margin-bottom:0}
+  .termin .zeile{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .termin b{font-size:15px}
+  .termin .wann{font-size:12.5px;color:#6B7A6E;white-space:nowrap}
+  .termin .ort{font-size:12.5px;color:#6B7A6E;margin-top:2px}
+  .wahl{display:flex;gap:8px;margin-top:12px}
+  .wahl button{
+    flex:1;padding:10px 6px;border:1px solid #DCE3D6;background:#fff;border-radius:10px;
+    font:inherit;font-size:13px;font-weight:600;color:#3F5145;cursor:pointer}
+  .wahl button:hover{border-color:#0E6B36}
+  .wahl button.an[data-w=zu]{background:#0E6B36;border-color:#0E6B36;color:#fff}
+  .wahl button.an[data-w=ab]{background:#6B7A6E;border-color:#6B7A6E;color:#fff}
+  .wahl button.an[data-w=verletzt]{background:#D93025;border-color:#D93025;color:#fff}
+
+  .fuss{text-align:center;font-size:12px;color:#8B978C;padding:26px 0 30px}
+  .mitte{max-width:420px;margin:0 auto;padding-top:34px}
+  @media(max-width:480px){.karte{padding:16px}.wrap{padding:0 12px}}
+</style>
+</head>
+<body>
+
+<!-- ===================== ANMELDUNG ===================== -->
+<div id="seite-login" style="display:none">
+  <div class="kopf"><div class="wrap"><div class="marke">WHV ATHLETIK<span>Westdeutscher Handballverband</span></div></div></div>
+  <div class="wrap mitte">
+    <div class="karte">
+      <h2 id="login-titel">Anmelden</h2>
+      <p class="unter" id="login-text">Melde dich mit deinem Benutzernamen und deinem Passwort an.</p>
+      <div class="feld"><label for="i-user">Benutzername</label>
+        <input type="text" id="i-user" autocomplete="username" autocapitalize="off" spellcheck="false"></div>
+      <div class="feld"><label for="i-pw">Passwort</label>
+        <input type="password" id="i-pw" autocomplete="current-password"></div>
+      <button class="haupt" id="b-login">Anmelden</button>
+      <div class="hinweis" id="login-hinweis"></div>
+      <p class="unter" style="margin:16px 0 0">Noch kein Passwort? Dein Trainer schickt dir einen Einladungslink.</p>
+    </div>
+    <div class="fuss">Coaching Brain &middot; WHV</div>
+  </div>
+</div>
+
+<!-- ===================== PASSWORT SETZEN ===================== -->
+<div id="seite-setzen" style="display:none">
+  <div class="kopf"><div class="wrap"><div class="marke">WHV ATHLETIK<span>Westdeutscher Handballverband</span></div></div></div>
+  <div class="wrap mitte">
+    <div class="karte">
+      <h2>Zugang einrichten</h2>
+      <p class="unter" id="setzen-text">Einen Moment&hellip;</p>
+      <div id="setzen-form" style="display:none">
+        <div class="feld"><label>Benutzername</label>
+          <input type="text" id="s-user" disabled autocomplete="username"></div>
+        <div class="feld"><label for="s-pw">Passwort w&auml;hlen</label>
+          <input type="password" id="s-pw" autocomplete="new-password" placeholder="Mindestens 8 Zeichen"></div>
+        <div class="feld"><label for="s-pw2">Passwort wiederholen</label>
+          <input type="password" id="s-pw2" autocomplete="new-password"></div>
+        <button class="haupt" id="b-setzen">Passwort speichern</button>
+      </div>
+      <div class="hinweis" id="setzen-hinweis"></div>
+      <p class="unter" style="margin:16px 0 0" id="setzen-fuss"></p>
+    </div>
+    <div class="fuss">Coaching Brain &middot; WHV</div>
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div id="seite-app" style="display:none">
+  <div class="kopf"><div class="wrap">
+    <div class="marke" id="app-name">WHV ATHLETIK<span id="app-kader"></span></div>
+    <button class="abmelden" id="b-logout">Abmelden</button>
+  </div></div>
+  <div class="wrap">
+
+    <div class="karte">
+      <h2>Trainingseinheiten</h2>
+      <p class="unter">Sag uns bitte rechtzeitig Bescheid, ob du dabei bist.</p>
+      <div id="box-termine"><div class="leer">Wird geladen&hellip;</div></div>
+    </div>
+
+    <div class="karte">
+      <h2>Leistungsdiagnostik</h2>
+      <p class="unter" id="diag-datum">Deine Werte aus der letzten Testung.</p>
+      <div id="box-diag"><div class="leer">Wird geladen&hellip;</div></div>
+    </div>
+
+    <div class="karte">
+      <h2>Pr&auml;ventionsdiagnostik</h2>
+      <p class="unter" id="praev-datum">Beweglichkeit und Belastbarkeit.</p>
+      <div id="box-praev"><div class="leer">Wird geladen&hellip;</div></div>
+    </div>
+
+    <div class="fuss">Coaching Brain &middot; WHV</div>
+  </div>
+</div>
+
+<script>
+/* =======================================================================
+   WHV Athletik - Spieleransicht
+   Kommuniziert ausschliesslich ueber /api/library?collection=auth bzw. =me.
+   Der Session-Token liegt im localStorage; alle Daten kommen vom Server.
+   ======================================================================= */
+
+var API = '/api/library';
+var SCHL = 'whv_spieler_session';
+
+function el(id){ return document.getElementById(id); }
+function zeige(seite){
+  ['seite-login','seite-setzen','seite-app'].forEach(function(s){
+    var n = el(s); if(n) n.style.display = (s === seite) ? 'block' : 'none';
+  });
+}
+function sag(id, text, art){
+  var n = el(id); if(!n) return;
+  n.className = 'hinweis' + (text ? ' ' + (art || 'fehler') : '');
+  n.textContent = text || '';
+}
+function sess(){ try { return localStorage.getItem(SCHL) || ''; } catch(e){ return ''; } }
+function sessSetze(t){ try { t ? localStorage.setItem(SCHL, t) : localStorage.removeItem(SCHL); } catch(e){} }
+
+function ruf(sammlung, koerper){
+  return fetch(API + '?collection=' + sammlung, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(koerper)
+  }).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(d){
+      if(!r.ok) throw new Error((d && d.error) || ('Fehler ' + r.status));
+      return d;
+    });
+  });
+}
+
+/* ---------------- Passwort ueber Einladungslink setzen ---------------- */
+
+var EINLADUNG = (function(){
+  var m = String(location.search || '').match(/[?&]einladung=([^&]+)/);
+  return m ? decodeURIComponent(m[1]) : '';
+})();
+
+function einladungPruefen(){
+  zeige('seite-setzen');
+  ruf('auth', { aktion:'pruefe', token: EINLADUNG }).then(function(d){
+    el('setzen-text').innerHTML = 'Hallo <b>' + (d.name || '') + '</b>. W&auml;hle ein Passwort, dann kommst du jederzeit an deine Werte und kannst f&uuml;r Trainings zusagen.';
+    el('s-user').value = d.username || '';
+    el('setzen-form').style.display = 'block';
+    el('s-pw').focus();
+  }).catch(function(e){
+    el('setzen-text').textContent = 'Dieser Link funktioniert nicht mehr.';
+    sag('setzen-hinweis', e.message, 'fehler');
+    el('setzen-fuss').innerHTML = 'Bitte deinen Trainer um einen neuen Einladungslink. Wenn du schon ein Passwort hast, kannst du dich <a href="/spieler.html" style="color:#0E6B36">hier anmelden</a>.';
+  });
+}
+
+function passwortSetzen(){
+  var pw = el('s-pw').value, pw2 = el('s-pw2').value;
+  if(pw.length < 8){ sag('setzen-hinweis','Das Passwort braucht mindestens 8 Zeichen.','fehler'); return; }
+  if(pw !== pw2){ sag('setzen-hinweis','Die beiden Passw&ouml;rter sind nicht gleich.','fehler'); return; }
+  var b = el('b-setzen'); b.disabled = true; b.textContent = 'Wird gespeichert...';
+  sag('setzen-hinweis','');
+  ruf('auth', { aktion:'setzen', token: EINLADUNG, passwort: pw }).then(function(d){
+    sessSetze(d.session);
+    history.replaceState(null, '', '/spieler.html');
+    start();
+  }).catch(function(e){
+    b.disabled = false; b.textContent = 'Passwort speichern';
+    sag('setzen-hinweis', e.message, 'fehler');
+  });
+}
+
+/* ---------------- Anmelden ---------------- */
+
+function anmelden(){
+  var u = el('i-user').value.trim(), p = el('i-pw').value;
+  if(!u || !p){ sag('login-hinweis','Bitte Benutzername und Passwort eingeben.','fehler'); return; }
+  var b = el('b-login'); b.disabled = true; b.textContent = 'Anmelden...';
+  sag('login-hinweis','');
+  ruf('auth', { aktion:'login', username: u, passwort: p }).then(function(d){
+    sessSetze(d.session);
+    el('i-pw').value = '';
+    start();
+  }).catch(function(e){
+    b.disabled = false; b.textContent = 'Anmelden';
+    sag('login-hinweis', e.message, 'fehler');
+  });
+}
+
+function abmelden(){
+  var t = sess();
+  sessSetze('');
+  if(t) ruf('auth', { aktion:'logout', session: t }).catch(function(){});
+  var b = el('b-login'); if(b){ b.disabled = false; b.textContent = 'Anmelden'; }
+  zeige('seite-login');
+}
+
+/* ---------------- Daten ---------------- */
+
+var DIAG_FELDER = [
+  { k:'s10',  l:'10m Sprint',      e:'s',    besser:'min' },
+  { k:'s30',  l:'30m Sprint',      e:'s',    besser:'min' },
+  { k:'cr',   l:'505 rechts',      e:'s',    besser:'min' },
+  { k:'cl',   l:'505 links',       e:'s',    besser:'min' },
+  { k:'mr',   l:'MB Wurf rechts',  e:'m',    besser:'max' },
+  { k:'ml',   l:'MB Wurf links',   e:'m',    besser:'max' },
+  { k:'sw',   l:'Standweitsprung', e:'m',    besser:'max' },
+  { k:'ift',  l:'30-15 IFT',       e:'km/h', besser:'max' }
+];
+
+var PRAEV_FELDER = [
+  { k:'ktw',   l:'Knee to Wall',              e:'Sprunggelenk',             typ:'cm', seiten:true,  gut:function(v){ return v >= 10; }, einheit:'cm' },
+  { k:'toe',   l:'Toe Touch',                 e:'Hintere Kette',            typ:'cm', seiten:false, gut:function(v){ return v < 0; },   einheit:'cm' },
+  { k:'n9090', l:'90/90 H\u00fcfte',          e:'H\u00fcftrotation',        typ:'jn', seiten:true,  gut:'ja' },
+  { k:'ob',    l:'Open Book',                 e:'BWS und LWS',              typ:'jn', seiten:true,  gut:'ja' },
+  { k:'mtp',   l:'Gro\u00dfzehengrundgelenk', e:'Schmerzen',                typ:'jn', seiten:true,  gut:'nein' },
+  { k:'fersen',l:'Fersensitz',                e:'Knieschmerz',              typ:'jn', seiten:true,  gut:'nein' },
+  { k:'couch', l:'Couch Stretch',             e:'Oberschenkel Vorderseite', typ:'jn', seiten:true,  gut:'ja' },
+  { k:'aslr',  l:'Active Straight Leg Raise', e:'Oberschenkel R\u00fcckseite', typ:'jn', seiten:true, gut:'ja' }
+];
+
+var KADER = {"W13":"U13 weiblich","W14":"U14 weiblich","W16":"U16 weiblich",
+  "M13":"U13 m\u00e4nnlich","M14":"U14 m\u00e4nnlich","M16":"U16 m\u00e4nnlich",
+  "WP":"P-Kader weiblich","W15":"U15 weiblich","MP":"P-Kader m\u00e4nnlich","M15":"U15 m\u00e4nnlich"};
+
+function datumDe(s){
+  if(!s) return '';
+  var t = String(s).slice(0,10).split('-');
+  if(t.length !== 3) return String(s);
+  return t[2] + '.' + t[1] + '.' + t[0];
+}
+function wochentag(s){
+  var d = new Date(String(s).slice(0,10) + 'T12:00:00');
+  if(isNaN(d.getTime())) return '';
+  return ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'][d.getDay()];
+}
+function sicher(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function zeichneDiagnostik(liste){
+  var box = el('box-diag');
+  var sortiert = (liste || []).slice().sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); });
+  if(!sortiert.length){
+    el('diag-datum').textContent = 'Noch keine Testung erfasst.';
+    box.innerHTML = '<div class="leer">Sobald du getestet wurdest, stehen deine Werte hier.</div>';
+    return;
+  }
+  var jetzt = sortiert[0], vorher = sortiert[1];
+  el('diag-datum').textContent = 'Testung vom ' + datumDe(jetzt.date)
+    + (vorher ? ' \u00b7 Vergleich mit ' + datumDe(vorher.date) : '');
+
+  var html = '<div class="werte">', anzahl = 0;
+  DIAG_FELDER.forEach(function(f){
+    var v = jetzt[f.k];
+    if(v === undefined || v === null || v === '') return;
+    anzahl++;
+    var delta = '';
+    if(vorher && vorher[f.k] !== undefined && vorher[f.k] !== null && vorher[f.k] !== ''){
+      var d = Math.round((parseFloat(v) - parseFloat(vorher[f.k])) * 100) / 100;
+      if(d !== 0){
+        var gut = (f.besser === 'min') ? d < 0 : d > 0;
+        delta = '<div class="delta ' + (gut ? 'besser' : 'schlechter') + '">'
+          + (d > 0 ? '+' : '\u2212') + Math.abs(d) + ' ' + f.e + (gut ? ' besser' : '') + '</div>';
+      }
+    }
+    html += '<div class="wert"><div class="lab">' + sicher(f.l) + '</div>'
+      + '<b>' + sicher(v) + ' <span class="ein">' + f.e + '</span></b>' + delta + '</div>';
+  });
+  html += '</div>';
+
+  if(jetzt.s10 && jetzt.s30){
+    var dt = parseFloat(jetzt.s30) - parseFloat(jetzt.s10);
+    if(dt > 0){
+      html += '<div class="wert" style="margin-top:10px"><div class="lab">Gesch&auml;tzte H&ouml;chstgeschwindigkeit</div>'
+        + '<b>' + (Math.round((20 / dt) * 3.6 * 10) / 10) + ' <span class="ein">km/h</span></b></div>';
+    }
+  }
+  box.innerHTML = anzahl ? html : '<div class="leer">In dieser Testung wurden keine Werte eingetragen.</div>';
+}
+
+function zeichnePraevention(liste){
+  var box = el('box-praev');
+  var sortiert = (liste || []).slice().sort(function(a,b){ return String(b.datum).localeCompare(String(a.datum)); });
+  if(!sortiert.length){
+    el('praev-datum').textContent = 'Noch keine Pr\u00e4ventionsdiagnostik erfasst.';
+    box.innerHTML = '<div class="leer">Sobald du gescreent wurdest, stehen deine Ergebnisse hier.</div>';
+    return;
+  }
+  var e = sortiert[0];
+  el('praev-datum').textContent = 'Screening vom ' + datumDe(e.datum);
+
+  function bewerte(f, wert){
+    if(wert === undefined || wert === null || wert === '') return null;
+    if(f.typ === 'cm'){ var z = parseFloat(wert); return isNaN(z) ? null : f.gut(z); }
+    return wert === f.gut;
+  }
+  function anzeige(f, wert){
+    if(wert === undefined || wert === null || wert === '') return '&ndash;';
+    return f.typ === 'cm' ? (sicher(wert) + ' ' + f.einheit) : sicher(wert);
+  }
+
+  var html = '', auff = 0, gesamt = 0;
+  PRAEV_FELDER.forEach(function(f){
+    var felder = f.seiten ? [f.k + '_r', f.k + '_l'] : [f.k];
+    var teile = [], schlecht = false, hat = false;
+    felder.forEach(function(name, i){
+      var w = e[name], b = bewerte(f, w);
+      if(b !== null){ hat = true; gesamt++; if(!b) schlecht = true; }
+      teile.push((f.seiten ? (i === 0 ? 'R ' : 'L ') : '') + anzeige(f, w));
+    });
+    if(schlecht) auff++;
+    var farbe = !hat ? 'grau' : (schlecht ? 'rot' : 'gruen');
+    html += '<div class="pv"><div class="ampel ' + farbe + '"></div>'
+      + '<div class="nm"><b>' + sicher(f.l) + '</b><i>' + sicher(f.e) + '</i></div>'
+      + '<div class="seite">' + teile.join(' &nbsp;&middot;&nbsp; ') + '</div></div>';
+  });
+
+  if(gesamt){
+    html = '<p class="unter" style="margin:-6px 0 12px">'
+      + (auff === 0
+        ? 'Alles im gr&uuml;nen Bereich.'
+        : auff + (auff === 1 ? ' Test ist auff&auml;llig' : ' Tests sind auff&auml;llig')
+          + ' \u2013 sprich deinen Trainer darauf an.')
+      + '</p>' + html;
+  }
+  box.innerHTML = html;
+}
+
+function zeichneTermine(termine){
+  var box = el('box-termine');
+  if(!termine || !termine.length){
+    box.innerHTML = '<div class="leer">Aktuell ist keine Einheit f\u00fcr dich angesetzt.</div>';
+    return;
+  }
+  var html = '';
+  termine.forEach(function(t){
+    html += '<div class="termin" data-id="' + sicher(t.id) + '">'
+      + '<div class="zeile"><b>' + sicher(t.titel || 'Training') + '</b>'
+      + '<span class="wann">' + wochentag(t.datum) + ', ' + datumDe(t.datum)
+      + (t.zeit ? ' &middot; ' + sicher(t.zeit) : '') + '</span></div>'
+      + (t.ort ? '<div class="ort">' + sicher(t.ort) + '</div>' : '')
+      + '<div class="wahl">'
+      +   '<button data-w="zu"       class="' + (t.antwort === 'zu' ? 'an' : '') + '">Ich komme</button>'
+      +   '<button data-w="ab"       class="' + (t.antwort === 'ab' ? 'an' : '') + '">Ich komme nicht</button>'
+      +   '<button data-w="verletzt" class="' + (t.antwort === 'verletzt' ? 'an' : '') + '">Verletzt</button>'
+      + '</div></div>';
+  });
+  box.innerHTML = html;
+
+  box.querySelectorAll('.termin').forEach(function(karte){
+    karte.querySelectorAll('.wahl button').forEach(function(b){
+      b.addEventListener('click', function(){
+        var wahl = b.getAttribute('data-w');
+        var knoepfe = karte.querySelectorAll('.wahl button');
+        knoepfe.forEach(function(x){ x.classList.remove('an'); x.disabled = true; });
+        b.classList.add('an');
+        ruf('me', { session: sess(), was:'abstimmen', termin_id: karte.getAttribute('data-id'), status: wahl })
+          .then(function(){ knoepfe.forEach(function(x){ x.disabled = false; }); })
+          .catch(function(e){
+            knoepfe.forEach(function(x){ x.disabled = false; x.classList.remove('an'); });
+            alert('Konnte nicht gespeichert werden: ' + e.message);
+          });
+      });
+    });
+  });
+}
+
+/* ---------------- Start ---------------- */
+
+function start(){
+  var t = sess();
+  if(!t){
+    if(EINLADUNG) einladungPruefen(); else zeige('seite-login');
+    return;
+  }
+  ruf('me', { session: t, was:'profil' }).then(function(d){
+    var s = d.spieler || {};
+    zeige('seite-app');
+    el('app-name').innerHTML = sicher(s.name || 'WHV Athletik')
+      + '<span id="app-kader">' + sicher([s.team, s.halle].filter(Boolean).map(function(c){ return KADER[c] || c; }).join(' \u00b7 ') || 'WHV') + '</span>';
+    zeichneDiagnostik(s.diag);
+    zeichnePraevention(s.praevention);
+    return ruf('me', { session: t, was:'termine' });
+  }).then(function(d){
+    if(d) zeichneTermine(d.termine);
+  }).catch(function(e){
+    sessSetze('');
+    if(EINLADUNG){ einladungPruefen(); return; }
+    zeige('seite-login');
+    if(String(e.message).indexOf('Nicht angemeldet') === -1) sag('login-hinweis', e.message, 'fehler');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  el('b-login').addEventListener('click', anmelden);
+  el('b-setzen').addEventListener('click', passwortSetzen);
+  el('b-logout').addEventListener('click', abmelden);
+  ['i-user','i-pw'].forEach(function(id){
+    el(id).addEventListener('keydown', function(ev){ if(ev.key === 'Enter') anmelden(); });
+  });
+  ['s-pw','s-pw2'].forEach(function(id){
+    el(id).addEventListener('keydown', function(ev){ if(ev.key === 'Enter') passwortSetzen(); });
+  });
+  start();
+});
+</script>
+</body>
+</html>

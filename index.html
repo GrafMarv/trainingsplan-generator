@@ -2056,6 +2056,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
       <button id="ptab-verletzungen" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5a4.9 4.9 0 0 1-7-7l6-6a4.9 4.9 0 0 1 7 7z"/><path d="M8.5 8.5l7 7"/></svg> Verletzungen</button>
       <button id="ptab-notizen" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg> Notizen</button>
       <button id="ptab-einheiten" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Einheiten</button>
+      <button id="ptab-zugang" class="pd-tab"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Zugang</button>
     </div>
     <span class="pd-letzter" id="pv-letzter"></span>
     </div>
@@ -2086,6 +2087,19 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <button class="pe-wahl" onclick="peWaehlen()">Einheit w&auml;hlen</button>
         </div>
         <div id="pe-inhalt"></div>
+      </div>
+    </div>
+
+    <div id="ptc-zugang" style="display:none;">
+      <div class="pe-karte">
+        <div class="pe-kopf">
+          <div>
+            <h4>Spielerzugang</h4>
+            <small id="zg-sub">Wird geladen&hellip;</small>
+          </div>
+          <button class="pe-wahl" id="zg-einladen">Einladungslink erzeugen</button>
+        </div>
+        <div id="zg-inhalt"></div>
       </div>
     </div>
 
@@ -6136,7 +6150,7 @@ function plOpen(id) {
 }
 
 function plTabShow(tab) {
-  ['diagnostik','verletzungen','einheiten','notizen'].forEach(function(t) {
+  ['diagnostik','verletzungen','einheiten','notizen','zugang'].forEach(function(t) {
     var c = document.getElementById('ptc-' + t);
     var b = document.getElementById('ptab-' + t);
     if (c) c.style.display = (t === tab ? 'block' : 'none');
@@ -6860,6 +6874,181 @@ function plRenderDiag(p) {
   el.innerHTML = out;
 }
 
+
+/* =====================================================================
+   SPIELERZUGANG (Trainersicht)
+   Einladungslink mit 48 Stunden Gueltigkeit, Benutzername, sperren.
+   Alle Aufrufe gehen an /api/library?collection=auth.
+   ===================================================================== */
+
+var ZG_STATE = {};
+
+function zgKey() { try { return localStorage.getItem('cb_trainerkey') || ''; } catch(e) { return ''; } }
+function zgKeySetze(k) { try { k ? localStorage.setItem('cb_trainerkey', k) : localStorage.removeItem('cb_trainerkey'); } catch(e) {} }
+
+function zgRuf(koerper) {
+  var b = Object.assign({}, koerper);
+  var k = zgKey();
+  if (k) b.trainerkey = k;
+  return fetch('/api/library?collection=auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(b)
+  }).then(function(r) {
+    return r.json().catch(function() { return {}; }).then(function(d) {
+      if (r.status === 401) {
+        var eingabe = prompt('Trainer-Schluessel eingeben:');
+        if (eingabe) { zgKeySetze(eingabe.trim()); return zgRuf(koerper); }
+      }
+      if (!r.ok) throw new Error((d && d.error) || ('Fehler ' + r.status));
+      return d;
+    });
+  });
+}
+
+function zgDatum(ts) {
+  if (!ts) return '';
+  var d = new Date(ts);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('de-DE') + ', ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+}
+
+function zgRender(p) {
+  var box = document.getElementById('zg-inhalt');
+  var sub = document.getElementById('zg-sub');
+  var btn = document.getElementById('zg-einladen');
+  if (!box || !p) return;
+  var z = ZG_STATE[p.id];
+
+  if (!z) {
+    if (sub) sub.textContent = 'Noch kein Zugang eingerichtet';
+    if (btn) btn.textContent = 'Einladungslink erzeugen';
+    box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:6px 0 2px;">'
+      + p.fn + ' hat noch keinen Zugang. Erzeuge einen Einladungslink und schicke ihn per WhatsApp. '
+      + 'Der Link gilt 48 Stunden, danach setzt ' + p.fn + ' selbst ein Passwort.</p>';
+    return;
+  }
+
+  var statusText = z.status === 'aktiv' ? 'Aktiv'
+    : z.status === 'gesperrt' ? 'Gesperrt'
+    : z.invite_offen ? 'Eingeladen, wartet auf Passwort'
+    : 'Einladung abgelaufen';
+  var farbe = z.status === 'aktiv' ? '#1C7A3E' : z.status === 'gesperrt' ? '#D93025' : '#8e8e93';
+
+  if (sub) sub.textContent = statusText;
+  if (btn) btn.textContent = z.hat_passwort ? 'Neuen Link senden' : 'Neuen Einladungslink';
+
+  var html = '<div style="display:grid;grid-template-columns:130px 1fr;gap:9px 14px;font-size:13px;align-items:center;padding:4px 0;">';
+  html += '<span style="color:#8e8e93;">Benutzername</span>'
+    + '<span><b style="font-family:ui-monospace,Menlo,Consolas,monospace;">' + (z.username || '-') + '</b>'
+    + ' <button onclick="zgUsernameAendern()" style="margin-left:8px;background:none;border:0;color:#0E6B36;font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;">aendern</button></span>';
+  html += '<span style="color:#8e8e93;">Status</span><span style="color:' + farbe + ';font-weight:600;">' + statusText + '</span>';
+  html += '<span style="color:#8e8e93;">Passwort</span><span>' + (z.hat_passwort ? 'Vom Spieler gesetzt' : 'Noch nicht gesetzt') + '</span>';
+  if (z.invite_offen) {
+    html += '<span style="color:#8e8e93;">Link gilt bis</span><span>' + zgDatum(z.invite_expires) + '</span>';
+  }
+  if (z.last_login) {
+    html += '<span style="color:#8e8e93;">Zuletzt aktiv</span><span>' + zgDatum(z.last_login) + '</span>';
+  }
+  html += '</div>';
+
+  if (z.link) {
+    html += '<div style="margin-top:14px;padding:13px;background:#EDF4EA;border:1px solid #C9DCC3;border-radius:11px;">'
+      + '<div style="font-size:12px;color:#0E6B36;font-weight:600;margin-bottom:7px;">Einladungslink &middot; gilt bis ' + zgDatum(z.laeuft_ab || z.invite_expires) + '</div>'
+      + '<div style="display:flex;gap:8px;align-items:center;">'
+      + '<input id="zg-link" readonly value="' + z.link + '" style="flex:1;min-width:0;padding:9px 11px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:12px;background:#fff;color:#12301F;">'
+      + '<button onclick="zgKopieren()" style="padding:9px 14px;background:#0E6B36;color:#fff;border:0;border-radius:8px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Kopieren</button>'
+      + '</div>'
+      + '<div style="font-size:11.5px;color:#6B7A6E;margin-top:8px;">Dieser Link wird nur einmal angezeigt. Schicke ihn jetzt an ' + p.fn + '.</div>'
+      + '</div>';
+  }
+
+  html += '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">';
+  if (z.status === 'gesperrt') {
+    html += '<button onclick="zgStatus(\'entsperren\')" style="padding:9px 14px;background:#fff;color:#1C7A3E;border:1px solid #C9DCC3;border-radius:8px;font:inherit;font-size:13px;cursor:pointer;">Zugang freigeben</button>';
+  } else {
+    html += '<button onclick="zgStatus(\'sperren\')" style="padding:9px 14px;background:#fff;color:#D93025;border:1px solid #F5C6C2;border-radius:8px;font:inherit;font-size:13px;cursor:pointer;">Zugang sperren</button>';
+  }
+  html += '<button onclick="zgStatus(\'loeschen\')" style="padding:9px 14px;background:#fff;color:#8e8e93;border:1px solid #e5e5ea;border-radius:8px;font:inherit;font-size:13px;cursor:pointer;">Zugang loeschen</button>';
+  html += '</div>';
+
+  box.innerHTML = html;
+}
+
+function zgKopieren() {
+  var f = document.getElementById('zg-link');
+  if (!f) return;
+  f.select();
+  f.setSelectionRange(0, 99999);
+  var fertig = function() { alert('Link kopiert. Jetzt an den Spieler schicken.'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(f.value).then(fertig, function() { document.execCommand('copy'); fertig(); });
+  } else { document.execCommand('copy'); fertig(); }
+}
+
+function zgLaden(p) {
+  if (!p) return;
+  var box = document.getElementById('zg-inhalt');
+  if (box) box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:6px 0;">Wird geladen&hellip;</p>';
+  zgRuf({ aktion: 'liste' }).then(function(d) {
+    var alt = ZG_STATE[p.id] || {};
+    (d.items || []).forEach(function(r) {
+      var frisch = ZG_STATE[r.player_id] || {};
+      ZG_STATE[r.player_id] = Object.assign({}, r);
+      // frisch erzeugten Link im Speicher behalten, er kommt nicht aus der Liste
+      if (frisch.link && r.player_id === p.id) ZG_STATE[r.player_id].link = frisch.link;
+    });
+    if (!(d.items || []).some(function(r) { return r.player_id === p.id; })) delete ZG_STATE[p.id];
+    else if (alt.link) ZG_STATE[p.id].link = alt.link;
+    zgRender(p);
+  }).catch(function(e) {
+    if (box) box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:6px 0;">' + e.message + '</p>';
+  });
+}
+
+function zgEinladen() {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  var btn = document.getElementById('zg-einladen');
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird erzeugt...'; }
+  zgRuf({ aktion: 'einladen', player_id: p.id }).then(function(d) {
+    ZG_STATE[p.id] = Object.assign({}, ZG_STATE[p.id] || {}, {
+      player_id: p.id, username: d.username, status: 'eingeladen',
+      invite_expires: d.laeuft_ab, invite_offen: true, link: d.link
+    });
+    if (btn) btn.disabled = false;
+    zgLaden(p);
+  }).catch(function(e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Einladungslink erzeugen'; }
+    alert('Hat nicht geklappt: ' + e.message);
+  });
+}
+
+function zgUsernameAendern() {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  var z = ZG_STATE[p.id] || {};
+  var neu = prompt('Neuer Benutzername fuer ' + p.fn + ' ' + p.ln + ':', z.username || '');
+  if (!neu) return;
+  zgRuf({ aktion: 'username', player_id: p.id, username: neu.trim() })
+    .then(function() { zgLaden(p); })
+    .catch(function(e) { alert(e.message); });
+}
+
+function zgStatus(aktion) {
+  var p = PL.find(function(x) { return x.id === PL_CUR; });
+  if (!p) return;
+  var texte = {
+    sperren: 'Zugang von ' + p.fn + ' ' + p.ln + ' sperren? Er wird sofort abgemeldet.',
+    entsperren: 'Zugang von ' + p.fn + ' ' + p.ln + ' wieder freigeben?',
+    loeschen: 'Zugang von ' + p.fn + ' ' + p.ln + ' komplett loeschen? Benutzername und Passwort sind danach weg.'
+  };
+  if (!confirm(texte[aktion])) return;
+  zgRuf({ aktion: aktion, player_id: p.id })
+    .then(function() { if (aktion === 'loeschen') delete ZG_STATE[p.id]; zgLaden(p); })
+    .catch(function(e) { alert(e.message); });
+}
+
 function onId(id, ev, fn) {
   var el = document.getElementById(id);
   if (el) el.addEventListener(ev, fn);
@@ -6910,6 +7099,11 @@ document.addEventListener('DOMContentLoaded', function() {
   onId('ptab-verletzungen', 'click', function() { plTabShow('verletzungen'); });
   onId('ptab-notizen', 'click', function() { plTabShow('notizen'); });
   onId('ptab-einheiten', 'click', function() { plTabShow('einheiten'); });
+  onId('ptab-zugang', 'click', function() {
+    plTabShow('zugang');
+    zgLaden(PL.find(function(x) { return x.id === PL_CUR; }));
+  });
+  onId('zg-einladen', 'click', zgEinladen);
 
   // Delete player
   onId('btn-delete-player', 'click', function() {
