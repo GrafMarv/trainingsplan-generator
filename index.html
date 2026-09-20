@@ -7131,6 +7131,20 @@ function trVergangen(datum) {
   return String(datum).slice(0, 10) < new Date().toISOString().slice(0, 10);
 }
 
+function trTageBis(datum) {
+  var t = String(datum || '').slice(0, 10).split('-');
+  if (t.length !== 3) return null;
+  var ziel = Date.UTC(+t[0], +t[1] - 1, +t[2]);
+  var n = new Date();
+  var heute = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  return Math.round((ziel - heute) / 86400000);
+}
+function trMinusTage(datum, tage) {
+  var t = String(datum || '').slice(0, 10).split('-');
+  if (t.length !== 3) return datum;
+  return new Date(Date.UTC(+t[0], +t[1] - 1, +t[2]) - tage * 86400000).toISOString().slice(0, 10);
+}
+
 function trLaden() {
   var box = document.getElementById('tr-liste');
   if (!box || !TM_CUR) return;
@@ -7165,6 +7179,10 @@ function trRender() {
   TR_LISTE.forEach(function(t) {
     var alt = trVergangen(t.datum);
     var offen = Math.max(0, kader - (t.zu + t.ab + t.verletzt));
+    var tage = trTageBis(t.datum);
+    var fenster = (tage !== null && tage > 7)
+      ? '<span style="color:#aeaeb2;">Anmeldung ab ' + trDatum(trMinusTage(t.datum, 7)) + '</span>'
+      : '';
     html += '<div style="border:1px solid #e5e5ea;border-radius:12px;padding:13px 14px;margin-bottom:10px;'
       + (alt ? 'opacity:.55;' : '') + '">'
       + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">'
@@ -7177,6 +7195,7 @@ function trRender() {
       +   '<span style="color:#8e8e93;">' + t.ab + ' ab</span>'
       +   '<span style="color:#D93025;">' + t.verletzt + ' verletzt</span>'
       +   (offen ? '<span style="color:#aeaeb2;">' + offen + ' ohne Antwort</span>' : '')
+      +   fenster
       +   '<button onclick="trLoeschen(\'' + t.id + '\')" style="margin-left:auto;background:none;border:0;color:#D93025;font:inherit;font-size:12.5px;cursor:pointer;">Loeschen</button>'
       + '</div></div>';
   });
@@ -7289,9 +7308,12 @@ function anRender() {
       var r = karte[String(p.id)];
       var st = r ? r.status : 'offen';
       z[st] = (z[st] || 0) + 1;
+      var grund = (r && r.grund && r.grund !== 'vom Trainer eingetragen') ? r.grund : '';
       html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #f2f2f7;">'
         + '<span style="width:9px;height:9px;border-radius:50%;background:' + (farbe[st] || '#d2d2d7') + ';flex:none;"></span>'
-        + '<span style="flex:1;font-size:14px;color:#1c1c1e;">' + p.fn + ' ' + p.ln + '</span>'
+        + '<span style="flex:1;min-width:0;font-size:14px;color:#1c1c1e;">' + p.fn + ' ' + p.ln
+        +   (grund ? '<span style="display:block;font-size:12px;color:#8e8e93;">' + grund + '</span>' : '')
+        + '</span>'
         + '<select onchange="anSetzen(\'' + p.id + '\', this.value)" style="padding:5px 8px;border:1px solid #e5e5ea;border-radius:7px;font:inherit;font-size:12.5px;background:#fff;color:' + (farbe[st] || '#8e8e93') + ';">'
         +   ['offen','zu','ab','verletzt'].map(function(o) {
               return '<option value="' + o + '"' + (o === st ? ' selected' : '') + '>'

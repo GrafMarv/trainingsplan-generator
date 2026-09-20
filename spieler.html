@@ -103,12 +103,26 @@
   .termin .ort{font-size:12.5px;color:#6B7A6E;margin-top:2px}
   .wahl{display:flex;gap:8px;margin-top:12px}
   .wahl button{
-    flex:1;padding:10px 6px;border:1px solid #DCE3D6;background:#fff;border-radius:10px;
-    font:inherit;font-size:13px;font-weight:600;color:#3F5145;cursor:pointer}
+    flex:1;padding:11px 6px;border:1px solid #DCE3D6;background:#fff;border-radius:10px;
+    font:inherit;font-size:13.5px;font-weight:600;color:#3F5145;cursor:pointer}
   .wahl button:hover{border-color:#0E6B36}
   .wahl button.an[data-w=zu]{background:#0E6B36;border-color:#0E6B36;color:#fff}
   .wahl button.an[data-w=ab]{background:#6B7A6E;border-color:#6B7A6E;color:#fff}
   .wahl button.an[data-w=verletzt]{background:#D93025;border-color:#D93025;color:#fff}
+  .wahl button:disabled{opacity:.45;cursor:default}
+
+  .zu{margin-top:12px;padding:11px 13px;border-radius:10px;font-size:13px;
+    background:#F5F8F3;border:1px solid #E4EADE;color:#3F5145}
+  .warum{margin-top:12px;padding:13px;border-radius:11px;background:#F5F8F3;border:1px solid #E4EADE}
+  .warum > p{font-size:13px;font-weight:600;color:#3F5145;margin-bottom:9px}
+  .warum input{width:100%;padding:10px 12px;margin-top:9px;border:1px solid #DCE3D6;
+    border-radius:9px;font:inherit;font-size:15px;background:#fff;color:#12301F}
+  .warum .klein{font-size:11.5px;color:#8B978C;margin-top:7px}
+  .stand{margin-top:12px;display:flex;align-items:center;gap:9px;font-size:13.5px}
+  .stand b{font-weight:600}
+  .stand .aendern{margin-left:auto;background:none;border:0;color:#0E6B36;font:inherit;
+    font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0}
+  .stand .grund{display:block;font-size:12.5px;color:#6B7A6E;font-weight:400;margin-top:1px}
 
   .fuss{text-align:center;font-size:12px;color:#8B978C;padding:26px 0 30px}
   .mitte{max-width:420px;margin:0 auto;padding-top:34px}
@@ -553,43 +567,100 @@ function zeichnePraevention(liste){
   box.innerHTML = bilanz + zeilen;
 }
 
+var T_TERMINE = [];
+var T_WARUM = {};   // termin_id -> true, solange die Rueckfrage offen ist
+
+function terminKarte(t){
+  var kopf = '<div class="zeile"><b>' + sicher(t.titel || 'Training') + '</b>'
+    + '<span class="wann">' + wochentag(t.datum) + ', ' + datumDe(t.datum)
+    + (t.zeit ? ' &middot; ' + sicher(t.zeit) : '') + '</span></div>'
+    + (t.ort ? '<div class="ort">' + sicher(t.ort) + '</div>' : '');
+
+  // Noch zu weit weg
+  if(!t.offen){
+    if(t.tage === null || t.tage === undefined || t.tage < 0) return kopf;
+    return kopf + '<div class="zu">Anmeldung \u00f6ffnet am ' + datumDe(t.oeffnet_am)
+      + ' \u2013 noch ' + (t.tage - 7) + (t.tage - 7 === 1 ? ' Tag' : ' Tage') + '.</div>';
+  }
+
+  // Rueckfrage nach dem Grund
+  if(T_WARUM[t.id]){
+    return kopf
+      + '<div class="warum"><p>Warum bist du nicht dabei?</p>'
+      + '<div class="wahl">'
+      +   '<button data-w="verletzt">Verletzt</button>'
+      +   '<button data-w="ab">Anderer Grund</button>'
+      + '</div>'
+      + '<input type="text" class="grundfeld" maxlength="140" placeholder="Kurz dazuschreiben, wenn du magst">'
+      + '<div class="klein">Das Feld kannst du auch leer lassen.</div>'
+      + '<button class="aufklapp" data-w="zurueck" style="margin-top:10px">Zur\u00fcck</button>'
+      + '</div>';
+  }
+
+  // Schon geantwortet
+  if(t.antwort){
+    var farbe = t.antwort === 'zu' ? '#1C7A3E' : (t.antwort === 'verletzt' ? '#D93025' : '#6B7A6E');
+    var wort  = t.antwort === 'zu' ? 'Du bist dabei'
+              : (t.antwort === 'verletzt' ? 'Du hast dich verletzt gemeldet' : 'Du bist nicht dabei');
+    return kopf + '<div class="stand"><span class="ampel" style="background:' + farbe + '"></span>'
+      + '<span><b style="color:' + farbe + '">' + wort + '</b>'
+      + (t.grund && t.grund !== 'vom Trainer eingetragen'
+          ? '<span class="grund">' + sicher(t.grund) + '</span>' : '')
+      + '</span><button class="aendern" data-w="neu">\u00e4ndern</button></div>';
+  }
+
+  // Noch keine Antwort
+  return kopf + '<div class="wahl">'
+    + '<button data-w="zu">Ich bin dabei</button>'
+    + '<button data-w="nein">Ich bin nicht dabei</button>'
+    + '</div>';
+}
+
 function zeichneTermine(termine){
   var box = el('box-termine');
-  if(!termine || !termine.length){
+  T_TERMINE = termine || [];
+  if(!T_TERMINE.length){
     box.innerHTML = '<div class="leer">Aktuell ist keine Einheit f\u00fcr dich angesetzt.</div>';
     return;
   }
-  var html = '';
-  termine.forEach(function(t){
-    html += '<div class="termin" data-id="' + sicher(t.id) + '">'
-      + '<div class="zeile"><b>' + sicher(t.titel || 'Training') + '</b>'
-      + '<span class="wann">' + wochentag(t.datum) + ', ' + datumDe(t.datum)
-      + (t.zeit ? ' &middot; ' + sicher(t.zeit) : '') + '</span></div>'
-      + (t.ort ? '<div class="ort">' + sicher(t.ort) + '</div>' : '')
-      + '<div class="wahl">'
-      +   '<button data-w="zu"       class="' + (t.antwort === 'zu' ? 'an' : '') + '">Ich komme</button>'
-      +   '<button data-w="ab"       class="' + (t.antwort === 'ab' ? 'an' : '') + '">Ich komme nicht</button>'
-      +   '<button data-w="verletzt" class="' + (t.antwort === 'verletzt' ? 'an' : '') + '">Verletzt</button>'
-      + '</div></div>';
-  });
-  box.innerHTML = html;
+  box.innerHTML = T_TERMINE.map(function(t){
+    return '<div class="termin" data-id="' + sicher(t.id) + '">' + terminKarte(t) + '</div>';
+  }).join('');
 
   box.querySelectorAll('.termin').forEach(function(karte){
-    karte.querySelectorAll('.wahl button').forEach(function(b){
+    var id = karte.getAttribute('data-id');
+    var t = T_TERMINE.filter(function(x){ return String(x.id) === String(id); })[0];
+    if(!t) return;
+
+    karte.querySelectorAll('[data-w]').forEach(function(b){
       b.addEventListener('click', function(){
-        var wahl = b.getAttribute('data-w');
-        var knoepfe = karte.querySelectorAll('.wahl button');
-        knoepfe.forEach(function(x){ x.classList.remove('an'); x.disabled = true; });
-        b.classList.add('an');
-        ruf('me', { session: sess(), was:'abstimmen', termin_id: karte.getAttribute('data-id'), status: wahl })
-          .then(function(){ knoepfe.forEach(function(x){ x.disabled = false; }); })
-          .catch(function(e){
-            knoepfe.forEach(function(x){ x.disabled = false; x.classList.remove('an'); });
-            alert('Konnte nicht gespeichert werden: ' + e.message);
-          });
+        var w = b.getAttribute('data-w');
+
+        if(w === 'nein'){ T_WARUM[id] = true; zeichneTermine(T_TERMINE); return; }
+        if(w === 'zurueck'){ delete T_WARUM[id]; zeichneTermine(T_TERMINE); return; }
+        if(w === 'neu'){ t.antwort = null; t.grund = ''; zeichneTermine(T_TERMINE); return; }
+
+        var feld = karte.querySelector('.grundfeld');
+        var grund = feld ? feld.value.trim() : '';
+        melden(t, w, grund, karte);
       });
     });
   });
+}
+
+function melden(t, status, grund, karte){
+  karte.querySelectorAll('button').forEach(function(x){ x.disabled = true; });
+  ruf('me', { session: sess(), was:'abstimmen', termin_id: t.id, status: status, grund: grund })
+    .then(function(){
+      delete T_WARUM[t.id];
+      t.antwort = status;
+      t.grund = grund;
+      zeichneTermine(T_TERMINE);
+    })
+    .catch(function(e){
+      karte.querySelectorAll('button').forEach(function(x){ x.disabled = false; });
+      alert('Konnte nicht gespeichert werden: ' + e.message);
+    });
 }
 
 /* ---------------- Start ---------------- */
