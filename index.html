@@ -1645,6 +1645,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
           <div id="tmc-spieler"><div class="tv-grid" id="tm-grid"></div></div>
           <div id="tmc-trainings" style="display:none;">
             <div id="tr-form" style="display:none;background:#F5F8F3;border:1px solid #E4EADE;border-radius:12px;padding:14px;margin-bottom:14px;">
+              <b id="tr-form-titel" style="display:block;font-size:14px;color:#1c1c1e;margin-bottom:12px;">Neuer Termin</b>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
                 <div><label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Datum</label>
                   <input type="date" id="tr-datum" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
@@ -1653,12 +1654,12 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
                 <div><label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Titel</label>
-                  <input type="text" id="tr-titel" placeholder="Athletik" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
+                  <input type="text" id="tr-titel" placeholder="Athletiktraining" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
                 <div><label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Ort</label>
                   <input type="text" id="tr-ort" placeholder="Sporthalle" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;"></div>
               </div>
               <div style="display:flex;gap:8px;">
-                <button class="tv-btn" id="tr-speichern">Einheit ansetzen</button>
+                <button class="tv-btn" id="tr-speichern">Termin speichern</button>
                 <button id="tr-abbruch" style="padding:9px 14px;background:#fff;color:#6B7A6E;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:13px;cursor:pointer;">Abbrechen</button>
               </div>
             </div>
@@ -3666,7 +3667,7 @@ function tmKader() {
 function tmTab(t) {
   TM_TAB = t;
   if (t === 'trainings' && window.trLaden) trLaden();
-  if (t === 'anwesenheit' && window.anRender) anLaden();
+  if (t === 'anwesenheit' && window.anLaden) anLaden();
   ['spieler','trainings','anwesenheit'].forEach(function(x) {
     var b = document.getElementById('tmt-' + x);
     var n = null;
@@ -7096,7 +7097,9 @@ function zgStatus(aktion) {
    ===================================================================== */
 
 var TR_LISTE = [];
-var AN_CUR = null;
+var TR_ANTWORTEN = [];
+var TR_OFFEN = null;
+var TR_EDIT = null;
 
 function trRuf(koerper) {
   var b = Object.assign({}, koerper);
@@ -7151,6 +7154,7 @@ function trLaden() {
   box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">Wird geladen&hellip;</p>';
   trRuf({ aktion: 'liste', team: TM_CUR }).then(function(d) {
     TR_LISTE = d.items || [];
+    TR_ANTWORTEN = d.antworten || [];
     trRender();
   }).catch(function(e) {
     box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:10px 0;">' + e.message + '</p>';
@@ -7163,123 +7167,202 @@ function trRender() {
   var kader = tmKader().length;
 
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
-    + '<b style="font-size:14px;color:#1c1c1e;">Angesetzte Einheiten</b>'
-    + '<button class="tv-btn" id="tr-neu">+ Einheit ansetzen</button></div>';
+    + '<div><b style="font-size:14px;color:#1c1c1e;">Termine</b>'
+    + '<div style="font-size:11.5px;color:#8e8e93;">Wann und wo trainiert wird. Der Trainingsinhalt haengt nicht daran.</div></div>'
+    + '<button class="tv-btn" id="tr-neu">+ Neuer Termin</button></div>';
 
   if (!TR_LISTE.length) {
     html += '<div class="tv-leer"><div class="tv-leer-ico">'
       + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'
-      + '</div><b>Noch keine Einheit angesetzt.</b>'
-      + '<p>Sobald du eine ansetzt, sehen die Spieler sie in ihrer App und k&ouml;nnen zusagen.</p></div>';
+      + '</div><b>Noch kein Termin angelegt.</b>'
+      + '<p>Sobald einer steht, sehen die Spieler ihn in ihrer App und koennen ab sieben Tagen vorher zusagen.</p></div>';
     box.innerHTML = html;
-    onId('tr-neu', 'click', trFormZeigen);
+    onId('tr-neu', 'click', function() { trFormZeigen(null); });
     return;
   }
 
   TR_LISTE.forEach(function(t) {
     var alt = trVergangen(t.datum);
-    var offen = Math.max(0, kader - (t.zu + t.ab + t.verletzt));
+    var ohne = Math.max(0, kader - (t.zu + t.ab + t.verletzt));
     var tage = trTageBis(t.datum);
-    var fenster = (tage !== null && tage > 7)
-      ? '<span style="color:#aeaeb2;">Anmeldung ab ' + trDatum(trMinusTage(t.datum, 7)) + '</span>'
-      : '';
-    html += '<div style="border:1px solid #e5e5ea;border-radius:12px;padding:13px 14px;margin-bottom:10px;'
-      + (alt ? 'opacity:.55;' : '') + '">'
-      + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">'
-      +   '<b style="font-size:14.5px;color:#1c1c1e;">' + (t.titel || 'Training') + '</b>'
-      +   '<span style="font-size:12.5px;color:#8e8e93;white-space:nowrap;">' + trTag(t.datum) + ', ' + trDatum(t.datum)
-      +     (t.zeit ? ' &middot; ' + t.zeit : '') + '</span></div>'
-      + (t.ort ? '<div style="font-size:12.5px;color:#8e8e93;margin-top:2px;">' + t.ort + '</div>' : '')
-      + '<div style="display:flex;gap:14px;margin-top:9px;font-size:12.5px;align-items:center;">'
-      +   '<span style="color:#1C7A3E;font-weight:600;">' + t.zu + ' dabei</span>'
-      +   '<span style="color:#8e8e93;">' + t.ab + ' ab</span>'
-      +   '<span style="color:#D93025;">' + t.verletzt + ' verletzt</span>'
-      +   (offen ? '<span style="color:#aeaeb2;">' + offen + ' ohne Antwort</span>' : '')
-      +   fenster
-      +   '<button onclick="trLoeschen(\'' + t.id + '\')" style="margin-left:auto;background:none;border:0;color:#D93025;font:inherit;font-size:12.5px;cursor:pointer;">Loeschen</button>'
-      + '</div></div>';
+    var fenster = alt ? 'War am ' + trDatum(t.datum)
+      : (tage !== null && tage > 7)
+        ? 'Anmeldung ab ' + trDatum(trMinusTage(t.datum, 7))
+        : 'Anmeldung laeuft';
+    var auf = String(TR_OFFEN) === String(t.id);
+
+    html += '<div style="border:1px solid ' + (auf ? '#0E6B36' : '#e5e5ea') + ';border-radius:12px;margin-bottom:10px;'
+      + (alt ? 'opacity:.6;' : '') + '">'
+      + '<div onclick="trAufklappen(\'' + t.id + '\')" style="padding:13px 14px;cursor:pointer;">'
+      +   '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">'
+      +     '<b style="font-size:14.5px;color:#1c1c1e;">' + (t.titel || 'Training') + '</b>'
+      +     '<span style="font-size:12.5px;color:#8e8e93;white-space:nowrap;">' + trTag(t.datum) + ', ' + trDatum(t.datum)
+      +       (t.zeit ? ' &middot; ' + t.zeit : '') + '</span></div>'
+      +   (t.ort ? '<div style="font-size:12.5px;color:#8e8e93;margin-top:2px;">' + t.ort + '</div>' : '')
+      +   '<div style="display:flex;gap:14px;margin-top:9px;font-size:12.5px;align-items:center;flex-wrap:wrap;">'
+      +     '<span style="color:#1C7A3E;font-weight:600;">' + t.zu + ' dabei</span>'
+      +     '<span style="color:#8e8e93;">' + t.ab + ' abgesagt</span>'
+      +     '<span style="color:#D93025;">' + t.verletzt + ' verletzt</span>'
+      +     (ohne ? '<span style="color:#aeaeb2;">' + ohne + ' offen</span>' : '')
+      +     '<span style="color:#c7c7cc;">' + fenster + '</span>'
+      +     '<span style="margin-left:auto;color:#0E6B36;font-weight:600;">' + (auf ? 'zuklappen' : 'Rueckmeldungen') + ' ' + (auf ? '&#9652;' : '&#9662;') + '</span>'
+      +   '</div></div>';
+
+    if (auf) {
+      html += '<div style="border-top:0.5px solid #f2f2f7;padding:12px 14px;">'
+        + '<div style="display:flex;gap:10px;margin-bottom:10px;">'
+        +   '<button onclick="trFormZeigen(\'' + t.id + '\')" style="padding:7px 12px;background:#fff;color:#1c1c1e;border:1px solid #e5e5ea;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer;">Termin bearbeiten</button>'
+        +   '<button onclick="trLoeschen(\'' + t.id + '\')" style="padding:7px 12px;background:#fff;color:#D93025;border:1px solid #F5C6C2;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer;">Termin loeschen</button>'
+        + '</div>'
+        + '<div id="tr-rueck-' + t.id + '">Wird geladen&hellip;</div></div>';
+    }
+    html += '</div>';
   });
 
   box.innerHTML = html;
-  onId('tr-neu', 'click', trFormZeigen);
+  onId('tr-neu', 'click', function() { trFormZeigen(null); });
+  if (TR_OFFEN) trRueckRender(TR_OFFEN);
 }
 
-function trFormZeigen() {
+function trAufklappen(id) {
+  TR_OFFEN = (String(TR_OFFEN) === String(id)) ? null : id;
+  trRender();
+}
+
+// Wer hat abgestimmt, wer nicht. Alles aus der Liste, kein zweiter Abruf noetig.
+function trRueckRender(id) {
+  var ziel = document.getElementById('tr-rueck-' + id);
+  if (!ziel) return;
+  var karte = {};
+  TR_ANTWORTEN.forEach(function(r) {
+    if (String(r.termin_id) === String(id)) karte[String(r.player_id)] = r;
+  });
+  var kader = tmKader().slice().sort(function(a, b) {
+    return (a.ln || '').toLowerCase().localeCompare((b.ln || '').toLowerCase());
+  });
+  if (!kader.length) {
+    ziel.innerHTML = '<p style="font-size:13px;color:#8e8e93;">In diesem Kader ist noch kein Spieler.</p>';
+    return;
+  }
+  var farbe = { zu:'#1C7A3E', ab:'#8e8e93', verletzt:'#D93025' };
+  var text  = { zu:'dabei', ab:'abgesagt', verletzt:'verletzt' };
+  var gruppen = { zu:[], verletzt:[], ab:[], offen:[] };
+  kader.forEach(function(p) {
+    var r = karte[String(p.id)];
+    var st = r ? r.status : 'offen';
+    (gruppen[st] || gruppen.offen).push({ p: p, r: r, st: st });
+  });
+
+  var html = '';
+  [['zu','Dabei'],['verletzt','Verletzt'],['ab','Abgesagt'],['offen','Noch keine Antwort']].forEach(function(g) {
+    var liste = gruppen[g[0]];
+    if (!liste.length) return;
+    html += '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8e8e93;margin:12px 0 6px;">'
+      + g[1] + ' (' + liste.length + ')</div>';
+    liste.forEach(function(x) {
+      var grund = (x.r && x.r.grund && x.r.grund !== 'vom Trainer eingetragen') ? x.r.grund : '';
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #f2f2f7;">'
+        + '<span style="width:9px;height:9px;border-radius:50%;background:' + (farbe[x.st] || '#d2d2d7') + ';flex:none;"></span>'
+        + '<span style="flex:1;min-width:0;font-size:13.5px;color:#1c1c1e;">' + x.p.fn + ' ' + x.p.ln
+        +   (grund ? '<span style="display:block;font-size:12px;color:#8e8e93;">' + grund + '</span>' : '')
+        + '</span>'
+        + '<select onchange="trSetzen(\'' + id + '\',\'' + x.p.id + '\', this.value)" style="padding:4px 7px;border:1px solid #e5e5ea;border-radius:7px;font:inherit;font-size:12px;background:#fff;color:' + (farbe[x.st] || '#8e8e93') + ';">'
+        +   ['offen','zu','ab','verletzt'].map(function(o) {
+              return '<option value="' + o + '"' + (o === x.st ? ' selected' : '') + '>'
+                + (o === 'offen' ? 'keine Antwort' : text[o]) + '</option>';
+            }).join('')
+        + '</select></div>';
+    });
+  });
+  ziel.innerHTML = html;
+}
+
+function trSetzen(terminId, playerId, status) {
+  trRuf({ aktion: 'setzen', termin_id: terminId, player_id: playerId, status: status })
+    .then(trLaden)
+    .catch(function(e) { alert(e.message); trLaden(); });
+}
+
+function trFormZeigen(id) {
   var f = document.getElementById('tr-form');
   if (!f) return;
-  f.style.display = 'block';
+  TR_EDIT = id || null;
+  var t = id ? TR_LISTE.filter(function(x) { return String(x.id) === String(id); })[0] : null;
+
+  document.getElementById('tr-form-titel').textContent = t ? 'Termin bearbeiten' : 'Neuer Termin';
+  document.getElementById('tr-speichern').textContent = t ? 'Aenderungen speichern' : 'Termin speichern';
+
   var d = document.getElementById('tr-datum');
-  if (d && !d.value) {
+  var z = document.getElementById('tr-zeit');
+  if (t) {
+    d.value = String(t.datum).slice(0, 10);
+    z.value = t.zeit || '';
+    document.getElementById('tr-titel').value = t.titel || '';
+    document.getElementById('tr-ort').value = t.ort || '';
+  } else {
     var ziel = TM_TRAININGSTAG[TM_CUR.slice(1)];
     var n = new Date(); n.setHours(12,0,0,0);
     if (ziel !== undefined) n.setDate(n.getDate() + ((ziel - n.getDay() + 7) % 7));
     d.value = n.toISOString().slice(0, 10);
+    z.value = '17:30';
+    document.getElementById('tr-titel').value = '';
+    document.getElementById('tr-ort').value = '';
   }
-  var z = document.getElementById('tr-zeit');
-  if (z && !z.value) z.value = '17:30';
-  if (d) d.focus();
+  f.style.display = 'block';
+  f.scrollIntoView({ block: 'nearest' });
+  d.focus();
 }
 
 function trFormVerstecken() {
   var f = document.getElementById('tr-form');
   if (f) f.style.display = 'none';
+  TR_EDIT = null;
 }
 
 function trSpeichern() {
   var datum = (document.getElementById('tr-datum') || {}).value;
   if (!datum) { alert('Bitte ein Datum waehlen.'); return; }
   var b = document.getElementById('tr-speichern');
+  var beschriftung = b ? b.textContent : '';
   if (b) { b.disabled = true; b.textContent = 'Wird gespeichert...'; }
-  trRuf({
-    aktion: 'anlegen',
+  var daten = {
+    aktion: TR_EDIT ? 'aendern' : 'anlegen',
     team: TM_CUR,
     datum: datum,
     zeit: (document.getElementById('tr-zeit') || {}).value || '',
     titel: (document.getElementById('tr-titel') || {}).value || 'Training',
     ort: (document.getElementById('tr-ort') || {}).value || ''
-  }).then(function() {
-    if (b) { b.disabled = false; b.textContent = 'Einheit ansetzen'; }
-    ['tr-titel','tr-ort'].forEach(function(id) { var n = document.getElementById(id); if (n) n.value = ''; });
+  };
+  if (TR_EDIT) daten.id = TR_EDIT;
+  trRuf(daten).then(function() {
+    if (b) { b.disabled = false; b.textContent = beschriftung; }
     trFormVerstecken();
     trLaden();
   }).catch(function(e) {
-    if (b) { b.disabled = false; b.textContent = 'Einheit ansetzen'; }
+    if (b) { b.disabled = false; b.textContent = beschriftung; }
     alert('Hat nicht geklappt: ' + e.message);
   });
 }
 
 function trLoeschen(id) {
   var t = TR_LISTE.filter(function(x) { return String(x.id) === String(id); })[0];
-  if (!confirm('Einheit ' + (t ? trDatum(t.datum) : '') + ' loeschen? Die Rueckmeldungen gehen mit weg.')) return;
-  trRuf({ aktion: 'loeschen', id: id }).then(trLaden).catch(function(e) { alert(e.message); });
+  if (!confirm('Termin ' + (t ? trDatum(t.datum) : '') + ' loeschen? Die Rueckmeldungen gehen mit weg.')) return;
+  trRuf({ aktion: 'loeschen', id: id }).then(function() {
+    if (String(TR_OFFEN) === String(id)) TR_OFFEN = null;
+    trLaden();
+  }).catch(function(e) { alert(e.message); });
 }
 
-/* ---------------- Anwesenheit ---------------- */
+/* ---------------- Anwesenheit: Bilanz ueber alle Termine ---------------- */
 
 function anLaden() {
-  var wahl = document.getElementById('an-wahl');
+  var kopf = document.getElementById('an-wahl');
   var box = document.getElementById('an-liste');
-  if (!wahl || !box || !TM_CUR) return;
+  if (!kopf || !box || !TM_CUR) return;
   box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">Wird geladen&hellip;</p>';
   trRuf({ aktion: 'liste', team: TM_CUR }).then(function(d) {
     TR_LISTE = d.items || [];
-    if (!TR_LISTE.length) {
-      wahl.innerHTML = '';
-      box.innerHTML = '<div class="tv-leer"><div class="tv-leer-ico">'
-        + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>'
-        + '</div><b>Noch keine Einheit angesetzt.</b>'
-        + '<p>Setze unter Trainings eine Einheit an, dann k&ouml;nnen die Spieler zusagen.</p></div>';
-      return;
-    }
-    var opts = TR_LISTE.map(function(t) {
-      return '<option value="' + t.id + '"' + (String(AN_CUR) === String(t.id) ? ' selected' : '') + '>'
-        + trDatum(t.datum) + (t.zeit ? ', ' + t.zeit : '') + ' \u2013 ' + (t.titel || 'Training') + '</option>';
-    }).join('');
-    wahl.innerHTML = '<label style="display:block;font-size:11.5px;font-weight:600;color:#3F5145;margin-bottom:4px;">Einheit</label>'
-      + '<select id="an-select" style="width:100%;padding:9px;border:1px solid #DCE3D6;border-radius:8px;font:inherit;font-size:14px;background:#fff;">'
-      + opts + '</select>';
-    if (!AN_CUR || !TR_LISTE.some(function(t) { return String(t.id) === String(AN_CUR); })) AN_CUR = TR_LISTE[0].id;
-    onId('an-select', 'change', function(ev) { AN_CUR = ev.target.value; anRender(); });
+    TR_ANTWORTEN = d.antworten || [];
     anRender();
   }).catch(function(e) {
     box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:10px 0;">' + e.message + '</p>';
@@ -7287,54 +7370,68 @@ function anLaden() {
 }
 
 function anRender() {
+  var kopf = document.getElementById('an-wahl');
   var box = document.getElementById('an-liste');
-  if (!box || !AN_CUR) return;
-  box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">Wird geladen&hellip;</p>';
-  trRuf({ aktion: 'rueckmeldungen', termin_id: AN_CUR }).then(function(d) {
-    var karte = {};
-    (d.items || []).forEach(function(r) { karte[String(r.player_id)] = r; });
-    var kader = tmKader().slice().sort(function(a, b) {
-      return (a.ln || '').toLowerCase().localeCompare((b.ln || '').toLowerCase());
-    });
-    if (!kader.length) {
-      box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">In diesem Kader ist noch kein Spieler.</p>';
-      return;
-    }
-    var farbe = { zu:'#1C7A3E', ab:'#8e8e93', verletzt:'#D93025' };
-    var text  = { zu:'dabei', ab:'nicht dabei', verletzt:'verletzt' };
-    var z = { zu:0, ab:0, verletzt:0, offen:0 };
-    var html = '';
-    kader.forEach(function(p) {
-      var r = karte[String(p.id)];
-      var st = r ? r.status : 'offen';
-      z[st] = (z[st] || 0) + 1;
-      var grund = (r && r.grund && r.grund !== 'vom Trainer eingetragen') ? r.grund : '';
-      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #f2f2f7;">'
-        + '<span style="width:9px;height:9px;border-radius:50%;background:' + (farbe[st] || '#d2d2d7') + ';flex:none;"></span>'
-        + '<span style="flex:1;min-width:0;font-size:14px;color:#1c1c1e;">' + p.fn + ' ' + p.ln
-        +   (grund ? '<span style="display:block;font-size:12px;color:#8e8e93;">' + grund + '</span>' : '')
-        + '</span>'
-        + '<select onchange="anSetzen(\'' + p.id + '\', this.value)" style="padding:5px 8px;border:1px solid #e5e5ea;border-radius:7px;font:inherit;font-size:12.5px;background:#fff;color:' + (farbe[st] || '#8e8e93') + ';">'
-        +   ['offen','zu','ab','verletzt'].map(function(o) {
-              return '<option value="' + o + '"' + (o === st ? ' selected' : '') + '>'
-                + (o === 'offen' ? 'keine Antwort' : text[o]) + '</option>';
-            }).join('')
-        + '</select></div>';
-    });
-    box.innerHTML = '<div style="display:flex;gap:14px;font-size:12.5px;margin-bottom:10px;">'
-      + '<span style="color:#1C7A3E;font-weight:600;">' + z.zu + ' dabei</span>'
-      + '<span style="color:#8e8e93;">' + z.ab + ' ab</span>'
-      + '<span style="color:#D93025;">' + z.verletzt + ' verletzt</span>'
-      + '<span style="color:#aeaeb2;">' + z.offen + ' ohne Antwort</span></div>' + html;
-  }).catch(function(e) {
-    box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:10px 0;">' + e.message + '</p>';
-  });
-}
+  if (!kopf || !box) return;
 
-function anSetzen(playerId, status) {
-  trRuf({ aktion: 'setzen', termin_id: AN_CUR, player_id: playerId, status: status })
-    .then(anRender)
-    .catch(function(e) { alert(e.message); anRender(); });
+  // Nur Termine, die schon stattgefunden haben
+  var gewesen = TR_LISTE.filter(function(t) {
+    var tage = trTageBis(t.datum);
+    return tage !== null && tage <= 0;
+  });
+
+  if (!gewesen.length) {
+    kopf.innerHTML = '';
+    box.innerHTML = '<div class="tv-leer"><div class="tv-leer-ico">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>'
+      + '</div><b>Noch kein Termin vorbei.</b>'
+      + '<p>Sobald Einheiten stattgefunden haben, steht hier die Bilanz je Spieler.'
+      + ' Die Rueckmeldungen zu den kommenden Einheiten stehen unter Trainings.</p></div>';
+    return;
+  }
+
+  var ids = {};
+  gewesen.forEach(function(t) { ids[String(t.id)] = true; });
+  var zahl = {};
+  TR_ANTWORTEN.forEach(function(r) {
+    if (!ids[String(r.termin_id)]) return;
+    var k = String(r.player_id);
+    zahl[k] = zahl[k] || { zu:0, ab:0, verletzt:0 };
+    if (zahl[k][r.status] !== undefined) zahl[k][r.status]++;
+  });
+
+  var kader = tmKader().map(function(p) {
+    var z = zahl[String(p.id)] || { zu:0, ab:0, verletzt:0 };
+    var ohne = gewesen.length - (z.zu + z.ab + z.verletzt);
+    return { p: p, zu: z.zu, ab: z.ab, verletzt: z.verletzt, ohne: Math.max(0, ohne),
+             quote: gewesen.length ? Math.round((z.zu / gewesen.length) * 100) : 0 };
+  }).sort(function(a, b) {
+    if (a.quote !== b.quote) return a.quote - b.quote;
+    return (a.p.ln || '').toLowerCase().localeCompare((b.p.ln || '').toLowerCase());
+  });
+
+  kopf.innerHTML = '<b style="font-size:14px;color:#1c1c1e;">Bilanz</b>'
+    + '<div style="font-size:11.5px;color:#8e8e93;">Ueber ' + gewesen.length
+    + (gewesen.length === 1 ? ' vergangene Einheit' : ' vergangene Einheiten')
+    + ' &middot; wer am meisten gefehlt hat, steht oben</div>';
+
+  if (!kader.length) {
+    box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:10px 0;">In diesem Kader ist noch kein Spieler.</p>';
+    return;
+  }
+
+  var html = '';
+  kader.forEach(function(x) {
+    var ton = x.quote >= 80 ? '#1C7A3E' : (x.quote >= 50 ? '#8e8e93' : '#D93025');
+    html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #f2f2f7;">'
+      + '<span style="flex:1;min-width:0;font-size:14px;color:#1c1c1e;">' + x.p.fn + ' ' + x.p.ln + '</span>'
+      + '<span style="font-size:12px;color:#8e8e93;white-space:nowrap;">'
+      +   x.zu + ' dabei &middot; ' + x.ab + ' ab &middot; ' + x.verletzt + ' verl.'
+      +   (x.ohne ? ' &middot; ' + x.ohne + ' ohne' : '') + '</span>'
+      + '<span style="width:46px;text-align:right;font-weight:600;font-size:13.5px;color:' + ton + ';">'
+      +   x.quote + '%</span></div>';
+  });
+  box.innerHTML = html;
 }
 
 function onId(id, ev, fn) {
