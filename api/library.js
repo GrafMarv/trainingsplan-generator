@@ -534,17 +534,20 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
         const team = String(body.team || req.query.team || '');
         const filter = team ? '&team=eq.' + encodeURIComponent(team) : '';
         const termine = await hole('cb_termine?select=*' + filter + '&order=datum.asc');
-        if (!termine.length) return res.status(200).json({ items: [] });
+        if (!termine.length) return res.status(200).json({ items: [], antworten: [] });
         const ids = termine.map(function (t) { return String(t.id); });
-        const antworten = await hole('cb_anwesenheit?termin_id=in.(' + ids.map(encodeURIComponent).join(',') + ')&select=termin_id,player_id,status');
-        return res.status(200).json({ items: termine.map(function (t) {
-          const mein = antworten.filter(function (a2) { return String(a2.termin_id) === String(t.id); });
-          return Object.assign({}, t, {
-            zu: mein.filter(function (a2) { return a2.status === 'zu'; }).length,
-            ab: mein.filter(function (a2) { return a2.status === 'ab'; }).length,
-            verletzt: mein.filter(function (a2) { return a2.status === 'verletzt'; }).length
-          });
-        }) });
+        const antworten = await hole('cb_anwesenheit?termin_id=in.(' + ids.map(encodeURIComponent).join(',') + ')&select=termin_id,player_id,status,grund,updated_at');
+        return res.status(200).json({
+          antworten: antworten,
+          items: termine.map(function (t) {
+            const mein = antworten.filter(function (a2) { return String(a2.termin_id) === String(t.id); });
+            return Object.assign({}, t, {
+              zu: mein.filter(function (a2) { return a2.status === 'zu'; }).length,
+              ab: mein.filter(function (a2) { return a2.status === 'ab'; }).length,
+              verletzt: mein.filter(function (a2) { return a2.status === 'verletzt'; }).length
+            });
+          })
+        });
       }
 
       if (aktion === 'anlegen' || aktion === 'aendern') {
