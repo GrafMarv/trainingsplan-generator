@@ -214,6 +214,28 @@ function zgInStunden(h) { return new Date(Date.now() + h * 3600 * 1000).toISOStr
 function zgInTagen(t) { return new Date(Date.now() + t * 86400 * 1000).toISOString(); }
 function zgAbgelaufen(ts) { return !ts || new Date(ts).getTime() < Date.now(); }
 
+// Tage bis zum Termin, rein auf Datumsebene gerechnet, damit Zeitzonen
+// nichts verschieben. Negativ heisst: liegt in der Vergangenheit.
+const ANMELDE_FENSTER = 7;
+function zgTageBis(datum) {
+  const t = String(datum || '').slice(0, 10).split('-');
+  if (t.length !== 3) return null;
+  const ziel = Date.UTC(+t[0], +t[1] - 1, +t[2]);
+  const jetzt = new Date();
+  const heute = Date.UTC(jetzt.getUTCFullYear(), jetzt.getUTCMonth(), jetzt.getUTCDate());
+  return Math.round((ziel - heute) / 86400000);
+}
+function zgAnmeldungOffen(datum) {
+  const tage = zgTageBis(datum);
+  return tage !== null && tage >= 0 && tage <= ANMELDE_FENSTER;
+}
+function zgOeffnetAm(datum) {
+  const t = String(datum || '').slice(0, 10).split('-');
+  if (t.length !== 3) return '';
+  const d = new Date(Date.UTC(+t[0], +t[1] - 1, +t[2]) - ANMELDE_FENSTER * 86400000);
+  return d.toISOString().slice(0, 10);
+}
+
 function zgBenutzername(p) {
   const roh = ((p && p.fn) || '') + '.' + ((p && p.ln) || '');
   return roh.toLowerCase()
@@ -640,7 +662,10 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
         return {
           id: t.id, team: t.team, datum: t.datum, zeit: t.zeit || '',
           titel: t.titel || 'Training', ort: t.ort || '',
-          antwort: m ? m.status : null, grund: m ? (m.grund || '') : ''
+          antwort: m ? m.status : null, grund: m ? (m.grund || '') : '',
+          tage: zgTageBis(t.datum),
+          offen: zgAnmeldungOffen(t.datum),
+          oeffnet_am: zgOeffnetAm(t.datum)
         };
       }) });
     }
@@ -650,9 +675,16 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
       const st = String(body.status || '').toLowerCase();
       if (!tid) return res.status(400).json({ error: 'termin_id fehlt' });
       if (['zu', 'ab', 'verletzt'].indexOf(st) === -1) return res.status(400).json({ error: 'status muss zu, ab oder verletzt sein' });
-      const gehoert = await hole('cb_termine?id=eq.' + encodeURIComponent(tid) + '&select=team');
+      const gehoert = await hole('cb_termine?id=eq.' + encodeURIComponent(tid) + '&select=team,datum');
       if (!gehoert.length) return res.status(404).json({ error: 'Termin nicht gefunden' });
       if ([sp.team, sp.halle].indexOf(gehoert[0].team) === -1) return res.status(403).json({ error: 'Termin gehoert nicht zu deinem Kader' });
+      const tage = zgTageBis(gehoert[0].datum);
+      if (tage !== null && tage > ANMELDE_FENSTER) {
+        return res.status(409).json({ error: 'Die Anmeldung oeffnet erst ' + ANMELDE_FENSTER + ' Tage vorher' });
+      }
+      if (tage !== null && tage < 0) {
+        return res.status(409).json({ error: 'Diese Einheit war schon' });
+      }
       await entferne('cb_anwesenheit', 'termin_id=eq.' + encodeURIComponent(tid) + '&player_id=eq.' + encodeURIComponent(a.player_id));
       await schreibe('cb_anwesenheit', {
         termin_id: tid, player_id: String(a.player_id), status: st,
