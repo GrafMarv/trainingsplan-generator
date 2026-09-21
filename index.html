@@ -479,6 +479,20 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .block-lib-save-row button { font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:9px; border:none; background:#1c1c1e; color:#fff; cursor:pointer; }
 .block-lib-save-row button:hover { background:#2563EB; }
 
+/* ===== Supersatz im Builder sichtbar machen ===== */
+.builder-slot{position:relative;}
+.builder-slot.im-satz{border-left-width:4px;padding-left:10px;}
+.ss-kopf{display:flex;align-items:center;gap:8px;margin:10px 0 5px;font-size:11.5px;
+  font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.ss-kopf .pille{display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:20px;border-radius:10px;color:#fff;font-size:11px;padding:0 6px;}
+.ss-kopf small{font-weight:400;text-transform:none;letter-spacing:0;color:#8e8e93;font-size:11.5px;}
+.ss-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+  border-radius:50%;color:#fff;font-size:10.5px;font-weight:700;flex-shrink:0;}
+.p-satz{display:flex;align-items:center;gap:7px;margin-top:2px;}
+.p-satz span{font-size:11.5px;color:#8e8e93;white-space:nowrap;}
+.p-satz select{font-family:inherit;font-size:13px;padding:8px 9px;min-height:38px;
+  border:1px solid #e5e5ea;border-radius:8px;background:#fff;color:#1c1c1e;width:auto;}
 /* ===== BUILDER v3: drag, type-select, dup slot ===== */
 .builder-block.drag-over { border:1.5px dashed #2563EB; background:#f0f5ff; }
 .builder-block.dragging { opacity:0.4; }
@@ -8486,14 +8500,24 @@ function plSaveDiag() {
       return '<button type="button" class="seg'+a+'" onclick="builderMetric('+bi+','+si+',\''+o[0]+'\')">'+o[1]+'</button>';
     }).join('') +'</div>';
   }
-  function slotHtml(bi, si, slot){
+  function ssFarbe(g){
+    var f = {A:'#2563EB',B:'#EA580C',C:'#16A34A',D:'#9333EA',E:'#DB2777',F:'#0891B2'};
+    return f[g] || '#d0d0d0';
+  }
+  function slotHtml(bi, si, slot, pos){
     var metric = slot.metric || 'reps';
+    var grp = slot.group || '-';
+    var imSatz = grp !== '-';
+    var farbe = ssFarbe(grp);
     var pick = slot.imageKey
       ? '<button type="button" class="ex-pick-btn filled" onclick="openPicker('+bi+','+si+')"><img class="ex-pick-thumb" src="'+GITHUB_RAW+slot.imageKey+'.png" onerror="this.style.visibility=\'hidden\'"><span>'+prettify(slot.imageKey)+'</span></button>'
       : '<button type="button" class="ex-pick-btn" onclick="openPicker('+bi+','+si+')"><span class="ex-pick-ph">&mdash; &Uuml;bung w&auml;hlen &mdash;</span></button>';
     return ''+
-    '<div class="builder-slot">'+
-      '<div class="builder-slot-top">'+ pick +
+    '<div class="builder-slot'+(imSatz?' im-satz':'')+'"'
+      + (imSatz ? ' style="border-left-color:'+farbe+';"' : '') + '>'+
+      '<div class="builder-slot-top">'+
+        (imSatz ? '<span class="ss-badge" style="background:'+farbe+'">'+grp+pos+'</span>' : '')+
+        pick +
         '<button class="builder-slot-x" title="Entfernen" onclick="builderRemoveSlot('+bi+','+si+')">&times;</button>'+
       '</div>'+
       '<div class="builder-slot-params">'+
@@ -8505,17 +8529,40 @@ function plSaveDiag() {
       '<div class="builder-slot-extra">'+
         '<input class="p-txt" type="text" value="'+(slot.intensity||'')+'" placeholder="RPE/%" onchange="builderSet('+bi+','+si+',\'intensity\',this.value)">'+
         '<input class="p-txt" type="text" value="'+(slot.rest||'')+'" placeholder="Pause" onchange="builderSet('+bi+','+si+',\'rest\',this.value)">'+
-        '<select class="p-grp" title="Superset" onchange="builderSet('+bi+','+si+',\'group\',this.value)">'+grpOptions(slot.group)+'</select>'+
         '<input class="p-txt note" type="text" value="'+(slot.note||'')+'" placeholder="Notiz" onchange="builderSet('+bi+','+si+',\'note\',this.value)">'+
+      '</div>'+
+      '<div class="p-satz"><span>Supersatz</span>'+
+        '<select onchange="builderGruppe('+bi+','+si+',this.value)">'+grpOptions(grp)+'</select>'+
       '</div>'+
     '</div>';
   }
   var BLOCK_TYPES = [{v:'warmup',l:'Warm-up'},{v:'main',l:'Hauptblock'},{v:'cooldown',l:'Cool-down'}];
   function typeOpts(cur){ return BLOCK_TYPES.map(function(t){ return '<option value="'+t.v+'"'+(t.v===cur?' selected':'')+'>'+t.l+'</option>'; }).join(''); }
   function blockHtml(bi, block){
-    var slots = block.slots.map(function(s,si){ return slotHtml(bi,si,s); }).join('');
+    // Position innerhalb des Supersatzes zaehlen: A1, A2, B1 ...
+    var zaehler = {};
+    var pos = block.slots.map(function(s){
+      var g = s.group || '-';
+      if (g === '-') return 0;
+      zaehler[g] = (zaehler[g] || 0) + 1;
+      return zaehler[g];
+    });
+    var slots = '', letzte = '-';
+    block.slots.forEach(function(s, si){
+      var g = s.group || '-';
+      if (g !== '-' && g !== letzte) {
+        var wieviele = block.slots.filter(function(x){ return (x.group || '-') === g; }).length;
+        slots += '<div class="ss-kopf" style="color:' + ssFarbe(g) + '">'
+          + '<span class="pille" style="background:' + ssFarbe(g) + '">' + g + '</span>'
+          + 'Supersatz ' + g
+          + '<small>' + wieviele + (wieviele === 1 ? ' \u00dcbung \u2013 ohne Pause dazwischen'
+              : ' \u00dcbungen im Wechsel, ohne Pause dazwischen') + '</small></div>';
+      }
+      letzte = g;
+      slots += slotHtml(bi, si, s, pos[si]);
+    });
     return ''+
-    '<div class="builder-block" draggable="true" id="blk-'+bi+'"'+ ' ondragstart="blkDragStart('+bi+')" ondragover="blkDragOver(event,'+bi+')" ondrop="blkDrop(event,'+bi+')" ondragleave="blkDragLeave('+bi+')">'+ '<div class="builder-block-head">'+ '<span class="block-drag-handle" title="Verschieben">&#8801;</span>'+ '<select class="block-type-sel '+block.type+'" onchange="builderSetBlockType('+bi+',this.value)">'+typeOpts(block.type)+'</select>'+ '<div style="display:flex;align-items:center;gap:4px;">'+ '<button class="block-lib-btn" title="Vorlage laden" onclick="openBlockLib('+bi+')">&#128206; Vorlage</button>'+ '<button class="block-lib-btn" title="Block speichern" onclick="libSaveBlock('+bi+')">&#128190;</button>'+ '<button class="builder-block-x" title="Block entfernen" onclick="builderRemoveBlock('+bi+')">&times;</button>'+ '</div>'+ '</div>'+ slots+ '<div style="display:flex;gap:6px;margin-top:4px;">'+ '<button class="builder-add-slot" style="flex:1;" onclick="builderAddSlot('+bi+')">+ &Uuml;bung</button>'+ '<button class="dup-slot-btn" onclick="builderDupSlot('+bi+')">&#128257; Slot kopieren</button>'+ '</div>'+ '</div>';
+    '<div class="builder-block" draggable="true" id="blk-'+bi+'"'+ ' ondragstart="blkDragStart('+bi+')" ondragover="blkDragOver(event,'+bi+')" ondrop="blkDrop(event,'+bi+')" ondragleave="blkDragLeave('+bi+')">'+ '<div class="builder-block-head">'+ '<span class="block-drag-handle" title="Verschieben">&#8801;</span>'+ '<select class="block-type-sel '+block.type+'" onchange="builderSetBlockType('+bi+',this.value)">'+typeOpts(block.type)+'</select>'+ '<div style="display:flex;align-items:center;gap:4px;">'+ '<button class="block-lib-btn" title="Vorlage laden" onclick="openBlockLib('+bi+')">&#128206; Vorlage</button>'+ '<button class="block-lib-btn" title="Block speichern" onclick="libSaveBlock('+bi+')">&#128190;</button>'+ '<button class="builder-block-x" title="Block entfernen" onclick="builderRemoveBlock('+bi+')">&times;</button>'+ '</div>'+ '</div>'+ slots+ '<div style="display:flex;gap:6px;margin-top:4px;">'+ '<button class="builder-add-slot" style="flex:1;" onclick="builderAddSlot('+bi+')">+ &Uuml;bung</button>'+ '<button class="dup-slot-btn" onclick="builderSupersatz('+bi+')">&#128279; Supersatz</button>'+ '<button class="dup-slot-btn" onclick="builderDupSlot('+bi+')">&#128257; Slot kopieren</button>'+ '</div>'+ '</div>';
   }
   window.renderBuilder = function(){
     ensureInit();
@@ -8537,6 +8584,27 @@ function plSaveDiag() {
   };
   window.builderMetric = function(bi,si,m){
     window.BUILDER.blocks[bi].slots[si].metric = m;
+    window.renderBuilder();
+  };
+  window.builderGruppe = function(bi,si,g){
+    window.BUILDER.blocks[bi].slots[si].group = g;
+    window.renderBuilder();
+  };
+  // Fasst alle noch einzelnen Uebungen des Blocks zum naechsten freien Supersatz zusammen.
+  window.builderSupersatz = function(bi){
+    var blk = window.BUILDER.blocks[bi];
+    if(!blk) return;
+    var einzeln = blk.slots.filter(function(s){ return (s.group||'-') === '-'; });
+    if(einzeln.length < 2){
+      alert('F\u00fcr einen Supersatz braucht es mindestens zwei \u00dcbungen, die noch einzeln stehen.\n\n'
+        + 'Einzelne \u00dcbungen kannst du auch \u00fcber das Feld "Supersatz" unter jeder \u00dcbung zuordnen.');
+      return;
+    }
+    var belegt = {};
+    blk.slots.forEach(function(s){ if((s.group||'-') !== '-') belegt[s.group] = true; });
+    var frei = ['A','B','C','D','E','F'].filter(function(g){ return !belegt[g]; })[0];
+    if(!frei){ alert('Mehr als sechs Supers\u00e4tze je Block sind nicht vorgesehen.'); return; }
+    blk.slots.forEach(function(s){ if((s.group||'-') === '-') s.group = frei; });
     window.renderBuilder();
   };
   window.builderAddSlot = function(bi){ window.BUILDER.blocks[bi].slots.push(newSlot()); window.renderBuilder(); };
