@@ -890,6 +890,8 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .eh-suche{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px;}
 .eh-suche input{flex:1;min-width:220px;padding:11px 14px;border:1px solid #DCE3D6;border-radius:10px;font-family:inherit;font-size:14px;background:#fff;color:#12301F;outline:none;}
 .eh-suche input:focus{border-color:#57B84A;box-shadow:0 0 0 3px rgba(87,184,74,.16);}
+.eh-neu{flex:0 0 auto;padding:11px 16px;border:0;border-radius:10px;background:#0E6B36;color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+.eh-neu:hover{background:#1C7A3E;}
 .eh-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
 .eh-chip{padding:7px 14px;border-radius:20px;border:1px solid #DCE3D6;background:#fff;font-family:inherit;font-size:12.5px;color:#3F5145;cursor:pointer;}
 .eh-chip:hover{border-color:#57B84A;}
@@ -1790,6 +1792,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <div id="eh-uebungen" style="display:none;">
       <div class="eh-suche">
         <input type="search" id="eh-q" placeholder="&Uuml;bung suchen" autocomplete="off" oninput="ehRenderUebungen()">
+        <button class="eh-neu" onclick="unOeffnen()">+ Neue &Uuml;bung</button>
       </div>
       <div class="eh-chips" id="eh-chips"></div>
       <div class="eh-grid" id="eh-uegrid"></div>
@@ -3271,6 +3274,188 @@ function ehAnzeige(id) {
     kategorie: m.kategorie || (ehTags(id)[0] || ''),
     bild: m.image_key || id
   };
+}
+
+
+/* =====================================================================
+   NEUE UEBUNG ANLEGEN
+   Name, Kategorie und Bild in einem Schritt. Der Dateischluessel wird
+   aus Name und Kategorie gebildet und bleibt danach unveraendert, damit
+   gespeicherte Plaene die Uebung dauerhaft finden.
+   ===================================================================== */
+
+var UN_DATEI = null;   // { b64, name } eines frisch gewaehlten Bildes
+var UN_BILD  = '';     // Schluessel eines vorhandenen Bildes
+
+var UN_KATEGORIEN = ['strength', 'mobility', 'sprint', 'jump', 'agility', 'misc'];
+
+function unSlug(text) {
+  return String(text || '').toLowerCase()
+    .replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue')
+    .replace(/\u00df/g, 'ss')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+function unSchluessel(name, kategorie) {
+  var basis = unSlug(name);
+  if (!basis) return '';
+  var kat = unSlug(kategorie) || 'misc';
+  var alle = ehAlleUebungen();
+  var key = basis + '_' + kat, n = 2;
+  while (alle.indexOf(key) > -1) { key = basis + '-' + n + '_' + kat; n++; }
+  return key;
+}
+
+function unOeffnen() {
+  UN_DATEI = null;
+  UN_BILD = '';
+  peSchliessen();
+  var o = document.createElement('div');
+  o.id = 'pe-overlay';
+  o.className = 'pe-overlay';
+  o.innerHTML = '<div class="ub-dialog">'
+    + '<div class="vl-dkopf"><div><h4>Neue \u00dcbung</h4>'
+      + '<p>Name, Kategorie und Bild. Das Bild kannst du auch sp\u00e4ter nachreichen.</p></div>'
+      + '<button class="vl-x" onclick="peSchliessen()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'
+    + '<div class="ub-body">'
+      + '<div>'
+        + '<div class="ub-bild" id="un-vorschau"><div class="ub-kein">Noch kein Bild</div></div>'
+        + '<div class="ub-wahl">'
+          + '<button onclick="document.getElementById(\'un-datei\').click()">Bild hochladen</button>'
+          + '<button onclick="unGalerie()">Vorhandenes w\u00e4hlen</button>'
+        + '</div>'
+        + '<input type="file" id="un-datei" accept="image/png,image/jpeg" style="display:none;">'
+        + '<div class="ub-quelle" id="un-quelle"></div>'
+        + '<div id="un-galerie"></div>'
+      + '</div>'
+      + '<div>'
+        + '<div class="vl-feld"><label>Name</label>'
+          + '<input type="text" id="un-name" placeholder="z. B. Nordic Hamstring" style="padding-left:14px;"'
+          + ' oninput="unVorschauSchluessel()"></div>'
+        + '<div class="vl-feld"><label>Kategorie</label>'
+          + '<input type="text" id="un-kat" value="strength" list="un-katliste" style="padding-left:14px;"'
+          + ' oninput="unVorschauSchluessel()">'
+          + '<datalist id="un-katliste">'
+          + UN_KATEGORIEN.map(function(k) { return '<option value="' + k + '">'; }).join('')
+          + '</datalist></div>'
+        + '<div class="vl-feld"><label>Dateischl\u00fcssel</label>'
+          + '<input type="text" id="un-key" value="" disabled'
+          + ' style="padding-left:14px;background:#F1F4EF;color:#8B978C;"></div>'
+        + '<p style="font-size:12.5px;color:#8B978C;line-height:1.5;margin:0;">'
+          + 'Der Schl\u00fcssel entsteht aus Name und Kategorie und bleibt danach fest. '
+          + 'Name und Kategorie kannst du sp\u00e4ter jederzeit \u00e4ndern.</p>'
+      + '</div>'
+    + '</div>'
+    + '<div class="vl-fuss">'
+      + '<button class="vl-abbr" onclick="peSchliessen()">Abbrechen</button>'
+      + '<button class="vl-speichern" id="un-speichern" onclick="unSpeichern()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>\u00dcbung anlegen</button>'
+    + '</div></div>';
+  o.addEventListener('click', function(ev) { if (ev.target === o) peSchliessen(); });
+  document.body.appendChild(o);
+
+  var f = document.getElementById('un-datei');
+  f.addEventListener('change', function() {
+    var d = f.files && f.files[0];
+    if (!d) return;
+    var leser = new FileReader();
+    leser.onload = function() {
+      UN_DATEI = { b64: String(leser.result).split(',')[1], name: d.name };
+      UN_BILD = '';
+      var v = document.getElementById('un-vorschau');
+      if (v) v.innerHTML = '<img src="' + leser.result + '" alt="">';
+      var q = document.getElementById('un-quelle');
+      if (q) q.textContent = 'Neues Bild: ' + d.name;
+      var g = document.getElementById('un-galerie');
+      if (g) g.innerHTML = '';
+    };
+    leser.readAsDataURL(d);
+  });
+
+  document.getElementById('un-name').focus();
+}
+
+function unVorschauSchluessel() {
+  var k = document.getElementById('un-key');
+  if (!k) return;
+  k.value = unSchluessel(
+    (document.getElementById('un-name') || {}).value,
+    (document.getElementById('un-kat') || {}).value
+  );
+}
+
+function unGalerie() {
+  var g = document.getElementById('un-galerie');
+  if (!g) return;
+  if (g.innerHTML) { g.innerHTML = ''; return; }
+  g.innerHTML = '<div class="ub-galerie">' + EH_UEBUNGEN.map(function(x) {
+    return '<div class="ub-gz" onclick="unBildWaehlen(\'' + x + '\')">'
+      + '<img src="/exercises/' + x + '.png" alt="" loading="lazy">'
+      + '<span>' + ehName(x) + '</span></div>';
+  }).join('') + '</div>';
+}
+
+function unBildWaehlen(key) {
+  UN_BILD = key;
+  UN_DATEI = null;
+  var v = document.getElementById('un-vorschau');
+  if (v) v.innerHTML = '<img src="/exercises/' + key + '.png" alt="">';
+  var q = document.getElementById('un-quelle');
+  if (q) q.textContent = 'Bild von: ' + key;
+  var g = document.getElementById('un-galerie');
+  if (g) g.innerHTML = '';
+}
+
+function unSpeichern() {
+  var name = (document.getElementById('un-name').value || '').trim();
+  var kat  = (document.getElementById('un-kat').value || '').trim().toLowerCase();
+  if (!name) { alert('Bitte einen Namen eingeben.'); return; }
+  if (!kat) kat = 'misc';
+  var key = unSchluessel(name, kat);
+  if (!key) { alert('Aus diesem Namen l\u00e4sst sich kein Schl\u00fcssel bilden.'); return; }
+
+  var b = document.getElementById('un-speichern');
+  if (b) { b.disabled = true; b.textContent = 'Wird angelegt ...'; }
+
+  function fertig(imageKey) {
+    fetch('/api/library?collection=exercises', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ex_id: key, name: name, kategorie: kat, image_key: imageKey })
+    }).then(function(r){ return r.json(); }).then(function(res) {
+      if (res.error) throw new Error(res.error);
+      EH_META[key] = { ex_id: key, name: name, kategorie: kat, image_key: imageKey };
+      window.EX_NAMEN[key] = name;
+      if (imageKey === key && EH_UEBUNGEN.indexOf(key) === -1) EH_UEBUNGEN.push(key);
+      peSchliessen();
+      EH_KAT = '';
+      var q = document.getElementById('eh-q'); if (q) q.value = '';
+      ehChips(); ehRenderUebungen();
+    }).catch(function(e) {
+      if (b) { b.disabled = false; b.textContent = '\u00dcbung anlegen'; }
+      alert('Anlegen fehlgeschlagen: ' + (e.message || e));
+    });
+  }
+
+  if (UN_DATEI) {
+    fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: key + '.png', imageBase64: UN_DATEI.b64 })
+    }).then(function(r){ return r.json(); }).then(function(res) {
+      if (res.error) throw new Error(res.error);
+      fertig(key);
+    }).catch(function(e) {
+      if (b) { b.disabled = false; b.textContent = '\u00dcbung anlegen'; }
+      alert('Das Bild konnte nicht hochgeladen werden: ' + (e.message || e)
+        + '\n\nDie \u00dcbung wurde noch nicht angelegt.');
+    });
+    return;
+  }
+  fertig(UN_BILD || '');
 }
 
 function ubOeffnen(id) {
