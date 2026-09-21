@@ -509,6 +509,40 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .block-lib-save-row button { font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:9px; border:none; background:#1c1c1e; color:#fff; cursor:pointer; }
 .block-lib-save-row button:hover { background:#2563EB; }
 
+/* ===== Trainerkonten ===== */
+.tv-konto{margin-top:auto;padding:14px 18px;border-top:1px solid #EEF2EB;font-size:12.5px;}
+.tv-konto b{display:block;color:#12301F;font-size:13px;}
+.tv-konto small{color:#8B978C;}
+.tv-konto button{margin-top:8px;width:100%;padding:8px;border:1px solid #DCE3D6;border-radius:8px;
+  background:#fff;font-family:inherit;font-size:12.5px;color:#3F5145;cursor:pointer;}
+.tv-konto button:hover{border-color:#0E6B36;}
+.tz-liste{width:100%;border-collapse:collapse;font-size:13px;}
+.tz-liste th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+  color:#8B978C;padding:0 0 8px;border-bottom:1px solid #E4EADE;font-weight:600;}
+.tz-liste td{padding:10px 8px 10px 0;border-bottom:1px solid #EDF4EA;vertical-align:top;}
+.tz-liste tr:last-child td{border-bottom:0;}
+.tz-rolle{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.tz-voll{background:#EDF4EA;color:#0E6B36;}
+.tz-ansicht{background:#F2F2F7;color:#6B7A6E;}
+.tz-akt{background:none;border:0;color:#0E6B36;font-family:inherit;font-size:12px;
+  cursor:pointer;padding:0 8px 0 0;text-decoration:underline;}
+.tz-akt.weg{color:#D93025;}
+.tz-link{margin-top:10px;padding:12px;background:#EDF4EA;border:1px solid #C9DCC3;border-radius:10px;}
+.tz-link input{width:100%;padding:9px 11px;border:1px solid #DCE3D6;border-radius:8px;
+  font-family:inherit;font-size:12px;background:#fff;margin-top:6px;}
+
+/* Ansichtsmodus: die Bedienelemente zum Aendern verschwinden. */
+.nur-ansicht .pd-neu, .nur-ansicht .eh-neu, .nur-ansicht .tv-btn,
+.nur-ansicht .pe-wahl, .nur-ansicht .ub-tausch, .nur-ansicht .ub-loeschen,
+.nur-ansicht .vl-speichern, .nur-ansicht .tg-akt, .nur-ansicht .builder-add-slot,
+.nur-ansicht .dup-slot-btn, .nur-ansicht .builder-block-x, .nur-ansicht .builder-slot-x,
+.nur-ansicht .block-lib-btn, .nur-ansicht .p-satz, .nur-ansicht .tg-rm select,
+.nur-ansicht #add-block-btn, .nur-ansicht #btn-save-player, .nur-ansicht #btn-add-diag,
+.nur-ansicht #btn-new-player, .nur-ansicht #zg-einladen, .nur-ansicht #tr-neu,
+.nur-ansicht #ptab-zugang { display: none !important; }
+.ansicht-banner{background:#FFF4E5;border-bottom:1px solid #F5DDB8;color:#B25E02;
+  padding:9px 18px;font-size:12.5px;text-align:center;}
+
 /* ===== Supersatz im Builder sichtbar machen ===== */
 .builder-slot{position:relative;}
 .builder-slot.im-satz{border-left-width:4px;padding-left:10px;}
@@ -2416,6 +2450,38 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 
 <script>
+/* ---------------- Sitzung an jede API-Anfrage haengen ----------------
+   Statt zwei Dutzend Aufrufstellen einzeln anzufassen, wird fetch einmal
+   erweitert. Betrifft nur eigene Adressen unter /api/. Kommt 401 zurueck,
+   verlangt der Server eine Anmeldung und wir zeigen den Dialog. */
+
+(function () {
+  var echt = window.fetch;
+  window.fetch = function (ziel, opt) {
+    opt = opt || {};
+    var url = (typeof ziel === 'string') ? ziel : (ziel && ziel.url) || '';
+    var eigen = url.indexOf('/api/') === 0 || url.indexOf(location.origin + '/api/') === 0;
+    if (eigen) {
+      var t = tzSession();
+      if (t) {
+        var h = new Headers(opt.headers || (typeof ziel !== 'string' ? ziel.headers : null) || {});
+        h.set('X-Trainer-Session', t);
+        opt = Object.assign({}, opt, { headers: h });
+      }
+    }
+    return echt.call(window, ziel, opt).then(function (r) {
+      if (eigen && r.status === 401 && !TZ_ANMELDUNG_OFFEN
+          && url.indexOf('collection=trainer') === -1) {
+        TZ_ANMELDUNG_OFFEN = true;
+        setTimeout(function () { tzLoginDialog(true); }, 0);
+      }
+      return r;
+    });
+  };
+})();
+
+var TZ_ANMELDUNG_OFFEN = false;
+
 function playScreenEnter(el) {
   if (!el) return;
   el.classList.remove('screen-enter');
@@ -2596,7 +2662,8 @@ function whvSide(aktiv, mitWechsler) {
 
   return '<div class="tv-brand"><div class="tv-brand-mark">W</div>'
     + '<div class="tv-brand-txt">WHV<br>ATHLETIK</div></div>'
-    + '<nav class="tv-nav">' + nav + '</nav>' + wechsler;
+    + '<nav class="tv-nav">' + nav + '</nav>' + wechsler
+    + '<div class="tv-konto"></div>';
 }
 
 function whvSideInit() {
@@ -3340,6 +3407,312 @@ var UN_KATEGORIEN = ['strength', 'mobility', 'sprint', 'jump', 'agility', 'misc'
    an seinen Platz zurueckgesetzt. So druckt der Browser ihn im normalen
    Fluss ueber beliebig viele Seiten, statt nach der ersten abzubrechen.
    ===================================================================== */
+
+
+/* =====================================================================
+   TRAINERKONTEN
+   Zwei Rollen: 'voll' darf alles aendern, 'ansicht' sieht nur zu.
+   Solange niemand angemeldet ist, verhaelt sich die App wie bisher -
+   die Anmeldung ist bewusst noch keine Pflicht. Damit kann sich
+   niemand aussperren.
+   ===================================================================== */
+
+var TZ_ICH = null;                       // { id, name, rolle, ... } oder null
+var TZ_SCHL = 'cb_trainer_session';
+
+function tzSession() { try { return localStorage.getItem(TZ_SCHL) || ''; } catch(e) { return ''; } }
+function tzSessionSetze(t) {
+  try { t ? localStorage.setItem(TZ_SCHL, t) : localStorage.removeItem(TZ_SCHL); } catch(e) {}
+}
+
+function tzRuf(koerper) {
+  var b = Object.assign({ session: tzSession() }, koerper);
+  return fetch('/api/library?collection=trainer', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b)
+  }).then(function(r) {
+    return r.json().catch(function() { return {}; }).then(function(d) {
+      if (!r.ok) throw new Error((d && d.error) || ('Fehler ' + r.status));
+      return d;
+    });
+  });
+}
+
+function tzDatum(ts) {
+  if (!ts) return '';
+  var d = new Date(ts);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('de-DE') + ', ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+}
+
+/* ---------------- Anzeige in der Seitenleiste ---------------- */
+
+function tzKontoRender() {
+  var felder = document.querySelectorAll('.tv-konto');
+  var html;
+  if (TZ_ICH) {
+    html = '<b>' + TZ_ICH.name + '</b>'
+      + '<small>' + (TZ_ICH.rolle === 'voll' ? 'Vollzugriff' : 'Nur Ansicht') + '</small>'
+      + (TZ_ICH.rolle === 'voll' ? '<button onclick="tzVerwalten()">Zug\u00e4nge verwalten</button>' : '')
+      + '<button onclick="tzAbmelden()">Abmelden</button>';
+  } else {
+    html = '<small>Nicht angemeldet</small>'
+      + '<button onclick="tzLoginDialog()">Anmelden</button>';
+  }
+  Array.prototype.forEach.call(felder, function(f) { f.innerHTML = html; });
+  document.body.classList.toggle('nur-ansicht', !!(TZ_ICH && TZ_ICH.rolle === 'ansicht'));
+  tzBanner();
+}
+
+function tzBanner() {
+  var alt = document.getElementById('tz-banner');
+  if (alt) alt.parentNode.removeChild(alt);
+  if (!TZ_ICH || TZ_ICH.rolle !== 'ansicht') return;
+  var b = document.createElement('div');
+  b.id = 'tz-banner';
+  b.className = 'ansicht-banner';
+  b.textContent = 'Ansichtsmodus \u2013 du siehst alles, \u00c4nderungen sind ausgeblendet.';
+  document.body.insertBefore(b, document.body.firstChild);
+}
+
+/* ---------------- Anmelden ---------------- */
+
+function tzLoginDialog(erzwungen) {
+  peSchliessen();
+  var o = document.createElement('div');
+  o.id = 'pe-overlay';
+  o.className = 'pe-overlay';
+  o.innerHTML = '<div class="ub-dialog" style="max-width:400px;">'
+    + '<div class="vl-dkopf"><div><h4>Anmelden</h4>'
+      + '<p>' + (erzwungen ? 'Diese Seite verlangt eine Anmeldung.' : 'Mit deinem Trainerzugang.') + '</p></div>'
+      + (erzwungen ? '' : '<button class="vl-x" onclick="peSchliessen()">'
+        + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>')
+      + '</div>'
+    + '<div style="padding:0 28px 22px;">'
+      + '<div class="vl-feld"><label>Benutzername</label>'
+        + '<input type="text" id="tz-user" autocomplete="username" autocapitalize="off" style="padding-left:14px;"></div>'
+      + '<div class="vl-feld"><label>Passwort</label>'
+        + '<input type="password" id="tz-pw" autocomplete="current-password" style="padding-left:14px;"></div>'
+      + '<div id="tz-fehler" style="display:none;font-size:13px;color:#D93025;margin-bottom:10px;"></div>'
+    + '</div>'
+    + '<div class="vl-fuss">'
+      + (erzwungen ? '' : '<button class="vl-abbr" onclick="peSchliessen()">Abbrechen</button>')
+      + '<button class="vl-speichern" id="tz-ok" onclick="tzAnmelden()">Anmelden</button>'
+    + '</div></div>';
+  o.addEventListener('click', function(ev) { if (ev.target === o) peSchliessen(); });
+  document.body.appendChild(o);
+  ['tz-user','tz-pw'].forEach(function(id) {
+    var n = document.getElementById(id);
+    if (n) n.addEventListener('keydown', function(ev) { if (ev.key === 'Enter') tzAnmelden(); });
+  });
+  document.getElementById('tz-user').focus();
+}
+
+function tzAnmelden() {
+  var u = (document.getElementById('tz-user').value || '').trim();
+  var p = document.getElementById('tz-pw').value || '';
+  var f = document.getElementById('tz-fehler');
+  function zeige(t) { if (f) { f.textContent = t; f.style.display = 'block'; } }
+  if (!u || !p) { zeige('Bitte beides ausf\u00fcllen.'); return; }
+  var b = document.getElementById('tz-ok');
+  if (b) b.disabled = true;
+  tzRuf({ aktion: 'login', username: u, passwort: p }).then(function(d) {
+    tzSessionSetze(d.session);
+    TZ_ICH = d.trainer;
+    TZ_ANMELDUNG_OFFEN = false;
+    peSchliessen();
+    tzKontoRender();
+    location.reload();
+  }).catch(function(e) {
+    if (b) b.disabled = false;
+    zeige(e.message);
+  });
+}
+
+function tzAbmelden() {
+  var t = tzSession();
+  tzSessionSetze('');
+  TZ_ICH = null;
+  tzKontoRender();
+  if (t) tzRuf({ aktion: 'logout', session: t }).catch(function(){});
+}
+
+/* ---------------- Einladung annehmen ---------------- */
+
+function tzEinladung(token) {
+  tzRuf({ aktion: 'pruefe', token: token }).then(function(d) {
+    peSchliessen();
+    var o = document.createElement('div');
+    o.id = 'pe-overlay';
+    o.className = 'pe-overlay';
+    o.innerHTML = '<div class="ub-dialog" style="max-width:420px;">'
+      + '<div class="vl-dkopf"><div><h4>Zugang einrichten</h4>'
+        + '<p>Hallo ' + d.name + '. W\u00e4hle ein Passwort.</p></div></div>'
+      + '<div style="padding:0 28px 22px;">'
+        + '<div class="vl-feld"><label>Benutzername</label>'
+          + '<input type="text" value="' + d.username + '" disabled style="padding-left:14px;background:#F1F4EF;color:#8B978C;"></div>'
+        + '<div class="vl-feld"><label>Passwort, mindestens 8 Zeichen</label>'
+          + '<input type="password" id="tz-np" autocomplete="new-password" style="padding-left:14px;"></div>'
+        + '<div class="vl-feld"><label>Wiederholen</label>'
+          + '<input type="password" id="tz-np2" autocomplete="new-password" style="padding-left:14px;"></div>'
+        + '<div id="tz-nfehler" style="display:none;font-size:13px;color:#D93025;"></div>'
+        + '<p style="font-size:12.5px;color:#8B978C;margin:0;">Rolle: '
+          + (d.rolle === 'voll' ? 'Vollzugriff' : 'Nur Ansicht') + '</p>'
+      + '</div>'
+      + '<div class="vl-fuss">'
+        + '<button class="vl-speichern" id="tz-nok" onclick="tzPasswortSetzen(\'' + token + '\')">Speichern</button>'
+      + '</div></div>';
+    document.body.appendChild(o);
+    document.getElementById('tz-np').focus();
+  }).catch(function(e) {
+    alert('Der Einladungslink funktioniert nicht: ' + e.message);
+    history.replaceState(null, '', '/');
+  });
+}
+
+function tzPasswortSetzen(token) {
+  var a = document.getElementById('tz-np').value || '';
+  var b2 = document.getElementById('tz-np2').value || '';
+  var f = document.getElementById('tz-nfehler');
+  function zeige(t) { if (f) { f.textContent = t; f.style.display = 'block'; } }
+  if (a.length < 8) { zeige('Mindestens 8 Zeichen.'); return; }
+  if (a !== b2) { zeige('Die beiden Eingaben sind nicht gleich.'); return; }
+  var k = document.getElementById('tz-nok');
+  if (k) k.disabled = true;
+  tzRuf({ aktion: 'setzen', token: token, passwort: a }).then(function(d) {
+    tzSessionSetze(d.session);
+    history.replaceState(null, '', '/');
+    peSchliessen();
+    return tzRuf({ aktion: 'session' });
+  }).then(function(d) {
+    TZ_ICH = d.trainer;
+    tzKontoRender();
+    alert('Zugang eingerichtet. Du bist angemeldet.');
+  }).catch(function(e) {
+    if (k) k.disabled = false;
+    zeige(e.message);
+  });
+}
+
+/* ---------------- Zugaenge verwalten ---------------- */
+
+function tzVerwalten() {
+  peSchliessen();
+  var o = document.createElement('div');
+  o.id = 'pe-overlay';
+  o.className = 'pe-overlay';
+  o.innerHTML = '<div class="ub-dialog">'
+    + '<div class="vl-dkopf"><div><h4>Zug\u00e4nge</h4>'
+      + '<p>Landestrainer und ihre Rechte.</p></div>'
+      + '<button class="vl-x" onclick="peSchliessen()">'
+      + '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'
+    + '<div style="padding:0 28px 22px;overflow-y:auto;"><div id="tz-inhalt">Wird geladen&hellip;</div></div>'
+    + '<div class="vl-fuss">'
+      + '<button class="vl-speichern" onclick="tzNeuDialog()">+ Trainer anlegen</button>'
+    + '</div></div>';
+  o.addEventListener('click', function(ev) { if (ev.target === o) peSchliessen(); });
+  document.body.appendChild(o);
+  tzListe();
+}
+
+function tzListe() {
+  var box = document.getElementById('tz-inhalt');
+  if (!box) return;
+  tzRuf({ aktion: 'liste' }).then(function(d) {
+    var items = d.items || [];
+    if (!items.length) {
+      box.innerHTML = '<p style="font-size:13px;color:#8e8e93;padding:12px 0;">'
+        + 'Noch kein Zugang angelegt.</p>';
+      return;
+    }
+    var html = '<table class="tz-liste"><thead><tr>'
+      + '<th>Name</th><th>Benutzername</th><th>Rolle</th><th>Stand</th><th></th></tr></thead><tbody>';
+    items.forEach(function(t) {
+      var stand = t.status === 'aktiv' ? 'Aktiv'
+        : t.status === 'gesperrt' ? 'Gesperrt'
+        : t.invite_offen ? 'Eingeladen' : 'Einladung abgelaufen';
+      html += '<tr><td><b>' + t.name + '</b></td>'
+        + '<td style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;">' + (t.username || '-') + '</td>'
+        + '<td><span class="tz-rolle ' + (t.rolle === 'voll' ? 'tz-voll">Vollzugriff' : 'tz-ansicht">Nur Ansicht') + '</span></td>'
+        + '<td style="font-size:12px;color:#8e8e93;">' + stand
+        + (t.last_login ? '<br>zuletzt ' + tzDatum(t.last_login) : '') + '</td>'
+        + '<td style="white-space:nowrap;">'
+        +   '<button class="tz-akt" onclick="tzRolle(\'' + t.id + '\',\'' + (t.rolle === 'voll' ? 'ansicht' : 'voll') + '\')">'
+        +     (t.rolle === 'voll' ? 'auf Ansicht' : 'auf Vollzugriff') + '</button>'
+        +   '<button class="tz-akt" onclick="tzNeuerLink(\'' + t.id + '\')">neuer Link</button>'
+        +   '<button class="tz-akt weg" onclick="tzStatus(\'' + t.id + '\',\''
+        +     (t.status === 'gesperrt' ? 'entsperren' : 'sperren') + '\')">'
+        +     (t.status === 'gesperrt' ? 'freigeben' : 'sperren') + '</button>'
+        + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    if (d.einrichtung) {
+      html += '<p style="font-size:12.5px;color:#B25E02;background:#FFF4E5;border:1px solid #F5DDB8;'
+        + 'border-radius:9px;padding:11px 13px;margin-top:14px;">'
+        + 'Noch ist kein Zugang aktiv. Solange das so ist, kann jeder diese Liste bearbeiten. '
+        + 'Sobald du deinen eigenen Zugang eingerichtet hast, geht das nur noch mit Vollzugriff.</p>';
+    }
+    box.innerHTML = html;
+  }).catch(function(e) {
+    box.innerHTML = '<p style="font-size:13px;color:#D93025;padding:12px 0;">' + e.message + '</p>';
+  });
+}
+
+function tzNeuDialog() {
+  var name = prompt('Vor- und Nachname des Trainers:');
+  if (!name || !name.trim()) return;
+  var voll = confirm('Soll ' + name.trim() + ' Daten \u00e4ndern d\u00fcrfen?\n\n'
+    + 'OK = Vollzugriff (Athletiktrainer)\nAbbrechen = nur Ansicht (Hockeytrainer)');
+  tzRuf({ aktion: 'anlegen', name: name.trim(), rolle: voll ? 'voll' : 'ansicht' })
+    .then(function(d) { tzZeigeLink(name.trim(), d); tzListe(); })
+    .catch(function(e) { alert(e.message); });
+}
+
+function tzNeuerLink(id) {
+  tzRuf({ aktion: 'einladen', id: id })
+    .then(function(d) { tzZeigeLink(d.username, d); tzListe(); })
+    .catch(function(e) { alert(e.message); });
+}
+
+function tzZeigeLink(wer, d) {
+  var box = document.getElementById('tz-inhalt');
+  if (!box) { prompt('Einladungslink fuer ' + wer + ':', d.link); return; }
+  var kasten = document.createElement('div');
+  kasten.className = 'tz-link';
+  kasten.innerHTML = '<div style="font-size:12px;color:#0E6B36;font-weight:600;">'
+    + 'Einladungslink f\u00fcr ' + wer + ' \u00b7 gilt 48 Stunden</div>'
+    + '<input type="text" readonly value="' + d.link + '" onclick="this.select()">'
+    + '<div style="font-size:11.5px;color:#6B7A6E;margin-top:6px;">'
+    + 'Nur jetzt sichtbar. Anklicken markiert ihn zum Kopieren.</div>';
+  box.parentNode.insertBefore(kasten, box);
+}
+
+function tzRolle(id, neu) {
+  tzRuf({ aktion: 'rolle', id: id, rolle: neu })
+    .then(tzListe).catch(function(e) { alert(e.message); });
+}
+
+function tzStatus(id, was) {
+  tzRuf({ aktion: was, id: id })
+    .then(tzListe).catch(function(e) { alert(e.message); });
+}
+
+
+
+/* ---------------- Start ---------------- */
+
+function tzInit() {
+  var m = String(location.search || '').match(/[?&]trainer=([^&]+)/);
+  if (m) { tzEinladung(decodeURIComponent(m[1])); return; }
+  if (!tzSession()) { tzKontoRender(); return; }
+  tzRuf({ aktion: 'session' }).then(function(d) {
+    TZ_ICH = d.trainer;
+    tzKontoRender();
+  }).catch(function() {
+    tzSessionSetze('');
+    TZ_ICH = null;
+    tzKontoRender();
+  });
+}
 
 function planDrucken() {
   var w = document.getElementById('plan-wrapper');
@@ -7787,6 +8160,7 @@ function onId(id, ev, fn) {
 
 document.addEventListener('DOMContentLoaded', function() {
   whvSideInit();
+  if (window.tzInit) tzInit();
   if (window.exNamenLaden) exNamenLaden();
   // Back buttons
   onId('btn-back-list', 'click', function() { plShowList(); });
