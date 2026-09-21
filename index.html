@@ -2348,9 +2348,12 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     </div>
 
     <div class="dg-aktionen">
-      <button id="btn-diag-import" class="dg-btn dg-btn-p"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M7 12l5-5 5 5"/><path d="M4 3h16"/></svg> Diagnostik importieren</button>
-      <button id="btn-diag-template" class="dg-btn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 12l5 5 5-5"/><path d="M4 21h16"/></svg> Vorlage herunterladen</button>
+      <button id="btn-diag-import" class="dg-btn dg-btn-p"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M7 12l5-5 5 5"/><path d="M4 3h16"/></svg> Leistung importieren</button>
+      <button id="btn-diag-template" class="dg-btn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 12l5 5 5-5"/><path d="M4 21h16"/></svg> Vorlage Leistung</button>
       <input type="file" id="diag-import-file" accept=".xlsx,.xls" style="display:none;">
+      <button id="btn-praev-import" class="dg-btn dg-btn-p"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M7 12l5-5 5 5"/><path d="M4 3h16"/></svg> Pr&auml;vention importieren</button>
+      <button id="btn-praev-template" class="dg-btn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 12l5 5 5-5"/><path d="M4 21h16"/></svg> Vorlage Pr&auml;vention</button>
+      <input type="file" id="praev-import-file" accept=".xlsx,.xls" style="display:none;">
       <button id="btn-prio-chunk" class="dg-btn dg-btn-w"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6.1L12 16.9 6.7 19.7l1.1-6.1L3.4 9.4l6-.8z"/></svg> Prio-Chunk laden</button>
     </div>
 
@@ -8216,7 +8219,7 @@ document.addEventListener('DOMContentLoaded', function() {
   onId('sex-w', 'click', function(){ plSetSex('w'); });
   onId('pl-filter-team', 'change', function() { plFilterChanged('team', this.value); });
   onId('dg-filter-team', 'change', function() { plFilterChanged('team', this.value); });
-  onId('btn-diag-template', 'click', function() { downloadDiagTemplate(); });
+  onId('btn-diag-template', 'click', function() { vlOeffnen('leistung'); });
   onId('btn-prio-chunk', 'click', function() { loadPrioChunk(); });
   onId('btn-back-diagnostik', 'click', function() { goTo('home'); });
   onId('btn-diag-import', 'click', function() {
@@ -8226,6 +8229,15 @@ document.addEventListener('DOMContentLoaded', function() {
     var file = e.target.files[0];
     e.target.value = '';
     if (file) diagImportFile(file);
+  });
+  onId('btn-praev-template', 'click', function() { vlOeffnen('praevention'); });
+  onId('btn-praev-import', 'click', function() {
+    document.getElementById('praev-import-file').click();
+  });
+  onId('praev-import-file', 'change', function(e) {
+    var file = e.target.files[0];
+    e.target.value = '';
+    if (file) praevImportFile(file);
   });
   onId('btn-new-player-2', 'click', function() { plShowModal(); });
 
@@ -8421,44 +8433,28 @@ function diagBestValue(v1, v2, better) {
 }
 
 function diagImportFile(file) {
-  if (window.showLoader) showLoader('Lese Excel-Datei...');
-  loadXlsxJs().then(function() {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        var data = new Uint8Array(e.target.result);
-        var wb = XLSX.read(data, { type: 'array', cellDates: true });
-        var ws = wb.Sheets[wb.SheetNames[0]];
-        var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
-        diagParseRows(rows);
-      } catch (err) {
-        if (window.hideLoader) hideLoader();
-        alert('Fehler beim Lesen der Excel-Datei: ' + err.message);
-      }
-    };
-    reader.onerror = function() {
-      if (window.hideLoader) hideLoader();
-      alert('Datei konnte nicht gelesen werden.');
-    };
-    reader.readAsArrayBuffer(file);
-  }).catch(function(e) {
-    if (window.hideLoader) hideLoader();
-    alert('Fehler: ' + e.message);
-  });
+  impDateiLesen(file, diagParseRows);
 }
 
 function diagParseRows(rows) {
-  if (window.hideLoader) hideLoader();
+  var el = document.getElementById('diag-overview');
+  PRAEV_IMPORT_ROWS = [];
+  var kopfFehler = impKopfPruefen(rows[0] || [], DIAG_HEADERS);
+  if (kopfFehler.length) {
+    DIAG_IMPORT_ROWS = [];
+    el.innerHTML = impKopfFehlerHtml(kopfFehler, 'Leistung');
+    return;
+  }
   var out = [];
   for (var i = 1; i < rows.length; i++) {
     var row = rows[i];
     if (!row) continue;
-    var fn = (row[1] || '').toString().trim();
-    var ln = (row[2] || '').toString().trim();
+    var fn = (row[1] === null || row[1] === undefined ? '' : String(row[1])).trim();
+    var ln = (row[2] === null || row[2] === undefined ? '' : String(row[2])).trim();
     if (!fn && !ln) continue;
     var date = diagFmtDate(row[0]);
     var entry = { date: date };
-    var idx = 3;
+    var idx = 3, anzahl = 0;
     for (var j = 0; j < DIAG_FIELDS.length; j++) {
       var f = DIAG_FIELDS[j];
       var best;
@@ -8469,12 +8465,15 @@ function diagParseRows(rows) {
         best = diagBestValue(row[idx], undefined, f.better);
         idx += 1;
       }
-      if (best !== null) entry[f.key] = best;
+      if (best !== null) { entry[f.key] = best; anzahl++; }
     }
-    var match = PL.find(function(p) {
-      return (p.fn || '').trim().toLowerCase() === fn.toLowerCase() && (p.ln || '').trim().toLowerCase() === ln.toLowerCase();
+    if (anzahl === 0) continue;
+    var tr = impFinde(fn, ln);
+    IMP_SEL_NR++;
+    out.push({
+      fn: fn, ln: ln, date: date, entry: entry, anzahl: anzahl,
+      player: tr.player, vorschlag: tr.vorschlag, feldId: 'imp-sel-' + IMP_SEL_NR
     });
-    out.push({ fn: fn, ln: ln, date: date, entry: entry, player: match || null, isNew: !match });
   }
   DIAG_IMPORT_ROWS = out;
   diagRenderPreview();
@@ -8490,37 +8489,35 @@ function diagFieldLabel(key) {
 function diagRenderPreview() {
   var el = document.getElementById('diag-overview');
   if (DIAG_IMPORT_ROWS.length === 0) {
-    el.innerHTML = '<p style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.5);font-size:13px;">Keine gueltigen Zeilen in der Datei gefunden. Bitte Vorlage verwenden.</p>';
+    el.innerHTML = '<div style="background:#fff;border-radius:16px;border:1px solid #DCE3D6;padding:20px;text-align:center;color:#5A6B5F;font-size:13px;">Die Kopfzeile stimmt, aber es stehen keine Werte in der Datei.</div>';
     return;
   }
-  var newPlayers = DIAG_IMPORT_ROWS.filter(function(r) { return r.isNew; });
-  var html = '<div style="background:#fff;border-radius:16px;border:0.5px solid #e5e5ea;padding:20px;">';
-  html += '<h3 style="font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:8px;">Vorschau: ' + DIAG_IMPORT_ROWS.length + ' Zeilen erkannt</h3>';
-  if (newPlayers.length > 0) {
-    html += '<p style="font-size:13px;color:#8e8e93;margin-bottom:12px;">' + newPlayers.length + ' neue Spieler werden automatisch angelegt: ' + newPlayers.map(function(r) { return r.fn + ' ' + r.ln; }).join(', ') + '</p>';
-  } else {
-    html += '<p style="font-size:13px;color:#8e8e93;margin-bottom:12px;">Alle Spieler sind bereits angelegt.</p>';
-  }
-  html += '<div style="overflow-x:auto;">';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
-  html += '<tr style="text-align:left;color:#8e8e93;border-bottom:0.5px solid #e5e5ea;"><th style="padding:6px 8px;">Datum</th><th style="padding:6px 8px;">Name</th><th style="padding:6px 8px;">Status</th><th style="padding:6px 8px;">Werte</th></tr>';
-  DIAG_IMPORT_ROWS.forEach(function(r) {
+  var offen = DIAG_IMPORT_ROWS.filter(function (r) { return !r.player; }).length;
+  var html = '<div style="background:#fff;border-radius:16px;border:1px solid #DCE3D6;padding:20px;">';
+  html += '<h3 style="font-size:16px;font-weight:600;color:#12301F;margin-bottom:6px;">Leistung: ' + DIAG_IMPORT_ROWS.length + ' Zeilen gelesen</h3>';
+  html += offen > 0
+    ? '<p style="font-size:13px;color:#B26B00;margin-bottom:14px;">' + offen + ' Zeilen konnten keinem Spieler zugeordnet werden. Bitte unten entscheiden - nichts wird von allein angelegt.</p>'
+    : '<p style="font-size:13px;color:#5A6B5F;margin-bottom:14px;">Alle Zeilen sind einem Spieler im Kader zugeordnet.</p>';
+  html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">';
+  html += '<tr style="text-align:left;color:#8B978C;border-bottom:1px solid #DCE3D6;"><th style="padding:6px 8px;">Datum</th><th style="padding:6px 8px;">Name aus Datei</th><th style="padding:6px 8px;">Zuordnung</th><th style="padding:6px 8px;">Werte</th></tr>';
+  DIAG_IMPORT_ROWS.forEach(function (r) {
     var parts = [];
-    Object.keys(r.entry).forEach(function(k) {
+    Object.keys(r.entry).forEach(function (k) {
       if (k === 'date') return;
       parts.push(diagFieldLabel(k) + ': ' + r.entry[k]);
     });
-    html += '<tr style="border-bottom:0.5px solid #f2f2f7;">';
-    html += '<td style="padding:6px 8px;color:#1c1c1e;white-space:nowrap;">' + r.date + '</td>';
-    html += '<td style="padding:6px 8px;color:#1c1c1e;font-weight:500;white-space:nowrap;">' + r.fn + ' ' + r.ln + '</td>';
-    html += '<td style="padding:6px 8px;white-space:nowrap;">' + (r.isNew ? '<span style="color:#ff9500;font-weight:600;">Neu</span>' : '<span style="color:#34c759;">Bekannt</span>') + '</td>';
-    html += '<td style="padding:6px 8px;color:#8e8e93;">' + (parts.length ? parts.join(', ') : '-') + '</td>';
+    html += '<tr style="border-bottom:1px solid #F0F3EE;vertical-align:top;">';
+    html += '<td style="padding:7px 8px;color:#12301F;white-space:nowrap;">' + r.date + '</td>';
+    html += '<td style="padding:7px 8px;color:#12301F;font-weight:500;white-space:nowrap;">' + r.fn + ' ' + r.ln + '</td>';
+    html += '<td style="padding:7px 8px;">' + impZeileStatusHtml(r, r.feldId) + '</td>';
+    html += '<td style="padding:7px 8px;color:#5A6B5F;">' + (parts.length ? parts.join(', ') : '-') + '</td>';
     html += '</tr>';
   });
   html += '</table></div>';
-  html += '<div style="display:flex;gap:10px;margin-top:16px;">';
-  html += '<button id="btn-diag-cancel-import" style="flex:1;padding:12px;border:0.5px solid #e5e5ea;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>';
-  html += '<button id="btn-diag-confirm-import" style="flex:2;padding:12px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Import bestaetigen (' + DIAG_IMPORT_ROWS.length + ' Spieler)</button>';
+  html += '<p style="font-size:11.5px;color:#8B978C;margin-top:12px;">Bei zwei Versuchen wird automatisch der bessere Wert uebernommen.</p>';
+  html += '<div style="display:flex;gap:10px;margin-top:12px;">';
+  html += '<button id="btn-diag-cancel-import" style="flex:1;padding:12px;border:1px solid #DCE3D6;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>';
+  html += '<button id="btn-diag-confirm-import" style="flex:2;padding:12px;background:#0E6B36;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Import bestaetigen</button>';
   html += '</div></div>';
   el.innerHTML = html;
   document.getElementById('btn-diag-cancel-import').addEventListener('click', diagCancelImport);
@@ -8533,33 +8530,28 @@ function diagCancelImport() {
 }
 
 function diagConfirmImport() {
-  if (window.showLoader) showLoader('Importiere Diagnostikdaten...');
-  var affected = [];
-  DIAG_IMPORT_ROWS.forEach(function(r) {
+  var zeilen = impAufloesen(DIAG_IMPORT_ROWS);
+  if (zeilen.length === 0) {
+    alert('Keine Zeile ist zum Import ausgewaehlt.');
+    return;
+  }
+  if (window.showLoader) showLoader('Importiere Leistungsdaten...');
+  var betroffen = [], neue = 0;
+  zeilen.forEach(function (r) {
     var p = r.player;
-    if (!p) {
-      p = { id: Date.now().toString() + '_' + Math.random().toString(36).slice(2, 7), fn: r.fn, ln: r.ln, dob: '', pos: 'Feldspieler', club: PL_FILTER_CLUB || '', team: PL_FILTER_TEAM || '', diag: [], notes: '' };
-      PL.push(p);
-    }
+    if (!p) { p = impNeuerSpieler(r.fn, r.ln); PL.push(p); neue++; }
     if (!p.diag) p.diag = [];
-    p.diag.unshift(r.entry);
-    affected.push(p);
+    p.diag = p.diag.filter(function (x) { return x.date !== r.entry.date; });
+    p.diag.unshift(JSON.parse(JSON.stringify(r.entry)));
+    p.diag.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    if (betroffen.indexOf(p) === -1) betroffen.push(p);
   });
-  plSave();
-  fetch('/api/players', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ players: affected })
-  }).then(function(r) { return r.json(); }).then(function() {
-    if (window.hideLoader) hideLoader();
-    var n = DIAG_IMPORT_ROWS.length;
-    DIAG_IMPORT_ROWS = [];
-    document.getElementById('diag-overview').innerHTML = '<div style="text-align:center;padding:24px 0;color:#fff;font-size:14px;font-weight:600;">Import erfolgreich: ' + affected.length + ' Spieler aktualisiert (' + n + ' Eintraege).</div>';
-    diagRenderTeamOverview();
-  }).catch(function(e) {
-    if (window.hideLoader) hideLoader();
-    alert('Fehler beim Speichern: ' + e.message);
-  });
+  var uebersprungen = DIAG_IMPORT_ROWS.length - zeilen.length;
+  var text = 'Leistung importiert: ' + zeilen.length + ' Eintraege fuer ' + betroffen.length + ' Spieler.'
+    + (neue ? ' ' + neue + ' Spieler neu angelegt.' : '')
+    + (uebersprungen ? ' ' + uebersprungen + ' Zeilen uebersprungen.' : '');
+  DIAG_IMPORT_ROWS = [];
+  impSpeichern(betroffen, text, function () { diagRenderTeamOverview(); });
 }
 
 function loadPrioChunk() {
@@ -8637,35 +8629,577 @@ function dosbImport() {
   });
 }
 
-function downloadDiagTemplate() {
+function downloadDiagTemplate(spieler, datum, dateiName) {
+  var breiten = [{ wch: 11 }, { wch: 14 }, { wch: 14 }];
+  DIAG_FIELDS.forEach(function (f) { for (var i = 0; i < f.attempts; i++) breiten.push({ wch: 14 }); });
+  impVorlageSchreiben(
+    DIAG_HEADERS,
+    function (p, heute) {
+      var zeile = [heute, p.fn || '', p.ln || ''];
+      DIAG_FIELDS.forEach(function (f) { for (var i = 0; i < f.attempts; i++) zeile.push(''); });
+      return zeile;
+    },
+    'Diagnostik', dateiName || 'Leistung_Vorlage.xlsx', breiten, spieler, datum
+  );
+}
+
+/* ============================================================
+   Gemeinsame Import-Helfer fuer Leistungs- und Praeventionsdiagnostik
+   ============================================================ */
+
+var IMP_SEL_NR = 0;
+
+function impNorm(s) {
+  var t = (s === null || s === undefined) ? '' : String(s);
+  t = t.toLowerCase().trim().replace(/\s+/g, ' ');
+  // Umlaute nach deutscher Schreibweise, damit Mueller und M\u00fcller zusammenfinden
+  t = t.replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue').replace(/\u00df/g, 'ss');
+  if (t.normalize) t = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return t.replace(/[^a-z0-9 ]/g, '');
+}
+
+function impDistanz(a, b) {
+  if (a === b) return 0;
+  var m = a.length, n = b.length, i, j;
+  if (!m) return n;
+  if (!n) return m;
+  var vor = [], akt = [];
+  for (j = 0; j <= n; j++) vor[j] = j;
+  for (i = 1; i <= m; i++) {
+    akt[0] = i;
+    for (j = 1; j <= n; j++) {
+      var kosten = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+      akt[j] = Math.min(akt[j - 1] + 1, vor[j] + 1, vor[j - 1] + kosten);
+    }
+    for (j = 0; j <= n; j++) vor[j] = akt[j];
+  }
+  return vor[n];
+}
+
+/* Sucht den Spieler zu einem Namen aus der Excel-Zeile.
+   Exakter Treffer gewinnt. Sonst wird der aehnlichste Name
+   als Vorschlag zurueckgegeben - angelegt wird nie automatisch. */
+function impFinde(fn, ln) {
+  var ziel = impNorm(fn + ' ' + ln);
+  var treffer = null, bester = null, besteD = 999;
+  PL.forEach(function (p) {
+    var vor = impNorm((p.fn || '') + ' ' + (p.ln || ''));
+    if (vor === ziel) { treffer = p; return; }
+    var d = impDistanz(vor, ziel);
+    var d2 = impDistanz(impNorm((p.ln || '') + ' ' + (p.fn || '')), ziel);
+    if (d2 < d) d = d2;
+    if (d < besteD) { besteD = d; bester = p; }
+  });
+  if (treffer) return { player: treffer, exakt: true, vorschlag: null, dist: 0 };
+  var grenze = Math.max(1, Math.floor(ziel.length / 4));
+  return { player: null, exakt: false, vorschlag: (bester && besteD <= grenze) ? bester : null, dist: besteD };
+}
+
+/* Vergleicht die Kopfzeile der Datei mit der erwarteten Vorlage.
+   Gibt eine Liste der Abweichungen zurueck, leer heisst alles gut. */
+function impKopfPruefen(kopf, erwartet) {
+  var fehler = [];
+  for (var i = 0; i < erwartet.length; i++) {
+    var istRoh = (kopf && kopf[i] !== undefined && kopf[i] !== null) ? String(kopf[i]) : '';
+    if (impNorm(istRoh) !== impNorm(erwartet[i])) {
+      fehler.push('Spalte ' + (i + 1) + ': erwartet "' + erwartet[i] + '", gefunden "' + (istRoh.trim() || '(leer)') + '"');
+    }
+  }
+  return fehler;
+}
+
+function impKopfFehlerHtml(fehler, welche) {
+  var html = '<div style="background:#fff;border-radius:16px;border:1px solid #F5C6C6;padding:20px;">';
+  html += '<h3 style="font-size:16px;font-weight:600;color:#B00020;margin-bottom:8px;">Die Spalten der Datei passen nicht zur Vorlage</h3>';
+  html += '<p style="font-size:13px;color:#5A6B5F;margin-bottom:12px;">Es wurde nichts importiert. Waere die Datei so eingelesen worden, waeren Werte im falschen Test gelandet. Bitte die aktuelle Vorlage ' + welche + ' herunterladen und die Kopfzeile nicht veraendern.</p>';
+  html += '<ul style="font-size:12.5px;color:#5A6B5F;margin:0 0 4px 18px;">';
+  fehler.slice(0, 8).forEach(function (f) { html += '<li style="margin-bottom:3px;">' + f + '</li>'; });
+  if (fehler.length > 8) html += '<li>... und ' + (fehler.length - 8) + ' weitere</li>';
+  html += '</ul></div>';
+  return html;
+}
+
+/* Auswahlfeld fuer eine Zeile ohne exakten Treffer. */
+function impZuordnungHtml(feldId, r) {
+  var sortiert = PL.slice().sort(function (a, b) {
+    var la = (a.ln || '').toLowerCase(), lb = (b.ln || '').toLowerCase();
+    if (la < lb) return -1;
+    if (la > lb) return 1;
+    return (a.fn || '').toLowerCase().localeCompare((b.fn || '').toLowerCase());
+  });
+  var vorId = r.vorschlag ? r.vorschlag.id : '';
+  var html = '<select id="' + feldId + '" style="max-width:220px;padding:5px 8px;border:1px solid #DCE3D6;border-radius:8px;font-family:inherit;font-size:12px;background:#fff;">';
+  html += '<option value="skip"' + (vorId ? '' : ' selected') + '>Nicht importieren</option>';
+  sortiert.forEach(function (p) {
+    var sel = (p.id === vorId) ? ' selected' : '';
+    html += '<option value="' + p.id + '"' + sel + '>' + p.fn + ' ' + p.ln + (p.team ? ' (' + p.team + ')' : '') + '</option>';
+  });
+  html += '<option value="neu">Als neuen Spieler anlegen</option>';
+  html += '</select>';
+  return html;
+}
+
+function impZeileStatusHtml(r, feldId) {
+  if (r.player) {
+    return '<span style="color:#0E6B36;font-weight:600;">Zugeordnet</span>';
+  }
+  var hinweis = r.vorschlag
+    ? '<div style="font-size:11px;color:#B26B00;margin-bottom:4px;">Kein exakter Treffer. Meinst du <b>' + r.vorschlag.fn + ' ' + r.vorschlag.ln + '</b>?</div>'
+    : '<div style="font-size:11px;color:#B00020;margin-bottom:4px;">Kein Treffer im Kader.</div>';
+  return hinweis + impZuordnungHtml(feldId, r);
+}
+
+/* Liest die Auswahlfelder aus und legt r.player fest.
+   Gibt die Zeilen zurueck, die wirklich importiert werden. */
+function impAufloesen(zeilen) {
+  var fertig = [];
+  zeilen.forEach(function (r) {
+    if (r.player) { fertig.push(r); return; }
+    var el = r.feldId ? document.getElementById(r.feldId) : null;
+    var wahl = el ? el.value : 'skip';
+    if (wahl === 'skip') return;
+    if (wahl === 'neu') { r.neu = true; fertig.push(r); return; }
+    var p = PL.find(function (x) { return x.id === wahl; });
+    if (p) { r.player = p; fertig.push(r); }
+  });
+  return fertig;
+}
+
+function impNeuerSpieler(fn, ln) {
+  return {
+    id: Date.now().toString() + '_' + Math.random().toString(36).slice(2, 7),
+    fn: fn, ln: ln, dob: '', pos: 'Feldspieler',
+    club: PL_FILTER_CLUB || '', team: PL_FILTER_TEAM || '',
+    diag: [], praevention: [], notes: ''
+  };
+}
+
+function impSpeichern(betroffen, text, danach) {
+  plSave();
+  fetch('/api/players', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ players: betroffen })
+  }).then(function (r) { return r.json(); }).then(function (d) {
+    if (window.hideLoader) hideLoader();
+    if (d && d.error) { alert('Fehler beim Speichern: ' + d.error); return; }
+    var el = document.getElementById('diag-overview');
+    if (el) el.innerHTML = '<div style="background:#fff;border-radius:16px;border:1px solid #DCE3D6;padding:20px;text-align:center;color:#0E6B36;font-size:14px;font-weight:600;">' + text + '</div>';
+    if (danach) danach();
+  }).catch(function (e) {
+    if (window.hideLoader) hideLoader();
+    alert('Fehler beim Speichern: ' + e.message);
+  });
+}
+
+function impDateiLesen(file, weiter) {
+  if (window.showLoader) showLoader('Lese Excel-Datei...');
+  loadXlsxJs().then(function () {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        var data = new Uint8Array(e.target.result);
+        var wb = XLSX.read(data, { type: 'array', cellDates: true });
+        var ws = wb.Sheets[wb.SheetNames[0]];
+        var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
+        if (window.hideLoader) hideLoader();
+        weiter(rows);
+      } catch (err) {
+        if (window.hideLoader) hideLoader();
+        alert('Fehler beim Lesen der Excel-Datei: ' + err.message);
+      }
+    };
+    reader.onerror = function () {
+      if (window.hideLoader) hideLoader();
+      alert('Datei konnte nicht gelesen werden.');
+    };
+    reader.readAsArrayBuffer(file);
+  }).catch(function (e) {
+    if (window.hideLoader) hideLoader();
+    alert('Fehler: ' + e.message);
+  });
+}
+
+function impVorlageSchreiben(headers, zeilenFuellung, blattName, dateiName, breiten, spieler, datum) {
   if (window.showLoader) showLoader('Vorlage wird erstellt...');
-  loadXlsxJs().then(function() {
-    var rows = [DIAG_HEADERS];
-    var sorted = plFilteredList().slice().sort(function(a, b) {
+  loadXlsxJs().then(function () {
+    var rows = [headers];
+    var quelle = (spieler && spieler.length !== undefined) ? spieler : plFilteredList();
+    var sortiert = quelle.slice().sort(function (a, b) {
       var la = (a.ln || '').toLowerCase(), lb = (b.ln || '').toLowerCase();
       if (la < lb) return -1;
       if (la > lb) return 1;
       return (a.fn || '').toLowerCase().localeCompare((b.fn || '').toLowerCase());
     });
-    var today = new Date().toISOString().slice(0,10);
-    var blanks = [];
-    DIAG_FIELDS.forEach(function(f) { for (var i=0;i<f.attempts;i++) blanks.push(''); });
-    sorted.forEach(function(p) {
-      rows.push([today, p.fn || '', p.ln || ''].concat(blanks));
-    });
+    var heute = datum || new Date().toISOString().slice(0, 10);
+    sortiert.forEach(function (p) { rows.push(zeilenFuellung(p, heute)); });
     var ws = XLSX.utils.aoa_to_sheet(rows);
-    var colWidths = [{wch:11},{wch:14},{wch:14}];
-    DIAG_FIELDS.forEach(function() { colWidths.push({wch:13}); colWidths.push({wch:13}); });
-    colWidths[colWidths.length-1] = {wch:15}; // letzte Spalte (IFT) hat nur 1 Versuch, aber Array ist eh nur Breiten
-    ws['!cols'] = colWidths.slice(0, DIAG_HEADERS.length);
+    ws['!cols'] = breiten;
     var wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Diagnostik');
-    XLSX.writeFile(wb, 'Diagnostik_Vorlage.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, blattName);
+    XLSX.writeFile(wb, dateiName);
     if (window.hideLoader) hideLoader();
-  }).catch(function(e) {
+    if (sortiert.length === 0) {
+      alert('Die Vorlage enthaelt nur die Kopfzeile: es war kein Spieler ausgewaehlt.');
+    }
+  }).catch(function (e) {
     if (window.hideLoader) hideLoader();
     alert('Fehler: ' + e.message);
   });
+}
+
+
+/* ============================================================
+   Praeventionsdiagnostik: Vorlage und Import
+   ============================================================ */
+
+function praevSpaltenTitel(t, seite) {
+  var e = (t.typ === 'cm') ? (t.einheit || 'cm') : 'ja/nein';
+  return t.l + (seite ? ' ' + seite : '') + ' (' + e + ')';
+}
+
+var PRAEV_SPALTEN = [];
+PRAEV.forEach(function (t) {
+  if (t.seiten) {
+    PRAEV_SPALTEN.push({ key: t.k + '_r', test: t, titel: praevSpaltenTitel(t, 'rechts') });
+    PRAEV_SPALTEN.push({ key: t.k + '_l', test: t, titel: praevSpaltenTitel(t, 'links') });
+  } else {
+    PRAEV_SPALTEN.push({ key: t.k, test: t, titel: praevSpaltenTitel(t, '') });
+  }
+});
+
+var PRAEV_HEADERS = ['Datum', 'Vorname', 'Nachname'].concat(PRAEV_SPALTEN.map(function (s) { return s.titel; }));
+
+var PRAEV_IMPORT_ROWS = [];
+
+function praevWert(t, roh) {
+  if (roh === '' || roh === null || roh === undefined) return { leer: true };
+  if (t.typ === 'cm') {
+    var n = (typeof roh === 'number') ? roh : parseFloat(String(roh).replace(',', '.'));
+    if (isNaN(n)) return { fehler: true };
+    return { wert: Math.round(n * 10) / 10 };
+  }
+  if (typeof roh === 'boolean') return { wert: roh ? 'ja' : 'nein' };
+  var s = String(roh).trim().toLowerCase();
+  if (s === '+') return { wert: 'ja' };
+  if (s === '-') return { wert: 'nein' };
+  s = impNorm(s);
+  if (s === 'ja' || s === 'j' || s === 'x' || s === '1' || s === 'yes' || s === 'y' || s === 'wahr' || s === 'true') return { wert: 'ja' };
+  if (s === 'nein' || s === 'n' || s === '0' || s === 'no' || s === 'false' || s === 'falsch') return { wert: 'nein' };
+  return { fehler: true };
+}
+
+function downloadPraevTemplate(spieler, datum, dateiName) {
+  var breiten = [{ wch: 11 }, { wch: 14 }, { wch: 14 }];
+  PRAEV_SPALTEN.forEach(function () { breiten.push({ wch: 17 }); });
+  impVorlageSchreiben(
+    PRAEV_HEADERS,
+    function (p, heute) {
+      var zeile = [heute, p.fn || '', p.ln || ''];
+      PRAEV_SPALTEN.forEach(function () { zeile.push(''); });
+      return zeile;
+    },
+    'Praevention', dateiName || 'Praevention_Vorlage.xlsx', breiten, spieler, datum
+  );
+}
+
+function praevImportFile(file) {
+  impDateiLesen(file, praevParseRows);
+}
+
+function praevParseRows(rows) {
+  var el = document.getElementById('diag-overview');
+  DIAG_IMPORT_ROWS = [];
+  var kopfFehler = impKopfPruefen(rows[0] || [], PRAEV_HEADERS);
+  if (kopfFehler.length) {
+    PRAEV_IMPORT_ROWS = [];
+    el.innerHTML = impKopfFehlerHtml(kopfFehler, 'Praevention');
+    return;
+  }
+  var out = [];
+  for (var i = 1; i < rows.length; i++) {
+    var row = rows[i];
+    if (!row) continue;
+    var fn = (row[1] === null || row[1] === undefined ? '' : String(row[1])).trim();
+    var ln = (row[2] === null || row[2] === undefined ? '' : String(row[2])).trim();
+    if (!fn && !ln) continue;
+    var datum = diagFmtDate(row[0]);
+    var eintrag = { datum: datum };
+    var probleme = [];
+    var anzahl = 0;
+    for (var j = 0; j < PRAEV_SPALTEN.length; j++) {
+      var sp = PRAEV_SPALTEN[j];
+      var res = praevWert(sp.test, row[3 + j]);
+      if (res.leer) continue;
+      if (res.fehler) { probleme.push(sp.titel); continue; }
+      eintrag[sp.key] = res.wert;
+      anzahl++;
+    }
+    if (anzahl === 0 && probleme.length === 0) continue;
+    var tr = impFinde(fn, ln);
+    IMP_SEL_NR++;
+    out.push({
+      fn: fn, ln: ln, datum: datum, eintrag: eintrag, anzahl: anzahl, probleme: probleme,
+      player: tr.player, vorschlag: tr.vorschlag, feldId: 'imp-sel-' + IMP_SEL_NR
+    });
+  }
+  PRAEV_IMPORT_ROWS = out;
+  praevRenderPreview();
+}
+
+function praevRenderPreview() {
+  var el = document.getElementById('diag-overview');
+  if (PRAEV_IMPORT_ROWS.length === 0) {
+    el.innerHTML = '<div style="background:#fff;border-radius:16px;border:1px solid #DCE3D6;padding:20px;text-align:center;color:#5A6B5F;font-size:13px;">Die Kopfzeile stimmt, aber es stehen keine Werte in der Datei.</div>';
+    return;
+  }
+  var offen = PRAEV_IMPORT_ROWS.filter(function (r) { return !r.player; }).length;
+  var html = '<div style="background:#fff;border-radius:16px;border:1px solid #DCE3D6;padding:20px;">';
+  html += '<h3 style="font-size:16px;font-weight:600;color:#12301F;margin-bottom:6px;">Praevention: ' + PRAEV_IMPORT_ROWS.length + ' Zeilen gelesen</h3>';
+  html += offen > 0
+    ? '<p style="font-size:13px;color:#B26B00;margin-bottom:14px;">' + offen + ' Zeilen konnten keinem Spieler zugeordnet werden. Bitte unten entscheiden - nichts wird von allein angelegt.</p>'
+    : '<p style="font-size:13px;color:#5A6B5F;margin-bottom:14px;">Alle Zeilen sind einem Spieler im Kader zugeordnet.</p>';
+  html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">';
+  html += '<tr style="text-align:left;color:#8B978C;border-bottom:1px solid #DCE3D6;"><th style="padding:6px 8px;">Datum</th><th style="padding:6px 8px;">Name aus Datei</th><th style="padding:6px 8px;">Zuordnung</th><th style="padding:6px 8px;">Werte</th></tr>';
+  PRAEV_IMPORT_ROWS.forEach(function (r) {
+    html += '<tr style="border-bottom:1px solid #F0F3EE;vertical-align:top;">';
+    html += '<td style="padding:7px 8px;color:#12301F;white-space:nowrap;">' + r.datum + '</td>';
+    html += '<td style="padding:7px 8px;color:#12301F;font-weight:500;white-space:nowrap;">' + r.fn + ' ' + r.ln + '</td>';
+    html += '<td style="padding:7px 8px;">' + impZeileStatusHtml(r, r.feldId) + '</td>';
+    var werte = r.anzahl + ' von ' + PRAEV_SPALTEN.length + ' Feldern';
+    if (r.probleme.length) werte += '<div style="font-size:11px;color:#B00020;">Unlesbar: ' + r.probleme.join(', ') + '</div>';
+    html += '<td style="padding:7px 8px;color:#5A6B5F;">' + werte + '</td>';
+    html += '</tr>';
+  });
+  html += '</table></div>';
+  html += '<p style="font-size:11.5px;color:#8B978C;margin-top:12px;">Ein bereits vorhandener Eintrag mit demselben Datum wird ersetzt.</p>';
+  html += '<div style="display:flex;gap:10px;margin-top:12px;">';
+  html += '<button id="btn-praev-cancel" style="flex:1;padding:12px;border:1px solid #DCE3D6;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;">Abbrechen</button>';
+  html += '<button id="btn-praev-confirm" style="flex:2;padding:12px;background:#0E6B36;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Import bestaetigen</button>';
+  html += '</div></div>';
+  el.innerHTML = html;
+  document.getElementById('btn-praev-cancel').addEventListener('click', function () {
+    PRAEV_IMPORT_ROWS = [];
+    document.getElementById('diag-overview').innerHTML = '';
+  });
+  document.getElementById('btn-praev-confirm').addEventListener('click', praevConfirmImport);
+}
+
+function praevConfirmImport() {
+  var zeilen = impAufloesen(PRAEV_IMPORT_ROWS);
+  if (zeilen.length === 0) {
+    alert('Keine Zeile ist zum Import ausgewaehlt.');
+    return;
+  }
+  if (window.showLoader) showLoader('Importiere Praeventionsdaten...');
+  var betroffen = [], neue = 0;
+  zeilen.forEach(function (r) {
+    var p = r.player;
+    if (!p) { p = impNeuerSpieler(r.fn, r.ln); PL.push(p); neue++; }
+    if (!p.praevention) p.praevention = [];
+    p.praevention = p.praevention.filter(function (x) { return x.datum !== r.eintrag.datum; });
+    p.praevention.push(JSON.parse(JSON.stringify(r.eintrag)));
+    if (betroffen.indexOf(p) === -1) betroffen.push(p);
+  });
+  var uebersprungen = PRAEV_IMPORT_ROWS.length - zeilen.length;
+  var text = 'Praevention importiert: ' + zeilen.length + ' Eintraege fuer ' + betroffen.length + ' Spieler.'
+    + (neue ? ' ' + neue + ' Spieler neu angelegt.' : '')
+    + (uebersprungen ? ' ' + uebersprungen + ' Zeilen uebersprungen.' : '');
+  PRAEV_IMPORT_ROWS = [];
+  impSpeichern(betroffen, text, function () { diagRenderTeamOverview(); });
+}
+
+/* ============================================================
+   Vorlagen-Dialog: Mannschaft waehlen, Namen aus den Zusagen
+   des naechsten Trainings uebernehmen
+   ============================================================ */
+
+var VL_ART = 'leistung';
+var VL_TEAM = '';
+var VL_TERMIN = null;
+var VL_ZUSAGEN = [];
+var VL_VERLETZT = [];
+var VL_OFFEN = 0;
+var VL_LADE = false;
+var VL_QUELLE_MANUELL = false;
+
+function vlLabelText(code) {
+  var l = WHV_LABEL[code] || code;
+  return l.replace(/&auml;/g, '\u00e4').replace(/&ouml;/g, '\u00f6').replace(/&uuml;/g, '\u00fc');
+}
+
+function vlDateiName(art) {
+  var teil = VL_TEAM ? vlLabelText(VL_TEAM) : 'alle';
+  teil = teil.replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue').replace(/\s+/g, '-');
+  var datum = (document.getElementById('vl-datum') || {}).value || new Date().toISOString().slice(0, 10);
+  return (art === 'praevention' ? 'Praevention_' : 'Leistung_') + teil + '_' + datum + '.xlsx';
+}
+
+function vlKader(team) {
+  return PL.filter(function (p) { return whvGehoertZu(p, team); });
+}
+
+function vlOeffnen(art) {
+  VL_ART = art;
+  VL_QUELLE_MANUELL = false;
+  VL_TEAM = PL_FILTER_TEAM || WHV_TEAMS[0];
+  VL_TERMIN = null; VL_ZUSAGEN = []; VL_VERLETZT = []; VL_OFFEN = 0;
+  var alt = document.getElementById('vl-overlay');
+  if (alt && alt.parentNode) alt.parentNode.removeChild(alt);
+  var d = document.createElement('div');
+  d.id = 'vl-overlay';
+  d.style.cssText = 'position:fixed;inset:0;background:rgba(12,24,16,.45);z-index:9000;display:flex;align-items:center;justify-content:center;padding:18px;';
+  d.innerHTML =
+      '<div style="background:#fff;border-radius:18px;max-width:440px;width:100%;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.25);font-family:inherit;">'
+    +   '<h3 style="margin:0 0 4px;font-size:17px;font-weight:600;color:#12301F;">Vorlage ' + (art === 'praevention' ? 'Pr\u00e4vention' : 'Leistung') + '</h3>'
+    +   '<p style="margin:0 0 16px;font-size:12.5px;color:#8B978C;">Mannschaft w\u00e4hlen. Die Datei wird mit den Namen vorausgef\u00fcllt, du tr\u00e4gst nur noch Werte ein.</p>'
+    +   '<label style="display:block;font-size:11px;font-weight:600;color:#8B978C;margin-bottom:5px;">MANNSCHAFT</label>'
+    +   '<select id="vl-team" style="width:100%;padding:9px 10px;border:1px solid #DCE3D6;border-radius:9px;font:inherit;font-size:13.5px;background:#fff;margin-bottom:14px;">'
+    +     WHV_TEAMS.map(function (t) {
+            return '<option value="' + t + '"' + (t === VL_TEAM ? ' selected' : '') + '>' + (WHV_LABEL[t] || t) + '</option>';
+          }).join('')
+    +   '</select>'
+    +   '<div id="vl-info" style="font-size:12.5px;color:#5A6B5F;background:#F4F7F2;border-radius:10px;padding:11px 12px;margin-bottom:14px;">Wird geladen\u2026</div>'
+    +   '<label style="display:block;font-size:11px;font-weight:600;color:#8B978C;margin-bottom:5px;">WER KOMMT IN DIE DATEI</label>'
+    +   '<select id="vl-quelle" style="width:100%;padding:9px 10px;border:1px solid #DCE3D6;border-radius:9px;font:inherit;font-size:13.5px;background:#fff;margin-bottom:10px;">'
+    +     '<option value="zusagen">Nur die Zusagen f\u00fcr das n\u00e4chste Training</option>'
+    +     '<option value="kader">Ganzer Kader</option>'
+    +   '</select>'
+    +   '<label id="vl-verl-zeile" style="display:none;align-items:center;gap:8px;font-size:12.5px;color:#5A6B5F;margin-bottom:12px;cursor:pointer;">'
+    +     '<input type="checkbox" id="vl-verletzte" style="width:15px;height:15px;"> Verletzte mit aufnehmen</label>'
+    +   '<label style="display:block;font-size:11px;font-weight:600;color:#8B978C;margin-bottom:5px;">TESTDATUM IN DER DATEI</label>'
+    +   '<input type="date" id="vl-datum" style="width:100%;padding:9px 10px;border:1px solid #DCE3D6;border-radius:9px;font:inherit;font-size:13.5px;box-sizing:border-box;margin-bottom:8px;">'
+    +   '<div id="vl-namen" style="font-size:11.5px;color:#8B978C;margin-bottom:16px;min-height:16px;"></div>'
+    +   '<div style="display:flex;gap:10px;">'
+    +     '<button id="vl-ab" style="flex:1;padding:11px;border:1px solid #DCE3D6;border-radius:10px;background:#fff;font:inherit;font-size:13px;cursor:pointer;">Abbrechen</button>'
+    +     '<button id="vl-ok" style="flex:2;padding:11px;border:0;border-radius:10px;background:#0E6B36;color:#fff;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;">Herunterladen</button>'
+    +   '</div>'
+    + '</div>';
+  document.body.appendChild(d);
+  document.getElementById('vl-datum').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('vl-team').addEventListener('change', function () { VL_TEAM = this.value; VL_QUELLE_MANUELL = false; vlTerminLaden(); });
+  document.getElementById('vl-quelle').addEventListener('change', function () { VL_QUELLE_MANUELL = true; vlInfoRender(); });
+  document.getElementById('vl-verletzte').addEventListener('change', vlInfoRender);
+  document.getElementById('vl-ab').addEventListener('click', vlSchliessen);
+  document.getElementById('vl-ok').addEventListener('click', vlHerunterladen);
+  d.addEventListener('click', function (e) { if (e.target === d) vlSchliessen(); });
+  vlTerminLaden();
+}
+
+function vlSchliessen() {
+  var d = document.getElementById('vl-overlay');
+  if (d && d.parentNode) d.parentNode.removeChild(d);
+}
+
+/* Holt die Trainings der gewaehlten Mannschaft und wertet das
+   naechste noch nicht vergangene aus. */
+function vlTerminLaden() {
+  VL_TERMIN = null; VL_ZUSAGEN = []; VL_VERLETZT = []; VL_OFFEN = 0;
+  VL_LADE = true;
+  vlInfoRender();
+  var team = VL_TEAM;
+  trRuf({ aktion: 'liste', team: team }).then(function (d) {
+    if (team !== VL_TEAM) return;
+    var liste = (d.items || []).filter(function (t) {
+      var tage = trTageBis(t.datum);
+      return tage !== null && tage >= 0;
+    }).sort(function (a, b) { return String(a.datum).localeCompare(String(b.datum)); });
+    VL_TERMIN = liste.length ? liste[0] : null;
+    if (VL_TERMIN) {
+      var karte = {};
+      (d.antworten || []).forEach(function (r) {
+        if (String(r.termin_id) === String(VL_TERMIN.id)) karte[String(r.player_id)] = r.status;
+      });
+      var kader = vlKader(team);
+      kader.forEach(function (p) {
+        var s = karte[String(p.id)];
+        if (s === 'zu') VL_ZUSAGEN.push(p);
+        else if (s === 'verletzt') VL_VERLETZT.push(p);
+        else if (!s) VL_OFFEN++;
+      });
+    }
+    VL_LADE = false;
+    vlInfoRender();
+  }).catch(function (e) {
+    if (team !== VL_TEAM) return;
+    VL_LADE = false;
+    VL_TERMIN = null;
+    vlInfoRender(e.message);
+  });
+}
+
+function vlAuswahl() {
+  var quelle = (document.getElementById('vl-quelle') || {}).value || 'kader';
+  if (quelle === 'kader' || !VL_TERMIN) return vlKader(VL_TEAM);
+  var el = document.getElementById('vl-verletzte');
+  var liste = VL_ZUSAGEN.slice();
+  if (el && el.checked) liste = liste.concat(VL_VERLETZT);
+  return liste;
+}
+
+function vlInfoRender(fehler) {
+  var info = document.getElementById('vl-info');
+  var quelleEl = document.getElementById('vl-quelle');
+  var verlZeile = document.getElementById('vl-verl-zeile');
+  var namenEl = document.getElementById('vl-namen');
+  var datumEl = document.getElementById('vl-datum');
+  if (!info) return;
+  var kaderN = vlKader(VL_TEAM).length;
+
+  if (VL_LADE) {
+    info.innerHTML = 'Trainings werden geladen\u2026';
+  } else if (fehler) {
+    info.innerHTML = '<b style="color:#B00020;">Trainings nicht abrufbar:</b> ' + fehler + '<br>Es wird der ganze Kader genommen (' + kaderN + ').';
+  } else if (!VL_TERMIN) {
+    info.innerHTML = 'F\u00fcr ' + vlLabelText(VL_TEAM) + ' ist kein kommendes Training angesetzt. Es wird der ganze Kader genommen (' + kaderN + ' Spieler).';
+  } else {
+    info.innerHTML = '<b>N\u00e4chstes Training: ' + trTag(VL_TERMIN.datum) + ', ' + trDatum(VL_TERMIN.datum)
+      + (VL_TERMIN.zeit ? ' \u00b7 ' + VL_TERMIN.zeit : '') + '</b><br>'
+      + '<span style="color:#1C7A3E;font-weight:600;">' + VL_ZUSAGEN.length + ' zugesagt</span>'
+      + (VL_VERLETZT.length ? ' \u00b7 <span style="color:#D93025;">' + VL_VERLETZT.length + ' verletzt</span>' : '')
+      + (VL_OFFEN ? ' \u00b7 ' + VL_OFFEN + ' ohne R\u00fcckmeldung' : '')
+      + ' \u00b7 Kader ' + kaderN;
+  }
+
+  var hatTermin = !!VL_TERMIN && !VL_LADE;
+  if (quelleEl) {
+    quelleEl.options[0].disabled = !hatTermin;
+    quelleEl.options[0].text = hatTermin
+      ? 'Nur die Zusagen f\u00fcr das n\u00e4chste Training (' + VL_ZUSAGEN.length + ')'
+      : 'Nur die Zusagen f\u00fcr das n\u00e4chste Training \u2013 keines angesetzt';
+    quelleEl.options[1].text = 'Ganzer Kader (' + kaderN + ')';
+    if (!hatTermin) quelleEl.value = 'kader';
+    else if (!VL_QUELLE_MANUELL) quelleEl.value = 'zusagen';
+  }
+  if (verlZeile) {
+    verlZeile.style.display = (hatTermin && VL_VERLETZT.length && quelleEl.value === 'zusagen') ? 'flex' : 'none';
+  }
+  if (datumEl && hatTermin && quelleEl.value === 'zusagen') {
+    datumEl.value = String(VL_TERMIN.datum).slice(0, 10);
+  }
+  if (namenEl) {
+    var liste = vlAuswahl();
+    if (!liste.length) {
+      namenEl.innerHTML = '<span style="color:#B00020;">Niemand ausgew\u00e4hlt \u2013 die Datei h\u00e4tte nur die Kopfzeile.</span>';
+    } else {
+      var namen = liste.slice(0, 6).map(function (p) { return p.fn + ' ' + p.ln; }).join(', ');
+      namenEl.innerHTML = liste.length + ' Spieler: ' + namen + (liste.length > 6 ? ' \u2026' : '');
+    }
+  }
+}
+
+function vlHerunterladen() {
+  var liste = vlAuswahl();
+  if (!liste.length) {
+    alert('Es ist niemand ausgew\u00e4hlt. Bitte eine andere Mannschaft oder den ganzen Kader w\u00e4hlen.');
+    return;
+  }
+  var datum = (document.getElementById('vl-datum') || {}).value || new Date().toISOString().slice(0, 10);
+  var name = vlDateiName(VL_ART);
+  var art = VL_ART;
+  vlSchliessen();
+  if (art === 'praevention') downloadPraevTemplate(liste, datum, name);
+  else downloadDiagTemplate(liste, datum, name);
 }
 
 function plShowModal(p) {
