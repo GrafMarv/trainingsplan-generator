@@ -311,15 +311,36 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .deco-name { font-size: clamp(32px, 4vw, 56px); font-weight: 700; color: #d1d1d6; letter-spacing: -1px; writing-mode: vertical-rl; transform: rotate(180deg); user-select: none; }
 
 @media print {
-  body { background: #fff; }
-  /* Nur den generierten Plan drucken - alles andere (Header, Eingabeformular,
-     linkes Filter-Panel, Deko, Loading-Overlay, Buttons) ausblenden. */
-  body * { visibility: hidden; }
-  .plan-wrapper, .plan-wrapper * { visibility: visible; }
-  .plan-wrapper { display: block !important; position: fixed; top: 0; left: 0; width: 100%; margin: 0; }
-  .plan-actions, .plan-actions * { visibility: hidden !important; display: none !important; }
-  .a4 { border: none; margin: 0; width: 100%; box-shadow: none; }
   @page { size: A4; margin: 0; }
+
+  /* Der Plan wird vor dem Drucken per JS direkt unter <body> gehaengt
+     (planDrucken). Dadurch faellt jede Verschachtelung weg und wir koennen
+     schlicht alle anderen Kinder ausblenden. Frueher lief das ueber
+     visibility:hidden plus position:fixed - dabei blieb der Platz der
+     versteckten Elemente stehen und Chrome druckte nur die erste Seite. */
+  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important;
+    height: auto !important; overflow: visible !important; }
+  body.drucken > *:not(.plan-wrapper) { display: none !important; }
+  body.drucken .plan-wrapper { display: block !important; position: static !important;
+    margin: 0 !important; padding: 0 !important; max-width: none !important; width: auto !important; }
+  .plan-actions { display: none !important; }
+
+  /* Seitenmasse wie in der Vorschau: 794 x 1123 px sind bei 96 dpi genau A4.
+     Nur Rahmen, Schatten und Aussenabstand fallen weg. */
+  .a4 { width: 794px !important; height: 1123px !important; margin: 0 !important;
+    border: none !important; border-radius: 0 !important; box-shadow: none !important;
+    page-break-after: always; break-after: page; }
+  .a4:last-child { page-break-after: auto !important; break-after: auto !important; }
+  .a4.a4-macro { width: 794px !important; height: auto !important; min-height: 0 !important; }
+
+  /* Ohne das druckt der Browser die farbigen Blockkoepfe und die
+     Supersatz-Balken weiss. */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  img { max-width: 100% !important; }
 }
 
 /* MOBILE - Einzeleinheit/Plan-Screen lesbar machen (Desktop unberuehrt) */
@@ -2341,7 +2362,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
   <div class="plan-wrapper" id="plan-wrapper">
     <div class="plan-actions">
-      <button class="btn-secondary" onclick="window.print()">Drucken / als PDF</button>
+      <button class="btn-secondary" onclick="planDrucken()">Drucken / als PDF</button>
       <button class="btn-secondary" onclick="resetPlan()">Neu generieren</button>
       <button class="btn-secondary" id="back-to-macro" style="display:none;" onclick="backToMacro()">&larr; Wochenplan</button>
       <span>Im Druckdialog "Als PDF speichern" wählen</span>
@@ -3302,6 +3323,42 @@ var UN_DATEI = null;   // { b64, name } eines frisch gewaehlten Bildes
 var UN_BILD  = '';     // Schluessel eines vorhandenen Bildes
 
 var UN_KATEGORIEN = ['strength', 'mobility', 'sprint', 'jump', 'agility', 'misc'];
+
+
+/* =====================================================================
+   DRUCKEN
+   Der Plan wird vorher direkt unter <body> gehaengt, gedruckt und danach
+   an seinen Platz zurueckgesetzt. So druckt der Browser ihn im normalen
+   Fluss ueber beliebig viele Seiten, statt nach der ersten abzubrechen.
+   ===================================================================== */
+
+function planDrucken() {
+  var w = document.getElementById('plan-wrapper');
+  if (!w || !w.parentNode) { window.print(); return; }
+
+  var platz = document.createComment('plan-wrapper');
+  var eltern = w.parentNode;
+  eltern.insertBefore(platz, w);
+  document.body.appendChild(w);
+  document.body.classList.add('drucken');
+
+  var zurueck = false;
+  function aufraeumen() {
+    if (zurueck) return;
+    zurueck = true;
+    document.body.classList.remove('drucken');
+    if (platz.parentNode) {
+      platz.parentNode.insertBefore(w, platz);
+      platz.parentNode.removeChild(platz);
+    }
+    window.removeEventListener('afterprint', aufraeumen);
+  }
+  window.addEventListener('afterprint', aufraeumen);
+
+  try { window.print(); } catch (e) {}
+  // Falls der Browser kein afterprint meldet
+  setTimeout(aufraeumen, 1500);
+}
 
 function unSlug(text) {
   return String(text || '').toLowerCase()
