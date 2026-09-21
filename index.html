@@ -509,6 +509,23 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .block-lib-save-row button { font-family:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:9px; border:none; background:#1c1c1e; color:#fff; cursor:pointer; }
 .block-lib-save-row button:hover { background:#2563EB; }
 
+/* Immer sichtbarer Kontoknopf oben rechts. Die Seitenleiste faellt unter
+   860 px weg und auf der Startseite gibt es sie gar nicht - der Zugang
+   zur Anmeldung darf davon nicht abhaengen. */
+.tz-ecke{position:fixed;top:14px;right:16px;z-index:400;display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.94);border:1px solid #DCE3D6;border-radius:22px;
+  padding:6px 8px 6px 14px;box-shadow:0 2px 12px rgba(0,0,0,.08);
+  font-family:inherit;font-size:12.5px;color:#3F5145;backdrop-filter:blur(8px);}
+.tz-ecke b{font-weight:600;color:#12301F;}
+.tz-ecke small{color:#8B978C;}
+.tz-ecke button{border:0;border-radius:16px;padding:6px 13px;font-family:inherit;
+  font-size:12.5px;font-weight:600;cursor:pointer;background:#0E6B36;color:#fff;}
+.tz-ecke button:hover{background:#1C7A3E;}
+.tz-ecke button.stumm{background:#F2F2F7;color:#3F5145;}
+.tz-ecke button.stumm:hover{background:#E4EADE;}
+@media(max-width:560px){.tz-ecke{top:8px;right:8px;padding:5px 6px 5px 11px;font-size:12px;}
+  .tz-ecke .weg-klein{display:none;}}
+
 /* ===== Trainerkonten ===== */
 .tv-konto{margin-top:auto;padding:14px 18px;border-top:1px solid #EEF2EB;font-size:12.5px;}
 .tv-konto b{display:block;color:#12301F;font-size:13px;}
@@ -3460,7 +3477,29 @@ function tzKontoRender() {
   }
   Array.prototype.forEach.call(felder, function(f) { f.innerHTML = html; });
   document.body.classList.toggle('nur-ansicht', !!(TZ_ICH && TZ_ICH.rolle === 'ansicht'));
+  tzEcke();
   tzBanner();
+}
+
+// Der Knopf oben rechts, auf jedem Bildschirm und in jeder Fensterbreite.
+function tzEcke() {
+  var e = document.getElementById('tz-ecke');
+  if (!e) {
+    e = document.createElement('div');
+    e.id = 'tz-ecke';
+    e.className = 'tz-ecke';
+    document.body.appendChild(e);
+  }
+  if (TZ_ICH) {
+    e.innerHTML = '<span><b>' + TZ_ICH.name + '</b> '
+      + '<small class="weg-klein">' + (TZ_ICH.rolle === 'voll' ? 'Vollzugriff' : 'Nur Ansicht') + '</small></span>'
+      + (TZ_ICH.rolle === 'voll' ? '<button onclick="tzVerwalten()">Zug\u00e4nge</button>' : '')
+      + '<button class="stumm" onclick="tzAbmelden()">Abmelden</button>';
+  } else {
+    e.innerHTML = '<span><small>Nicht angemeldet</small></span>'
+      + '<button onclick="tzLoginDialog()">Anmelden</button>'
+      + '<button class="stumm" onclick="tzVerwalten()">Zug\u00e4nge</button>';
+  }
 }
 
 function tzBanner() {
