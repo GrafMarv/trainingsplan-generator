@@ -325,13 +325,19 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     margin: 0 !important; padding: 0 !important; max-width: none !important; width: auto !important; }
   .plan-actions { display: none !important; }
 
-  /* Seitenmasse wie in der Vorschau: 794 x 1123 px sind bei 96 dpi genau A4.
-     Nur Rahmen, Schatten und Aussenabstand fallen weg. */
-  .a4 { width: 794px !important; height: 1123px !important; margin: 0 !important;
+  /* Seitenmasse in Millimetern statt Pixeln. 1123 px sind bei 96 dpi gut
+     ein halbes Pixel MEHR als A4 - dieser Bruchteil laeuft ueber und
+     erzeugt nach jeder Seite eine leere. 296 mm lassen einen Millimeter
+     Luft, sichtbar ist das nicht. */
+  .a4 { width: 210mm !important; height: 296mm !important;
+    margin: 0 !important; padding: 7mm 8mm !important; overflow: hidden !important;
     border: none !important; border-radius: 0 !important; box-shadow: none !important;
     page-break-after: always; break-after: page; }
   .a4:last-child { page-break-after: auto !important; break-after: auto !important; }
-  .a4.a4-macro { width: 794px !important; height: auto !important; min-height: 0 !important; }
+  .a4.a4-macro { width: 210mm !important; height: auto !important; min-height: 0 !important;
+    overflow: visible !important; }
+  .plan-wrapper > div, #pages-container { margin: 0 !important; padding: 0 !important;
+    display: block !important; }
 
   /* Ohne das druckt der Browser die farbigen Blockkoepfe und die
      Supersatz-Balken weiss. */
