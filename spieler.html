@@ -144,6 +144,30 @@
   .fuss{text-align:center;font-size:12px;color:#8B978C;padding:26px 0 30px}
   .mitte{max-width:420px;margin:0 auto;padding-top:34px}
   @media(max-width:480px){.karte{padding:16px}.wrap{padding:0 12px}}
+
+/* Koerperkarte */
+#kk-box{margin:2px 0 18px;}
+.kk-svg{display:block;width:100%;max-width:262px;height:auto;margin:0 auto;}
+.kk-k{fill:#E4EAE0;stroke:#fff;stroke-width:1;vector-effect:non-scaling-stroke;}
+.kk-um{fill:none;stroke:#AEBCA8;stroke-width:1.3;vector-effect:non-scaling-stroke;pointer-events:none;}
+.kk-z{stroke:#fff;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;}
+.kk-z.gut{fill:#3F9E52;}
+.kk-z.schlecht{fill:#D93025;}
+.kk-z.leer{fill:#CFD9CA;}
+.kk-z.aktiv{stroke:#12301F;stroke-width:2.2;}
+.kk-um-schalter{display:flex;justify-content:center;gap:6px;margin-top:10px;}
+.kk-sb{border:1px solid #DCE3D6;background:#fff;color:#6B7A6E;font-family:inherit;font-size:13px;
+  padding:7px 20px;border-radius:20px;cursor:pointer;}
+.kk-sb.an{background:#12301F;border-color:#12301F;color:#fff;font-weight:600;}
+.kk-info{margin-top:12px;background:#F4F7F2;border-radius:11px;padding:12px 14px;font-size:13px;color:#6B7A6E;min-height:20px;}
+.kk-info b{color:#12301F;display:block;margin-bottom:3px;}
+.kk-info span{display:block;line-height:1.5;}
+.kk-info b.ok{display:inline;color:#1E7A3E;}
+.kk-info b.nok{display:inline;color:#D93025;}
+.kk-leg{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:11.5px;color:#8B978C;}
+.kk-leg i{font-style:normal;display:inline-flex;align-items:center;gap:5px;}
+.kk-pt{width:9px;height:9px;border-radius:3px;display:inline-block;}
+.kk-pt.gruen{background:#3F9E52;}.kk-pt.rot{background:#D93025;}.kk-pt.grau{background:#CFD9CA;}
 </style>
 </head>
 <body>
@@ -228,6 +252,7 @@
       </button>
       <div class="ak-body">
         <p class="unter" id="praev-datum">Beweglichkeit und Belastbarkeit.</p>
+        <div id="kk-box"></div>
         <div id="box-praev"><div class="leer">Wird geladen&hellip;</div></div>
       </div>
     </div>
@@ -236,6 +261,7 @@
   </div>
 </div>
 
+<script src="koerper.js"></script>
 <script>
 /* =======================================================================
    WHV Athletik - Spieleransicht
@@ -558,17 +584,140 @@ function pvAnzeige(f, wert, schlecht){
   return schlecht ? '<em>' + t + '</em>' : t;
 }
 
+/* =======================================================================
+   Koerperkarte auf dem Handy
+   Eine Ansicht zur Zeit, umschaltbar. Tippen auf eine Region zeigt in
+   einem Satz, was der Test bedeutet. Die Pfade kommen aus koerper.js.
+   ======================================================================= */
+
+var KK_KARTE = {
+  vorne:  { huefte: ['adductors'], osant: ['quadriceps'], knie: ['knees'],
+            sprung: ['ankles'], zehen: ['feet'] },
+  hinten: { ruecken: ['upper-back'], huefte: ['gluteal'], ospost: ['hamstring'],
+            kette: ['lower-back', 'calves'], sprung: ['ankles'] }
+};
+var KK_ZONE = { ktw:'sprung', aslr:'ospost', couch:'osant', n9090:'huefte',
+                fersen:'knie', mtp:'zehen', ob:'ruecken', toe:'kette' };
+
+var KK_ANSICHT = 'vorne', KK_ERHEBUNG = null, KK_SEX = 'm';
+
+function kkFeld(zone) {
+  for (var i = 0; i < PRAEV_FELDER.length; i++) {
+    if (KK_ZONE[PRAEV_FELDER[i].k] === zone) return PRAEV_FELDER[i];
+  }
+  return null;
+}
+
+function kkKlasse(f, seite) {
+  if (!f || !KK_ERHEBUNG) return 'leer';
+  var wert = KK_ERHEBUNG[f.seiten ? (f.k + '_' + seite) : f.k];
+  var b = pvBewerte(f, wert);
+  if (b === null) return 'leer';
+  return b ? 'gut' : 'schlecht';
+}
+
+function kkGruppe(daten, slug) {
+  for (var i = 0; i < daten.g.length; i++) if (daten.g[i].s === slug) return daten.g[i];
+  return null;
+}
+
+/* Von vorne liegt die rechte Koerperseite links im Bild, von hinten rechts. */
+function kkBildSeite(ansicht, seite) {
+  return ansicht === 'vorne' ? (seite === 'r' ? 'l' : 'r') : seite;
+}
+
+function kkFigur() {
+  if (typeof KK === 'undefined' || !KK) return '';
+  var d = KK[KK_SEX === 'w' ? 'w' : 'm'][KK_ANSICHT];
+  if (!d) return '';
+  var s = '<svg viewBox="' + d.vb + '" class="kk-svg">';
+  d.g.forEach(function (gr) {
+    [gr.l, gr.r, gr.c].forEach(function (liste) {
+      (liste || []).forEach(function (p) { s += '<path class="kk-k" d="' + p + '"/>'; });
+    });
+  });
+  var karte = KK_KARTE[KK_ANSICHT];
+  Object.keys(karte).forEach(function (zone) {
+    var f = kkFeld(zone);
+    if (!f) return;
+    karte[zone].forEach(function (slug) {
+      var gr = kkGruppe(d, slug);
+      if (!gr) return;
+      ['r', 'l'].forEach(function (seite) {
+        var kl = kkKlasse(f, seite);
+        (gr[kkBildSeite(KK_ANSICHT, seite)] || []).forEach(function (p) {
+          s += '<path class="kk-z ' + kl + '" d="' + p + '" data-z="' + zone + '" data-s="' + seite + '"/>';
+        });
+      });
+    });
+  });
+  s += '<path class="kk-um" d="' + d.um + '"/></svg>';
+  return s;
+}
+
+function kkZeichne() {
+  var box = el('kk-box');
+  if (!box) return;
+  if (typeof KK === 'undefined' || !KK || !KK_ERHEBUNG) { box.innerHTML = ''; return; }
+  box.innerHTML = kkFigur()
+    + '<div class="kk-um-schalter">'
+    +   '<button type="button" class="kk-sb' + (KK_ANSICHT === 'vorne' ? ' an' : '') + '" data-a="vorne">Vorne</button>'
+    +   '<button type="button" class="kk-sb' + (KK_ANSICHT === 'hinten' ? ' an' : '') + '" data-a="hinten">Hinten</button>'
+    + '</div>'
+    + '<div class="kk-info" id="kk-info">Tippe auf einen farbigen Bereich.</div>'
+    + '<div class="kk-leg"><i><span class="kk-pt gruen"></span>in Ordnung</i>'
+    +   '<i><span class="kk-pt rot"></span>auff\u00e4llig</i>'
+    +   '<i><span class="kk-pt grau"></span>nicht getestet</i></div>';
+
+  box.querySelectorAll('.kk-sb').forEach(function (b) {
+    b.addEventListener('click', function () { KK_ANSICHT = this.getAttribute('data-a'); kkZeichne(); });
+  });
+  box.querySelectorAll('.kk-z').forEach(function (p) {
+    p.addEventListener('click', function () {
+      kkTipp(this.getAttribute('data-z'), this.getAttribute('data-s'), this);
+    });
+  });
+}
+
+function kkTipp(zone, seite, pfad) {
+  var f = kkFeld(zone);
+  var info = el('kk-info');
+  if (!f || !info) return;
+  var box = el('kk-box');
+  box.querySelectorAll('.kk-z.aktiv').forEach(function (x) { x.classList.remove('aktiv'); });
+  // beide Pfade derselben Region hervorheben
+  box.querySelectorAll('.kk-z[data-z="' + zone + '"][data-s="' + seite + '"]').forEach(function (x) {
+    x.classList.add('aktiv');
+  });
+  var wert = KK_ERHEBUNG ? KK_ERHEBUNG[f.seiten ? (f.k + '_' + seite) : f.k] : undefined;
+  var kl = kkKlasse(f, seite);
+  var wortSeite = f.seiten ? (seite === 'r' ? ' rechts' : ' links') : '';
+  var txt = '<b>' + sicher(f.l) + wortSeite + '</b>';
+  if (kl === 'leer') {
+    txt += '<span>' + sicher(f.e) + ' wurde bei dir noch nicht erfasst.</span>';
+  } else {
+    var anzeige = f.typ === 'cm' ? (sicher(wert) + ' ' + f.einheit) : (wert === 'ja' ? 'Ja' : 'Nein');
+    txt += '<span>' + sicher(f.e) + ': <b class="' + (kl === 'gut' ? 'ok' : 'nok') + '">' + anzeige + '</b>'
+        + (kl === 'schlecht' ? '<br>' + sicher(f.sagt) : '') + '</span>';
+  }
+  info.innerHTML = txt;
+}
+
 function zeichnePraevention(liste){
   var box = el('box-praev');
   var sortiert = (liste || []).slice().sort(function(a,b){ return String(b.datum).localeCompare(String(a.datum)); });
   if(!sortiert.length){
     el('praev-datum').textContent = 'Noch kein Screening erfasst.';
+    KK_ERHEBUNG = null;
+    kkZeichne();
     setzeSummary('praev', 'Noch kein Screening');
     box.innerHTML = '<div class="leer">Sobald du gescreent wurdest, stehen deine Ergebnisse hier.</div>';
     return;
   }
   var e = sortiert[0];
   el('praev-datum').textContent = 'Screening vom ' + datumDe(e.datum);
+  KK_ERHEBUNG = e;
+  kkZeichne();
 
   var zeilen = '', gesamt = 0, auff = 0;
   PRAEV_FELDER.forEach(function(f){
@@ -737,6 +886,8 @@ function start(){
     zeige('seite-app');
     el('app-name').innerHTML = sicher(s.name || 'WHV Athletik')
       + '<span id="app-kader">' + sicher([s.team, s.halle].filter(Boolean).map(function(c){ return KADER[c] || c; }).join(' \u00b7 ') || 'WHV') + '</span>';
+    KK_SEX = (s.sex === 'w' || s.sex === 'm') ? s.sex
+      : (String(s.team || s.halle || '').charAt(0).toUpperCase() === 'W' ? 'w' : 'm');
     zeichneDiagnostik(s.diag, d.gruppe || []);
     zeichnePraevention(s.praevention);
     return ruf('me', { session: t, was:'termine' });
