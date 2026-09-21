@@ -1610,15 +1610,22 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .px-karte{background:#fff;border:1px solid #E4EADE;border-radius:14px;padding:20px 22px;}
 .px-karte h4{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin:0 0 4px;}
 .px-karte p.hint{margin:0 0 16px;font-size:12.5px;color:#8B978C;}
-.px-figs{display:flex;gap:12px;justify-content:center;}
+.px-figs{display:flex;gap:4px;justify-content:center;align-items:flex-start;}
 .px-fig{text-align:center;}
 .px-fig small{display:block;margin-top:8px;font-size:12px;color:#6B7A6E;}
-.px-z{stroke:#fff;stroke-width:1;cursor:pointer;transition:opacity .12s ease;}
+.px-koerper{fill:#E4EAE0;stroke:#fff;stroke-width:1;vector-effect:non-scaling-stroke;}
+.px-umriss{fill:none;stroke:#AEBCA8;stroke-width:1.3;vector-effect:non-scaling-stroke;pointer-events:none;}
+.px-fehlt{padding:26px 10px;text-align:center;font-size:12.5px;color:#B26B00;}
+.px-z{stroke:#fff;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer;transition:opacity .12s ease;}
 .px-z:hover{opacity:.75;}
 .px-z.gut{fill:#4CAF50;}
 .px-z.schlecht{fill:#E04A3F;}
-.px-z.leer{fill:#E4EAE0;}
-.px-neutral{fill:#F1F5EF;stroke:#fff;stroke-width:1;}
+.px-z.leer{fill:#DCE3D7;}
+.px-z.aktiv{stroke:#12301F;stroke-width:2.2;}
+.px-sex{display:flex;justify-content:center;gap:6px;margin-top:12px;}
+.px-sexb{border:1px solid #DCE3D6;background:#fff;color:#6B7A6E;font-family:inherit;font-size:12px;padding:6px 16px;border-radius:20px;cursor:pointer;}
+.px-sexb.an{background:#12301F;border-color:#12301F;color:#fff;font-weight:600;}
+.px-neutral{fill:#E9EEE6;stroke:#fff;stroke-width:1.2;}
 .px-leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid #EEF2EB;
   font-size:11.5px;color:#6B7A6E;}
 .px-leg i{font-style:normal;display:inline-flex;align-items:center;gap:6px;}
@@ -1957,6 +1964,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
         <h4>K&ouml;rperkarte</h4>
         <p class="hint">Farbe zeigt die letzte Erhebung. Zone anklicken f&uuml;r Details.</p>
         <div class="px-figs" id="px-figs"></div>
+        <div class="px-sex" id="px-sex"></div>
         <div class="px-info" id="px-info"><b>Zone w&auml;hlen</b>
           <span>Tippe auf einen eingef&auml;rbten Bereich, um Test und Wert zu sehen.</span></div>
         <div class="px-leg">
@@ -2469,6 +2477,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 </div>
 </div>
 
+<script src="koerper.js"></script>
 <script>
 /* ---------------- Sitzung an jede API-Anfrage haengen ----------------
    Statt zwei Dutzend Aufrufstellen einzeln anzufassen, wird fetch einmal
@@ -6417,74 +6426,119 @@ function pxStatus(e, testK, seite) {
   return { klasse: b ? 'gut' : 'schlecht', wert: v, t: t };
 }
 
-function pxZone(id, zone, seite, form, e) {
-  var k = pxTestZu(zone);
-  var st = pxStatus(e, k, seite);
-  return '<' + form.t + ' class="px-z ' + st.klasse + '" ' + form.a
-    + ' onclick="pxWaehle(\'' + zone + '\',\'' + seite + '\')"><title>'
-    + PX_ZONEN[k].l + (seite ? ' ' + seite.toUpperCase() : '') + '</title></' + form.t + '>';
+/* Geschlecht fuer die Figur: aus dem Profil, sonst aus dem
+   Mannschaftskuerzel, notfalls per Umschalter unter der Figur. */
+var PX_SEX_MANUELL = null;
+
+function pxGeschlecht(p) {
+  if (PX_SEX_MANUELL) return PX_SEX_MANUELL;
+  if (p && (p.sex === 'w' || p.sex === 'm')) return p.sex;
+  var t = ((p && (p.team || p.halle)) || '').charAt(0).toUpperCase();
+  if (t === 'W') return 'w';
+  if (t === 'M') return 'm';
+  return 'm';
 }
 
-function pxR(x, y, w, hh, rx) {
-  return { t: 'rect', a: 'x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="' + (rx || 5) + '"' };
+function pxSexWechsel(g) {
+  PX_SEX_MANUELL = g;
+  var p = PL.find(function (x) { return x.id === PL_CUR; });
+  if (p) pxRender(p);
 }
-function pxC(cx, cy, rr) { return { t: 'circle', a: 'cx="' + cx + '" cy="' + cy + '" r="' + rr + '"' }; }
 
-function pxVorne(e) {
+/* ============================================================
+   Koerperkarte der Praeventionsdiagnostik
+   Zeichnet die anatomische Figur aus koerper.js und faerbt die
+   Regionen nach dem letzten Befund ein.
+   ============================================================ */
+
+/* Welche Muskelgruppe steht fuer welche Zone. Eine Zone kann
+   mehrere Gruppen umfassen, etwa die hintere Kette. */
+var PX_KARTE = {
+  vorne:  { huefte: ['adductors'], osant: ['quadriceps'], knie: ['knees'],
+            sprung: ['ankles'], zehen: ['feet'] },
+  hinten: { ruecken: ['upper-back'], huefte: ['gluteal'], ospost: ['hamstring'],
+            kette: ['lower-back', 'calves'], sprung: ['ankles'] }
+};
+
+function pxDaten(g, ansicht) {
+  if (typeof KK === 'undefined' || !KK) return null;
+  var k = KK[g === 'w' ? 'w' : 'm'];
+  return k ? k[ansicht] : null;
+}
+
+function pxGruppe(daten, slug) {
+  for (var i = 0; i < daten.g.length; i++) if (daten.g[i].s === slug) return daten.g[i];
+  return null;
+}
+
+/* Von vorne liegt die rechte Koerperseite links im Bild,
+   von hinten liegt sie rechts. */
+function pxBildSeite(ansicht, seite) {
+  if (ansicht === 'vorne') return seite === 'r' ? 'l' : 'r';
+  return seite;
+}
+
+function pxFigur(e, g, ansicht) {
+  var daten = pxDaten(g, ansicht);
+  if (!daten) return '';
   var s = '';
-  s += '<circle class="px-neutral" cx="80" cy="26" r="17"/>';
-  s += '<rect class="px-neutral" x="72" y="44" width="16" height="9" rx="3"/>';
-  s += '<rect class="px-neutral" x="55" y="54" width="50" height="62" rx="12"/>';
-  s += '<rect class="px-neutral" x="36" y="60" width="15" height="76" rx="7"/>';
-  s += '<rect class="px-neutral" x="109" y="60" width="15" height="76" rx="7"/>';
-  s += pxZone('', 'huefte', 'r', pxR(55, 118, 24, 20), e);
-  s += pxZone('', 'huefte', 'l', pxR(81, 118, 24, 20), e);
-  s += pxZone('', 'osant', 'r', pxR(57, 140, 22, 52), e);
-  s += pxZone('', 'osant', 'l', pxR(81, 140, 22, 52), e);
-  s += pxZone('', 'knie', 'r', pxR(58, 194, 20, 15), e);
-  s += pxZone('', 'knie', 'l', pxR(82, 194, 20, 15), e);
-  s += '<rect class="px-neutral" x="60" y="211" width="16" height="36" rx="6"/>';
-  s += '<rect class="px-neutral" x="84" y="211" width="16" height="36" rx="6"/>';
-  s += pxZone('', 'sprung', 'r', pxR(59, 249, 18, 12), e);
-  s += pxZone('', 'sprung', 'l', pxR(83, 249, 18, 12), e);
-  s += pxZone('', 'zehen', 'r', pxR(57, 263, 22, 10), e);
-  s += pxZone('', 'zehen', 'l', pxR(81, 263, 22, 10), e);
+  // 1. ganzer Koerper in Grau
+  daten.g.forEach(function (gr) {
+    [gr.l, gr.r, gr.c].forEach(function (liste) {
+      (liste || []).forEach(function (d) { s += '<path class="px-koerper" d="' + d + '"/>'; });
+    });
+  });
+  // 2. getestete Regionen darueber, eingefaerbt und anklickbar
+  var karte = PX_KARTE[ansicht];
+  Object.keys(karte).forEach(function (zone) {
+    karte[zone].forEach(function (slug) {
+      var gr = pxGruppe(daten, slug);
+      if (!gr) return;
+      ['r', 'l'].forEach(function (seite) {
+        var pfade = gr[pxBildSeite(ansicht, seite)] || [];
+        var k = pxTestZu(zone);
+        var st = pxStatus(e, k, seite);
+        pfade.forEach(function (d) {
+          s += '<path class="px-z ' + st.klasse + '" d="' + d + '"'
+            + ' onclick="pxWaehle(\'' + zone + '\',\'' + seite + '\',this)"><title>'
+            + PX_ZONEN[k].l + ' ' + (seite === 'r' ? 'rechts' : 'links') + '</title></path>';
+        });
+      });
+    });
+  });
+  // 3. Umriss zum Schluss, damit die Kontur ueber allem liegt
+  s += '<path class="px-umriss" d="' + daten.um + '"/>';
   return s;
 }
 
-function pxHinten(e) {
-  var s = '';
-  s += '<circle class="px-neutral" cx="80" cy="26" r="17"/>';
-  s += '<rect class="px-neutral" x="72" y="44" width="16" height="9" rx="3"/>';
-  s += pxZone('', 'ruecken', 'r', pxR(55, 54, 24, 30), e);
-  s += pxZone('', 'ruecken', 'l', pxR(81, 54, 24, 30), e);
-  s += '<rect class="px-neutral" x="55" y="86" width="50" height="30" rx="8"/>';
-  s += '<rect class="px-neutral" x="36" y="60" width="15" height="76" rx="7"/>';
-  s += '<rect class="px-neutral" x="109" y="60" width="15" height="76" rx="7"/>';
-  s += pxZone('', 'huefte', 'l', pxR(55, 118, 24, 20), e);
-  s += pxZone('', 'huefte', 'r', pxR(81, 118, 24, 20), e);
-  s += pxZone('', 'ospost', 'l', pxR(57, 140, 22, 52), e);
-  s += pxZone('', 'ospost', 'r', pxR(81, 140, 22, 52), e);
-  s += '<rect class="px-neutral" x="58" y="194" width="20" height="15" rx="5"/>';
-  s += '<rect class="px-neutral" x="82" y="194" width="20" height="15" rx="5"/>';
-  s += pxZone('', 'kette', 'l', pxR(59, 211, 18, 36), e);
-  s += pxZone('', 'kette', 'r', pxR(83, 211, 18, 36), e);
-  s += pxZone('', 'sprung', 'l', pxR(59, 249, 18, 12), e);
-  s += pxZone('', 'sprung', 'r', pxR(83, 249, 18, 12), e);
-  return s;
+function pxSvg(e, g, ansicht, breite) {
+  var daten = pxDaten(g, ansicht);
+  if (!daten) return '<div class="px-fehlt">K\u00f6rperdaten nicht geladen.</div>';
+  var b = breite || 178;
+  return '<svg viewBox="' + daten.vb + '" width="' + b + '" height="' + Math.round(b * 2) + '">'
+    + pxFigur(e, g, ansicht) + '</svg>';
 }
 
-function pxWaehle(zone, seite) {
+
+function pxWaehle(zone, seite, el) {
   var p = PL.find(function (x) { return x.id === PL_CUR; });
   var e = pvLetzte(p);
   var k = pxTestZu(zone);
   var st = pxStatus(e, k, seite);
   var box = document.getElementById('px-info');
   if (!box || !st.t) return;
+  var figs = document.getElementById('px-figs');
+  if (figs) {
+    var alle = figs.getElementsByTagName('path');
+    for (var i = 0; i < alle.length; i++) {
+      alle[i].setAttribute('class', alle[i].getAttribute('class').replace(' aktiv', ''));
+    }
+    if (el && el.setAttribute) el.setAttribute('class', el.getAttribute('class') + ' aktiv');
+  }
   var wert = st.wert === null ? 'nicht erfasst'
     : (st.t.typ === 'cm' ? st.wert + ' ' + st.t.einheit : (st.wert === 'ja' ? 'Ja' : 'Nein'));
   var farbe = st.klasse === 'gut' ? '#1E7A3E' : (st.klasse === 'schlecht' ? '#C0392B' : '#8B978C');
-  box.innerHTML = '<b>' + PX_ZONEN[k].l + (seite ? ' ' + seite.toUpperCase() : '') + '</b>'
+  box.innerHTML = '<b>' + PX_ZONEN[k].l + (seite ? ' ' + (seite === 'r' ? 'rechts' : 'links') : '') + '</b>'
     + '<span>' + st.t.l + ': <b style="display:inline;color:' + farbe + ';">' + wert + '</b><br>'
     + st.t.e + '</span>';
 }
@@ -6552,11 +6606,17 @@ function pxEmpfehlung(p) {
 
 function pxRender(p) {
   var e = pvLetzte(p);
+  var g = pxGeschlecht(p);
   document.getElementById('px-figs').innerHTML =
-      '<div class="px-fig"><svg viewBox="0 0 160 280" width="196" height="343">' + pxVorne(e)
-    + '</svg><small>Vorne</small></div>'
-    + '<div class="px-fig"><svg viewBox="0 0 160 280" width="196" height="343">' + pxHinten(e)
-    + '</svg><small>Hinten</small></div>';
+      '<div class="px-fig">' + pxSvg(e, g, 'vorne') + '<small>Vorne</small></div>'
+    + '<div class="px-fig">' + pxSvg(e, g, 'hinten') + '<small>Hinten</small></div>';
+  var um = document.getElementById('px-sex');
+  if (um) {
+    um.innerHTML = ['m', 'w'].map(function (x) {
+      return '<button class="px-sexb' + (g === x ? ' an' : '') + '" onclick="pxSexWechsel(\'' + x + '\')">'
+        + (x === 'm' ? 'm\u00e4nnlich' : 'weiblich') + '</button>';
+    }).join('');
+  }
 
   pxEmpfehlung(p);
 
