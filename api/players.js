@@ -14,6 +14,43 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Supabase env vars missing' });
   }
 
+  // Anmeldepflicht. Sie greift nur, wenn ANMELDEPFLICHT gesetzt ist UND
+  // mindestens ein Trainerzugang mit Vollzugriff aktiv ist. Ohne einen
+  // solchen Zugang bleibt die Tuer offen, damit sich niemand aussperrt.
+  {
+    const an = String(process.env.ANMELDEPFLICHT || '').toLowerCase();
+    const pflicht = an === '1' || an === 'true' || an === 'ja' || an === 'on';
+    if (pflicht) {
+      const h2 = {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json'
+      };
+      const lese = async function (pfad) {
+        const r = await fetch(SUPABASE_URL + '/rest/v1/' + pfad, { headers: h2 });
+        if (!r.ok) return [];
+        const j = await r.json().catch(function () { return []; });
+        return Array.isArray(j) ? j : [];
+      };
+      const voll = await lese('cb_trainer?rolle=eq.voll&status=eq.aktiv&select=id&limit=1');
+      if (voll.length) {
+        const tok = (req.headers && req.headers['x-trainer-session']) || '';
+        let ich = null;
+        if (tok) {
+          const se = await lese('cb_trainer_session?token=eq.' + encodeURIComponent(String(tok)) + '&select=*');
+          if (se.length && se[0].expires && new Date(se[0].expires).getTime() > Date.now()) {
+            const t = await lese('cb_trainer?id=eq.' + encodeURIComponent(se[0].trainer_id) + '&select=*');
+            if (t.length && t[0].status !== 'gesperrt') ich = t[0];
+          }
+        }
+        if (!ich) return res.status(401).json({ error: 'Bitte anmelden' });
+        if (req.method !== 'GET' && ich.rolle !== 'voll') {
+          return res.status(403).json({ error: 'Dein Zugang darf nur ansehen, nicht aendern' });
+        }
+      }
+    }
+  }
+
   const base = SUPABASE_URL + '/rest/v1/cb_players';
   const headers = {
     'apikey': SUPABASE_KEY,

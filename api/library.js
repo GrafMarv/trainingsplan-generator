@@ -27,8 +27,18 @@ export default async function handler(req, res) {
   // ================= SPIELER-ZUGANG =================
   // collection=auth : Einladung, Passwort setzen, Login, Session  (Trainer + Spieler)
   // collection=me   : Daten des eingeloggten Spielers             (nur Spieler)
-  if (collection === 'auth' || collection === 'me' || collection === 'termine') {
+  if (collection === 'auth' || collection === 'me' || collection === 'termine'
+      || collection === 'trainer') {
     return await zugang(req, res, SUPABASE_URL, headers, collection);
+  }
+
+  // Plaene, Bloecke, Dokumente und Uebungen hinter der Anmeldepflicht
+  {
+    let koerper = req.body;
+    if (typeof koerper === 'string') { try { koerper = JSON.parse(koerper); } catch (e) { koerper = {}; } }
+    const schreibend = req.method !== 'GET';
+    const tor = await torwaechter(req, koerper, SUPABASE_URL, headers, schreibend);
+    if (!tor.erlaubt) return res.status(tor.status).json({ error: tor.grund });
   }
 
   const erlaubt = ['plans', 'blocks', 'trainingdocs', 'exercises'];
@@ -200,6 +210,56 @@ export default async function handler(req, res) {
 //  Server oder eine Supabase Edge Function umziehen.
 // ======================================================================
 
+
+// ======================================================================
+//  TORWAECHTER
+//  Die Anmeldepflicht haengt an der Umgebungsvariablen ANMELDEPFLICHT.
+//
+//  Sie greift NUR, wenn mindestens ein Trainerzugang mit Vollzugriff
+//  aktiv ist. Gibt es keinen, laesst der Server jeden durch - egal was
+//  in der Variablen steht. Damit kann die Tuer nicht zufallen, solange
+//  niemand den Schluessel hat.
+//
+//  Rueckgabe: { erlaubt, status, grund, rolle }
+// ======================================================================
+async function torwaechter(req, body, SUPABASE_URL, headers, schreibend) {
+  const an = String(process.env.ANMELDEPFLICHT || '').toLowerCase();
+  const pflicht = an === '1' || an === 'true' || an === 'ja' || an === 'on';
+
+  async function hole(pfad) {
+    const r = await fetch(SUPABASE_URL + '/rest/v1/' + pfad, { headers });
+    if (!r.ok) return [];
+    const j = await r.json().catch(function () { return []; });
+    return Array.isArray(j) ? j : [];
+  }
+
+  const tok = (req.headers && req.headers['x-trainer-session'])
+    || (body && body.trainersession) || '';
+
+  let ich = null;
+  if (tok) {
+    const s = await hole('cb_trainer_session?token=eq.' + encodeURIComponent(String(tok)) + '&select=*');
+    if (s.length && s[0].expires && new Date(s[0].expires).getTime() > Date.now()) {
+      const t = await hole('cb_trainer?id=eq.' + encodeURIComponent(s[0].trainer_id) + '&select=*');
+      if (t.length && t[0].status !== 'gesperrt') ich = t[0];
+    }
+  }
+
+  if (!pflicht) return { erlaubt: true, rolle: ich ? ich.rolle : null };
+
+  // Aussperrschutz: ohne aktiven Vollzugriff bleibt die Tuer offen.
+  const voll = await hole('cb_trainer?rolle=eq.voll&status=eq.aktiv&select=id&limit=1');
+  if (!voll.length) return { erlaubt: true, rolle: ich ? ich.rolle : null, offen_weil: 'kein aktiver Vollzugriff' };
+
+  if (!ich) {
+    return { erlaubt: false, status: 401, grund: 'Bitte anmelden' };
+  }
+  if (schreibend && ich.rolle !== 'voll') {
+    return { erlaubt: false, status: 403, grund: 'Dein Zugang darf nur ansehen, nicht aendern' };
+  }
+  return { erlaubt: true, rolle: ich.rolle };
+}
+
 function zgZufall(n) { return crypto.randomBytes(n || 24).toString('hex'); }
 function zgHash(passwort, salt) {
   return crypto.pbkdf2Sync(String(passwort), String(salt), 120000, 32, 'sha256').toString('hex');
@@ -317,6 +377,23 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
         "alter table cb_anwesenheit add column if not exists grund text; " +
         "alter table cb_anwesenheit add column if not exists updated_at timestamptz default now(); " +
         "create index if not exists cb_anw_idx on cb_anwesenheit (termin_id, player_id); " +
+        "create table if not exists cb_trainer (id text primary key); " +
+        "alter table cb_trainer add column if not exists name text; " +
+        "alter table cb_trainer add column if not exists username text; " +
+        "alter table cb_trainer add column if not exists pw_hash text; " +
+        "alter table cb_trainer add column if not exists pw_salt text; " +
+        "alter table cb_trainer add column if not exists rolle text default 'ansicht'; " +
+        "alter table cb_trainer add column if not exists status text default 'neu'; " +
+        "alter table cb_trainer add column if not exists invite_token text; " +
+        "alter table cb_trainer add column if not exists invite_expires timestamptz; " +
+        "alter table cb_trainer add column if not exists last_login timestamptz; " +
+        "alter table cb_trainer add column if not exists created_at timestamptz default now(); " +
+        "create unique index if not exists cb_tr_user_idx on cb_trainer (lower(username)) where username is not null; " +
+        "create index if not exists cb_tr_token_idx on cb_trainer (invite_token); " +
+        "create table if not exists cb_trainer_session (token text primary key); " +
+        "alter table cb_trainer_session add column if not exists trainer_id text; " +
+        "alter table cb_trainer_session add column if not exists expires timestamptz; " +
+        "alter table cb_trainer_session add column if not exists created_at timestamptz default now(); " +
         // Die Tabellen koennen aus einer aelteren SQL stammen und Pflichtspalten
         // haben, die wir gar nicht kennen. Alles ausser unseren eigenen Spalten
         // wird optional gemacht, sonst scheitert jedes Insert.
@@ -338,11 +415,11 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
   const aktion = String(body.aktion || req.query.aktion || '').toLowerCase();
 
   // --- Trainerseite absichern, sobald TRAINER_KEY in den Env-Vars gesetzt ist ---
-  function trainerOk() {
-    const soll = process.env.TRAINER_KEY;
-    if (!soll) return true;
-    const ist = body.trainerkey || (req.headers && req.headers['x-trainer-key']) || '';
-    return zgGleich(ist, soll);
+  // Trainerseitige Aktionen am Spielerzugang: gleiche Regel wie ueberall.
+  // Vor der Anmeldepflicht bleibt es offen, danach braucht es Vollzugriff.
+  async function trainerDarf() {
+    const tor = await torwaechter(req, body, SUPABASE_URL, headers, true);
+    return tor.erlaubt;
   }
 
   async function spielerDaten(pid) {
@@ -372,7 +449,7 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
 
       // ---- Trainer: Übersicht aller Zugänge ----
       if (aktion === 'liste' || (req.method === 'GET' && !aktion)) {
-        if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+        if (!(await trainerDarf())) return res.status(401).json({ error: 'Bitte anmelden, oder dein Zugang darf nur ansehen' });
         const rows = await hole('cb_player_auth?select=player_id,username,status,invite_expires,last_login,pw_hash');
         return res.status(200).json({ items: rows.map(function (r) {
           return {
@@ -389,7 +466,7 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
 
       // ---- Trainer: Einladungslink erzeugen (48 Stunden gültig) ----
       if (aktion === 'einladen') {
-        if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+        if (!(await trainerDarf())) return res.status(401).json({ error: 'Bitte anmelden, oder dein Zugang darf nur ansehen' });
         const pid = String(body.player_id || '');
         if (!pid) return res.status(400).json({ error: 'player_id fehlt' });
         const sp = await spielerDaten(pid);
@@ -425,7 +502,7 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
 
       // ---- Trainer: Benutzername ändern ----
       if (aktion === 'username') {
-        if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+        if (!(await trainerDarf())) return res.status(401).json({ error: 'Bitte anmelden, oder dein Zugang darf nur ansehen' });
         const pid = String(body.player_id || '');
         const user = String(body.username || '').trim().toLowerCase();
         if (!pid || !user) return res.status(400).json({ error: 'player_id und username noetig' });
@@ -439,7 +516,7 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
 
       // ---- Trainer: sperren / entsperren / Zugang löschen ----
       if (aktion === 'sperren' || aktion === 'entsperren' || aktion === 'loeschen') {
-        if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+        if (!(await trainerDarf())) return res.status(401).json({ error: 'Bitte anmelden, oder dein Zugang darf nur ansehen' });
         const pid = String(body.player_id || '');
         if (!pid) return res.status(400).json({ error: 'player_id fehlt' });
         await entferne('cb_player_session', 'player_id=eq.' + encodeURIComponent(pid));
@@ -536,9 +613,249 @@ async function zugang(req, res, SUPABASE_URL, headers, collection) {
       return res.status(400).json({ error: 'Unbekannte Aktion: ' + (aktion || '(leer)') });
     }
 
+    // ================= collection=trainer =================
+    // Konten der Landestrainer. Zwei Rollen:
+    //   'voll'    - darf alles aendern (Athletiktrainer)
+    //   'ansicht' - sieht alles, aendert nichts (Hockeytrainer)
+    //
+    // Verwalten darf, wer eine gueltige Sitzung mit Rolle 'voll' hat.
+    // Solange noch kein einziges Konto aktiv ist, ist das offen - sonst
+    // koennte das erste Konto nie angelegt werden. Sobald Marvin sein
+    // eigenes Konto aktiviert hat, schliesst sich dieses Fenster.
+    if (collection === 'trainer') {
+
+      async function trAusSession(tok) {
+        if (!tok) return null;
+        const s2 = await hole('cb_trainer_session?token=eq.' + encodeURIComponent(tok) + '&select=*');
+        if (!s2.length) return null;
+        if (zgAbgelaufen(s2[0].expires)) {
+          await entferne('cb_trainer_session', 'token=eq.' + encodeURIComponent(tok));
+          return null;
+        }
+        const t2 = await hole('cb_trainer?id=eq.' + encodeURIComponent(s2[0].trainer_id) + '&select=*');
+        if (!t2.length || t2[0].status === 'gesperrt') return null;
+        return t2[0];
+      }
+
+      async function esGibtAktive() {
+        const a2 = await hole('cb_trainer?status=eq.aktiv&select=id&limit=1');
+        return a2.length > 0;
+      }
+
+      async function darfVerwalten() {
+        const ich = await trAusSession(body.session);
+        if (ich && ich.rolle === 'voll') return true;
+        if (await esGibtAktive()) return false;
+        return true;   // Einrichtungsfenster: noch kein Konto aktiv
+      }
+
+      async function sitzungAnlegen(id) {
+        const tok = zgZufall(32);
+        await schreibe('cb_trainer_session', { token: tok, trainer_id: String(id), expires: zgInTagen(30) });
+        return tok;
+      }
+
+      function abspecken(r) {
+        return {
+          id: r.id, name: r.name, username: r.username,
+          rolle: r.rolle || 'ansicht', status: r.status || 'neu',
+          hat_passwort: !!r.pw_hash,
+          invite_offen: !!(r.invite_expires && !zgAbgelaufen(r.invite_expires)),
+          invite_expires: r.invite_expires, last_login: r.last_login
+        };
+      }
+
+      // ---- Notzugang ----
+      // Letzter Ausweg, falls niemand mehr hereinkommt. Funktioniert nur,
+      // wenn NOTZUGANG in den Umgebungsvariablen steht und uebereinstimmt.
+      // Legt ein Vollkonto an oder setzt sein Passwort zurueck.
+      if (aktion === 'notzugang') {
+        const soll = process.env.NOTZUGANG;
+        if (!soll) return res.status(404).json({ error: 'Notzugang ist nicht eingerichtet' });
+        if (!zgGleich(String(body.geheim || ''), soll)) {
+          return res.status(401).json({ error: 'Stimmt nicht' });
+        }
+        const name = String(body.name || 'Notzugang').trim();
+        const user = zgBenutzername({ fn: name.split(' ')[0] || 'not', ln: name.split(' ').slice(1).join(' ') || 'zugang' }) || 'notzugang';
+        const vorhanden = await hole('cb_trainer?username=eq.' + encodeURIComponent(user) + '&select=*');
+        const token = zgZufall(24);
+        const zeile = {
+          name: name, username: user, rolle: 'voll', status: 'eingeladen',
+          invite_token: token, invite_expires: zgInStunden(48)
+        };
+        if (vorhanden.length) {
+          await aendere('cb_trainer', 'id=eq.' + encodeURIComponent(vorhanden[0].id), zeile);
+        } else {
+          zeile.id = 'tr' + Date.now();
+          await schreibe('cb_trainer', zeile);
+        }
+        return res.status(200).json({
+          ok: true, username: user,
+          link: zgBasis(req) + '/?trainer=' + token,
+          laeuft_ab: zeile.invite_expires
+        });
+      }
+
+      // ---- Wer bin ich ----
+      if (aktion === 'session') {
+        const ich = await trAusSession(body.session);
+        if (!ich) return res.status(401).json({ error: 'Nicht angemeldet' });
+        return res.status(200).json({ ok: true, trainer: abspecken(ich) });
+      }
+
+      if (aktion === 'logout') {
+        if (body.session) await entferne('cb_trainer_session', 'token=eq.' + encodeURIComponent(String(body.session)));
+        return res.status(200).json({ ok: true });
+      }
+
+      // ---- Einladung annehmen ----
+      if (aktion === 'pruefe') {
+        const token = String(body.token || '');
+        if (!token) return res.status(400).json({ error: 'token fehlt' });
+        const rows = await hole('cb_trainer?invite_token=eq.' + encodeURIComponent(token) + '&select=*');
+        if (!rows.length) return res.status(404).json({ error: 'Link ist ungueltig' });
+        if (zgAbgelaufen(rows[0].invite_expires)) return res.status(410).json({ error: 'Link ist abgelaufen' });
+        if (rows[0].status === 'gesperrt') return res.status(403).json({ error: 'Zugang ist gesperrt' });
+        return res.status(200).json({ ok: true, name: rows[0].name, username: rows[0].username, rolle: rows[0].rolle });
+      }
+
+      if (aktion === 'setzen') {
+        const token = String(body.token || '');
+        const passwort = String(body.passwort || '');
+        if (!token) return res.status(400).json({ error: 'token fehlt' });
+        if (passwort.length < 8) return res.status(400).json({ error: 'Passwort muss mindestens 8 Zeichen haben' });
+        const rows = await hole('cb_trainer?invite_token=eq.' + encodeURIComponent(token) + '&select=*');
+        if (!rows.length) return res.status(404).json({ error: 'Link ist ungueltig' });
+        if (zgAbgelaufen(rows[0].invite_expires)) return res.status(410).json({ error: 'Link ist abgelaufen' });
+        if (rows[0].status === 'gesperrt') return res.status(403).json({ error: 'Zugang ist gesperrt' });
+        const salt = zgZufall(16);
+        await aendere('cb_trainer', 'id=eq.' + encodeURIComponent(rows[0].id), {
+          pw_salt: salt, pw_hash: zgHash(passwort, salt),
+          invite_token: null, invite_expires: null,
+          status: 'aktiv', last_login: new Date().toISOString()
+        });
+        await entferne('cb_trainer_session', 'trainer_id=eq.' + encodeURIComponent(rows[0].id));
+        const sess = await sitzungAnlegen(rows[0].id);
+        return res.status(200).json({ ok: true, session: sess, name: rows[0].name, rolle: rows[0].rolle });
+      }
+
+      if (aktion === 'login') {
+        const user = String(body.username || '').trim().toLowerCase();
+        const passwort = String(body.passwort || '');
+        if (!user || !passwort) return res.status(400).json({ error: 'Benutzername und Passwort noetig' });
+        const rows = await hole('cb_trainer?username=eq.' + encodeURIComponent(user) + '&select=*');
+        if (!rows.length || !rows[0].pw_hash) return res.status(401).json({ error: 'Benutzername oder Passwort stimmt nicht' });
+        if (rows[0].status === 'gesperrt') return res.status(403).json({ error: 'Zugang ist gesperrt' });
+        if (!zgGleich(zgHash(passwort, rows[0].pw_salt), rows[0].pw_hash)) {
+          return res.status(401).json({ error: 'Benutzername oder Passwort stimmt nicht' });
+        }
+        await aendere('cb_trainer', 'id=eq.' + encodeURIComponent(rows[0].id), { last_login: new Date().toISOString() });
+        const sess = await sitzungAnlegen(rows[0].id);
+        return res.status(200).json({ ok: true, session: sess, trainer: abspecken(rows[0]) });
+      }
+
+      if (aktion === 'passwort') {
+        const ich = await trAusSession(body.session);
+        if (!ich) return res.status(401).json({ error: 'Nicht angemeldet' });
+        const alt2 = String(body.alt || ''), neu2 = String(body.neu || '');
+        if (neu2.length < 8) return res.status(400).json({ error: 'Neues Passwort muss mindestens 8 Zeichen haben' });
+        if (!zgGleich(zgHash(alt2, ich.pw_salt), ich.pw_hash)) return res.status(401).json({ error: 'Altes Passwort stimmt nicht' });
+        const salt = zgZufall(16);
+        await aendere('cb_trainer', 'id=eq.' + encodeURIComponent(ich.id), { pw_salt: salt, pw_hash: zgHash(neu2, salt) });
+        return res.status(200).json({ ok: true });
+      }
+
+      // ---- Verwaltung ----
+      if (aktion === 'liste') {
+        if (!(await darfVerwalten())) return res.status(403).json({ error: 'Nur mit Vollzugriff' });
+        const rows = await hole('cb_trainer?select=*&order=name.asc');
+        return res.status(200).json({ items: rows.map(abspecken), einrichtung: !(await esGibtAktive()) });
+      }
+
+      if (aktion === 'anlegen') {
+        if (!(await darfVerwalten())) return res.status(403).json({ error: 'Nur mit Vollzugriff' });
+        const name = String(body.name || '').trim();
+        const rolle = String(body.rolle || 'ansicht') === 'voll' ? 'voll' : 'ansicht';
+        if (!name) return res.status(400).json({ error: 'Name fehlt' });
+        const teile = name.split(' ');
+        let user = zgBenutzername({ fn: teile[0], ln: teile.slice(1).join(' ') });
+        if (!user) return res.status(400).json({ error: 'Aus diesem Namen laesst sich kein Benutzername bilden' });
+        const kollision = await hole('cb_trainer?username=eq.' + encodeURIComponent(user) + '&select=id');
+        if (kollision.length) return res.status(409).json({ error: 'Diesen Benutzernamen gibt es schon' });
+        const token = zgZufall(24);
+        const zeile = {
+          id: 'tr' + Date.now() + Math.floor(Math.random() * 1000),
+          name: name, username: user, rolle: rolle, status: 'eingeladen',
+          invite_token: token, invite_expires: zgInStunden(48)
+        };
+        const out = await schreibe('cb_trainer', zeile);
+        if (!out.ok) return res.status(500).json({ error: 'Anlegen fehlgeschlagen' });
+        return res.status(200).json({
+          ok: true, id: zeile.id, username: user,
+          link: zgBasis(req) + '/?trainer=' + token, laeuft_ab: zeile.invite_expires
+        });
+      }
+
+      if (aktion === 'einladen') {
+        if (!(await darfVerwalten())) return res.status(403).json({ error: 'Nur mit Vollzugriff' });
+        const id = String(body.id || '');
+        if (!id) return res.status(400).json({ error: 'id fehlt' });
+        const rows = await hole('cb_trainer?id=eq.' + encodeURIComponent(id) + '&select=*');
+        if (!rows.length) return res.status(404).json({ error: 'Nicht gefunden' });
+        const token = zgZufall(24);
+        await aendere('cb_trainer', 'id=eq.' + encodeURIComponent(id), {
+          invite_token: token, invite_expires: zgInStunden(48),
+          status: rows[0].pw_hash ? (rows[0].status || 'aktiv') : 'eingeladen'
+        });
+        return res.status(200).json({
+          ok: true, username: rows[0].username,
+          link: zgBasis(req) + '/?trainer=' + token, laeuft_ab: zgInStunden(48)
+        });
+      }
+
+      if (aktion === 'rolle') {
+        if (!(await darfVerwalten())) return res.status(403).json({ error: 'Nur mit Vollzugriff' });
+        const id = String(body.id || '');
+        const rolle = String(body.rolle || '') === 'voll' ? 'voll' : 'ansicht';
+        if (!id) return res.status(400).json({ error: 'id fehlt' });
+        // Der letzte Vollzugriff darf sich nicht selbst herunterstufen
+        if (rolle === 'ansicht') {
+          const voll = await hole('cb_trainer?rolle=eq.voll&status=eq.aktiv&select=id');
+          if (voll.length <= 1 && voll.some(function (x) { return String(x.id) === id; })) {
+            return res.status(409).json({ error: 'Das ist der einzige Zugang mit Vollzugriff. Erst einen zweiten einrichten.' });
+          }
+        }
+        await aendere('cb_trainer', 'id=eq.' + encodeURIComponent(id), { rolle: rolle });
+        return res.status(200).json({ ok: true, rolle: rolle });
+      }
+
+      if (aktion === 'sperren' || aktion === 'entsperren' || aktion === 'loeschen') {
+        if (!(await darfVerwalten())) return res.status(403).json({ error: 'Nur mit Vollzugriff' });
+        const id = String(body.id || '');
+        if (!id) return res.status(400).json({ error: 'id fehlt' });
+        if (aktion !== 'entsperren') {
+          const voll = await hole('cb_trainer?rolle=eq.voll&status=eq.aktiv&select=id');
+          if (voll.length <= 1 && voll.some(function (x) { return String(x.id) === id; })) {
+            return res.status(409).json({ error: 'Das ist der einzige aktive Zugang mit Vollzugriff. Er kann nicht gesperrt oder geloescht werden.' });
+          }
+        }
+        await entferne('cb_trainer_session', 'trainer_id=eq.' + encodeURIComponent(id));
+        if (aktion === 'loeschen') {
+          await entferne('cb_trainer', 'id=eq.' + encodeURIComponent(id));
+          return res.status(200).json({ ok: true, status: 'geloescht' });
+        }
+        await aendere('cb_trainer', 'id=eq.' + encodeURIComponent(id), { status: aktion === 'sperren' ? 'gesperrt' : 'aktiv' });
+        return res.status(200).json({ ok: true });
+      }
+
+      return res.status(400).json({ error: 'Unbekannte Aktion: ' + (aktion || '(leer)') });
+    }
+
     // ================= collection=termine (Trainersicht) =================
     if (collection === 'termine') {
-      if (!trainerOk()) return res.status(401).json({ error: 'Trainer-Schluessel fehlt' });
+      const schreibend = aktion !== 'liste' && aktion !== 'rueckmeldungen' && !!aktion;
+      const tor = await torwaechter(req, body, SUPABASE_URL, headers, schreibend);
+      if (!tor.erlaubt) return res.status(tor.status).json({ error: tor.grund });
 
       if (aktion === 'liste' || (req.method === 'GET' && !aktion)) {
         const team = String(body.team || req.query.team || '');
