@@ -323,7 +323,6 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   body.drucken > *:not(.plan-wrapper) { display: none !important; }
   body.drucken .plan-wrapper { display: block !important; position: static !important;
     margin: 0 !important; padding: 0 !important; max-width: none !important; width: auto !important; }
-  .plan-actions { display: none !important; }
 
   /* Seitenmasse in Millimetern statt Pixeln. 1123 px sind bei 96 dpi gut
      ein halbes Pixel MEHR als A4 - dieser Bruchteil laeuft ueber und
@@ -336,8 +335,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
   .a4:last-child { page-break-after: auto !important; break-after: auto !important; }
   .a4.a4-macro { width: 210mm !important; height: auto !important; min-height: 0 !important;
     overflow: visible !important; }
-  .plan-wrapper > div, #pages-container { margin: 0 !important; padding: 0 !important;
-    display: block !important; }
+  #pages-container { margin: 0 !important; padding: 0 !important; display: block !important; }
 
   /* Ohne das druckt der Browser die farbigen Blockkoepfe und die
      Supersatz-Balken weiss. */
@@ -347,6 +345,11 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     color-adjust: exact !important;
   }
   img { max-width: 100% !important; }
+
+  /* Ganz zum Schluss, damit keine Regel davor die Leiste zurueckholt:
+     sichtbar wuerde sie die erste Seite nach unten schieben und eine
+     fast leere Seite 1 erzeugen. */
+  .plan-actions, .plan-actions * { display: none !important; visibility: hidden !important; }
 }
 
 /* MOBILE - Einzeleinheit/Plan-Screen lesbar machen (Desktop unberuehrt) */
