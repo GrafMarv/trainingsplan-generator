@@ -255,6 +255,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .ex-weeks th { font-weight: 700; color: #8e8e93; text-align: right; padding: 1px 7px 1px 0; white-space: nowrap; }
 .ex-weeks th:first-child { text-align: left; }
 .ex-weeks tr:first-child th { color: #aeaeb2; font-size: 9px; letter-spacing: .03em; }
+.ex-weeks th.ex-weeks-cap { text-transform: uppercase; }
 .ex-weeks td { font-size: 12px; font-weight: 600; color: #1c1c1e; text-align: right; padding: 1px 7px 1px 0; font-variant-numeric: tabular-nums; }
 .ex-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 1px; }
 .ex-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; }
@@ -447,6 +448,29 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .ex-pick-btn.filled { border-color:#cdd9f5; background:#f5f8ff; }
 .ex-pick-ph { color:#aeaeb2; font-weight:500; }
 .ex-pick-thumb { width:26px; height:26px; object-fit:contain; border-radius:5px; background:#f2f2f7; flex-shrink:0; }
+#prog-modal { display:none; position:fixed; inset:0; background:rgba(8,8,26,0.6); z-index:82; align-items:flex-start; justify-content:center; padding:4vh 16px; }
+.prog-card { background:#fff; width:100%; max-width:900px; max-height:90vh; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; box-shadow:0 12px 48px rgba(0,0,0,0.4); }
+.prog-head { display:flex; gap:12px; align-items:flex-start; padding:16px 18px 12px; border-bottom:1px solid #f0f0f3; }
+.prog-head h3 { margin:0 0 3px; font-size:16px; font-weight:600; color:#1c1c1e; }
+.prog-head p { margin:0; font-size:12px; color:#8e8e93; line-height:1.45; max-width:640px; }
+.prog-head .picker-x { margin-left:auto; }
+.prog-steuer { display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px 18px; border-bottom:1px solid #f0f0f3; }
+.prog-chip { border:1px solid #e0e0e6; background:#fff; color:#48484a; font-family:inherit; font-size:12px; font-weight:600; padding:5px 13px; border-radius:16px; cursor:pointer; margin-right:5px; }
+.prog-chip.an { background:#2563EB; border-color:#2563EB; color:#fff; }
+.prog-nlabel { display:flex; align-items:center; gap:7px; font-size:12px; color:#8e8e93; margin-left:auto; }
+.prog-nlabel input { width:58px; font-family:inherit; font-size:13px; padding:5px 7px; border:1px solid #e5e5ea; border-radius:8px; text-align:center; }
+.prog-body { overflow:auto; padding:6px 18px 16px; }
+.prog-leer { padding:40px 0; text-align:center; color:#aeaeb2; font-size:13px; }
+.prog-tab { width:100%; border-collapse:collapse; font-size:13px; }
+.prog-tab th { position:sticky; top:0; background:#fff; font-size:11px; font-weight:700; color:#8e8e93; text-transform:uppercase; letter-spacing:.04em; padding:8px 4px; text-align:center; }
+.prog-tab th.prog-ue { text-align:left; padding-left:2px; }
+.prog-tab td { padding:3px 4px; }
+.prog-tab td.prog-ue { font-size:12.5px; color:#1c1c1e; white-space:nowrap; padding-right:12px; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+.prog-blockzeile td { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#2563EB; padding:14px 2px 4px; }
+.prog-zelle { width:100%; min-width:46px; font-family:inherit; font-size:13px; text-align:center; padding:6px 4px; border:1px solid #e5e5ea; border-radius:7px; color:#1c1c1e; background:#fff; box-sizing:border-box; }
+.prog-zelle:focus { border-color:#2563EB; outline:none; }
+.prog-fuss { display:flex; justify-content:flex-end; padding:12px 18px; border-top:1px solid #f0f0f3; }
+.prog-fuss .btn-primary { flex:0 0 auto; width:auto; min-width:150px; }
 #picker-modal { display:none; position:fixed; inset:0; background:rgba(8,8,26,0.6); z-index:80; align-items:flex-start; justify-content:center; padding:5vh 16px; }
 .picker-card { background:#fff; width:100%; max-width:680px; max-height:88vh; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; box-shadow:0 12px 48px rgba(0,0,0,0.4); }
 .picker-head { display:flex; gap:10px; align-items:center; padding:14px 16px; border-bottom:1px solid #f0f0f3; }
@@ -2441,7 +2465,10 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
     <input type="text" id="plan-name" class="builder-name" value="" placeholder="z.B. Krafttraining A">
     <textarea id="plan-info" class="builder-info" rows="2" placeholder="Infotext ganz oben auf dem Plan (optional)"></textarea>
     <div id="builder-blocks"></div>
-    <button class="btn-secondary" type="button" id="add-block-btn" onclick="builderAddBlock()" style="margin-top:6px;">+ Block</button>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button class="btn-secondary" type="button" id="add-block-btn" onclick="builderAddBlock()">+ Block</button>
+      <button class="btn-secondary" type="button" onclick="progOeffnen()">&#9638; Progression &uuml;ber mehrere Einheiten</button>
+    </div>
   </div>
 
   <input type="hidden" id="plan-footer" value="Coach: _______________ &middot; Athlet: _______________">
@@ -4770,8 +4797,8 @@ function renderPlan(blocks, titleOverride) {
           for (let i = 0; i < n; i++) tds.push('<td>' + (werte ? (werte[i] !== undefined ? werte[i] : werte[werte.length-1]) : fest) + '</td>');
           return '<tr><th>' + label + '</th>' + tds.join('') + '</tr>';
         };
-        let kopf = '<tr><th></th>';
-        for (let i = 0; i < n; i++) kopf += '<th>W' + (i+1) + '</th>';
+        let kopf = '<tr><th class="ex-weeks-cap">Einheit</th>';
+        for (let i = 0; i < n; i++) kopf += '<th>' + (i+1) + '</th>';
         kopf += '</tr>';
         let rumpf = '';
         if (wReps) rumpf += zeile(metricLabel, wReps);
@@ -9949,6 +9976,135 @@ function plSaveDiag() {
   window.blkDragOver=function(e,bi){ e.preventDefault(); if(bi===_dragSrc) return; var el=document.getElementById('blk-'+bi); if(el) el.classList.add('drag-over'); };
   window.blkDragLeave=function(bi){ var el=document.getElementById('blk-'+bi); if(el) el.classList.remove('drag-over'); };
   window.blkDrop=function(e,bi){ e.preventDefault(); var el=document.getElementById('blk-'+bi); if(el) el.classList.remove('drag-over'); var src=document.getElementById('blk-'+_dragSrc); if(src) src.classList.remove('dragging'); if(_dragSrc<0||_dragSrc===bi) return; var b=window.BUILDER.blocks; var moved=b.splice(_dragSrc,1)[0]; b.splice(bi>_dragSrc?bi-1:bi,0,moved); _dragSrc=-1; window.renderBuilder(); };
+  /* ===== Progressionsansicht =================================
+     Eine Seite fuer den ganzen Plan: Uebungen untereinander,
+     Einheiten nebeneinander. Geschrieben wird in dieselben Felder
+     wie sonst auch - sind alle Einheiten gleich, steht dort wieder
+     eine schlichte Zahl und auf dem Plan aendert sich nichts.
+     ========================================================== */
+  var PROG_FELD = 'reps';
+  var PROG_LABEL = { reps: 'Menge', sets: 'S\u00e4tze', intensity: 'RPE' };
+
+  function progAnzahl(){
+    var n = parseInt(window.BUILDER && window.BUILDER.einheiten, 10);
+    if(!n || n < 2) n = 4;
+    if(n > 12) n = 12;
+    return n;
+  }
+
+  // Aktuellen Wert eines Feldes in eine Reihe von n Einheiten aufloesen.
+  function progWerte(slot, feld, n){
+    var roh = String(slot[feld] === undefined || slot[feld] === null ? '' : slot[feld]).trim();
+    var teile = roh.indexOf('/') !== -1
+      ? roh.split('/').map(function(x){ return x.trim(); })
+      : [roh];
+    var out = [];
+    for(var i = 0; i < n; i++){
+      out.push(teile[i] !== undefined && teile[i] !== '' ? teile[i] : (out.length ? out[out.length-1] : (teile[0] || '')));
+    }
+    return out;
+  }
+
+  // Reihe zurueckschreiben: alles gleich -> schlichter Wert.
+  function progSetze(slot, feld, werte){
+    var sauber = werte.map(function(x){ return String(x).trim(); });
+    var alleGleich = sauber.every(function(x){ return x === sauber[0]; });
+    if(alleGleich){
+      slot[feld] = (feld === 'intensity') ? sauber[0] : (parseInt(sauber[0], 10) || 0);
+      if(!hatWochenwerte(slot)) slot.wm = false;
+      return;
+    }
+    // leere Zellen erben den Wert davor
+    var letzte = '';
+    var voll = sauber.map(function(x){ if(x !== '') letzte = x; return x !== '' ? x : letzte; });
+    slot[feld] = voll.join('/');
+  }
+
+  function progZeilen(){
+    var zeilen = [];
+    (window.BUILDER.blocks || []).forEach(function(blk, bi){
+      var mit = blk.slots.filter(function(s){ return s.imageKey; });
+      if(!mit.length) return;
+      zeilen.push({ art: 'block', label: blk.label || blk.type });
+      blk.slots.forEach(function(s, si){
+        if(!s.imageKey) return;
+        zeilen.push({ art: 'slot', bi: bi, si: si, slot: s, name: prettify(s.imageKey) });
+      });
+    });
+    return zeilen;
+  }
+
+  function progRender(){
+    var host = document.getElementById('prog-body');
+    if(!host) return;
+    var n = progAnzahl();
+    var zeilen = progZeilen();
+    if(!zeilen.length){
+      host.innerHTML = '<div class="prog-leer">Noch keine \u00dcbung im Plan. W\u00e4hle erst \u00dcbungen aus, dann kannst du hier die Progression eintragen.</div>';
+      return;
+    }
+    var kopf = '<tr><th class="prog-ue">\u00dcbung</th>';
+    for(var i = 1; i <= n; i++) kopf += '<th>E' + i + '</th>';
+    kopf += '</tr>';
+
+    var rumpf = zeilen.map(function(z){
+      if(z.art === 'block'){
+        return '<tr class="prog-blockzeile"><td colspan="' + (n+1) + '">' + z.label + '</td></tr>';
+      }
+      var werte = progWerte(z.slot, PROG_FELD, n);
+      var zellen = werte.map(function(w, idx){
+        return '<td><input class="prog-zelle" type="text" value="' + w + '"'
+          + ' onchange="progZelle(' + z.bi + ',' + z.si + ',' + idx + ',this.value)"></td>';
+      }).join('');
+      return '<tr><td class="prog-ue">' + z.name + '</td>' + zellen + '</tr>';
+    }).join('');
+
+    host.innerHTML = '<table class="prog-tab">' + kopf + rumpf + '</table>';
+  }
+
+  window.progZelle = function(bi, si, idx, wert){
+    var slot = window.BUILDER.blocks[bi].slots[si];
+    var n = progAnzahl();
+    var werte = progWerte(slot, PROG_FELD, n);
+    werte[idx] = wert;
+    progSetze(slot, PROG_FELD, werte);
+    progRender();
+  };
+
+  window.progFeld = function(f){
+    PROG_FELD = f;
+    var chips = document.querySelectorAll('#prog-felder .prog-chip');
+    for(var i = 0; i < chips.length; i++){
+      chips[i].className = 'prog-chip' + (chips[i].getAttribute('data-f') === f ? ' an' : '');
+    }
+    progRender();
+  };
+
+  window.progEinheiten = function(v){
+    var n = parseInt(v, 10) || 4;
+    if(n < 2) n = 2;
+    if(n > 12) n = 12;
+    window.BUILDER.einheiten = n;
+    var el = document.getElementById('prog-n');
+    if(el) el.value = n;
+    progRender();
+  };
+
+  window.progOeffnen = function(){
+    ensureInit();
+    if(!window.BUILDER.einheiten) window.BUILDER.einheiten = 4;
+    var el = document.getElementById('prog-n');
+    if(el) el.value = progAnzahl();
+    window.progFeld(PROG_FELD);
+    document.getElementById('prog-modal').style.display = 'flex';
+  };
+
+  window.progSchliessen = function(){
+    var m = document.getElementById('prog-modal');
+    if(m) m.style.display = 'none';
+    window.renderBuilder();
+  };
+
   window.buildAndRenderPlan = function(){
     ensureInit();
     var blocks = window.BUILDER.blocks.map(function(b){
@@ -10227,6 +10383,31 @@ function plSaveDiag() {
     <div id="picker-bar" class="picker-bar" style="display:none;"></div>
   </div>
 </div>
+<div id="prog-modal" onclick="if(event.target===this)progSchliessen()">
+  <div class="prog-card">
+    <div class="prog-head">
+      <div>
+        <h3>Progression</h3>
+        <p>Was sich von Einheit zu Einheit &auml;ndert. Bleibt eine Zeile durchgehend gleich, steht auf dem Plan wie bisher nur die eine Zahl.</p>
+      </div>
+      <button class="picker-x" onclick="progSchliessen()">&times;</button>
+    </div>
+    <div class="prog-steuer">
+      <span id="prog-felder">
+        <button type="button" class="prog-chip an" data-f="reps" onclick="progFeld('reps')">Menge</button>
+        <button type="button" class="prog-chip" data-f="sets" onclick="progFeld('sets')">S&auml;tze</button>
+        <button type="button" class="prog-chip" data-f="intensity" onclick="progFeld('intensity')">RPE</button>
+      </span>
+      <label class="prog-nlabel">Einheiten
+        <input id="prog-n" type="number" min="2" max="12" value="4" onchange="progEinheiten(this.value)">
+      </label>
+    </div>
+    <div class="prog-body" id="prog-body"></div>
+    <div class="prog-fuss">
+      <button type="button" class="btn-primary" onclick="progSchliessen()">Fertig</button>
+    </div>
+  </div>
+</div>
 <div id="block-lib-modal" onclick="if(event.target===this)closeBlockLib()">
   <div class="block-lib-card">
     <div class="block-lib-head">
@@ -10312,6 +10493,7 @@ function plSaveDiag() {
     if(!name) name = 'Plan ' + ts();
     var infoEl = document.getElementById('plan-info');
     var data = { blocks: JSON.parse(JSON.stringify(window.BUILDER.blocks)),
+                 einheiten: window.BUILDER.einheiten || 4,
                  info: infoEl ? infoEl.value : '' };
     showToast('Speichern...');
     apiPost('plans',{ name:name, data:data }).then(function(r){
@@ -10331,7 +10513,8 @@ function plSaveDiag() {
       if(!plan) return;
       if(!confirm('Aktuellen Plan \u00fcberschreiben mit "'+plan.name+'"?')) return;
       var blocks = plan.data && plan.data.blocks ? plan.data.blocks : (plan.blocks||[]);
-      window.BUILDER = { blocks: JSON.parse(JSON.stringify(blocks)) };
+      window.BUILDER = { blocks: JSON.parse(JSON.stringify(blocks)),
+                        einheiten: (plan.data && plan.data.einheiten) || 4 };
       var nameEl = document.getElementById('plan-name');
       if(nameEl) nameEl.value = plan.name;
       var infoEl = document.getElementById('plan-info');
