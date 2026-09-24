@@ -435,6 +435,19 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .pk-item img { width:38px; height:38px; object-fit:contain; background:#f7f7fa; border-radius:6px; flex-shrink:0; }
 .pk-item-name { font-size:12px; font-weight:600; color:#1c1c1e; line-height:1.2; }
 .pk-item-dims { font-size:10px; color:#aeaeb2; margin-top:2px; }
+.pk-item > div { flex:1; min-width:0; }
+.pk-item.sel { border-color:#2563EB; background:#f5f8ff; }
+.pk-add { flex-shrink:0; width:24px; height:24px; border-radius:7px; border:1px solid #e0e0e6; background:#fff; color:#8e8e93; font-size:14px; line-height:1; cursor:pointer; font-family:inherit; padding:0; }
+.pk-add:hover { border-color:#2563EB; color:#2563EB; }
+.pk-add.an { background:#2563EB; border-color:#2563EB; color:#fff; }
+.picker-bar { border-top:1px solid #ececf1; background:#fafafc; padding:10px 14px; gap:10px; align-items:center; flex-wrap:wrap; }
+.pk-bar-liste { display:flex; flex-wrap:wrap; gap:5px; flex:1; min-width:140px; max-height:66px; overflow-y:auto; }
+.pk-bar-chip { display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid #e0e0e6; border-radius:14px; padding:3px 6px 3px 10px; font-size:11.5px; color:#1c1c1e; }
+.pk-bar-chip button { border:none; background:none; color:#aeaeb2; font-size:14px; line-height:1; cursor:pointer; padding:0 2px; }
+.pk-bar-chip button:hover { color:#D93025; }
+.pk-bar-akt { display:flex; gap:8px; flex-shrink:0; }
+.pk-bar-leer { border:1px solid #e0e0e6; background:#fff; color:#8e8e93; border-radius:9px; padding:8px 12px; font-size:12.5px; cursor:pointer; font-family:inherit; }
+.pk-bar-ok { border:none; background:#2563EB; color:#fff; border-radius:9px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
 .pk-empty { grid-column:1/-1; text-align:center; color:#aeaeb2; font-size:13px; padding:24px; }
 .pk-trenner { grid-column:1/-1; margin:14px 0 2px; padding-top:12px; border-top:1px solid #f0f0f3; font-size:11.5px; font-weight:600; letter-spacing:.02em; color:#8e8e93; }
 
@@ -9741,7 +9754,7 @@ function plSaveDiag() {
   };
 
   /* ===== PICKER ===== */
-  var PICKER = { bi:-1, si:-1, cat:'all', q:'', tokens:{} };
+  var PICKER = { bi:-1, si:-1, cat:'all', q:'', tokens:{}, sel:[] };
   function defaultCat(type){ if(type==='warmup'||type==='cooldown') return 'mobility'; if(type==='main') return 'strength'; return 'all'; }
   var CAT_CHIPS = [ {c:'all',l:'Alle'}, {c:'strength',l:'Kraft'}, {c:'jump',l:'Sprung'}, {c:'sprint',l:'Sprint'}, {c:'mobility',l:'Mobility'} ];
   var CHIP_DEFS = {
@@ -9852,13 +9865,18 @@ function plSaveDiag() {
     var q = PICKER.q.toLowerCase();
     return prettify(slug).toLowerCase().indexOf(q)!==-1 || String(slug).toLowerCase().indexOf(q)!==-1;
   }
+  function istGewaehlt(slug){ return PICKER.sel.indexOf(slug) !== -1; }
+
   function pkItem(slug, mitKat){
     var unten = mitKat
       ? (CAT_LABEL[catOf(slug)] || catOf(slug)) + (dimsLabel(slug) ? ' &middot; ' + dimsLabel(slug) : '')
       : dimsLabel(slug);
-    return '<div class="pk-item" onclick="pickExercise(\''+slug+'\')">'+
+    var an = istGewaehlt(slug);
+    return '<div class="pk-item'+(an?' sel':'')+'" onclick="pickerKlick(\''+slug+'\')">'+
       '<img loading="lazy" src="'+GITHUB_RAW+slug+'.png" onerror="this.style.visibility=\'hidden\'">'+
       '<div><div class="pk-item-name">'+prettify(slug)+'</div><div class="pk-item-dims">'+unten+'</div></div>'+
+      '<button type="button" class="pk-add'+(an?' an':'')+'" title="'+(an?'Aus der Auswahl nehmen':'Zur Auswahl hinzuf\u00fcgen')+'"'+
+        ' onclick="event.stopPropagation(); pickerToggle(\''+slug+'\')">'+(an?'&#10003;':'+')+'</button>'+
     '</div>';
   }
   function renderList(){
@@ -9884,10 +9902,30 @@ function plSaveDiag() {
            + rest.map(function(slug){ return pkItem(slug, true); }).join('');
     }
     host.innerHTML = html;
+    renderBar();
+  }
+
+  // Leiste unten: was gerade gesammelt ist
+  function renderBar(){
+    var bar = document.getElementById('picker-bar'); if(!bar) return;
+    if(!PICKER.sel.length){ bar.style.display='none'; bar.innerHTML=''; return; }
+    bar.style.display='flex';
+    bar.innerHTML =
+        '<div class="pk-bar-liste">'
+      +   PICKER.sel.map(function(slug){
+            return '<span class="pk-bar-chip">'+prettify(slug)
+              + '<button type="button" title="Entfernen" onclick="pickerToggle(\''+slug+'\')">&times;</button></span>';
+          }).join('')
+      + '</div>'
+      + '<div class="pk-bar-akt">'
+      +   '<button type="button" class="pk-bar-leer" onclick="pickerLeeren()">Leeren</button>'
+      +   '<button type="button" class="pk-bar-ok" onclick="pickerEinfuegen()">'
+      +     PICKER.sel.length + (PICKER.sel.length === 1 ? ' \u00dcbung' : ' \u00dcbungen') + ' einf\u00fcgen</button>'
+      + '</div>';
   }
   window.openPicker = function(bi,si){
     ensureInit();
-    PICKER.bi=bi; PICKER.si=si; PICKER.q='';
+    PICKER.bi=bi; PICKER.si=si; PICKER.q=''; PICKER.sel=[];
     var blk = window.BUILDER.blocks[bi];
     PICKER.cat = defaultCat(blk ? blk.type : 'all');
     PICKER.tokens = {};
@@ -9895,7 +9933,7 @@ function plSaveDiag() {
     document.getElementById('picker-modal').style.display='flex';
     var s = document.getElementById('picker-search'); if(s){ s.value=''; setTimeout(function(){ s.focus(); }, 30); }
   };
-  window.closePicker = function(){ var m=document.getElementById('picker-modal'); if(m) m.style.display='none'; };
+  window.closePicker = function(){ PICKER.sel=[]; var m=document.getElementById('picker-modal'); if(m) m.style.display='none'; };
   window.pickerCat = function(c){ PICKER.cat=c; PICKER.tokens={}; renderChips(); renderList(); };
   window.pickerChip = function(g,t){
     if(!PICKER.tokens[g]) PICKER.tokens[g]={};
@@ -9903,7 +9941,53 @@ function plSaveDiag() {
     renderChips(); renderList();
   };
   window.pickerSearch = function(v){ PICKER.q=v||''; renderList(); };
-  window.pickerKey = function(e){ if(e.key==='Enter'){ var f=document.querySelector('#picker-list .pk-item'); if(f) f.click(); } if(e.key==='Escape'){ window.closePicker(); } };
+  window.pickerKey = function(e){
+    if(e.key==='Enter'){
+      if(PICKER.sel.length){ window.pickerEinfuegen(); return; }
+      var f=document.querySelector('#picker-list .pk-item'); if(f) f.click();
+    }
+    if(e.key==='Escape'){ window.closePicker(); }
+  };
+
+  // Klick auf die Kachel: einzeln uebernehmen, solange nichts gesammelt ist.
+  // Sobald gesammelt wird, schaltet der Klick nur noch die Auswahl um -
+  // sonst verliert man aus Versehen die ganze Liste.
+  window.pickerKlick = function(slug){
+    if(PICKER.sel.length) window.pickerToggle(slug);
+    else window.pickExercise(slug);
+  };
+  window.pickerToggle = function(slug){
+    var i = PICKER.sel.indexOf(slug);
+    if(i === -1) PICKER.sel.push(slug); else PICKER.sel.splice(i,1);
+    renderList();
+  };
+  window.pickerLeeren = function(){ PICKER.sel = []; renderList(); };
+
+  // Erste Uebung in den angeklickten Slot, die weiteren als neue Slots
+  // direkt darunter - mit denselben Saetzen und Wiederholungen.
+  window.pickerEinfuegen = function(){
+    if(!PICKER.sel.length) return;
+    var blk = window.BUILDER.blocks[PICKER.bi];
+    if(!blk){ window.closePicker(); return; }
+    var ziel = blk.slots[PICKER.si];
+    var muster = ziel || newSlot();
+    if(ziel) ziel.imageKey = PICKER.sel[0];
+    else { var erst = newSlot(); erst.imageKey = PICKER.sel[0]; blk.slots.push(erst); }
+    var neue = PICKER.sel.slice(1).map(function(slug){
+      var sl = newSlot();
+      sl.imageKey = slug;
+      sl.sets = muster.sets; sl.reps = muster.reps; sl.metric = muster.metric;
+      sl.intensity = muster.intensity; sl.rest = muster.rest;
+      return sl;
+    });
+    if(neue.length){
+      var ab = (PICKER.si === undefined || PICKER.si === null) ? blk.slots.length : PICKER.si + 1;
+      blk.slots.splice.apply(blk.slots, [ab, 0].concat(neue));
+    }
+    window.closePicker();
+    window.renderBuilder();
+  };
+
   window.pickExercise = function(slug){
     var s = window.BUILDER.blocks[PICKER.bi].slots[PICKER.si];
     if(s){ s.imageKey = slug; }
@@ -9920,6 +10004,7 @@ function plSaveDiag() {
     </div>
     <div id="picker-chips" class="picker-chips"></div>
     <div id="picker-list" class="picker-list"></div>
+    <div id="picker-bar" class="picker-bar" style="display:none;"></div>
   </div>
 </div>
 <div id="block-lib-modal" onclick="if(event.target===this)closeBlockLib()">
