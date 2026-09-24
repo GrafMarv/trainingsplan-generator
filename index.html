@@ -388,6 +388,18 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 /* ===== PLAN-BUILDER ===== */
 .builder-name { width:100%; box-sizing:border-box; font-size:15px; font-weight:600; padding:10px 12px; border:1px solid #e5e5ea; border-radius:10px; margin-bottom:14px; font-family:inherit; color:#1c1c1e; }
 .builder-block { background:#f7f7fa; border:1px solid #ececf1; border-radius:12px; padding:12px 12px 10px; margin-bottom:12px; }
+
+/* Breite Bildschirme: Warm-up, Hauptblock und Cool-down nebeneinander.
+   Betrifft nur den Baukasten, die Plan-Vorschau bleibt wie sie ist. */
+@media (min-width: 1200px) {
+  #page-generator .ui { max-width: 1320px; }
+  #page-generator .gen-center { max-width: 100%; }
+  #page-generator .builder-name { max-width: 420px; }
+  #page-generator #plan-input { max-width: 640px; }
+  #builder-blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 12px; align-items: start; }
+  #builder-blocks .builder-block { margin-bottom: 0; }
+}
 .builder-block-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .builder-block-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
 .builder-block-title.warmup { color:#0891B2; }
