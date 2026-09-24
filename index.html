@@ -249,6 +249,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .ex-sets-text { font-size: 11px; color: #636366; }
 .ex-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 1px; }
 .ex-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; }
+.ex-tag i { font-style: normal; font-weight: 700; opacity: .6; margin-right: 4px; letter-spacing: .02em; }
 .ex-tag.intensity { background: #fff3cd; color: #7c4a00; border: 1px solid #ffe69c; }
 .ex-tag.rest { background: #ede9fe; color: #4c1d95; border: 1px solid #ddd6fe; }
 .ex-sets-row { display: flex; gap: 4px; flex-wrap: wrap; }
@@ -4659,7 +4660,7 @@ function renderPlan(blocks, titleOverride) {
       box.style.cssText = 'background:#f9f9fb;border:0.5px solid #e5e5ea;border-radius:12px;padding:20px 22px;margin:8px 0 12px;';
       var rows = '';
       if (block.method)    rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">METHODE</span><span style="font-size:14px;color:#1c1c1e;font-weight:600;">'+block.method+'</span></div>';
-      if (block.intensity) rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">INTENSITAT</span><span style="font-size:13px;color:#1c1c1e;">'+block.intensity+'</span></div>';
+      if (block.intensity) rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">INTENSIT&Auml;T</span><span style="font-size:13px;color:#1c1c1e;">'+block.intensity+'</span></div>';
       if (block.structure) rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">STRUKTUR</span><span style="font-size:13px;color:#1c1c1e;">'+block.structure+'</span></div>';
       if (block.pause)     rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">PAUSE</span><span style="font-size:13px;color:#1c1c1e;">'+block.pause+'</span></div>';
       if (block.duration)  rows += '<div style="display:flex;gap:8px;margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:#8e8e93;width:90px;flex-shrink:0;padding-top:1px;">DAUER</span><span style="font-size:13px;color:#1c1c1e;">'+block.duration+'</span></div>';
@@ -4726,9 +4727,17 @@ function renderPlan(blocks, titleOverride) {
       infoBox.className = 'ex-info-box';
       infoBox.style.borderLeft = hasGroup ? `3px solid ${color}` : '1px solid #bbb';
       const setsHtml = Array.from({length: ex.sets}, (_,i) => `<div class="set-bubble">${i+1}</div>`).join('');
+      // Beschriftung davor, sonst stehen auf dem Plan nur nackte Zahlen.
+      // Steht RPE oder ein Prozentzeichen schon im Wert, bleibt er wie getippt.
+      const intTxt = String(ex.intensity || '').trim();
+      const restTxt = String(ex.rest || '').trim();
+      const intHtml = !intTxt ? ''
+        : (/rpe/i.test(intTxt) || intTxt.indexOf('%') !== -1)
+          ? `<span class="ex-tag intensity">${intTxt}</span>`
+          : `<span class="ex-tag intensity"><i>RPE</i>${intTxt}</span>`;
       const tagsHtml = [
-        ex.intensity ? `<span class="ex-tag intensity"> ${ex.intensity}</span>` : '',
-        ex.rest ? `<span class="ex-tag rest"> ${ex.rest}</span>` : ''
+        intHtml,
+        restTxt ? `<span class="ex-tag rest"><i>Pause</i>${restTxt}</span>` : ''
       ].filter(Boolean).join('');
       infoBox.innerHTML = `
         ${hasGroup ? `<div class="group-tag" style="background:${color}"></div>` : ''}
@@ -4739,7 +4748,7 @@ function renderPlan(blocks, titleOverride) {
         <div class="ex-metric-row">
           <span class="ex-reps">${ex.reps}</span>
           <span class="ex-reps-label">${metricLabel}</span>
-          <span class="ex-sets-text">&nbsp;&middot;&nbsp; ${ex.sets} Saetze</span>
+          <span class="ex-sets-text">&nbsp;&middot;&nbsp; ${ex.sets} S\u00e4tze</span>
         </div>
         ${tagsHtml ? `<div class="ex-tags">${tagsHtml}</div>` : ''}
         <div class="ex-sets-row">${setsHtml}</div>
