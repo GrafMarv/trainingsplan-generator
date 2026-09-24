@@ -436,6 +436,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .pk-item-name { font-size:12px; font-weight:600; color:#1c1c1e; line-height:1.2; }
 .pk-item-dims { font-size:10px; color:#aeaeb2; margin-top:2px; }
 .pk-empty { grid-column:1/-1; text-align:center; color:#aeaeb2; font-size:13px; padding:24px; }
+.pk-trenner { grid-column:1/-1; margin:14px 0 2px; padding-top:12px; border-top:1px solid #f0f0f3; font-size:11.5px; font-weight:600; letter-spacing:.02em; color:#8e8e93; }
 
 /* ===== BUILDER/PICKER UX v2 ===== */
 .picker-chips { display:flex; flex-direction:column; align-items:stretch; gap:10px; padding:14px 16px; }
@@ -930,6 +931,7 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .cb-light .dg-h1{font-family:'Archivo',sans-serif;font-style:italic;font-weight:800;font-size:clamp(30px,4.2vw,44px);line-height:1;letter-spacing:-.03em;color:#fff;margin:0;}
 .dg-sub{margin-top:10px;font-size:14px;color:rgba(255,255,255,.78);}
 
+.eh-trenner{grid-column:1/-1;margin:16px 0 2px;padding-top:12px;border-top:1px solid #E4EADE;font-size:11.5px;font-weight:600;color:#8B978C;}
 .dg-aktionen{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
 .dg-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;border:1px solid #DCE3D6;background:#fff;color:#12301F;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;}
 .dg-btn:hover{box-shadow:0 3px 12px rgba(0,0,0,.06);}
@@ -4214,30 +4216,50 @@ function ehSetKat(k) {
   ehRenderUebungen();
 }
 
+function ehTrifftSuche(id, q) {
+  if (!q) return true;
+  return id.indexOf(q.replace(/ /g, '-')) !== -1 || id.indexOf(q) !== -1
+      || String(ehAnzeige(id).name || '').toLowerCase().indexOf(q) !== -1;
+}
+
+function ehKachel(id, mitKat) {
+  var a = ehAnzeige(id);
+  var hat = ehHatBild(id);
+  var geaendert = !!EH_META[id];
+  return '<div class="eh-ue' + (hat ? '' : ' ohnebild') + '" onclick="ubOeffnen(\'' + id + '\')">'
+    + (hat ? '<img src="/exercises/' + a.bild + '.png" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+           : '<div class="eh-platz">Bild fehlt</div>')
+    + '<div class="eh-ue-t"><b>' + a.name + '</b><span>' + a.kategorie
+    + (hat ? (geaendert ? ' \u00b7 angepasst' : '') : ' \u00b7 ohne Bild') + '</span></div>'
+    + '</div>';
+}
+
 function ehRenderUebungen() {
   var q = (document.getElementById('eh-q').value || '').toLowerCase().trim();
-  var liste = ehAlleUebungen().filter(function(id) {
+  var alle = ehAlleUebungen();
+  var liste = alle.filter(function(id) {
     if (EH_KAT === '_ohnebild') { if (ehHatBild(id)) return false; }
     else if (EH_KAT && ehAnzeige(id).kategorie !== EH_KAT) return false;
-    if (q && id.indexOf(q.replace(/ /g, '-')) === -1 && id.indexOf(q) === -1) return false;
-    return true;
+    return ehTrifftSuche(id, q);
   });
+  // Was der Suchbegriff ausserhalb der gewaehlten Kategorie noch findet
+  var rest = (q && EH_KAT) ? alle.filter(function(id) {
+    return ehTrifftSuche(id, q) && liste.indexOf(id) === -1;
+  }) : [];
+
   var g = document.getElementById('eh-uegrid');
-  if (liste.length === 0) {
+  if (liste.length === 0 && rest.length === 0) {
     g.innerHTML = '<div class="eh-leer" style="grid-column:1/-1;">Keine \u00dcbung gefunden.</div>';
     return;
   }
-  g.innerHTML = liste.map(function(id) {
-    var a = ehAnzeige(id);
-    var hat = ehHatBild(id);
-    var geaendert = !!EH_META[id];
-    return '<div class="eh-ue' + (hat ? '' : ' ohnebild') + '" onclick="ubOeffnen(\'' + id + '\')">'
-      + (hat ? '<img src="/exercises/' + a.bild + '.png" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
-             : '<div class="eh-platz">Bild fehlt</div>')
-      + '<div class="eh-ue-t"><b>' + a.name + '</b><span>' + a.kategorie
-      + (hat ? (geaendert ? ' \u00b7 angepasst' : '') : ' \u00b7 ohne Bild') + '</span></div>'
-      + '</div>';
-  }).join('');
+  var html = liste.length
+    ? liste.map(function(id) { return ehKachel(id, false); }).join('')
+    : '<div class="eh-leer" style="grid-column:1/-1;">In dieser Kategorie nichts gefunden.</div>';
+  if (rest.length) {
+    html += '<div class="eh-trenner">Auch gefunden, in anderen Kategorien (' + rest.length + ')</div>'
+         + rest.map(function(id) { return ehKachel(id, true); }).join('');
+  }
+  g.innerHTML = html;
 }
 
 var WX_ZIEHT = null;
@@ -9824,16 +9846,44 @@ function plSaveDiag() {
     });
     host.innerHTML = html;
   }
+  // Treffer nur nach Suchbegriff, ohne Kategorie und ohne Filterchips
+  function matchQuery(slug){
+    if(!PICKER.q) return false;
+    var q = PICKER.q.toLowerCase();
+    return prettify(slug).toLowerCase().indexOf(q)!==-1 || String(slug).toLowerCase().indexOf(q)!==-1;
+  }
+  function pkItem(slug, mitKat){
+    var unten = mitKat
+      ? (CAT_LABEL[catOf(slug)] || catOf(slug)) + (dimsLabel(slug) ? ' &middot; ' + dimsLabel(slug) : '')
+      : dimsLabel(slug);
+    return '<div class="pk-item" onclick="pickExercise(\''+slug+'\')">'+
+      '<img loading="lazy" src="'+GITHUB_RAW+slug+'.png" onerror="this.style.visibility=\'hidden\'">'+
+      '<div><div class="pk-item-name">'+prettify(slug)+'</div><div class="pk-item-dims">'+unten+'</div></div>'+
+    '</div>';
+  }
   function renderList(){
     var host = document.getElementById('picker-list'); if(!host) return;
     var list = exList().slice().filter(matchSlug).sort();
-    if(list.length===0){ host.innerHTML = '<div class="pk-empty">Keine &Uuml;bung gefunden.</div>'; return; }
-    host.innerHTML = list.map(function(slug){
-      return '<div class="pk-item" onclick="pickExercise(\''+slug+'\')">'+
-        '<img loading="lazy" src="'+GITHUB_RAW+slug+'.png" onerror="this.style.visibility=\'hidden\'">'+
-        '<div><div class="pk-item-name">'+prettify(slug)+'</div><div class="pk-item-dims">'+dimsLabel(slug)+'</div></div>'+
-      '</div>';
-    }).join('');
+    // Zweiter Abschnitt: was der Suchbegriff ausserhalb der gewaehlten
+    // Kategorie und der gesetzten Filter noch findet.
+    var rest = [];
+    if(PICKER.q){
+      rest = exList().slice().filter(function(slug){
+        return matchQuery(slug) && list.indexOf(slug)===-1;
+      }).sort();
+    }
+    if(list.length===0 && rest.length===0){
+      host.innerHTML = '<div class="pk-empty">Keine &Uuml;bung gefunden.</div>';
+      return;
+    }
+    var html = list.length
+      ? list.map(function(slug){ return pkItem(slug, false); }).join('')
+      : '<div class="pk-empty">In dieser Auswahl nichts gefunden.</div>';
+    if(rest.length){
+      html += '<div class="pk-trenner">Auch gefunden, au&szlig;erhalb dieser Auswahl ('+rest.length+')</div>'
+           + rest.map(function(slug){ return pkItem(slug, true); }).join('');
+    }
+    host.innerHTML = html;
   }
   window.openPicker = function(bi,si){
     ensureInit();
