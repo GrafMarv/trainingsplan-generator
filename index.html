@@ -251,6 +251,11 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .ex-reps { font-size: 20px; font-weight: 600; }
 .ex-reps-label { font-size: 11px; color: #8e8e93; }
 .ex-sets-text { font-size: 11px; color: #636366; }
+.ex-weeks { border-collapse: collapse; font-size: 10px; margin: 1px 0 2px; width: auto; align-self: flex-start; }
+.ex-weeks th { font-weight: 700; color: #8e8e93; text-align: right; padding: 1px 7px 1px 0; white-space: nowrap; }
+.ex-weeks th:first-child { text-align: left; }
+.ex-weeks tr:first-child th { color: #aeaeb2; font-size: 9px; letter-spacing: .03em; }
+.ex-weeks td { font-size: 12px; font-weight: 600; color: #1c1c1e; text-align: right; padding: 1px 7px 1px 0; font-variant-numeric: tabular-nums; }
 .ex-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 1px; }
 .ex-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; }
 .ex-tag i { font-style: normal; font-weight: 700; opacity: .6; margin-right: 4px; letter-spacing: .02em; }
@@ -417,6 +422,10 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .builder-slot select.ex-select { flex:1 1 100%; min-width:160px; font-weight:600; }
 .builder-slot input.p-num { width:54px; text-align:center; }
 .builder-slot input.p-txt { width:84px; }
+.builder-slot input.p-wk { width:118px; text-align:left; }
+.p-wochen { border:1px solid transparent; background:none; color:#aeaeb2; font-family:inherit; font-size:11px; padding:4px 8px; border-radius:7px; cursor:pointer; align-self:flex-end; margin-bottom:1px; }
+.p-wochen:hover { color:#2563EB; border-color:#dbe4fb; }
+.p-wochen.an { color:#2563EB; border-color:#2563EB; background:#f5f8ff; font-weight:600; }
 .builder-slot select.p-metric, .builder-slot select.p-grp { padding:6px 4px; }
 .builder-slot-x { border:none; background:#fff0f0; color:#c00; width:28px; height:28px; border-radius:7px; cursor:pointer; font-size:16px; line-height:1; flex-shrink:0; }
 .slot-move { display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
@@ -4732,7 +4741,7 @@ function renderPlan(blocks, titleOverride) {
       const infoBox = document.createElement('div');
       infoBox.className = 'ex-info-box';
       infoBox.style.borderLeft = hasGroup ? `3px solid ${color}` : '1px solid #bbb';
-      const setsHtml = Array.from({length: ex.sets}, (_,i) => `<div class="set-bubble">${i+1}</div>`).join('');
+      const setsHtml = Array.from({length: (parseInt(ex.sets,10)||0)}, (_,i) => `<div class="set-bubble">${i+1}</div>`).join('');
       // Beschriftung davor, sonst stehen auf dem Plan nur nackte Zahlen.
       // Steht RPE oder ein Prozentzeichen schon im Wert, bleibt er wie getippt.
       const intTxt = String(ex.intensity || '').trim();
@@ -4741,23 +4750,57 @@ function renderPlan(blocks, titleOverride) {
         : (/rpe/i.test(intTxt) || intTxt.indexOf('%') !== -1)
           ? `<span class="ex-tag intensity">${intTxt}</span>`
           : `<span class="ex-tag intensity"><i>RPE</i>${intTxt}</span>`;
+      // Wochenwerte: nur wenn jemand mit Schraegstrich mehrere Werte
+      // angegeben hat. Sonst bleibt die Darstellung unveraendert.
+      const wReps = planWochen(ex.reps);
+      const wSets = planWochen(ex.sets);
+      const wInt  = planWochen(ex.intensity);
+      const hatWochen = !!(wReps || wSets || wInt);
+
       const tagsHtml = [
-        intHtml,
+        wInt ? '' : intHtml,
         restTxt ? `<span class="ex-tag rest"><i>Pause</i>${restTxt}</span>` : ''
       ].filter(Boolean).join('');
+
+      let metricHtml, wochenHtml = '', bubbleHtml = `<div class="ex-sets-row">${setsHtml}</div>`;
+      if (hatWochen) {
+        const n = Math.max(wReps ? wReps.length : 0, wSets ? wSets.length : 0, wInt ? wInt.length : 0);
+        const zeile = (label, werte, fest) => {
+          const tds = [];
+          for (let i = 0; i < n; i++) tds.push('<td>' + (werte ? (werte[i] !== undefined ? werte[i] : werte[werte.length-1]) : fest) + '</td>');
+          return '<tr><th>' + label + '</th>' + tds.join('') + '</tr>';
+        };
+        let kopf = '<tr><th></th>';
+        for (let i = 0; i < n; i++) kopf += '<th>W' + (i+1) + '</th>';
+        kopf += '</tr>';
+        let rumpf = '';
+        if (wReps) rumpf += zeile(metricLabel, wReps);
+        if (wSets) rumpf += zeile('S\u00e4tze', wSets);
+        if (wInt)  rumpf += zeile('RPE', wInt);
+        wochenHtml = '<table class="ex-weeks">' + kopf + rumpf + '</table>';
+        metricHtml = `<div class="ex-metric-row">
+          ${wReps ? '' : `<span class="ex-reps">${ex.reps}</span><span class="ex-reps-label">${metricLabel}</span>`}
+          ${wSets ? '' : `<span class="ex-sets-text">${wReps ? '' : '&nbsp;&middot;&nbsp; '}${ex.sets} S\u00e4tze</span>`}
+        </div>`;
+        if (wSets) bubbleHtml = '';
+      } else {
+        metricHtml = `<div class="ex-metric-row">
+          <span class="ex-reps">${ex.reps}</span>
+          <span class="ex-reps-label">${metricLabel}</span>
+          <span class="ex-sets-text">&nbsp;&middot;&nbsp; ${ex.sets} S\u00e4tze</span>
+        </div>`;
+      }
+
       infoBox.innerHTML = `
         ${hasGroup ? `<div class="group-tag" style="background:${color}"></div>` : ''}
         <div class="ex-name-row">
           ${hasGroup ? `<div class="ex-group-badge" style="background:${color}">${badgeLabel}</div>` : ''}
           <div class="ex-name">${ex.exercise}</div>
         </div>
-        <div class="ex-metric-row">
-          <span class="ex-reps">${ex.reps}</span>
-          <span class="ex-reps-label">${metricLabel}</span>
-          <span class="ex-sets-text">&nbsp;&middot;&nbsp; ${ex.sets} S\u00e4tze</span>
-        </div>
+        ${metricHtml}
+        ${wochenHtml}
         ${tagsHtml ? `<div class="ex-tags">${tagsHtml}</div>` : ''}
-        <div class="ex-sets-row">${setsHtml}</div>
+        ${bubbleHtml}
         ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
       `;
       row.appendChild(sidebar); row.appendChild(imgBox); row.appendChild(infoBox);
@@ -4808,6 +4851,15 @@ function renderPlan(blocks, titleOverride) {
   }
 
   document.getElementById('plan-wrapper').scrollIntoView({behavior:'smooth'});
+}
+
+// Mehrere Werte je Woche, mit Schraegstrich getrennt: "6/6/10/10".
+// Ohne Schraegstrich gibt es keine Wochen und alles bleibt wie bisher.
+function planWochen(v) {
+  const t = String(v === undefined || v === null ? '' : v).trim();
+  if (t.indexOf('/') === -1) return null;
+  const teile = t.split('/').map(function (x) { return x.trim(); }).filter(function (x) { return x !== ''; });
+  return teile.length > 1 ? teile : null;
 }
 
 // Kasten fuer den Infotext. Der Text wird als reiner Text gesetzt,
@@ -9672,13 +9724,27 @@ function plSaveDiag() {
     var grps = ['-','A','B','C','D','E','F'];
     return grps.map(function(g){ var s=g===sel?' selected':''; var lbl=g==='-'?'Einzeln':('Superset '+g); return '<option value="'+g+'"'+s+'>'+lbl+'</option>'; }).join('');
   }
-  function stepper(bi,si,field,val,cap){
+  function stepper(bi,si,field,val,cap,wochen){
+    if(wochen){
+      return '<div class="p-group"><span class="p-cap">'+cap+' je Woche</span>'+
+        '<input class="p-num p-wk" type="text" value="'+String(val)+'" placeholder="6/6/10/10"'+
+        ' onchange="builderSet('+bi+','+si+',\''+field+'\',this.value)"></div>';
+    }
     return '<div class="p-group"><span class="p-cap">'+cap+'</span>'+
       '<div class="p-step">'+
         '<button type="button" class="p-step-btn" onclick="builderStep('+bi+','+si+',\''+field+'\',-1)">&minus;</button>'+
         '<input id="num-'+field+'-'+bi+'-'+si+'" class="p-num" type="number" min="1" inputmode="numeric" value="'+val+'" onchange="builderSet('+bi+','+si+',\''+field+'\',this.value)">'+
         '<button type="button" class="p-step-btn" onclick="builderStep('+bi+','+si+',\''+field+'\',1)">+</button>'+
       '</div></div>';
+  }
+
+  // Wochenmodus gilt, sobald er eingeschaltet wurde oder irgendwo
+  // schon ein Schraegstrich steht.
+  function hatWochenwerte(slot){
+    return !!slot.wm
+      || String(slot.reps).indexOf('/') !== -1
+      || String(slot.sets).indexOf('/') !== -1
+      || String(slot.intensity || '').indexOf('/') !== -1;
   }
   function metricSeg(bi,si,metric){
     var opts = [ ['reps','Wdh.'], ['time','Zeit (s)'], ['distance','Distanz (m)'] ];
@@ -9693,6 +9759,7 @@ function plSaveDiag() {
   }
   function slotHtml(bi, si, slot, pos){
     var metric = slot.metric || 'reps';
+    var wochen = hatWochenwerte(slot);
     var grp = slot.group || '-';
     var imSatz = grp !== '-';
     var farbe = ssFarbe(grp);
@@ -9712,10 +9779,13 @@ function plSaveDiag() {
         '<button class="builder-slot-x" title="Entfernen" onclick="builderRemoveSlot('+bi+','+si+')">&times;</button>'+
       '</div>'+
       '<div class="builder-slot-params">'+
-        stepper(bi,si,'sets',slot.sets,'S&auml;tze')+
-        '<span class="p-x">&times;</span>'+
-        stepper(bi,si,'reps',slot.reps,'Menge')+
+        stepper(bi,si,'sets',slot.sets,'S&auml;tze',wochen)+
+        (wochen ? '' : '<span class="p-x">&times;</span>')+
+        stepper(bi,si,'reps',slot.reps,'Menge',wochen)+
         metricSeg(bi,si,metric)+
+        '<button type="button" class="p-wochen'+(wochen?' an':'')+'"'+
+          ' title="Werte je Woche angeben, mit Schr&auml;gstrich getrennt"'+
+          ' onclick="builderWochen('+bi+','+si+')">Wochen</button>'+
       '</div>'+
       '<div class="builder-slot-extra">'+
         '<input class="p-txt" type="text" value="'+(slot.intensity||'')+'" placeholder="RPE/%" onchange="builderSet('+bi+','+si+',\'intensity\',this.value)">'+
@@ -9763,11 +9833,31 @@ function plSaveDiag() {
   };
   window.builderSet = function(bi,si,field,val){
     var s = window.BUILDER.blocks[bi].slots[si];
-    if(field==='sets'||field==='reps'){ val = parseInt(val,10)||0; }
+    if(field==='sets'||field==='reps'){
+      var t = String(val).trim();
+      val = (t.indexOf('/') !== -1) ? t : (parseInt(t,10)||0);
+    }
     s[field] = val;
+  };
+
+  // Wochenwerte an- und abschalten. Beim Abschalten bleibt der Wert
+  // der ersten Woche stehen, damit nichts leer zurueckbleibt.
+  window.builderWochen = function(bi,si){
+    var s = window.BUILDER.blocks[bi].slots[si];
+    function ersteWoche(v){ return String(v === undefined || v === null ? '' : v).split('/')[0].trim(); }
+    if(hatWochenwerte(s)){
+      s.wm = false;
+      s.sets = parseInt(ersteWoche(s.sets),10) || 1;
+      s.reps = parseInt(ersteWoche(s.reps),10) || 1;
+      s.intensity = ersteWoche(s.intensity);
+    } else {
+      s.wm = true;
+    }
+    window.renderBuilder();
   };
   window.builderStep = function(bi,si,field,delta){
     var s = window.BUILDER.blocks[bi].slots[si];
+    if(String(s[field]).indexOf('/') !== -1) return;
     var v = parseInt(s[field],10); if(isNaN(v)) v=0;
     v += delta; if(v<1) v=1;
     s[field]=v;
@@ -9867,7 +9957,7 @@ function plSaveDiag() {
           exercise: prettify(s.imageKey),
           imageKey: s.imageKey,
           group: s.group||'-',
-          sets: parseInt(s.sets,10)||0,
+          sets: (String(s.sets).indexOf('/') !== -1) ? String(s.sets) : (parseInt(s.sets,10)||0),
           reps: s.reps,
           type: s.metric || 'reps',
           intensity: s.intensity||'',
