@@ -401,6 +401,9 @@ textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 .builder-slot input.p-txt { width:84px; }
 .builder-slot select.p-metric, .builder-slot select.p-grp { padding:6px 4px; }
 .builder-slot-x { border:none; background:#fff0f0; color:#c00; width:28px; height:28px; border-radius:7px; cursor:pointer; font-size:16px; line-height:1; flex-shrink:0; }
+.slot-move { display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+.slot-mv { border:1px solid #e5e5ea; background:#fff; color:#8e8e93; width:28px; height:16px; border-radius:5px; cursor:pointer; font-size:9px; line-height:1; padding:0; font-family:inherit; }
+.slot-mv:hover { border-color:#2563EB; color:#2563EB; }
 .builder-slot-x:hover { background:#ffd9d9; }
 .builder-add-slot { margin-top:2px; background:none; border:1px dashed #c8c8d0; color:#636366; border-radius:8px; padding:7px 10px; font-size:12px; font-family:inherit; cursor:pointer; width:100%; }
 .builder-add-slot:hover { background:#fff; border-color:#2563EB; color:#2563EB; }
@@ -9626,6 +9629,10 @@ function plSaveDiag() {
       '<div class="builder-slot-top">'+
         (imSatz ? '<span class="ss-badge" style="background:'+farbe+'">'+grp+pos+'</span>' : '')+
         pick +
+        '<div class="slot-move">'+
+          '<button type="button" class="slot-mv" title="Nach oben" onclick="builderSlotHoch('+bi+','+si+')">&#9650;</button>'+
+          '<button type="button" class="slot-mv" title="Nach unten" onclick="builderSlotRunter('+bi+','+si+')">&#9660;</button>'+
+        '</div>'+
         '<button class="builder-slot-x" title="Entfernen" onclick="builderRemoveSlot('+bi+','+si+')">&times;</button>'+
       '</div>'+
       '<div class="builder-slot-params">'+
@@ -9717,6 +9724,53 @@ function plSaveDiag() {
   };
   window.builderAddSlot = function(bi){ window.BUILDER.blocks[bi].slots.push(newSlot()); window.renderBuilder(); };
   window.builderRemoveSlot = function(bi,si){ window.BUILDER.blocks[bi].slots.splice(si,1); window.renderBuilder(); };
+
+  // Nach dem Verschieben die Supersatz-Zugehoerigkeit geradeziehen:
+  // wer aus seiner Gruppe herauswandert, verlaesst sie; wer mitten in
+  // eine Gruppe hineinwandert, tritt ihr bei.
+  function gruppeAnpassen(blk, i){
+    var s = blk.slots[i]; if(!s) return;
+    var ob = blk.slots[i-1], un = blk.slots[i+1];
+    var go = ob ? (ob.group || '-') : '-';
+    var gu = un ? (un.group || '-') : '-';
+    var g = s.group || '-';
+    if(g !== '-'){ if(go !== g && gu !== g) s.group = '-'; return; }
+    if(go !== '-' && go === gu) s.group = go;
+  }
+
+  // Ein Supersatz mit nur noch einem Mitglied ist keiner mehr.
+  function einzelgruppenLoesen(blk){
+    var zaehl = {};
+    blk.slots.forEach(function(s){ var g = s.group || '-'; if(g !== '-') zaehl[g] = (zaehl[g] || 0) + 1; });
+    blk.slots.forEach(function(s){ var g = s.group || '-'; if(g !== '-' && zaehl[g] === 1) s.group = '-'; });
+  }
+
+  // Eine Uebung eine Position weiter. An der Blockgrenze wandert sie
+  // in den Nachbarblock, damit man sie durch den ganzen Plan schieben kann.
+  function slotVerschieben(bi, si, richtung){
+    var bl = window.BUILDER.blocks;
+    var blk = bl[bi]; if(!blk) return;
+    var ziel = si + richtung;
+    if(ziel >= 0 && ziel < blk.slots.length){
+      var merk = blk.slots[si];
+      blk.slots[si] = blk.slots[ziel];
+      blk.slots[ziel] = merk;
+      gruppeAnpassen(blk, ziel);
+      gruppeAnpassen(blk, si);
+    } else {
+      var nb = bi + richtung;
+      if(nb < 0 || nb >= bl.length) return;
+      var raus = blk.slots.splice(si, 1)[0];
+      var neuIdx = richtung < 0 ? bl[nb].slots.length : 0;
+      bl[nb].slots.splice(neuIdx, 0, raus);
+      gruppeAnpassen(bl[nb], neuIdx);
+      einzelgruppenLoesen(bl[nb]);
+    }
+    einzelgruppenLoesen(blk);
+    window.renderBuilder();
+  }
+  window.builderSlotHoch = function(bi,si){ slotVerschieben(bi, si, -1); };
+  window.builderSlotRunter = function(bi,si){ slotVerschieben(bi, si, 1); };
   window.builderRemoveBlock = function(bi){ window.BUILDER.blocks.splice(bi,1); window.renderBuilder(); };
   window.builderAddBlock = function(){
     window.BUILDER.blocks.push({ type:'main', label:'Block '+(window.BUILDER.blocks.length+1), slots:[ newSlot() ] });
